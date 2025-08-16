@@ -2,10 +2,5 @@
   "framework": "nextjs",
   "buildCommand": "cd ../.. && npm run build --workspace=web",
   "installCommand": "cd ../.. && npm ci --legacy-peer-deps",
-  "outputDirectory": ".next",
-  "functions": {
-    "apps/web/src/app/page.tsx": {
-      "maxDuration": 30
-    }
-  }
+  "outputDirectory": ".next"
 }
