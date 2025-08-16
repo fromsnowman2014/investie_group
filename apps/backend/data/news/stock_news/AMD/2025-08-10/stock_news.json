@@ -1,0 +1,14 @@
+{
+  "symbol": "AMD",
+  "date": "2025-08-10",
+  "timestamp": "2025-08-10T03:18:17.431Z",
+  "query": "AMD stock",
+  "summary": {
+    "headline": "AMD company updates",
+    "source": "mock_data"
+  },
+  "metadata": {
+    "source": "mock_data",
+    "cached": false
+  }
+}

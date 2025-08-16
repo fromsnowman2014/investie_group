@@ -1,0 +1,179 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global CSS Variables matching the original design */
+:root {
+  --gap-size: 32px;
+  --background: #ffffff;
+  --foreground: #171717;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Trebuchet MS', Roboto, Ubuntu, sans-serif;
+  color: #000;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Trebuchet MS', Roboto, Ubuntu, sans-serif;
+  color: #000;
+}
+
+/* Header styling with gradient logo */
+.site-logo {
+  font-weight: 600;
+  font-size: 32px;
+  padding: 16px;
+  background: linear-gradient(90deg, #00bce5 0%, #2962ff 100%);
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* Grid layout for trading widgets */
+.trading-grid {
+  display: grid;
+  width: 100%;
+  padding: 0 calc(var(--gap-size) * 0.5);
+  max-width: 1080px;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: var(--gap-size);
+}
+
+.span-one-column {
+  grid-column: span 1;
+}
+
+.span-full-grid {
+  grid-column: span 2;
+}
+
+/* Widget container styling */
+.widget-container {
+  text-align: center;
+  padding: 16px;
+  font-size: 24px;
+  background: rgba(0, 0, 0, 0.075);
+  border-radius: 4px;
+}
+
+/* Ticker tape styling */
+.ticker-tape {
+  width: 90%;
+  margin: var(--gap-size);
+  height: 170px;
+}
+
+/* Individual widget heights */
+.symbol-info,
+.technical-analysis {
+  height: 480px;
+}
+
+.advanced-chart {
+  height: 600px;
+}
+
+.company-profile {
+  height: 300px;
+}
+
+.fundamental-data {
+  height: 490px;
+}
+
+.top-stories {
+  height: 425px;
+}
+
+.powered-by-tv {
+  display: flex;
+  background: #f8f9fd;
+  border: solid 1px #e0e3eb;
+  text-align: justify;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  padding: 16px;
+  border-radius: 6px;
+}
+
+.powered-by-tv a,
+.powered-by-tv a:visited {
+  color: #2962ff;
+}
+
+/* Search input styling */
+.search-input {
+  padding: 10px;
+  width: 100%;
+  height: 32px;
+  max-width: 400px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+}
+
+/* Header and footer styling */
+.header {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.05);
+  justify-content: space-between;
+  padding: 0 var(--gap-size);
+  gap: calc(var(--gap-size) * 2);
+  box-shadow: rgba(0, 0, 0, 0.05) 0 2px 6px 0;
+  flex-direction: row;
+}
+
+.footer {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.05);
+  flex-direction: column;
+  padding: calc(var(--gap-size) * 0.5) var(--gap-size);
+  margin-top: var(--gap-size);
+  border-top: solid 2px rgba(0, 0, 0, 0.1);
+  justify-content: center;
+}
+
+.footer p,
+.powered-by-tv p {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+/* Mobile responsive breakpoint */
+@media (max-width: 800px) {
+  .trading-grid > section,
+  .span-full-grid,
+  .symbol-info,
+  .technical-analysis {
+    grid-column: span 2;
+  }
+  
+  .trading-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* TradingView widget overrides */
+.tradingview-widget-container {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.tradingview-widget-container__widget {
+  width: 100% !important;
+  height: calc(100% - 32px) !important;
+}

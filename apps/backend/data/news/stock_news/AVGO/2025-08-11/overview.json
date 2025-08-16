@@ -1,0 +1,15 @@
+{
+  "symbol": "AVGO",
+  "overview": "Analysis for AVGO",
+  "recommendation": "HOLD",
+  "confidence": 50,
+  "keyFactors": [
+    "API Configuration Required",
+    "Mock Data Active",
+    "Limited Analysis"
+  ],
+  "riskLevel": "MEDIUM",
+  "timeHorizon": "3-6 months",
+  "source": "claude_ai_analysis",
+  "timestamp": "2025-08-11T05:06:55.044Z"
+}
