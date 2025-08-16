@@ -1,0 +1,20 @@
+{
+  "date": "2025-08-14",
+  "timestamp": "2025-08-14T05:15:21.286Z",
+  "query": "stock market economy finance business",
+  "topHeadline": "Markets show mixed signals amid economic uncertainty",
+  "totalArticles": 1,
+  "articles": [
+    {
+      "title": "Markets show mixed signals amid economic uncertainty",
+      "link": "https://example.com/news1",
+      "snippet": "Economic indicators suggest cautious optimism",
+      "date": "2025-08-14T05:15:21.286Z",
+      "source": "MockNews"
+    }
+  ],
+  "metadata": {
+    "source": "mock_data",
+    "cached": false
+  }
+}

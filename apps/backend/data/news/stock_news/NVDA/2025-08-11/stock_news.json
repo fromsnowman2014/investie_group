@@ -1,0 +1,1322 @@
+{
+  "symbol": "NVDA",
+  "date": "2025-08-11",
+  "timestamp": "2025-08-11T05:06:45.705Z",
+  "query": "NVDA news",
+  "summary": {
+    "headline": "Nvidia and AMD to pay 15% of China chip sales revenues to the U.S. government, FT reports",
+    "source": "google_news"
+  },
+  "articles": [
+    {
+      "position": 1,
+      "title": "Nvidia and AMD to pay 15% of China chip sales revenues to the U.S. government, FT reports",
+      "source": {
+        "name": "CNBC",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.cnbc.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://www.cnbc.com/2025/08/10/nvidia-amd-15percent-of-china-chip-sales-revenues-to-us-ft-reports.html",
+      "thumbnail": "https://image.cnbcfm.com/api/v1/image/107364684-17062129482023-02-17t102124z_2115759463_rc2xcz9bgstp_rtrmadp_0_amd-results.jpeg?v=1706213119&w=1600&h=900",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNUNTRlp5TjBoR09HRjFWakZCVFJDZkF4ampCU2dLTWdhcFZaYk5KUWc",
+      "date": "08/10/2025, 10:20 PM, +0000 UTC"
+    },
+    {
+      "position": 2,
+      "title": "Nvidia Stock Notches New Record. 2 Reasons for the Rally.",
+      "source": {
+        "name": "Barron's",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://www.barrons.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Adam Clark",
+          "Anita Hamilton"
+        ]
+      },
+      "link": "https://www.barrons.com/articles/nvidia-stock-price-ai-chips-openai-tesla-cec07ef9",
+      "thumbnail": "https://images.barrons.com/im-35842431?width=700&height=466",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNTRaazh0VkRSR2FqRmxOSFZOVFJERUF4aW5CU2dLTWdaQm9JNjFPQVk",
+      "date": "08/08/2025, 08:14 PM, +0000 UTC"
+    },
+    {
+      "position": 3,
+      "title": "Prediction: Nvidia Stock Will Skyrocket After Aug. 27",
+      "source": {
+        "name": "The Motley Fool",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.fool.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Keithen Drury"
+        ]
+      },
+      "link": "https://www.fool.com/investing/2025/08/09/prediction-nvidia-stock-will-skyrocket-after-aug-2/",
+      "thumbnail": "https://g.foolcdn.com/image/?url=https%3A%2F%2Fg.foolcdn.com%2Feditorial%2Fimages%2F828016%2Fphoto-of-data-center-with-gpus.jpg&op=resize&w=400&h=400",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNVhOVWhZTW1WMFNGTkpjM1ZvVFJEaEFSaVFBeWdLTWdZQk1aRDBtQWc",
+      "date": "08/09/2025, 09:00 AM, +0000 UTC"
+    },
+    {
+      "position": 4,
+      "title": "Davis Selected Advisers Increases Stake in Nvidia Corporation",
+      "source": {
+        "name": "The Globe and Mail",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.theglobeandmail.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://www.theglobeandmail.com/investing/markets/stocks/NVDA/pressreleases/34039382/davis-selected-advisers-increases-stake-in-nvidia-corporation/",
+      "thumbnail": "https://www.theglobeandmail.com/resizer/v2/YY4VJNIPCFCR3BMNHXSQRGSL4A.JPG?auth=85c91b3e80106951e91e4394de668ea2a74abe40ba155921e3c71f6801641644&width=300&quality=80",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXZTR0ZqWTJGclVqTTFSa3hvVFJESUFSaXNBaWdLTWdhQkk1S29xUWM",
+      "date": "08/11/2025, 03:06 AM, +0000 UTC"
+    },
+    {
+      "position": 5,
+      "title": "Goldman Sachs Reiterates Buy on NVIDIA (NVDA) With $200 PT Ahead of Earnings",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ghazal Ahmed"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/goldman-sachs-reiterates-buy-nvidia-210256580.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/W.7Wy_HXCUpwdPQg6iLmIA--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD02NzM-/https://media.zenfs.com/en/insidermonkey.com/954ef2a492b3e787d7f49e2d7faa1ec6",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iL0NnNDBVMFZITWpaSFFVNWZNWGRvVFJDZkF4amtCU2dLTWdrRmNwSnVOZWVwN2dF",
+      "date": "08/09/2025, 09:02 PM, +0000 UTC"
+    },
+    {
+      "position": 6,
+      "title": "‘Don’t Make This Mistake,’ Says Investor About Nvidia Stock",
+      "source": {
+        "name": "TipRanks",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.tipranks.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Gabe Ross"
+        ]
+      },
+      "link": "https://www.tipranks.com/news/dont-make-this-mistake-says-investor-about-nvidia-stock-2",
+      "thumbnail": "https://blog.tipranks.com/wp-content/uploads/2025/03/NVDA-1221-750x406.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNDJibU5FYWs4MVlVVTBjMVpMVFJDV0F4anVCU2dLTWdZcGM0cE9MUVE",
+      "date": "08/09/2025, 01:56 PM, +0000 UTC"
+    },
+    {
+      "position": 7,
+      "title": "Nvidia has the biggest weight in the S&P ever (NVDA:NASDAQ)",
+      "source": {
+        "name": "Seeking Alpha",
+        "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://seekingalpha.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Kim Khan"
+        ]
+      },
+      "link": "https://seekingalpha.com/news/4482954-nvidia-has-the-biggest-weight-in-the-sp-ever",
+      "thumbnail": "https://static.seekingalpha.com/cdn/s3/uploads/getty_images/485461336/image_485461336.jpg?io=getty-c-w750",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNTBaRkJmVjNOalJXWlNkbmhzVFJERUF4aW1CU2dLTWdhbGtaQVF0UVk",
+      "date": "08/10/2025, 08:17 PM, +0000 UTC"
+    },
+    {
+      "position": 8,
+      "title": "Billionaire sells AMD, TSMC, NVDA shares, buys this AI stock instead",
+      "source": {
+        "name": "Invezz",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://invezz.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://invezz.com/news/2025/08/08/billionaire-sells-amd-tsmc-nvda-shares-buys-this-ai-stock-instead/",
+      "thumbnail": "https://invezz.com/wp-content/uploads/2025/08/image214-1024x640.png",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNW1RVlV6TTBsWlNITXlhRjkwVFJDMkF4aTlCU2dLTWdhVlFZaU5xUVU",
+      "date": "08/08/2025, 03:24 PM, +0000 UTC"
+    },
+    {
+      "position": 9,
+      "title": "NVIDIA (NVDA) Gets Overweight Rating as AI Capex Stays Strong Into 2026",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ghazal Ahmed"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/nvidia-nvda-gets-overweight-rating-174716166.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/uZDhL__1jJ2BCTUAcXDCdw--/YXBwaWQ9aGlnaGxhbmRlcjt3PTI0MDA7aD0xNjAw/https://media.zenfs.com/en/insidermonkey.com/07c0b7e7d56cc1de166e2a28043049b3",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXNTMjV1WW5aS2FGZEZabGswVFJERUF4aW1CU2dLTWdZNUlZZlMxQUk",
+      "date": "08/08/2025, 05:47 PM, +0000 UTC"
+    },
+    {
+      "position": 10,
+      "title": "Is Nvidia Stock Likely to Rally After Aug. 27?",
+      "source": {
+        "name": "The Motley Fool",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.fool.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "David Jagielski"
+        ]
+      },
+      "link": "https://www.fool.com/investing/2025/08/08/is-nvidia-stock-likely-to-rally-after-aug-27/",
+      "thumbnail": "https://g.foolcdn.com/image/?url=https%3A%2F%2Fg.foolcdn.com%2Feditorial%2Fimages%2F827754%2Fbusinessman-checking-his-phone.jpg&op=resize&w=400&h=400",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNWhaR0V0UkVGRVVqZ3hXV3hZVFJDS0FoaVFBeWdLTWdiRklvUVVHUW8",
+      "date": "08/08/2025, 09:15 PM, +0000 UTC"
+    },
+    {
+      "position": 11,
+      "title": "NVDA: Nvidia AI Boom Sparks Warning Bells as Pullback Risks Climb",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://finance.yahoo.com/news/nvda-nvidia-ai-boom-sparks-122012543.html",
+      "date": "07/18/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 12,
+      "title": "Nvidia Rises Amid Open AI's ChatGPT News; Is Nvidia A Buy Or Sell Now?",
+      "source": {
+        "name": "Investor's Business Daily",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.investors.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Vidya Ramakrishnan"
+        ]
+      },
+      "link": "https://www.investors.com/research/nvidia-stock-nvda/",
+      "thumbnail": "https://www.investors.com/wp-content/uploads/2021/04/Stock-Nvidia-gracedata-01-company.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNHlVVzVmZVVGMFRtaFNNbkJyVFJDZkF4amlCU2dLTWdhVlFveEtwUVk",
+      "date": "08/08/2025, 02:55 PM, +0000 UTC"
+    },
+    {
+      "position": 13,
+      "title": "Nvidia Stock (NVDA) Closes at Record High",
+      "source": {
+        "name": "TipRanks",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.tipranks.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Joel Baglole"
+        ]
+      },
+      "link": "https://www.tipranks.com/news/nvidia-stock-nvda-closes-at-record-high",
+      "thumbnail": "https://blog.tipranks.com/wp-content/uploads/2025/08/aaa-40-750x406.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNU9Sa2t0Wm05MmFFTXhWMHh0VFJDV0F4anVCU2dLTWdZQlFKUjRzQVk",
+      "date": "08/11/2025, 03:51 AM, +0000 UTC"
+    },
+    {
+      "position": 14,
+      "title": "Nvidia (NASDAQ: NVDA) Bull, Base, & Bear Price Prediction and Forecast (Aug 8)",
+      "source": {
+        "name": "24/7 Wall St.",
+        "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://247wallst.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Joel South"
+        ]
+      },
+      "link": "https://247wallst.com/forecasts/2025/08/08/nvidia-nvda-bull-base-bear-price-prediction-and-forecast/",
+      "thumbnail": "https://247wallst.com/wp-content/uploads/2024/03/shutterstock_2309474541-scaled.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNHhaMDFKWkd0UE5FRjZhV1k1VFJERUF4aW1CU2dLTWdhUjQ0NVJRUVU",
+      "date": "08/08/2025, 01:20 PM, +0000 UTC"
+    },
+    {
+      "position": 15,
+      "title": "Nvidia (NVDA) and AMD Open Red in 24-Hour Trading: Early Downside and What Crypto Traders Are Watching for BTC, ETH",
+      "source": {
+        "name": "Blockchain News",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://blockchain.news&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://blockchain.news/flashnews/nvidia-nvda-and-amd-open-red-in-24-hour-trading-early-downside-and-what-crypto-traders-are-watching-for-btc-eth",
+      "thumbnail": "https://image.blockchain.news/features/DC3788979712BF4DFF603597AAC46E7C52F8B5EF76BC21453D757F37CDB271FE.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNUdOR0pGWlVodVh6RnVhRGxsVFJDN0FoallCQ2dLTWdhWkFJcEpPZ1E",
+      "date": "08/11/2025, 03:54 AM, +0000 UTC"
+    },
+    {
+      "position": 16,
+      "title": "(NVDA) Volatility Zones as Tactical Triggers",
+      "source": {
+        "name": "news.stocktradersdaily.com",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://news.stocktradersdaily.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://news.stocktradersdaily.com/news_release/148/NVDA_Volatility_Zones_as_Tactical_Triggers_081025104202_1754880122.html",
+      "thumbnail": "https://news.stocktradersdaily.com/media/602083_NVDA_graph.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iJ0NnNHRjVkZtYjFGTmFtTlBiVmg2VFJEZUFoaWdCaWdLTWdNbEJBdw",
+      "date": "08/10/2025, 10:42 PM, +0000 UTC"
+    },
+    {
+      "position": 17,
+      "title": "Nvidia (NVDA) Stock Quotes, Company News And Chart Analysis",
+      "source": {
+        "name": "Investor's Business Daily",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.investors.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://www.investors.com/news/technology/nvidia-stock-nvda-stock-price-quote-analysis/",
+      "thumbnail": "https://www.investors.com/wp-content/uploads/2024/06/Stock-Nvidia-JensenHunagGB200-01-company.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNDBXRnBxUkhCVlgwaEdUVXRHVFJDZkF4amlCU2dLTWdZeFU0eVBJUWs",
+      "date": "08/08/2025, 04:01 PM, +0000 UTC"
+    },
+    {
+      "position": 18,
+      "title": "Nvidia: Just Announced 100% Semiconductor Tariffs Likely Won't Hurt It (NASDAQ:NVDA)",
+      "source": {
+        "name": "Seeking Alpha",
+        "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://seekingalpha.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://seekingalpha.com/article/4810918-nvidia-just-announced-100-percent-semiconductor-tariffs-likely-wont-hurt-stock",
+      "thumbnail": "https://static.seekingalpha.com/cdn/s3/uploads/getty_images/1412721464/image_1412721464.jpg?io=getty-c-w750",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXVMV3hMTFc4ek1UaGFVMjlqVFJERUF4aW1CU2dLTWdZbGxaRE10UVU",
+      "date": "08/08/2025, 09:19 AM, +0000 UTC"
+    },
+    {
+      "position": 19,
+      "title": "Nvidia (NVDA) Gets Vote of Confidence From Citi as AI Capex Set to Soar",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ghazal Ahmed"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/nvidia-nvda-gets-vote-confidence-095817365.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/vRzJypbaUb.HTIj8yFuJHw--/YXBwaWQ9aGlnaGxhbmRlcjt3PTI0MDA7aD0xNjAw/https://media.zenfs.com/en/insidermonkey.com/e5778e17a7b89081a7a835e7c30370ab",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNU5WRzExWnpGNFdYVnFXalF4VFJERUF4aW1CU2dLTWdZVmdJaVF5UVU",
+      "date": "08/05/2025, 09:58 AM, +0000 UTC"
+    },
+    {
+      "position": 20,
+      "title": "Goldman Sachs Sets the Bar for Nvidia Stock Ahead of Earnings",
+      "source": {
+        "name": "TipRanks",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.tipranks.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Marty Shtrubel"
+        ]
+      },
+      "link": "https://www.tipranks.com/news/goldman-sachs-sets-the-bar-for-nvidia-stock-ahead-of-earnings",
+      "thumbnail": "https://blog.tipranks.com/wp-content/uploads/2025/03/NVDA-1221-750x406.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNDJibU5FYWs4MVlVVTBjMVpMVFJDV0F4anVCU2dLTWdZcGM0cE9MUVE",
+      "date": "08/11/2025, 12:45 AM, +0000 UTC"
+    },
+    {
+      "position": 21,
+      "title": "Nvidia: You'll Regret Selling Now (NASDAQ:NVDA)",
+      "source": {
+        "name": "Seeking Alpha",
+        "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://seekingalpha.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Bohdan Kucheriavyi"
+        ]
+      },
+      "link": "https://seekingalpha.com/article/4809482-nvidia-youll-regret-selling-now",
+      "thumbnail": "https://static.seekingalpha.com/cdn/s3/uploads/getty_images/1412721464/image_1412721464.jpg?io=getty-c-w1536",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNU5lbWgwZWpsRUxYSkVTV3BQVFJERUF4aW1CU2dLTWdZbGxaRE10UVU",
+      "date": "08/06/2025, 04:00 PM, +0000 UTC"
+    },
+    {
+      "position": 22,
+      "title": "Nvidia's CEO Has Just Dropped Game Changing News (NASDAQ:NVDA)",
+      "source": {
+        "name": "Seeking Alpha",
+        "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://seekingalpha.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://seekingalpha.com/article/4801633-nvidia-ceo-has-just-dropped-game-changing-news",
+      "thumbnail": "https://static.seekingalpha.com/cdn/s3/uploads/getty_images/1412721464/image_1412721464.jpg?io=getty-c-w750",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNTJlREZGVDNKSlVWTnhRVU5zVFJERUF4aW1CU2dLTWdZbGxaRE10UVU",
+      "date": "07/16/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 23,
+      "title": "Nvidia Stock Climbs as Wall Street Hikes Targets Ahead of Earnings Blowout",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://finance.yahoo.com/news/nvidia-stock-climbs-wall-street-182529601.html",
+      "thumbnail": "https://media.zenfs.com/en/us.finance.gurufocus/528af7acf1b685a79f0a0ee8c34ab69c",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNVhjbmRHVm1GWGNHNVNhRzFYVFJEMEF4ajBBeWdLTWdZZGhJeXNNUVk",
+      "date": "08/07/2025, 09:23 PM, +0000 UTC"
+    },
+    {
+      "position": 24,
+      "title": "Nvidia (NVDA) Ignites Rally Ahead of Microsoft and Meta Earnings",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://finance.yahoo.com/news/nvidia-nvda-ignites-rally-ahead-143130877.html",
+      "thumbnail": "https://media.zenfs.com/en/us.finance.gurufocus/528af7acf1b685a79f0a0ee8c34ab69c",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNVhjbmRHVm1GWGNHNVNhRzFYVFJEMEF4ajBBeWdLTWdZZGhJeXNNUVk",
+      "date": "07/30/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 25,
+      "title": "Nvidia gets price target hike from Goldman Sachs ahead of earnings",
+      "source": {
+        "name": "CNBC",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.cnbc.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Brian Evans"
+        ]
+      },
+      "link": "https://www.cnbc.com/2025/08/07/nvidia-gets-price-target-hike-from-goldman-sachs-ahead-of-earnings.html",
+      "thumbnail": "https://image.cnbcfm.com/api/v1/image/108176644-1753384811496-gettyimages-2226854082-dji_20250724133334_0492_d_ndwbjfha.jpeg?v=1754676499&w=600&h=300&vtcrop=y",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXJiRVYzZGpSM1UxcHpSa3BRVFJDc0FoallCQ2dLTWdZQk1JUUdIZ2s",
+      "date": "08/07/2025, 12:18 PM, +0000 UTC"
+    },
+    {
+      "position": 26,
+      "title": "Josh Brown Gives Followers ‘Permission’ to Sell NVIDIA (NVDA) Shares – Here’s Why",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Fahad Saleem"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/josh-brown-gives-followers-permission-201644075.html",
+      "thumbnail": "https://media.zenfs.com/en/insidermonkey.com/2d9fbc9c43820fde3bf68c4a06b9e661",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iL0NnNUJNazVLY1ZwMFIxRjRjVlJzVFJEZ0F4al9CQ2dLTWdrRklJQUdyZVZNeUFJ",
+      "date": "07/28/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 27,
+      "title": "Nvidia’s (NVDA) Data Center Boom Continues — Analyst Lifts Price Target to $192",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ghazal Ahmed"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/nvidia-nvda-data-center-boom-150159157.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/CYUONECuyIrm9GAPFQJY.g--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD02NzM-/https://media.zenfs.com/en/insidermonkey.com/677808e4e505137f84578de67c9fa100",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNUZWMGx4VEZCSWVFWnZUR1JRVFJDZkF4amtCU2dLTWdhaEpZenNHUWc",
+      "date": "07/27/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 28,
+      "title": "Nvidia (NVDA) Named a Top Pick Ahead of Earnings, Says Morgan Stanley",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ghazal Ahmed"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/nvidia-nvda-named-top-pick-002038060.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/18lh8wR9MK04C0YicqFNtQ--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD02NzM-/https://media.zenfs.com/en/insidermonkey.com/c2e756945297bbe626edf5a1612a7dd7",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iI0NnNTVhMXBRVmw4NGVWcEhSV1pSVFJDZkF4amtCU2dLTWdB",
+      "date": "07/23/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 29,
+      "title": "Riverpark Large Growth Fund Views NVIDIA (NVDA) as the Most Strategically Important Enabler Of Global AI Transformation",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Soumya Eswaran"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/riverpark-large-growth-fund-views-125156367.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/PmnEF_HFONzlygWia9Vl4A--/YXBwaWQ9aGlnaGxhbmRlcjt3PTE1MzY7aD04NjA-/https://media.zenfs.com/en/insidermonkey.com/c620444f5984a111f51bbb2fd58922a9",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNWhZVkpLZW1KNmJtbFBWVlpoVFJDZUF4amtCU2dLTWdZQkFJd3J0UVU",
+      "date": "08/04/2025, 12:51 PM, +0000 UTC"
+    },
+    {
+      "position": 30,
+      "title": "Think Nvidia Stock Is Expensive? These 2 Charts Might Change Your Mind.",
+      "source": {
+        "name": "The Motley Fool",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.fool.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Howard Smith"
+        ]
+      },
+      "link": "https://www.fool.com/investing/2025/08/07/think-nvidia-stock-is-expensive-see-these-2-charts/",
+      "thumbnail": "https://g.foolcdn.com/editorial/images/827230/nvidia-ai-data-training-for-avs.png",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXlRVWxwYXpaNUxXVmFUbUYyVFJDREF4aVlCaWdLTWdZQklJUmlMZ00",
+      "date": "08/07/2025, 01:45 PM, +0000 UTC"
+    },
+    {
+      "position": 32,
+      "title": "NVIDIA Corporation (NVDA): Do Not Doubt Its CEO, Says Jim Cramer",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ramish Cheema"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/nvidia-corporation-nvda-not-doubt-014408357.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/YjqV0i5zsk.x6taDeV1dKw--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD04MDE-/https://media.zenfs.com/en/insidermonkey.com/b164aaab1ec4fa184f08b8d83d9b3853",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNDRTR05QVldoWlZXWnhVMWhzVFJERUF4aW1CU2dLTWdZWkVaakpuQW8",
+      "date": "08/07/2025, 01:48 AM, +0000 UTC"
+    },
+    {
+      "position": 33,
+      "title": "NVIDIA Corporation (NVDA) Released its CUDA-Q version 0.12",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://finance.yahoo.com/news/nvidia-corporation-nvda-released-cuda-021917765.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/kZveoOmr3ngssVpudK1u4A--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD02NzM-/https://media.zenfs.com/en/insidermonkey.com/aa94e059977d3251b8b0630718e013fc",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNUdXVGMxTVVscVIwdFlXazAyVFJDZkF4amtCU2dLTWdZQkFJd3J0UVU",
+      "date": "08/07/2025, 02:24 AM, +0000 UTC"
+    },
+    {
+      "position": 34,
+      "title": "Nvidia (NASDAQ: NVDA) Stock Price Prediction for 2025: Where Will It Be in 1 Year (Aug 6)",
+      "source": {
+        "name": "24/7 Wall St.",
+        "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://247wallst.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Joel South"
+        ]
+      },
+      "link": "https://247wallst.com/investing/2025/08/06/nvidia-nasdaq-nvda-stock-price-prediction-for-2025-where-will-it-be-in-1-year/",
+      "thumbnail": "https://247wallst.com/wp-content/uploads/2021/08/imageForEntry27-ylV.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXFTVUozT1hZeWNsSTRjRWhHVFJDZkF4ampCU2dLTWdZVk9JWm9uZ2s",
+      "date": "08/06/2025, 10:20 AM, +0000 UTC"
+    },
+    {
+      "position": 35,
+      "title": "Nvidia (NVDA) Just Got a Buy Rating From Goldman—Here’s Why Analysts Are Bullish",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ghazal Ahmed"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/nvidia-nvda-just-got-buy-154402268.html",
+      "thumbnail": "https://media.zenfs.com/en/insidermonkey.com/74bbfd2ca4660372822b2c93f2367fd3",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNHdialZGZVZRM1dYZGFUbTlmVFJDcUJCaXFCQ2dLTWdhaFVKTE1vUWc",
+      "date": "07/13/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 36,
+      "title": "Nvidia stock reaches all-time high at 183.31 USD",
+      "source": {
+        "name": "Investing.com",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.investing.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://www.investing.com/news/company-news/nvidia-stock-reaches-alltime-high-at-18331-usd-93CH-4177302",
+      "thumbnail": "https://i-invdn-com.investing.com/news/LYNXMPEB1A16P_L.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNU5TVlJ5TldKalMxUkNNR2hrVFJERUF4aW5CU2dLTWdZUm9wTHlQQVk",
+      "date": "08/07/2025, 01:46 PM, +0000 UTC"
+    },
+    {
+      "position": 37,
+      "title": "NVIDIA (NASDAQ:NVDA) targets $195–$210 as Blackwell ramps, H20 resumes in China, and U.S. tariff carve-outs neutralize 100% import risk",
+      "source": {
+        "name": "tradingnews.com",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.tradingnews.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://www.tradingnews.com/news/nvidia-nasdaq-nvda-stock-eyes-breakout-as-shares-hover-near-179-usd",
+      "thumbnail": "https://www.tradingnews.com/Warehouse/content/pics/pic_36657_a_8a48ce5c-e6ec-4f63-a902-2661156d1403.jpg?1=1",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXpUMWRZTkdwVVdXcDJNbU5KVFJERUF4aW1CU2dLTWdZWmhZNnN0UVU",
+      "date": "08/08/2025, 10:16 PM, +0000 UTC"
+    },
+    {
+      "position": 38,
+      "title": "Nvidia (NVDA) Hit an All Time High in Q2",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Soumya Eswaran"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/nvidia-nvda-hit-time-high-114857410.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/PmnEF_HFONzlygWia9Vl4A--/YXBwaWQ9aGlnaGxhbmRlcjt3PTE1MzY7aD04NjA-/https://media.zenfs.com/en/insidermonkey.com/c620444f5984a111f51bbb2fd58922a9",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNWhZVkpLZW1KNmJtbFBWVlpoVFJDZUF4amtCU2dLTWdZQkFJd3J0UVU",
+      "date": "08/06/2025, 11:48 AM, +0000 UTC"
+    },
+    {
+      "position": 39,
+      "title": "JPMorgan Reaffirms NVIDIA (NVDA) as a Top AI Networking Play",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ghazal Ahmed"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/jpmorgan-reaffirms-nvidia-nvda-top-183138843.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/jnG97E_Bwk7B97C2gEClnA--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD02NzM-/https://media.zenfs.com/en/insidermonkey.com/8f78d817a38e50ff295b0f9b96e72322",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNWpSVjlJWWpSeVZYWkZUMEYwVFJDZkF4amtCU2dLTWdhUlFKSW9OZ2M",
+      "date": "07/29/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 40,
+      "title": "NVIDIA (NASDAQ: NVDA) Price Prediction and Forecast 2025-2030 for August 5",
+      "source": {
+        "name": "24/7 Wall St.",
+        "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://247wallst.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Joel South"
+        ]
+      },
+      "link": "https://247wallst.com/forecasts/2025/08/05/nvidia-nvda-price-prediction-and-forecast/",
+      "thumbnail": "https://247wallst.com/wp-content/uploads/2025/04/nvidia-price-prediction.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNU9XRUpLWjB0eE16Tk1ORXd0VFJDZkF4ampCU2dLTWdhSlJKUkZvZ2M",
+      "date": "08/05/2025, 02:06 PM, +0000 UTC"
+    },
+    {
+      "position": 41,
+      "title": "Nvidia Stock Warning: This NVDA Challenger Just Scored a Major Customer",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Wajeeh Khan"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/nvidia-stock-warning-nvda-challenger-184049791.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/aHKlvg5I5WHRzBcG0KH0Mg--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD04MDA-/https://media.zenfs.com/en/barchart_com_477/ff786c16de6836f3feca01d1b729fd5e",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNU1VMjQyUjNCbExVUlpUazFFVFJERUF4aW1CU2dLTWdZaFVwb0xwZ2c",
+      "date": "07/22/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 42,
+      "title": "Needham Sticks With Buy on Nvidia (NVDA), Lifts Target to $200",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ghazal Ahmed"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/needham-sticks-buy-nvidia-nvda-141711540.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/rE3R_KMLLpuWQJEqSDLCQw--/YXBwaWQ9aGlnaGxhbmRlcjt3PTQyMDtoPTMzNg--/https://media.zenfs.com/en/insidermonkey.com/c745662fcc96be7fe403c0cc6756a4c4",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNW9SakZwZGtsSFNFdHFjRTFZVFJESkFSajdBU2dLTWdZUlU0THJJUWs",
+      "date": "07/19/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 43,
+      "title": "Palantir Shared Some Amazing News With Nvidia and AI Stock Investors",
+      "source": {
+        "name": "Nasdaq",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.nasdaq.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Jose Najarro"
+        ]
+      },
+      "link": "https://www.nasdaq.com/articles/palantir-shared-some-amazing-news-nvidia-and-ai-stock-investors",
+      "thumbnail": "https://www.nasdaq.com/sites/acquia.prod/files/2019-05/0902-Q19%20Total%20Markets%20photos%20and%20gif_CC8.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNHpSa3gwZVc0NVoxTllTVWRwVFJDSEF4aVBCaWdLTWdZQmtZZzB3UVU",
+      "date": "08/05/2025, 04:01 PM, +0000 UTC"
+    },
+    {
+      "position": 44,
+      "title": "NVIDIA Corporation (NVDA)’s Going To Have A Good Quarter, Says Jim Cramer",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ramish Cheema"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/nvidia-corporation-nvda-going-good-134958193.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/uZDhL__1jJ2BCTUAcXDCdw--/YXBwaWQ9aGlnaGxhbmRlcjt3PTI0MDA7aD0xNjAw/https://media.zenfs.com/en/insidermonkey.com/07c0b7e7d56cc1de166e2a28043049b3",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXNTMjV1WW5aS2FGZEZabGswVFJERUF4aW1CU2dLTWdZNUlZZlMxQUk",
+      "date": "07/24/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 45,
+      "title": "BofA Raises NVIDIA (NVDA) Price Target on China Sales Outlook",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Sheryar Siddiq"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/bofa-raises-nvidia-nvda-price-034907514.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/vRzJypbaUb.HTIj8yFuJHw--/YXBwaWQ9aGlnaGxhbmRlcjt3PTI0MDA7aD0xNjAw/https://media.zenfs.com/en/insidermonkey.com/e5778e17a7b89081a7a835e7c30370ab",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNU5WRzExWnpGNFdYVnFXalF4VFJERUF4aW1CU2dLTWdZVmdJaVF5UVU",
+      "date": "07/24/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 46,
+      "title": "NVIDIA Corporation (NVDA): Deflation Is Coming From The Robots, Says Jim Cramer",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ramish Cheema"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/nvidia-corporation-nvda-deflation-coming-181034015.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/kZveoOmr3ngssVpudK1u4A--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD02NzM-/https://media.zenfs.com/en/insidermonkey.com/aa94e059977d3251b8b0630718e013fc",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNUdXVGMxTVVscVIwdFlXazAyVFJDZkF4amtCU2dLTWdZQkFJd3J0UVU",
+      "date": "07/15/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 47,
+      "title": "Dan Niles Explains Why He Turned Bullish on NVIDIA (NVDA)",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Fahad Saleem"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/dan-niles-explains-why-turned-135022690.html",
+      "thumbnail": "https://media.zenfs.com/en/insidermonkey.com/9ab9d43b226731590760a54e378251e5",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNVdjR0pWUVhsVGJGcFJka05QVFJERUF4aW1CU2dLTWdZTllKQ21KZ2c",
+      "date": "07/23/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 48,
+      "title": "Analyst Explains How NVIDIA (NVDA) Can Reach $8 Trillion Market Cap",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Fahad Saleem"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/analyst-explains-nvidia-nvda-reach-145214797.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/76lL4c_X3r.xTyZgwMIiQg--/YXBwaWQ9aGlnaGxhbmRlcjt3PTE1MDA7aD0xMDQy/https://media.zenfs.com/en/insidermonkey.com/24fae12a50d6c03d45b2817539bc9a3a",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNUdiVEZFZVZWd2FYaFhVR0p3VFJETkF4aVpCU2dLTWdhSkJKU2tIZ2s",
+      "date": "07/24/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 49,
+      "title": "A $15 Billion Reason to Buy Nvidia Stock Here",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Pathikrit Bose"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/15-billion-reason-buy-nvidia-113002442.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/YJUUL4ZVMjANSBekNy2eUQ--/YXBwaWQ9aGlnaGxhbmRlcjt3PTI0MDA7aD0xNjAw/https://media.zenfs.com/en/barchart_com_477/828805b72adb05952504a4fefd6c1a8a",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNU1WMmxEZFhsQmVIcGtTa1JOVFJERUF4aW1CU2dLTWdZbGxaRE10UVU",
+      "date": "07/21/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 50,
+      "title": "Nvidia Hits Highs As Meta, Microsoft Unveil AI Spending Plans — Is Nvidia Stock A Buy Or Sell Now?",
+      "source": {
+        "name": "Investor's Business Daily",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.investors.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Vidya Ramakrishnan"
+        ]
+      },
+      "link": "https://www.investors.com/research/nvidia-nvda-stock-buy-now-july-2025/",
+      "thumbnail": "https://www.investors.com/wp-content/uploads/2022/09/Stock-Nvidia-Hopper-company.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iJ0NnNWtWVGxOU1ZWMVN5MUlNa3h0VFJDZ0F4amhCU2dLTWdPTmNRZw",
+      "date": "07/31/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 51,
+      "title": "Nvidia Secures Licenses to Export H20 Chips to China. Will this Drive NVDA Stock Higher?",
+      "source": {
+        "name": "TipRanks",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.tipranks.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Sirisha Bhogaraju"
+        ]
+      },
+      "link": "https://www.tipranks.com/news/nvidia-secures-licenses-to-export-h20-chips-to-china-will-this-drive-nvda-stock-higher",
+      "thumbnail": "https://blog.tipranks.com/wp-content/uploads/2025/08/shutterstock_2535788887-750x406.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNHRTRGxrVVU5WVQwa3pNV2xxVFJDV0F4anVCU2dLTWdhQmRKRE1zUVk",
+      "date": "08/09/2025, 10:41 AM, +0000 UTC"
+    },
+    {
+      "position": 52,
+      "title": "If I Could Only Buy and Hold a Single Stock, This Would Be It",
+      "source": {
+        "name": "The Motley Fool",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.fool.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Chris Neiger"
+        ]
+      },
+      "link": "https://www.fool.com/investing/2025/08/05/if-i-could-only-buy-and-hold-a-single-stock/",
+      "thumbnail": "https://g.foolcdn.com/editorial/images/827720/gettyimages-1490961572-1200x800-5b2df79.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXpRazlZZURad05EaHdUaTFRVFJERUF4aW1CU2dLTWdZaE5JZ0xtZ1U",
+      "date": "08/05/2025, 12:30 PM, +0000 UTC"
+    },
+    {
+      "position": 53,
+      "title": "Dear Nvidia Stock Fans, Mark Your Calendars for August 27",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Anushka Dutta"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/dear-nvidia-stock-fans-mark-134501141.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/YJUUL4ZVMjANSBekNy2eUQ--/YXBwaWQ9aGlnaGxhbmRlcjt3PTI0MDA7aD0xNjAw/https://media.zenfs.com/en/barchart_com_477/828805b72adb05952504a4fefd6c1a8a",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNU1WMmxEZFhsQmVIcGtTa1JOVFJERUF4aW1CU2dLTWdZbGxaRE10UVU",
+      "date": "08/04/2025, 01:45 PM, +0000 UTC"
+    },
+    {
+      "position": 54,
+      "title": "Palantir CEO Alex Karp Just Delivered Incredible News for Nvidia Stock Investors",
+      "source": {
+        "name": "Nasdaq",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.nasdaq.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Danny Vena"
+        ]
+      },
+      "link": "https://www.nasdaq.com/articles/palantir-ceo-alex-karp-just-delivered-incredible-news-nvidia-stock-investors",
+      "thumbnail": "https://www.nasdaq.com/sites/acquia.prod/files/2019-05/0902-Q19%20Total%20Markets%20photos%20and%20gif_CC8.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNHpSa3gwZVc0NVoxTllTVWRwVFJDSEF4aVBCaWdLTWdZQmtZZzB3UVU",
+      "date": "08/06/2025, 09:02 AM, +0000 UTC"
+    },
+    {
+      "position": 55,
+      "title": "NVDA: Nvidia Smashes New Records as Microsoft, Meta Ramp Up Spending",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://finance.yahoo.com/news/nvda-nvidia-poised-smash-records-144948367.html",
+      "thumbnail": "https://media.zenfs.com/en/us.finance.gurufocus/0f85201a8bb8f84f9783012c36633061",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNU9jVlZ2V0dVMFJIZDVVWGt6VFJDY0F4aW1CQ2dLTWdZdFVJNHdLUWM",
+      "date": "07/31/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 56,
+      "title": "Thinking of Investing in Nvidia (NVDA)? Here’s How to Get Started",
+      "source": {
+        "name": "Investopedia",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://www.investopedia.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Will Baker"
+        ]
+      },
+      "link": "https://www.investopedia.com/thinking-of-investing-in-nvidia-nvda-here-s-how-to-get-started-11777412",
+      "thumbnail": "https://www.investopedia.com/thmb/AhDMi_63jBDR4EWy5x_COX76BQ4=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/GettyImages-1776477848-9653a6edbbf94b8183c29d6de9271fc8.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXRja1JPTVhOdVpuQjVVVFJ1VFJERUF4aW1CU2dLTWdhQlFZN1dHQW8",
+      "date": "07/28/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 57,
+      "title": "Nvidia NVDA Hits ~8% of S&P 500 — Record Concentration Puts AI Trade in Focus; BTC Risk Sentiment Watch",
+      "source": {
+        "name": "Blockchain News",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://blockchain.news&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://blockchain.news/flashnews/nvidia-nvda-hits-8-of-s-p-500-record-concentration-puts-ai-trade-in-focus",
+      "thumbnail": "https://image.blockchain.news/features/DC3788979712BF4DFF603597AAC46E7C52F8B5EF76BC21453D757F37CDB271FE.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNUdOR0pGWlVodVh6RnVhRGxsVFJDN0FoallCQ2dLTWdhWkFJcEpPZ1E",
+      "date": "08/09/2025, 11:42 PM, +0000 UTC"
+    },
+    {
+      "position": 58,
+      "title": "NVIDIA (NVDA) Analysts See Long-Term Upside as AI Exports to China Get Green Light",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ghazal Ahmed"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/nvidia-nvda-analysts-see-long-162152446.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/o3VKLpKeGNVVpWguRtZTWA--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD02NzM-/https://media.zenfs.com/en/insidermonkey.com/ad45e965b4e54ca4038c3c524bb47a1a",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNUlVRFpRU1docFJEVjJhSE53VFJDZkF4amtCU2dLTWdhVmxJUXB3Z1E",
+      "date": "07/22/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 59,
+      "title": "NVDA vs. AMZN vs. MSFT: Which ‘Strong Buy’ Mega-Cap Stock Has the Highest Upside Potential?",
+      "source": {
+        "name": "TipRanks",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.tipranks.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Sirisha Bhogaraju"
+        ]
+      },
+      "link": "https://www.tipranks.com/news/nvda-vs-amzn-vs-msft-which-strong-buy-mega-cap-stock-has-the-highest-upside-potential",
+      "thumbnail": "https://blog.tipranks.com/wp-content/uploads/2025/08/shutterstock_2162355765-750x406.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNTRibk5PVG0xQlYzb3pSbXhMVFJDV0F4anVCU2dLTWdheEk0Q1BtUWs",
+      "date": "08/05/2025, 09:56 PM, +0000 UTC"
+    },
+    {
+      "position": 60,
+      "title": "Nvidia (NVDA) Now ~8% of S&P 500 — Highest Since 1981: Index Sensitivity, SPY/ES Setup, and Crypto Risk Watch for BTC and ETH",
+      "source": {
+        "name": "Blockchain News",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://blockchain.news&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://blockchain.news/flashnews/nvidia-nvda-now-8-of-s-p-500-highest-since-1981-index-sensitivity-spy-es-setup-and-crypto-risk-watch-for-btc-and-eth",
+      "thumbnail": "https://image.blockchain.news/features/DC3788979712BF4DFF603597AAC46E7C52F8B5EF76BC21453D757F37CDB271FE.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNUdOR0pGWlVodVh6RnVhRGxsVFJDN0FoallCQ2dLTWdhWkFJcEpPZ1E",
+      "date": "08/09/2025, 09:22 PM, +0000 UTC"
+    },
+    {
+      "position": 61,
+      "title": "(NVDA) Trading Advice (NVDA:CA)",
+      "source": {
+        "name": "news.stocktradersdaily.com",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://news.stocktradersdaily.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://news.stocktradersdaily.com/canada/nvda-trading-advice_20250808_bc7a14",
+      "thumbnail": "https://content.canada.stocktradersdaily.com/chart-bucket/NVDA-CA_LONG_lineChartGenerator_2025-08-09_01-52-33.png",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNVBTMWN6V1VOTVpsODFTbFJwVFJEZUFoaWdCaWdLTWdZUkJJeXRnUTA",
+      "date": "08/09/2025, 01:52 AM, +0000 UTC"
+    },
+    {
+      "position": 62,
+      "title": "Nvidia (NVDA) Stock Falls Amid Market Uptick: What Investors Need to Know",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://finance.yahoo.com/news/nvidia-nvda-stock-falls-amid-214504690.html",
+      "thumbnail": "https://media.zenfs.com/en/zacks.com/1154d43aaeb65735a640003549116295",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iL0NnNTBRelJ6YkRZMWQwcG1jMU5OVFJDZkF4ampCU2dLTWdrQklvb0dvaVJVc0FF",
+      "date": "07/22/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 63,
+      "title": "NVDA: Nvidia Insider Just Offloads $38 Million in Shares",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://finance.yahoo.com/news/nvda-nvidia-insider-just-offloads-181012226.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/GNmDHHqCAiC3F96M5J_BIQ--/YXBwaWQ9aGlnaGxhbmRlcjt3PTY0MDtoPTQ3OQ--/https://media.zenfs.com/en/us.finance.gurufocus/0f85201a8bb8f84f9783012c36633061",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXBiRGRQVDFRelJHVkxSVUZDVFJDY0F4aW1CQ2dLTWdZdFVJNHdKUWM",
+      "date": "07/21/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 64,
+      "title": "NVIDIA Corporation (NVDA) Will Dominate AI, Says Jim Cramer",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ramish Cheema"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/nvidia-corporation-nvda-dominate-ai-185754106.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/Yiask5YUv2mkb2_EGjVTwA--/YXBwaWQ9aGlnaGxhbmRlcjt3PTI0MDA7aD0xNjAw/https://media.zenfs.com/en/insidermonkey.com/6b77801e3eb017d59223d3be831c34c9",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNVhVamhwUW5GeE5FTnVXR0V4VFJERUF4aW1CU2dLTWdhZFFJaTJIQWM",
+      "date": "07/30/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 65,
+      "title": "NVDA Insider Trade Alert! CEO Huang Just Sold $50M in Stock — Should Investors Worry?",
+      "source": {
+        "name": "TipRanks",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.tipranks.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Shalu Saraf"
+        ]
+      },
+      "link": "https://www.tipranks.com/news/nvda-insider-trade-alert-ceo-huang-just-sold-50m-in-stock-should-investors-worry",
+      "thumbnail": "https://blog.tipranks.com/wp-content/uploads/2025/07/nvda-1-2-750x406.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNWxTR2w2Ulc4MVIzcHNOa3RqVFJDV0F4anVCU2dLTWdhZFpJeVBxUWM",
+      "date": "07/21/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 66,
+      "title": "Nvidia Is Producing 'Unprecedented Wealth' For Its Employees, Nearly 80% Are Already Millionaires: Report",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ananya Gairola"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/nvidia-producing-unprecedented-wealth-employees-003124691.html",
+      "thumbnail": "https://media.zenfs.com/en/benzinga_79/fe6f34efd83981d0474a39ec287e5c00",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNVRhMjFVUVZBd1gxOTRTR0ZhVFJERUF4aW1CU2dLTWdZQmhKRE1zUVk",
+      "date": "08/06/2025, 12:50 AM, +0000 UTC"
+    },
+    {
+      "position": 67,
+      "title": "Why This Overlooked Nvidia (NVDA) Segment Is Growing Incredibly Fast",
+      "source": {
+        "name": "TipRanks",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.tipranks.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Vince Condarcuri"
+        ]
+      },
+      "link": "https://www.tipranks.com/news/why-this-overlooked-nvidia-nvda-segment-is-growing-incredibly-fast",
+      "thumbnail": "https://blog.tipranks.com/wp-content/uploads/2025/08/shutterstock_2606934519-750x406.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNDVNWGx0TlVSSmMyVmxWV0pqVFJDV0F4anVCU2dLTWdZMVE0cFFMUVU",
+      "date": "08/06/2025, 09:18 PM, +0000 UTC"
+    },
+    {
+      "position": 68,
+      "title": "Nvidia’s (NVDA) China Opportunity Reopens — Price Target Raised to $192 by Mizuho",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ghazal Ahmed"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/nvidia-nvda-china-opportunity-reopens-110610498.html",
+      "thumbnail": "https://media.zenfs.com/en/insidermonkey.com/27749c95c53f56794e11ff2f461e07e3",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iJ0NnNVdWbGhPV1hSaGJXMUZOMWd6VFJERUF4aW1CU2dLTWdNQllBSQ",
+      "date": "07/19/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 69,
+      "title": "Understanding Momentum Shifts in (NVDA)",
+      "source": {
+        "name": "news.stocktradersdaily.com",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://news.stocktradersdaily.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Thomas H. Kee"
+        ]
+      },
+      "link": "https://news.stocktradersdaily.com/news_release/1/Understanding_Momentum_Shifts_in_NVDA_080925093002_1754789402.html",
+      "thumbnail": "https://news.stocktradersdaily.com/media/601333_NVDA_graph.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iJ0NnNU1XblpSYWpKMmJXSjVialF5VFJEZUFoaWdCaWdLTWdNbEJBdw",
+      "date": "08/09/2025, 09:30 PM, +0000 UTC"
+    },
+    {
+      "position": 70,
+      "title": "Stock-Split Watch: Is Nvidia (NVDA) Next?",
+      "source": {
+        "name": "The Motley Fool",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.fool.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Anders Bylund"
+        ]
+      },
+      "link": "https://www.fool.com/investing/2025/08/02/stock-split-watch-is-nvidia-next/",
+      "thumbnail": "https://g.foolcdn.com/image/?url=https%3A%2F%2Fg.foolcdn.com%2Feditorial%2Fimages%2F827666%2Fslicing-a-pizza.jpg&op=resize&w=400&h=400",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iL0NnNUpjVnB5T1RoTlJGSTBOMDB6VFJDS0FoaVFBeWdLTWdrVklZeEtKV1pVNXdJ",
+      "date": "08/02/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 72,
+      "title": "Palantir CEO Alex Karp Just Delivered Incredible News for Nvidia Stock Investors",
+      "source": {
+        "name": "The Motley Fool",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.fool.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Danny Vena"
+        ]
+      },
+      "link": "https://www.fool.com/investing/2025/08/06/palantir-ceo-alex-karp-just-delivered-incredible-n/",
+      "thumbnail": "https://g.foolcdn.com/image/?url=https%3A%2F%2Fg.foolcdn.com%2Feditorial%2Fimages%2F828112%2Fa-person-studying-a-see-through-display-of-various-charts-and-graphs.jpg&op=resize&w=400&h=400",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNHdPWGhCTXpWaWJuSlpWM0JaVFJDTkFoaVFBeWdLTWdZeE5KWnhIUWs",
+      "date": "08/06/2025, 09:02 AM, +0000 UTC"
+    },
+    {
+      "position": 73,
+      "title": "Analyst Says NVIDIA (NVDA) Will See Rising Competition in Future – ‘There’s Going to Be Other Solutions’",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Fahad Saleem"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/analyst-says-nvidia-nvda-see-120219949.html",
+      "thumbnail": "https://media.zenfs.com/en/insidermonkey.com/943322b567353791f7a79eefa0ce1ce0",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iL0NnNVlRakpwVDBGMlFrSjRZbm80VFJERUF4aW1CU2dLTWdrWkFaUnFyZVo3d3dJ",
+      "date": "07/18/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 74,
+      "title": "Cathie Wood’s ARK ETF adjusts portfolio with AMD and NVDA stock buys",
+      "source": {
+        "name": "Investing.com",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.investing.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://www.investing.com/news/company-news/cathie-woods-ark-etf-adjusts-portfolio-with-amd-and-nvda-stock-buys-93CH-4169109",
+      "date": "08/05/2025, 12:17 AM, +0000 UTC"
+    },
+    {
+      "position": 75,
+      "title": "Prediction: This Will Be Nvidia's Stock Price 3 Years From Now",
+      "source": {
+        "name": "The Motley Fool",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.fool.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Keithen Drury"
+        ]
+      },
+      "link": "https://www.fool.com/investing/2025/08/03/prediction-this-will-be-nvidias-stock-price-3-year/",
+      "thumbnail": "https://g.foolcdn.com/image/?url=https%3A%2F%2Fg.foolcdn.com%2Feditorial%2Fimages%2F826837%2Fnvidia-voyager-headquarters.jpg&op=resize&w=400&h=400",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNTVabTFhUVRRNFJGOXlXV2RVVFJDS0FoaVFBeWdLTWdZNUlZZlMxQUk",
+      "date": "08/03/2025, 11:45 PM, +0000 UTC"
+    },
+    {
+      "position": 76,
+      "title": "(NVDA) as a Liquidity Pulse for Institutional Tactics",
+      "source": {
+        "name": "news.stocktradersdaily.com",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://news.stocktradersdaily.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://news.stocktradersdaily.com/news_release/83/NVDA_as_a_Liquidity_Pulse_for_Institutional_Tactics_080925010602_1754759162.html",
+      "thumbnail": "https://news.stocktradersdaily.com/media/601083_NVDA_graph.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iJ0NnNHRjVkZtYjFGTmFtTlBiVmg2VFJEZUFoaWdCaWdLTWdNbEJBdw",
+      "date": "08/09/2025, 01:06 PM, +0000 UTC"
+    },
+    {
+      "position": 77,
+      "title": "(NVDA) Movement Within Algorithmic Entry Frameworks",
+      "source": {
+        "name": "news.stocktradersdaily.com",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://news.stocktradersdaily.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://news.stocktradersdaily.com/news_release/2/NVDA_Movement_Within_Algorithmic_Entry_Frameworks_080925085402_1754744042.html",
+      "thumbnail": "https://news.stocktradersdaily.com/media/600958_NVDA_graph.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iJ0NnNHRjVkZtYjFGTmFtTlBiVmg2VFJEZUFoaWdCaWdLTWdNbEJBdw",
+      "date": "08/09/2025, 08:54 AM, +0000 UTC"
+    },
+    {
+      "position": 79,
+      "title": "Precision Trading with Nvidia Corporation (NVDA) Risk Zones",
+      "source": {
+        "name": "news.stocktradersdaily.com",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://news.stocktradersdaily.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://news.stocktradersdaily.com/news_release/4/Precision_Trading_with_Nvidia_Corporation_NVDA_Risk_Zones_080825074201_1754653321.html",
+      "thumbnail": "https://news.stocktradersdaily.com/media/600208_NVDA_graph.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iJ0NnNUJiV1F5YlU1dmVURlFRamRRVFJEZUFoaWdCaWdLTWdPbEF3dw",
+      "date": "08/08/2025, 07:42 AM, +0000 UTC"
+    },
+    {
+      "position": 80,
+      "title": "(NVDA) and the Role of Price-Sensitive Allocations",
+      "source": {
+        "name": "news.stocktradersdaily.com",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://news.stocktradersdaily.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://news.stocktradersdaily.com/news_release/3/NVDA_and_the_Role_of_Price-Sensitive_Allocations_080825081803_1754698683.html",
+      "thumbnail": "https://news.stocktradersdaily.com/media/600583_NVDA_graph.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iJ0NnNHRjVkZtYjFGTmFtTlBiVmg2VFJEZUFoaWdCaWdLTWdNbEJBdw",
+      "date": "08/08/2025, 08:18 PM, +0000 UTC"
+    },
+    {
+      "position": 81,
+      "title": "NVDA vs. TSM: Which Semiconductor Stock Is the Better AI Investment?",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Anirudha Bhagat"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/nvda-vs-tsm-semiconductor-stock-122300742.html",
+      "date": "07/18/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 82,
+      "title": "What’s the MACD signal for NVDA - Potential 10x Return Stocks",
+      "source": {
+        "name": "thegnnews.com",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=http://thegnnews.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "http://thegnnews.com/video/What%E2%80%99s-the-MACD-signal-for-NVDA",
+      "thumbnail": "https://f.fseo99.com/asserts/english/images/watermark_20250427_35_w2.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXNNVzVTUmpkSFNrVXROMnhMVFJEUUF4aVZCU2dLTWdhQlFZd25KUWM",
+      "date": "08/10/2025, 03:28 PM, +0000 UTC"
+    },
+    {
+      "position": 84,
+      "title": "AI still undervalued by the market, Wedbush analysts believe",
+      "source": {
+        "name": "Proactive financial news",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.proactiveinvestors.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Emily Jarvie"
+        ]
+      },
+      "link": "https://www.proactiveinvestors.com/companies/news/1076300/ai-still-undervalued-by-the-market-wedbush-analysts-believe-1076300.html",
+      "thumbnail": "https://cdn.proactiveinvestors.com/eyJidWNrZXQiOiJwYS1jZG4iLCJrZXkiOiJ1cGxvYWRcL05ld3NcL0ltYWdlXC8yMDI1XzA4XC9TY3JlZW5zaG90LTIwMjQtMDItMTUtYXQtNy00Ny0yMC1BTS5qcGciLCJlZGl0cyI6eyJyZXNpemUiOnsid2lkdGgiOjQyMCwiaGVpZ2h0IjoxOTUsImZpdCI6ImNvdmVyIn19fQ==",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNVBlR1ozZEZCMWJqQlpNMmRwVFJEREFSaWtBeWdLTWdZaFJJRE55UUk",
+      "date": "08/07/2025, 07:20 PM, +0000 UTC"
+    },
+    {
+      "position": 85,
+      "title": "Nvidia Stock: Time To Buy Or Sell? What Investors Need To Know.",
+      "source": {
+        "name": "Investor's Business Daily",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.investors.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Vidya Ramakrishnan"
+        ]
+      },
+      "link": "https://www.investors.com/research/nvidia-stock-nvda-buy-or-sell-what-investors-need-to-know-jensen-huang/",
+      "thumbnail": "https://www.investors.com/wp-content/uploads/2025/01/Stock-Nvidia-CES25-company.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNWxMVmhsTkhOV1RWSlNVV3RZVFJDTUF4aUhCaWdLTWdhUlE1cFJIUWs",
+      "date": "08/04/2025, 08:22 PM, +0000 UTC"
+    },
+    {
+      "position": 87,
+      "title": "How High Can Nvidia Stock Go as Jensen Huang Heads to China?",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Mohit Oberoi, CFA"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/high-nvidia-stock-jensen-huang-152818814.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/Igtx2Q0Uj7BygxF7VSpYaw--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD04MDA-/https://media.zenfs.com/en/barchart_com_477/be19911bf230a776b5d5f5aeb01b6b73",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNDVTelpyTkVGWFpFZFhaRTUwVFJERUF4aW1CU2dLTWdhbFJaTHNuUWs",
+      "date": "07/14/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 88,
+      "title": "Why Nvidia (NVDA) Stock Is Trading Up Today",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://finance.yahoo.com/news/why-nvidia-nvda-stock-trading-173615738.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/jsrIm20FwOkH0cgHIqBfsw--/YXBwaWQ9aGlnaGxhbmRlcjt3PTI0MDA7aD0xMjAw/https://media.zenfs.com/en/stockstory_922/c941ddf65a337c10e3f4bc08b2a8e4cb",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNU5XVFZuVTJ0elZsOXJVR3hyVFJDSEF4aVBCaWdLTWdZaFJJaXNSUVE",
+      "date": "07/15/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 89,
+      "title": "NVDA Broken Wing Butterfly Trade Targets A Profit Zone Between 150 And 160",
+      "source": {
+        "name": "Barchart.com",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://www.barchart.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Gavin Mcmaster"
+        ]
+      },
+      "link": "https://www.barchart.com/story/news/33580409/nvda-broken-wing-butterfly-trade-targets-a-profit-zone-between-150-and-160",
+      "thumbnail": "https://media.barchart.com/contributors-admin/common-images/images/Stocks%2C%20Markets%2C%20%26%20Global%20Economy/Charts%2C%20tickers%2C%20traders/Charting%20and%20analysis%20tablet%20and%20laptop%20by%20Pix1861%20via%20Pixabay.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNTNOSHBoUkhwdU0xWjBNVE54VFJEZ0F4aUFCU2dLTWdZRlFZUU96UU0",
+      "date": "07/23/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 91,
+      "title": "Dow Futures Rise As Trump’s Reciprocal Tariff Deadline Kicks In: AAPL, NVDA, INTC, LLY, SRPT Among Stocks To Watch",
+      "source": {
+        "name": "Stocktwits",
+        "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://stocktwits.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Rounak Jain"
+        ]
+      },
+      "link": "https://stocktwits.com/news-articles/markets/equity/dow-futures-rise-as-trump-reciprocal-tariff-deadline-kicks-in/chrmcrqRddY",
+      "thumbnail": "https://news.stocktwits-cdn.com/large_wall_street_resized1_jpg_7f200ce842.webp",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iL0NnNWFOVFppU1hORFJHeFVhVzlDVFJEZ0F4aUFCU2dLTWdtQjBZTFZWT1BBOGdB",
+      "date": "08/07/2025, 11:13 AM, +0000 UTC"
+    },
+    {
+      "position": 92,
+      "title": "Opinion: Here’s the outlook for Nvidia’s stock, according to options traders",
+      "source": {
+        "name": "MarketWatch",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://www.marketwatch.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Lawrence G. McMillan"
+        ]
+      },
+      "link": "https://www.marketwatch.com/story/heres-the-outlook-for-nvidias-stock-according-to-options-traders-90ed5f60",
+      "thumbnail": "https://images.mktw.net/im-16211257?width=1260&height=829",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNTZZbXBaWkZwVWRGVm1abEl4VFJEQkF4aXJCU2dLTWdhTlVZeWxwZ2c",
+      "date": "07/17/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 93,
+      "title": "Price-Driven Insight from (NVDA) for Rule-Based Strategy",
+      "source": {
+        "name": "news.stocktradersdaily.com",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://news.stocktradersdaily.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://news.stocktradersdaily.com/news_release/5/Price-Driven_Insight_from_NVDA_for_Rule-Based_Strategy_080725070602_1754607962.html",
+      "thumbnail": "https://news.stocktradersdaily.com/media/599833_NVDA_graph.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iJ0NnNDVTekYzZG5aaGNXY3lVSGN5VFJEZUFoaWdCaWdLTWdPaEF3bw",
+      "date": "08/07/2025, 07:06 PM, +0000 UTC"
+    },
+    {
+      "position": 94,
+      "title": "NVIDIA (NVDA) Strikes $2.36B AI Data Center Deal With Malaysia’s YTL Power",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Sheryar Siddiq"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/nvidia-nvda-strikes-2-36b-114927934.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/xtlS.VjuHR4pKRpFLOUG2A--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD04MDA-/https://media.zenfs.com/en/insidermonkey.com/4beabd482637ec7f5549a99b77c1d1cd",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iJ0NnNVhiVkZqYnpFeGVreGtORE5oVFJERUF4aW1CU2dLTWdNQmtBZw",
+      "date": "08/02/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 95,
+      "title": "Trump Weighed Nvidia Breakup But Was Told It Would Be ‘Hard’",
+      "source": {
+        "name": "Bloomberg.com",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://www.bloomberg.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Annmarie Hordern"
+        ]
+      },
+      "link": "https://www.bloomberg.com/news/articles/2025-07-23/trump-weighed-nvidia-breakup-before-realizing-it-d-be-hard",
+      "thumbnail": "https://assets.bwbx.io/images/users/iqjWHBFdfxIU/iJOFDThs80bQ/v1/-1x-1.webp",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXlXWEl0WW5OT1dtcGZaMlZTVFJERUF4aW1CU2dLTWdhSk1wNkhGZ28",
+      "date": "07/23/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 96,
+      "title": "NVIDIA Corporation (NVDA): Its CEO’s “Changed The World,” Says Jim Cramer",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ramish Cheema"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/nvidia-corporation-nvda-ceo-changed-183658418.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/kZveoOmr3ngssVpudK1u4A--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD02NzM-/https://media.zenfs.com/en/insidermonkey.com/aa94e059977d3251b8b0630718e013fc",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNUdXVGMxTVVscVIwdFlXazAyVFJDZkF4amtCU2dLTWdZQkFJd3J0UVU",
+      "date": "07/12/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 97,
+      "title": "Nvidia (NASDAQ: NVDA) Bull, Base, & Bear Price Prediction and Forecast (August 1)",
+      "source": {
+        "name": "24/7 Wall St.",
+        "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://247wallst.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Joel South"
+        ]
+      },
+      "link": "https://247wallst.com/forecasts/2025/08/01/nvidia-nvda-bull-base-bear-price-prediction-and-forecast/",
+      "thumbnail": "https://247wallst.com/wp-content/uploads/2024/03/shutterstock_2309474541-200x133.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iJ0NnNTFhRFpoUW1GTE1scEtabTVQVFJDRkFSaklBU2dLTWdPcDR4QQ",
+      "date": "08/01/2025, 11:50 AM, +0000 UTC"
+    },
+    {
+      "position": 98,
+      "title": "NVDA Surges, ETFs Lifted as China Chip Sales Set to Resume",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Sumit Roy"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/nvda-surges-etfs-lifted-china-203000530.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/k_ku3YZAuwdbFRXBW0ax9A--/YXBwaWQ9aGlnaGxhbmRlcjt3PTE1MjA7aD0xMDQw/https://media.zenfs.com/en/indexuniverse.com/ad8cc6c7e427f938acc6314f383dd877",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNVhZekJwV0hseVdYZFJObEpTVFJES0F4aWVCU2dLTWdZUllKSUpMZ2M",
+      "date": "07/15/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 100,
+      "title": "Nvidia Rally Shows Signs of Overheating as Gains Blow Past 80%",
+      "source": {
+        "name": "Bloomberg.com",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://www.bloomberg.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ryan Vlastelica"
+        ]
+      },
+      "link": "https://www.bloomberg.com/news/articles/2025-07-18/nvidia-nvda-share-price-rally-shows-signs-of-overheating-as-gains-blow-past-80",
+      "thumbnail": "https://assets.bwbx.io/images/users/iqjWHBFdfxIU/iq9IRIPTmVec/v0/1200x800.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNTZkM3BpVFZGSGJXaEJZVkZ1VFJERUF4aW1CU2dLTWdZQlJJaXRTUVE",
+      "date": "07/18/2025, 07:00 AM, +0000 UTC"
+    }
+  ],
+  "metadata": {
+    "source": "google_news",
+    "cached": false
+  }
+}

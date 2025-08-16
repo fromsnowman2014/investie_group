@@ -1,0 +1,1351 @@
+{
+  "symbol": "AAPL",
+  "date": "2025-08-11",
+  "timestamp": "2025-08-11T05:06:33.283Z",
+  "query": "AAPL news",
+  "summary": {
+    "headline": "Apple has its best week since July 2020 after White House visit",
+    "source": "google_news"
+  },
+  "articles": [
+    {
+      "position": 1,
+      "title": "Apple has its best week since July 2020 after White House visit",
+      "source": {
+        "name": "CNBC",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.cnbc.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Kif Leswing"
+        ]
+      },
+      "link": "https://www.cnbc.com/2025/08/08/apple-has-best-week-since-july-2020-after-tim-cooks-white-house-visit.html",
+      "thumbnail": "https://image.cnbcfm.com/api/v1/image/108182659-17545158022025-08-06t212640z_584618715_rc2x1gap6130_rtrmadp_0_usa-trump-investment.jpeg?v=1754515829&w=1600&h=900",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXlkR1ZUYXpsaWIxSlRRM1ZxVFJDZkF4ampCU2dLTWdZMVE1WXlJUWs",
+      "date": "08/08/2025, 09:02 PM, +0000 UTC"
+    },
+    {
+      "position": 2,
+      "title": "Is Apple Stock a Buy Now?",
+      "source": {
+        "name": "The Motley Fool",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.fool.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Keithen Drury"
+        ]
+      },
+      "link": "https://www.fool.com/investing/2025/08/10/is-apple-stock-a-buy-now/",
+      "thumbnail": "https://g.foolcdn.com/image/?url=https%3A%2F%2Fg.foolcdn.com%2Feditorial%2Fimages%2F828014%2Fperson-analyzing-data.jpg&op=resize&w=1200&h=630",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNUtTMTl2UmxRNGFGOVhhMUE0VFJERUF4aW1CU2dLTWdZQlFJcU52UVE",
+      "date": "08/10/2025, 09:30 AM, +0000 UTC"
+    },
+    {
+      "position": 3,
+      "title": "Wells Fargo Stays Bullish on Apple (AAPL) Amid $100B U.S. Expansion Plan",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ghazal Ahmed"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/wells-fargo-stays-bullish-apple-194439036.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/IV.uznUBp0uJf89KcpGNvQ--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD02NzM-/https://media.zenfs.com/en/insidermonkey.com/49a1b67e4d5cd2c95c4543d71a52bedb",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXpRamcxZG01UWNVMW5ka3BSVFJDZkF4amtCU2dLTWdZSm9vd0h2Z1E",
+      "date": "08/09/2025, 07:44 PM, +0000 UTC"
+    },
+    {
+      "position": 4,
+      "title": "Apple Stock Retakes Key Level After Dodging Tariff Bullet",
+      "source": {
+        "name": "Investor's Business Daily",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.investors.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Patrick Seitz"
+        ]
+      },
+      "link": "https://www.investors.com/news/technology/apple-stock-retakes-key-level-dodges-tariffs/",
+      "thumbnail": "https://www.investors.com/wp-content/uploads/2025/08/Stock-Apple-UmedaOsaka-company.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNDVhamQ2YVhadFVreDNVRk5LVFJDTUF4aUhCaWdLTWdZcGM0U3R0UVU",
+      "date": "08/08/2025, 08:11 PM, +0000 UTC"
+    },
+    {
+      "position": 5,
+      "title": "Apple's New Siri Voice-Control Feature Could Revolutionize User Experience - Apple (NASDAQ:AAPL)",
+      "source": {
+        "name": "Benzinga",
+        "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://www.benzinga.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Bibhu Pattnaik"
+        ]
+      },
+      "link": "https://www.benzinga.com/markets/tech/25/08/47021765/apples-new-siri-voice-control-feature-could-revolutionize-user-experience",
+      "thumbnail": "https://cdn.benzinga.com/files/images/story/2025/08/10/Apple-Siri.jpeg?width=1200&height=800&fit=crop",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iI0NnNVdOVVF4YW5kZlEwRmFUM1JVVFJERUF4aW1CU2dLTWdB",
+      "date": "08/10/2025, 07:43 PM, +0000 UTC"
+    },
+    {
+      "position": 6,
+      "title": "Apple Stock (AAPL) Pops as Trump Vows 100% Tariff Relief for US Makers",
+      "source": {
+        "name": "TipRanks",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.tipranks.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Kirti Tak"
+        ]
+      },
+      "link": "https://www.tipranks.com/news/apple-stock-aapl-pops-as-trump-vows-100-tariff-relief-for-us-makers",
+      "thumbnail": "https://blog.tipranks.com/wp-content/uploads/2025/08/shutterstock_2615731483-750x406.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iL0NnNU1jMnRtVWw5TVQwWlBSRmR2VFJDV0F4anVCU2dLTWdrVmdvNUpMcWRGcndF",
+      "date": "08/08/2025, 06:50 AM, +0000 UTC"
+    },
+    {
+      "position": 7,
+      "title": "Apple’s Siri delay is said to mask bigger AI ambitions behind the scenes (AAPL:NASDAQ)",
+      "source": {
+        "name": "Seeking Alpha",
+        "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://seekingalpha.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Rob Williams"
+        ]
+      },
+      "link": "https://seekingalpha.com/news/4482956-apple-s-siri-delay-is-said-to-mask-bigger-ai-ambitions-behind-the-scenes",
+      "thumbnail": "https://static.seekingalpha.com/cdn/s3/uploads/getty_images/458610713/image_458610713.jpg?io=getty-c-w750",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iL0NnNW1lV1k1Ym5GQ2FrczBPRWxXVFJERUF4aW1CU2dLTWdtQlJZS2pXaUo3WndJ",
+      "date": "08/10/2025, 08:33 PM, +0000 UTC"
+    },
+    {
+      "position": 8,
+      "title": "Is Apple Stock a Buy After Appeasing President Trump?",
+      "source": {
+        "name": "TradingView",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.tradingview.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://www.tradingview.com/news/zacks:0febd2823094b:0-is-apple-stock-a-buy-after-appeasing-president-trump/",
+      "thumbnail": "https://s.tradingview.com/static/images/illustrations/news-story.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNURZazV6YjAxTVVtMDBUVGxSVFJDUkF4ajhCU2dLTWdhQlVZaUV5Z00",
+      "date": "08/08/2025, 09:25 PM, +0000 UTC"
+    },
+    {
+      "position": 9,
+      "title": "Apple's deal with Trump is a 'remarkable turn,' Jim Cramer says",
+      "source": {
+        "name": "CNBC",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.cnbc.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Julie Coleman"
+        ]
+      },
+      "link": "https://www.cnbc.com/2025/08/07/apples-trump-jim-cramer.html",
+      "thumbnail": "https://image.cnbcfm.com/api/v1/image/105842165-1554931933070img_1295r.jpg?v=1696285776&w=1600&h=900",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNUlNbmhMZGpKTFZWVTJSbXcxVFJDZkF4ampCU2dLTWdZcEpacXVGUW8",
+      "date": "08/07/2025, 11:21 PM, +0000 UTC"
+    },
+    {
+      "position": 10,
+      "title": "Final Trade: AAPL, NOVO, RL",
+      "source": {
+        "name": "CNBC",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.cnbc.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://www.cnbc.com/video/2025/08/07/final-trade-aapl-novo-rl.html",
+      "thumbnail": "https://image.cnbcfm.com/api/v1/image/108183312-17546040891754604086-41080876681-1080pnbcnews.jpg?v=1754604088&w=750&h=422&vtcrop=y",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iL0NnNVJka05wV1VST2VFUlNjbVl0VFJDZkF4amlCU2dLTWdrTklKaEhxbWNXQkFN",
+      "date": "08/07/2025, 10:04 PM, +0000 UTC"
+    },
+    {
+      "position": 11,
+      "title": "Why Apple (AAPL) Stock Is Moving Upwards",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://finance.yahoo.com/news/why-apple-aapl-stock-moving-124350886.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/W2aLKxoSTR5OCY2teAVidg--/YXBwaWQ9aGlnaGxhbmRlcjt3PTY0MDtoPTQyNg--/https://media.zenfs.com/en/us.finance.gurufocus/cff49c930470c65bf9b8fbfe84bc37e9",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNVlOekpCV2xaWmMxRnVha3RxVFJEdUFoaW1CQ2dLTWdZSmdvU05NUU0",
+      "date": "08/08/2025, 12:43 PM, +0000 UTC"
+    },
+    {
+      "position": 12,
+      "title": "Apple (AAPL) Is Up 13.3% After $100 Billion Boost to US Manufacturing Plan—What's Changed",
+      "source": {
+        "name": "simplywall.st",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://simplywall.st&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://simplywall.st/stocks/us/tech/nasdaq-aapl/apple/news/apple-aapl-is-up-133-after-100-billion-boost-to-us-manufactu",
+      "thumbnail": "https://images.simplywall.st/asset/company-cover/24937-main-header/1585186602089",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNDRXRTVuWlMxT2VGRkVZM3BVVFJETkFoaVpCeWdLTWdZWkpJN01KUWc",
+      "date": "08/10/2025, 05:27 PM, +0000 UTC"
+    },
+    {
+      "position": 13,
+      "title": "AAPL NEWS: Did Apple Inc. Mislead Investors? Contact BFA Law by August 19 Class Action Deadline (NASDAQ:AAPL)",
+      "source": {
+        "name": "GlobeNewswire",
+        "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://www.globenewswire.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Bleichmar Fonti"
+        ]
+      },
+      "link": "https://www.globenewswire.com/news-release/2025/08/09/3130455/0/en/AAPL-NEWS-Did-Apple-Inc-Mislead-Investors-Contact-BFA-Law-by-August-19-Class-Action-Deadline-NASDAQ-AAPL.html",
+      "thumbnail": "https://ml.globenewswire.com/Resource/Download/44a256cf-d470-4d8a-af6b-dbb1b5bbb11e?size=2",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iKkNnNUhaSGxTYkMxelRWRnNhMmRJVFJCYUdLd0NLQW95QnFsamhIRFJCQQ",
+      "date": "08/09/2025, 11:37 AM, +0000 UTC"
+    },
+    {
+      "position": 14,
+      "title": "Apple to invest another $100B in U.S. as Trump applies pressure",
+      "source": {
+        "name": "Axios",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.axios.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Nathan Bomey"
+        ]
+      },
+      "link": "https://www.axios.com/2025/08/06/apple-trump-tariffs-iphone",
+      "thumbnail": "https://images.axios.com/N4O75-WUGvuN-atPpLFrkFiB-54=/1920x1080/smart/2020/06/19/002519-1592526319135.jpg?w=3840",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXpVSG8yUjFJelluQnVVSGRVVFJDZkF4ampCU2dLTWdZbEpZaXVuUVE",
+      "date": "08/06/2025, 11:32 PM, +0000 UTC"
+    },
+    {
+      "position": 15,
+      "title": "Apple (AAPL) Gets $266 Price Target as App Store Growth Surges",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ghazal Ahmed"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/apple-aapl-gets-266-price-113620767.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/ph7efWr4fq0_KVDvxkNmqA--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD02NzM-/https://media.zenfs.com/en/insidermonkey.com/0dad0a6378d171db5be4738aab1213d5",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNUlNbDlTU0c1c1Exb3lTRkpWVFJDZkF4amtCU2dLTWdhVlVvcG9IZ2s",
+      "date": "08/06/2025, 11:36 AM, +0000 UTC"
+    },
+    {
+      "position": 16,
+      "title": "Apple Stock Rises On Company's New U.S. Investment Commitment",
+      "source": {
+        "name": "Investor's Business Daily",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.investors.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Patrick Seitz"
+        ]
+      },
+      "link": "https://www.investors.com/news/technology/apple-stock-new-us-investment-commitment-president-trump/",
+      "thumbnail": "https://www.investors.com/wp-content/uploads/2025/08/ITrumpCook080625getty.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iL0NnNTFja2MzYmtScFdVaEZNR3N0VFJDTUF4aUhCaWdLTWdtTklhRFdFS3V4aGdJ",
+      "date": "08/06/2025, 10:25 PM, +0000 UTC"
+    },
+    {
+      "position": 17,
+      "title": "Apple: $600 Billion Noise (NASDAQ:AAPL)",
+      "source": {
+        "name": "Seeking Alpha",
+        "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://seekingalpha.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://seekingalpha.com/article/4811936-apple-600-billion-noise",
+      "thumbnail": "https://static.seekingalpha.com/cdn/s3/uploads/getty_images/1215497263/image_1215497263.jpg?io=getty-c-w1280",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNHlPRmh5ZFY5VFZrSm9OMFE1VFJDM0F4aTdCU2dLTWdhUlVaWUxyUWc",
+      "date": "08/10/2025, 06:00 PM, +0000 UTC"
+    },
+    {
+      "position": 18,
+      "title": "Apple is back on Trump's good side. The cost? $600 billion.",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Daniel Howley"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/apple-is-back-on-trumps-good-side-the-cost-600-billion-113413035.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/4.BHc_wGQCcZws33pShXYw--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD04MDA-/https://s.yimg.com/os/creatr-uploaded-images/2025-08/073f7bb0-730f-11f0-bc7a-cf10af5e5b51",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iL0NnNWhUemRYWDA1Nk4yWlNhMlU0VFJERUF4aW1CU2dLTWdtRlVacjFwQ2k1aHdJ",
+      "date": "08/08/2025, 11:34 AM, +0000 UTC"
+    },
+    {
+      "position": 19,
+      "title": "Apple (AAPL) Stock Quotes, Company News And Chart Analysis",
+      "source": {
+        "name": "Investor's Business Daily",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.investors.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://www.investors.com/news/technology/apple-stock-quotes-company-news-and-chart-analysis/",
+      "thumbnail": "https://www.investors.com/wp-content/uploads/2016/12/QUOTE-aapl-121516-iStock-1.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXFjbmRRTTJKbk9FZ3pUVzVNVFJDZkF4amlCU2dLTWdZQmdJQ01yUVk",
+      "date": "08/08/2025, 03:59 PM, +0000 UTC"
+    },
+    {
+      "position": 20,
+      "title": "Shareholder warns Apple's $100 billion investment is more optics than impact",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Francisco Velasquez"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/shareholder-warns-apples-100-billion-investment-is-more-optics-than-impact-164045324.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/U34dy5xv2eeh9E3FCMhjWg--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD04MDE-/https://s.yimg.com/os/creatr-uploaded-images/2025-08/13fdf060-73a6-11f0-bfff-b46435ab989e",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iL0NnNXhUbEowUzBwdmJYQTFTRFZUVFJERUF4aW1CU2dLTWdrTk1wajBHS3FwaGdJ",
+      "date": "08/08/2025, 09:35 AM, +0000 UTC"
+    },
+    {
+      "position": 21,
+      "title": "Apple Announces $100 Billion US Investment Ahead of Trump Event",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Hadriana Lowenkron"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/trump-apple-announce-fresh-100-130329501.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/XUyxCQpa.r5m008SEEUzlA--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD04MDA-/https://media.zenfs.com/en/bloomberg_holding_pen_162/56c68e99bb9e3ea6b1876483a9989dc1",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNDNUVmxpVFhjeGEwdHBWRkowVFJERUF4aW1CU2dLTWdZZHdvYk5UUU0",
+      "date": "08/06/2025, 08:59 PM, +0000 UTC"
+    },
+    {
+      "position": 22,
+      "title": "Apple announces additional $100 billion in US investment, following Trump iPhone tariff threat",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Daniel Howley"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/apple-announces-additional-100-billion-in-us-investment-following-trump-iphone-tariff-threat-210803143.html",
+      "date": "08/07/2025, 09:12 AM, +0000 UTC"
+    },
+    {
+      "position": 23,
+      "title": "Apple Inc. (AAPL) Might Be The Largest Taxpayer In America, Says Jim Cramer",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ramish Cheema"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/apple-inc-aapl-might-largest-193549591.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/sU5HsG4f7PlXKcZgCzy5Dw--/YXBwaWQ9aGlnaGxhbmRlcjt3PTI0MDA7aD0xNjAw/https://media.zenfs.com/en/insidermonkey.com/00c104d0c902f8992f54ec19dcc0d35d",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNVllSFV6U0hRMFFuUlhjVU5pVFJERUF4aW1CU2dLTWdhWlVwWnJKUWc",
+      "date": "08/08/2025, 07:35 PM, +0000 UTC"
+    },
+    {
+      "position": 24,
+      "title": "Apple's $704 Billion Decade-Long Buybacks Exceed Market Cap Of All But 13 Companies Worldwide",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Rishabh Mishra"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/apples-704-billion-decade-long-213225306.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/C.JMmix1A9WbbUY4oMYuoQ--/YXBwaWQ9aGlnaGxhbmRlcjt3PTIwNDg7aD0xMTUy/https://media.zenfs.com/en/benzinga_79/803828d333cce54aeefd434239f4ed87",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iJ0NnNXhNV1ZtU0hjM05XTnpkRXBsVFJDZkF4ampCU2dLTWdNQk1CUQ",
+      "date": "08/08/2025, 09:32 PM, +0000 UTC"
+    },
+    {
+      "position": 25,
+      "title": "How Apple's 'made-in-America' strategy led to big market gains",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://finance.yahoo.com/video/apples-made-america-strategy-led-202608941.html",
+      "thumbnail": "https://s.yimg.com/uu/api/res/1.2/8Hbd7ax0eZRKHH.30AlbgA--~B/aD0zMzc4O3c9NjAwMDthcHBpZD15dGFjaHlvbg--/https://s.yimg.com/os/creatr-uploaded-images/2025-08/cc968870-7492-11f0-9d37-abd7e5da2bd0",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNHpPV2g1T0Y4M2JHOXdXSGRYVFJDZkF4amlCU2dLTWdZaEE1VE1qUXM",
+      "date": "08/08/2025, 08:26 PM, +0000 UTC"
+    },
+    {
+      "position": 26,
+      "title": "Daiwa Sticks With Apple (AAPL), Citing AI as Key to Multi-Year Growth",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ghazal Ahmed"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/daiwa-sticks-apple-aapl-citing-200158695.html",
+      "thumbnail": "https://media.zenfs.com/en/insidermonkey.com/ac4b8b827d378fc3b92d24e2bc7fa1c8",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXViMlZwTURFMk9FODFhRmxqVFJEVkF4aU9CU2dLTWdZQlJKYXFzUWM",
+      "date": "08/08/2025, 08:01 PM, +0000 UTC"
+    },
+    {
+      "position": 27,
+      "title": "Watch live: Apple CEO Cook joins Trump for investment announcement at White House",
+      "source": {
+        "name": "CNBC",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.cnbc.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Kif Leswing"
+        ]
+      },
+      "link": "https://www.cnbc.com/2025/08/06/apple-stock-trump-cook-white-house.html",
+      "thumbnail": "https://image.cnbcfm.com/api/v1/image/108182649-17545150932025-08-06t211628z_1151567477_rc2x1gac55da_rtrmadp_0_usa-trump-investment.jpeg?v=1754515129&w=1600&h=900",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iL0NnNVBNMmR0U0ZwRE9HRmxibXhOVFJDZkF4ampCU2dLTWdtQkFaUVJEU3U0aHdJ",
+      "date": "08/06/2025, 05:34 PM, +0000 UTC"
+    },
+    {
+      "position": 28,
+      "title": "Apple's $600 Billion U.S. Investment Could Reshape Its Future",
+      "source": {
+        "name": "The Motley Fool",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.fool.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Patrick Sanders"
+        ]
+      },
+      "link": "https://www.fool.com/investing/2025/08/10/apples-600-billion-us-investment-could-reshape-its/",
+      "thumbnail": "https://g.foolcdn.com/editorial/images/828312/aapl.png",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXJibE10YlhaYVV6UnlZelZEVFJDdEF4akxCU2dLTWdZbFJZYk5vUVE",
+      "date": "08/10/2025, 07:45 AM, +0000 UTC"
+    },
+    {
+      "position": 29,
+      "title": "Apple leads surge in global tech shares after Trump tariff relief",
+      "source": {
+        "name": "Reuters",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.reuters.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Shashwat Chauhan",
+          "Rae Wee",
+          "Ankur Banerjee"
+        ]
+      },
+      "link": "https://www.reuters.com/world/asia-pacific/apple-leads-surge-global-tech-shares-after-trump-tariff-relief-2025-08-07/",
+      "thumbnail": "https://www.reuters.com/resizer/v2/SPZNFW5FHZLGNNFUI55WGKAKSU.jpg?auth=b066eb2e22635fde1d83f216df6cbdd6b505ae858598f08b1ab3bdcbeaa892ab&height=1005&width=1920&quality=80&smart=true",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNW1NR04wZEV4WlpsbzROa05KVFJDUUF4ai1CU2dLTWdZQkFJeWxHUWc",
+      "date": "08/07/2025, 01:58 PM, +0000 UTC"
+    },
+    {
+      "position": 30,
+      "title": "Why Shares of Apple Are Surging Today",
+      "source": {
+        "name": "The Motley Fool",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.fool.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Bram Berkowitz"
+        ]
+      },
+      "link": "https://www.fool.com/investing/2025/08/08/why-shares-of-apple-are-surging-today/",
+      "thumbnail": "https://g.foolcdn.com/image/?url=https%3A%2F%2Fg.foolcdn.com%2Feditorial%2Fimages%2F828701%2Fpositive-person-3.jpg&op=resize&w=400&h=400",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNVJaeTB5YzBJNGRtOTRaRXBvVFJDS0FoaVFBeWdLTWdhZFZJNnNwUWc",
+      "date": "08/08/2025, 06:47 PM, +0000 UTC"
+    },
+    {
+      "position": 31,
+      "title": "Apple's $100 Billion Move To Fortify America's Walled Garden",
+      "source": {
+        "name": "Seeking Alpha",
+        "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://seekingalpha.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Oliver Rodzianko"
+        ]
+      },
+      "link": "https://seekingalpha.com/article/4811888-apples-100-billion-move-to-fortify-americas-walled-garden",
+      "thumbnail": "https://static.seekingalpha.com/cdn/s3/uploads/getty_images/1098397386/image_1098397386.jpg?io=getty-c-w1536",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iNkNnNWFOMVZXUm1veFJVWkZjR0Z5VFJERUF4aW1CU2dLTWc0SkFJNHNIZVpySTN1TGN5S0tKZw",
+      "date": "08/10/2025, 10:11 AM, +0000 UTC"
+    },
+    {
+      "position": 32,
+      "title": "Apple surges on a new $100 billion U.S. investment. What Cramer thinks about stock",
+      "source": {
+        "name": "CNBC",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.cnbc.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Morgan Chittum"
+        ]
+      },
+      "link": "https://www.cnbc.com/2025/08/06/apple-surges-on-a-new-100-billion-us-investment-what-cramer-thinks-about-stock.html",
+      "thumbnail": "https://image.cnbcfm.com/api/v1/image/108180753-1754080060282-gettyimages-2228097509-mms24196_ydbq4k5q.jpeg?v=1754080283&w=600&h=300&vtcrop=y",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNTRWRmQxUnpKWWFHNW1hVk5PVFJDc0FoallCQ2dLTWdZQkJKU1FDUXM",
+      "date": "08/06/2025, 04:23 PM, +0000 UTC"
+    },
+    {
+      "position": 33,
+      "title": "Has Apple Cracked the Code on How to Avoid More Trump Tariffs?",
+      "source": {
+        "name": "Investopedia",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://www.investopedia.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Kara Greenberg"
+        ]
+      },
+      "link": "https://www.investopedia.com/has-apple-cracked-the-code-on-how-to-avoid-more-trump-tariffs-11786638",
+      "thumbnail": "https://www.investopedia.com/thmb/7R3XzgSB4R28LUywma5z1FlCw1o=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/GettyImages-2228114307-55c84470c6bd49ec9a4f7bb2f6c8f7dd.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNUtOSE4yYjFKQ2JYUTVhWFZzVFJERUF4aW1CU2dLTWdZUlE1SW5wUWc",
+      "date": "08/07/2025, 03:11 PM, +0000 UTC"
+    },
+    {
+      "position": 34,
+      "title": "Why Apple Is Jumping Today",
+      "source": {
+        "name": "The Motley Fool",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.fool.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Keith Noonan"
+        ]
+      },
+      "link": "https://www.fool.com/investing/2025/08/07/why-apple-is-jumping-today/",
+      "thumbnail": "https://g.foolcdn.com/image/?url=https%3A%2F%2Fg.foolcdn.com%2Feditorial%2Fimages%2F828463%2Fgettyimages-1248262649.jpg&op=resize&w=400&h=400",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iL0NnNTRVMHBmWlV0TE5VUlNWVlU1VFJEekFSaVFBeWdLTWdrQlFZcm13ZVF0aHdJ",
+      "date": "08/07/2025, 05:58 PM, +0000 UTC"
+    },
+    {
+      "position": 35,
+      "title": "Apple Stock (AAPL) Surges on New $100B U.S. Investment Drive",
+      "source": {
+        "name": "TipRanks",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.tipranks.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "David Craik"
+        ]
+      },
+      "link": "https://www.tipranks.com/news/apple-stock-aapl-surges-on-new-100b-u-s-investment-drive",
+      "thumbnail": "https://blog.tipranks.com/wp-content/uploads/2025/08/cookie-750x406.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXRjV2x6WW5OTldrdzNUR0ppVFJDV0F4anVCU2dLTWdZcEk0YnRGUW8",
+      "date": "08/06/2025, 02:48 PM, +0000 UTC"
+    },
+    {
+      "position": 36,
+      "title": "Apple becomes latest company to offer cash olive branch to Trump. How do you invest around this?",
+      "source": {
+        "name": "CNBC",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.cnbc.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "John Melloy"
+        ]
+      },
+      "link": "https://www.cnbc.com/2025/08/06/apple-is-latest-company-to-offer-olive-branch-to-trump-how-to-invest-around-this.html",
+      "thumbnail": "https://image.cnbcfm.com/api/v1/image/108150099-1748021082467-gettyimages-2194393718-TRUMP_INAUGURATION_2025.jpeg?v=1748021171&w=1920&h=1080",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iL0NnNHhPREV4UW1Ka09EUkRVREJzVFJDZkF4ampCU2dLTWdrQlFKaGpxQ2lKeUFJ",
+      "date": "08/06/2025, 06:26 PM, +0000 UTC"
+    },
+    {
+      "position": 37,
+      "title": "$100 Billion Buys 12% Increase In Apple's Shares",
+      "source": {
+        "name": "24/7 Wall St.",
+        "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://247wallst.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Douglas A. McIntyre"
+        ]
+      },
+      "link": "https://247wallst.com/apps-software/2025/08/10/100-billion-buys-12-increase-in-apples-shares/",
+      "thumbnail": "https://247wallst.com/wp-content/uploads/2025/01/GettyImages-1980124888-scaled.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iL0NnNVVOR05TT1RGRmJYUk5jVFp1VFJERUF4aW1CU2dLTWdrQlVZaEpxdVZ6VXdF",
+      "date": "08/10/2025, 01:34 PM, +0000 UTC"
+    },
+    {
+      "position": 38,
+      "title": "AAPL - Apple Inc Latest Stock News & Market Updates",
+      "source": {
+        "name": "Stock Titan",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.stocktitan.net&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://www.stocktitan.net/news/AAPL/",
+      "thumbnail": "https://static.stocktitan.net/company-logo/aapl-sm.png",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXVRMjFWWkRkaVFpMXRiRVk1VFJDV0FSaVdBU2dLTWdhbFk0Nk5yUVk",
+      "date": "08/06/2025, 08:40 PM, +0000 UTC"
+    },
+    {
+      "position": 39,
+      "title": "Why Apple (AAPL) Shares Are Climbing Today",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://finance.yahoo.com/news/why-apple-aapl-shares-climbing-165402246.html",
+      "thumbnail": "https://media.zenfs.com/en/us.finance.gurufocus/40a12a1b7769c635ead36fab47a12566",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNHlUazVQVmkxcFZuSlZOMU5ZVFJDUUF4aVFBeWdLTWdZbGRKQ05MUVk",
+      "date": "08/06/2025, 04:54 PM, +0000 UTC"
+    },
+    {
+      "position": 40,
+      "title": "Apple Unveils $600B US Investment Plan: Every iPhone Will Use Kentucky-Made Glass",
+      "source": {
+        "name": "Stock Titan",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.stocktitan.net&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://www.stocktitan.net/news/AAPL/apple-increases-u-s-commitment-to-600-billion-announces-american-4589kgwgh5fu.html",
+      "thumbnail": "https://www.stocktitan.net/news_covers/Apple_increases_U_S_commitment_to_600_billion_announces_American_Manufacturing_Program_889806.png",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNTNVWGxtVEdocmRGTXpRVTVtVFJERUF4aW1CU2dLTWdZTk1aVE1IQWc",
+      "date": "08/06/2025, 08:40 PM, +0000 UTC"
+    },
+    {
+      "position": 41,
+      "title": "Stocks to Watch Recap: Apple, Tesla, Firefly, Block",
+      "source": {
+        "name": "The Wall Street Journal",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://www.wsj.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://www.wsj.com/livecoverage/stock-market-today-dow-sp-500-nasdaq-08-08-2025/card/stocks-to-watch-friday-block-soundhound-pinterest-v4pCfVvffZouDQuUa4SU?gaa_at=eafs&gaa_n=ASWzDAhkL-klwTl3JbWH3Pw0Z2yRXhCD3djBUgxXE9mINAGXAjFgrnBFAcl3&gaa_ts=68997ddc&gaa_sig=rxDDjV3sxhOZf17nI950yrFijaD_sw56eOTG2rh96qJ_azdPVSj4a9pNXoSLEg3uAOPW-t2brF7gwxUQCa_W7w%3D%3D",
+      "thumbnail": "https://images.wsj.net/im-89091562?width=620&height=413",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXdOVTVJU1hWdmNYSnJTMnd5VFJDZEF4anNCQ2dLTWdhQjVJRHJVUU0",
+      "date": "08/08/2025, 08:13 AM, +0000 UTC"
+    },
+    {
+      "position": 42,
+      "title": "Apple (AAPL.O) Sudden Intraday Spike: A Technical and Market Flow Deep Dive",
+      "source": {
+        "name": "AInvest",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.ainvest.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://www.ainvest.com/news/apple-aapl-sudden-intraday-spike-technical-market-flow-deep-dive-2508/",
+      "thumbnail": "https://cdn.ainvest.com/aigc/hxcmp/images/compress-aime_generated_1754678856773.jpg.png",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iL0NnNDFOemRRTkRKcU9YaE1SMFpGVFJDZkF4ampCU2dLTWdtVlVacnpJR21hS1FJ",
+      "date": "08/08/2025, 06:48 PM, +0000 UTC"
+    },
+    {
+      "position": 43,
+      "title": "Where Will Apple Be in 1 Year?",
+      "source": {
+        "name": "The Motley Fool",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.fool.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Neil Patel"
+        ]
+      },
+      "link": "https://www.fool.com/investing/2025/08/09/where-will-apple-be-in-1-year/",
+      "thumbnail": "https://g.foolcdn.com/image/?url=https%3A%2F%2Fg.foolcdn.com%2Feditorial%2Fimages%2F828261%2Fpointing-and-pondering.jpg&op=resize&w=400&h=400",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNW1PSEZNWVVsdlpUVnZlVnBOVFJDS0FoaVFBeWdLTWdhNVE0Z3lvUWc",
+      "date": "08/09/2025, 10:35 AM, +0000 UTC"
+    },
+    {
+      "position": 44,
+      "title": "Apple: Is The $100 Billion Deal Really A Smart Move? (NASDAQ:AAPL)",
+      "source": {
+        "name": "Seeking Alpha",
+        "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://seekingalpha.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://seekingalpha.com/article/4811390-apple-is-the-100-billion-deal-really-a-smart-move",
+      "thumbnail": "https://static.seekingalpha.com/cdn/s3/uploads/getty_images/177826055/image_177826055.jpg?io=getty-c-w750",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNDNlRGx0TFhBdE9HeDBjVUpuVFJERkF4aW1CU2dLTWdhWmhKQ3V0UVk",
+      "date": "08/08/2025, 08:08 PM, +0000 UTC"
+    },
+    {
+      "position": 45,
+      "title": "Apple’s chip deal with Samsung is great news for future iPhones",
+      "source": {
+        "name": "9to5Mac",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://9to5mac.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://9to5mac.com/2025/08/08/apples-chip-deal-with-samsung-is-great-news-for-future-iphones/",
+      "thumbnail": "https://9to5mac.com/wp-content/uploads/sites/6/2025/08/Apples-chip-deal-with-Samsung-is-great-news-for-future-iPhones.jpg?quality=82&strip=all&w=1600",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iL0NnNUJjM2xZTVVaMGRra3hibk5NVFJDSEF4aVBCaWdLTWdtWmdZVHNQR1JyVEFJ",
+      "date": "08/08/2025, 04:00 PM, +0000 UTC"
+    },
+    {
+      "position": 46,
+      "title": "Why Apple avoiding a big AI acquisition could signal good news",
+      "source": {
+        "name": "9to5Mac",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://9to5mac.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ryan Christoffel"
+        ]
+      },
+      "link": "https://9to5mac.com/2025/08/08/why-apple-avoiding-a-big-ai-acquisition-could-signal-good-news/",
+      "thumbnail": "https://9to5mac.com/wp-content/uploads/sites/6/2024/09/apple-fifth-ave-apple-intelligence-iphone-16.jpg?quality=82&strip=all&w=1600",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iJ0NnNVdWVFp2TTJabFpWOTVhakJLVFJDSEF4aVBCaWdLTWdNZFFnSQ",
+      "date": "08/08/2025, 05:34 PM, +0000 UTC"
+    },
+    {
+      "position": 47,
+      "title": "Jim Cramer Says \"It’s Getting Ridiculous How the Market Now Hates Apple\"",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Syeda Seirut Javed"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/jim-cramer-says-getting-ridiculous-170138013.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/bZeAAQ7h2v70s881EHnf8g--/YXBwaWQ9aGlnaGxhbmRlcjt3PTI0MDA7aD0xNjAw/https://media.zenfs.com/en/insidermonkey.com/21a3884aaea54d8e34ff2f7c65232ab7",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNVVVbTV0VWxobGQxOXVaMnBzVFJERUF4aW1CU2dLTWdhWkVJQnVKUUk",
+      "date": "08/07/2025, 05:01 PM, +0000 UTC"
+    },
+    {
+      "position": 48,
+      "title": "JPMorgan Bumps Apple (AAPL) PT to $250, Keeps ‘Overweight’",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ghazal Ahmed"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/jpmorgan-bumps-apple-aapl-pt-150800931.html",
+      "thumbnail": "https://media.zenfs.com/en/insidermonkey.com/62cb46e6eeef5e0adeaa5b81e9188f72",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNDRSVXRSY0hSWFF6ZFpiRm8zVFJDbUJSakVBeWdLTWdZdGNvWlFWUU0",
+      "date": "07/19/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 49,
+      "title": "Apple (AAPL.O) Sees Unusual Intraday Spike—What’s the Real Driver?",
+      "source": {
+        "name": "AInvest",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.ainvest.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://www.ainvest.com/news/apple-aapl-sees-unusual-intraday-spike-real-driver-2508/",
+      "thumbnail": "https://www.ainvest.com/wencai-ssr/og-image-news-20240226.png",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXBRVWxTVFZCQk1IRlpYMEpwVFJDUkF4ajhCU2dLTWdhVlFaQUlvUWs",
+      "date": "08/08/2025, 05:53 PM, +0000 UTC"
+    },
+    {
+      "position": 50,
+      "title": "Strategic Options Positioning for AAPL's AI-Driven iPhone 17 Catalyst",
+      "source": {
+        "name": "AInvest",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.ainvest.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Albert Fox Cahn"
+        ]
+      },
+      "link": "https://www.ainvest.com/news/strategic-options-positioning-aapl-ai-driven-iphone-17-catalyst-2508/",
+      "thumbnail": "https://cdn.ainvest.com/aigc/hxcmp/images/compress-aime_generated_1754756171079.jpg.png",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNU5YMFZ6ZVRCWVIyTnFUWEI2VFJDZkF4ampCU2dLTWdZSmdKRHROUVk",
+      "date": "08/09/2025, 04:16 PM, +0000 UTC"
+    },
+    {
+      "position": 51,
+      "title": "Apple Stock Forecast: As Critics Call for Cook to Step Down, How Bad Are Things Really for AAPL?",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Mohit Oberoi, CFA"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/apple-stock-forecast-critics-call-164207381.html",
+      "thumbnail": "https://media.zenfs.com/en/barchart_com_477/0ebcb181fa5c1dc0fd30a445fb867adb",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNVZlR3BxVnpoUVFsZERkM0Z5VFJERUF4aW1CU2dLTWdhbFFvak5IUWs",
+      "date": "07/21/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 52,
+      "title": "Davis Selected Advisers Increases Stake in Apple Inc",
+      "source": {
+        "name": "TipRanks",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.tipranks.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://www.tipranks.com/news/company-announcements/davis-selected-advisers-increases-stake-in-apple-inc",
+      "thumbnail": "https://blog.tipranks.com/wp-content/uploads/2022/09/shutterstock_711401320-750x406.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNDVObEpWYzJOcWJYSmpaa2hPVFJDV0F4anVCU2dLTWdZaEVJNnVIUVU",
+      "date": "08/10/2025, 03:05 AM, +0000 UTC"
+    },
+    {
+      "position": 53,
+      "title": "Apple Inc. (AAPL) shares surge 3.18% on Trump tariff exemption, $100B U.S. investment plan.",
+      "source": {
+        "name": "AInvest",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.ainvest.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://www.ainvest.com/news/apple-aapl-shares-surge-3-18-trump-tariff-exemption-100b-investment-plan-2508/",
+      "thumbnail": "https://cdn.ainvest.com/aigc/hxcmp/images/compress-1b1d16c985c20001.png",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iL0NnNWZUMDVzUWtKdFEyeERPRlpUVFJDZkF4ampCU2dLTWdtSk1KTE1tS2FoemdF",
+      "date": "08/08/2025, 09:00 AM, +0000 UTC"
+    },
+    {
+      "position": 54,
+      "title": "Apple Inc. (AAPL) Might Be The Largest Taxpayer In America, Says Jim Cramer",
+      "source": {
+        "name": "Insider Monkey",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://www.insidermonkey.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ramish Cheema"
+        ]
+      },
+      "link": "https://www.insidermonkey.com/blog/apple-inc-aapl-might-be-the-largest-taxpayer-in-america-says-jim-cramer-1586869/",
+      "thumbnail": "https://imonkey-blog.imgix.net/blog/wp-content/uploads/2023/01/31074729/fitbit-Apple-Watch-Health-Tracking-fitness-andres-urena-V7UoMNWsYsg-unsplash.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNHhNVko1Y2xobVMzaHlTVlpuVFJERUF4aW1CU2dLTWdhWlVwWnJKUWc",
+      "date": "08/08/2025, 08:24 PM, +0000 UTC"
+    },
+    {
+      "position": 55,
+      "title": "Is AAPL Stock a Buy Now as Tim Cook Vows to Win in the AI Race?",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Mohit Oberoi, CFA"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/aapl-stock-buy-now-tim-125040450.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/UuKamA27_GJF3kyv2t1Ygw--/YXBwaWQ9aGlnaGxhbmRlcjt3PTIwMDA7aD0xMzY0/https://media.zenfs.com/en/barchart_com_477/c3fd3f91b8eeb187821f1c7e37c409e8",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNHlWSFJ5UVZWTGJWUnRTMTlmVFJESkF4aWZCU2dLTWdhUnA0aEp3Z00",
+      "date": "08/04/2025, 12:50 PM, +0000 UTC"
+    },
+    {
+      "position": 56,
+      "title": "AAPL Archives",
+      "source": {
+        "name": "24/7 Wall St.",
+        "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://247wallst.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://247wallst.com/companies/aapl/",
+      "thumbnail": "https://247wallst.com/wp-content/uploads/2025/01/GettyImages-1980124888-200x133.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNVROM2xoYVUxdVpsUktWbFptVFJDRkFSaklBU2dLTWdhUlVZaHBJZ2c",
+      "date": "08/08/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 57,
+      "title": "AAPL: Apple Stock Jumps 5% for Best Day Since April — More Billions Going into US Manufacturing",
+      "source": {
+        "name": "TradingView",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.tradingview.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://www.tradingview.com/news/tradingview:616a3e98d094b:0-aapl-apple-stock-jumps-5-for-best-day-since-april-more-billions-going-into-us-manufacturing/",
+      "thumbnail": "https://s.tradingview.com/static/images/illustrations/news-story.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNURZazV6YjAxTVVtMDBUVGxSVFJDUkF4ajhCU2dLTWdhQlVZaUV5Z00",
+      "date": "08/07/2025, 07:11 AM, +0000 UTC"
+    },
+    {
+      "position": 58,
+      "title": "Apple's Cook confirms U.S. investment plans alongside Trump (AAPL:NASDAQ)",
+      "source": {
+        "name": "Seeking Alpha",
+        "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://seekingalpha.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Jason Aycock"
+        ]
+      },
+      "link": "https://seekingalpha.com/news/4480657-apples-cook-confirms-u-s-investment-plans-alongside-trump",
+      "thumbnail": "https://static.seekingalpha.com/cdn/s3/uploads/getty_images/2228840022/image_2228840022.jpg?io=getty-c-w1280",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNHlWWFZ3YzBsb1NYRlhkRkV5VFJERUF4aW1CU2dLTWdZQlU0d3lxUWM",
+      "date": "08/06/2025, 09:30 PM, +0000 UTC"
+    },
+    {
+      "position": 59,
+      "title": "Apple (AAPL) Shares Skyrocket, What You Need To Know",
+      "source": {
+        "name": "TradingView",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.tradingview.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://www.tradingview.com/news/stockstory:9d0839806094b:0-apple-aapl-shares-skyrocket-what-you-need-to-know/",
+      "thumbnail": "https://s.tradingview.com/static/images/illustrations/news-story.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNURZazV6YjAxTVVtMDBUVGxSVFJDUkF4ajhCU2dLTWdhQlVZaUV5Z00",
+      "date": "08/06/2025, 07:35 PM, +0000 UTC"
+    },
+    {
+      "position": 60,
+      "title": "Is Apple Stock a Buy After Appeasing President Trump?",
+      "source": {
+        "name": "Zacks Investment Research",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.zacks.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Shaun Pruitt"
+        ]
+      },
+      "link": "https://www.zacks.com/commentary/2685504/is-apple-stock-a-buy-after-appeasing-president-trump",
+      "thumbnail": "https://staticx-tuner.zacks.com/images/articles/main/26/66114.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNU9ZMUpMV0hoUVVsUlJhMmRSVFJDa0F4anNCQ2dLTWdhbGdwSXpOUWM",
+      "date": "08/08/2025, 08:31 PM, +0000 UTC"
+    },
+    {
+      "position": 61,
+      "title": "Apple (AAPL) iPhone Production Soars as India Gains Prominence Amid Slowing U.S. Demand",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://finance.yahoo.com/news/apple-aapl-iphone-production-soars-035948543.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/e1QwhqQiBt5ecLL5Qx6Rkg--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD02NzM-/https://media.zenfs.com/en/insidermonkey.com/bd47dc2e86b4a3086f845d200d9daf1f",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNVRVazg0TkRsRmVEbDNSRk4zVFJDZkF4amtCU2dLTWdZTmdveExMUVU",
+      "date": "07/20/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 62,
+      "title": "Apple Growth Rebounds on Strength of iPhone 16 Line, China",
+      "source": {
+        "name": "Bloomberg.com",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://www.bloomberg.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Mark Gurman"
+        ]
+      },
+      "link": "https://www.bloomberg.com/news/articles/2025-07-31/apple-revenue-tops-estimates-on-strength-of-iphone-china-market",
+      "thumbnail": "https://assets.bwbx.io/images/users/iqjWHBFdfxIU/iaKICYvWt6do/v3/620x-1.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNW1PWFZqTmtKSFQydDFRbWhZVFJEY0FoanNCQ2dLTWdhUk5ZVE8yUUk",
+      "date": "08/01/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 63,
+      "title": "Apple expands U.S. supply chain with $500 million commitment to American rare earth magnets",
+      "source": {
+        "name": "Apple",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.apple.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://www.apple.com/newsroom/2025/07/apple-expands-us-supply-chain-with-500-million-usd-commitment/",
+      "thumbnail": "https://www.apple.com/newsroom/images/2025/07/apple-expands-us-supply-chain-with-500-million-usd-commitment/article/Apple-US-investment-Mountain-Pass-hero_big.jpg.large.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNW1ZaTFtVEVGR04zbHNaMjl6VFJERUF4aW1CU2dLTWdhWk1KQUxIZ2s",
+      "date": "07/15/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 64,
+      "title": "Apple Is Pledging Another $100 Billion in US Investment. How Should You Play AAPL Stock Here?",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Wajeeh Khan"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/apple-pledging-another-100-billion-172029983.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/gks0bl5bHRLpN3RV6Y3AKg--/YXBwaWQ9aGlnaGxhbmRlcjt3PTI0MDA7aD0xNjAw/https://media.zenfs.com/en/barchart_com_477/13eeb713efd52d28173dcbb6d9c7c567",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNHhURlI2Wlc5elZsVjNYeTB4VFJERUF4aW1CU2dLTWdhQllveXVLUWc",
+      "date": "08/06/2025, 05:20 PM, +0000 UTC"
+    },
+    {
+      "position": 65,
+      "title": "Weekly Option Windfall: Trading AAPL Options Ahead of iPhone Upgrade Cycle",
+      "source": {
+        "name": "TradingView",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.tradingview.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://www.tradingview.com/news/zacks:0af981318094b:0-weekly-option-windfall-trading-aapl-options-ahead-of-iphone-upgrade-cycle/",
+      "thumbnail": "https://s.tradingview.com/static/images/illustrations/news-story.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNURZazV6YjAxTVVtMDBUVGxSVFJDUkF4ajhCU2dLTWdhQlVZaUV5Z00",
+      "date": "08/08/2025, 03:09 PM, +0000 UTC"
+    },
+    {
+      "position": 66,
+      "title": "Apple (AAPL) Stock Slides as Market Rises: Facts to Know Before You Trade",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://finance.yahoo.com/news/apple-aapl-stock-slides-market-214503820.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/MUizqcOeWBZ.lobFinGdpQ--/YXBwaWQ9aGlnaGxhbmRlcjt3PTE4MDA7aD05NTI-/https://media.zenfs.com/en/zacks.com/ace7df31c7fcb10255abe7c990ea373a",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNWZOR3RCZDJ4eFJHSlZTRXBwVFJDVEF4ajZCU2dLTWdZZEJKanRGUW8",
+      "date": "07/14/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 67,
+      "title": "AAPL: Apple Expands U.S. Manufacturing — But $490M China Sales Settlement Still Weighs",
+      "source": {
+        "name": "TradingView",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.tradingview.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://www.tradingview.com/news/11thestate:222b566b6094b:0-aapl-apple-expands-u-s-manufacturing-but-490m-china-sales-settlement-still-weighs/",
+      "thumbnail": "https://s.tradingview.com/static/images/illustrations/news-story.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNURZazV6YjAxTVVtMDBUVGxSVFJDUkF4ajhCU2dLTWdhQlVZaUV5Z00",
+      "date": "08/08/2025, 04:08 AM, +0000 UTC"
+    },
+    {
+      "position": 68,
+      "title": "What's Going On With Apple Shares Today?",
+      "source": {
+        "name": "Benzinga",
+        "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://www.benzinga.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Vaishali Prayag"
+        ]
+      },
+      "link": "https://www.benzinga.com/trading-ideas/movers/25/08/47013169/whats-going-on-with-apple-shares-today",
+      "thumbnail": "https://www.benzinga.com/files/images/story/2025/08/08/Pune--India---February-19--2024--Apple-i.jpeg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNDBaR2c0YTJKUFkxVkJOVjh5VFJERUF4aW1CU2dLTWdhOVFZenpyQVU",
+      "date": "08/08/2025, 07:47 PM, +0000 UTC"
+    },
+    {
+      "position": 69,
+      "title": "Apple's New Artificial Intelligence (AI) Strategy Could Be a Genius Move",
+      "source": {
+        "name": "The Motley Fool",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.fool.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Keithen Drury"
+        ]
+      },
+      "link": "https://www.fool.com/investing/2025/08/09/apples-new-artificial-intelligence-strategy-could/",
+      "thumbnail": "https://g.foolcdn.com/image/?url=https%3A%2F%2Fg.foolcdn.com%2Feditorial%2Fimages%2F827886%2Fperson-with-airpods-in-ear-apple.jpg&op=resize&w=400&h=400",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNHpia1Z2TnpKblQzWnhNR2hRVFJDS0FoaVFBeWdLTWdheE5JeVBIUWs",
+      "date": "08/09/2025, 09:30 AM, +0000 UTC"
+    },
+    {
+      "position": 70,
+      "title": "Apple (AAPL) Confirms $100 Billion U.S. Investment After White House Tease",
+      "source": {
+        "name": "Insider Monkey",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://www.insidermonkey.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ghazal Ahmed"
+        ]
+      },
+      "link": "https://www.insidermonkey.com/blog/apple-aapl-confirms-100-billion-u-s-investment-after-white-house-tease-1586775/",
+      "thumbnail": "https://imonkey-blog.imgix.net/blog/wp-content/uploads/2023/11/30083238/VHC-insidermonkey-1701351155900.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNWFURm8xYjNsVWREUm5SR0V0VFJDZUF4amtCU2dLTWdZSkFJNlhDQXM",
+      "date": "08/08/2025, 06:08 PM, +0000 UTC"
+    },
+    {
+      "position": 72,
+      "title": "AAPL: Apple Dodges Tariff Hit — But $490M China Sales Lawsuit Still Casts a Shadow",
+      "source": {
+        "name": "TradingView",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.tradingview.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://www.tradingview.com/news/11thestate:822926953094b:0-aapl-apple-dodges-tariff-hit-but-490m-china-sales-lawsuit-still-casts-a-shadow/",
+      "thumbnail": "https://s.tradingview.com/static/images/illustrations/news-story.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNURZazV6YjAxTVVtMDBUVGxSVFJDUkF4ajhCU2dLTWdhQlVZaUV5Z00",
+      "date": "08/08/2025, 04:04 AM, +0000 UTC"
+    },
+    {
+      "position": 73,
+      "title": "Apple Stock (AAPL) in Spotlight after Wedbush’s Dan Ives Applauds $100B US Commitment",
+      "source": {
+        "name": "TipRanks",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.tipranks.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Kirti Tak"
+        ]
+      },
+      "link": "https://www.tipranks.com/news/good-step-in-the-right-direction-says-dan-ives-on-apples-100b-us-investment",
+      "thumbnail": "https://blog.tipranks.com/wp-content/uploads/2025/08/shutterstock_380042644-750x406.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXNlVTh5Y0ZkaE5XOURjbTFHVFJDV0F4anVCU2dLTWdZQkpKYXNNUWc",
+      "date": "08/07/2025, 07:46 AM, +0000 UTC"
+    },
+    {
+      "position": 74,
+      "title": "Apple’s (AAPL) $100B U.S. Investment Sparks New Wave of Partnerships",
+      "source": {
+        "name": "TipRanks",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.tipranks.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Radhika Saraogi"
+        ]
+      },
+      "link": "https://www.tipranks.com/news/apples-aapl-100b-u-s-investment-sparks-new-wave-of-partnerships",
+      "thumbnail": "https://blog.tipranks.com/wp-content/uploads/2025/08/shutterstock_2635148859-750x406.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNU9ZMmN0UW1obk5uWmFVM1paVFJDV0F4anVCU2dLTWdZZDFZVE15UU0",
+      "date": "08/06/2025, 11:48 PM, +0000 UTC"
+    },
+    {
+      "position": 75,
+      "title": "Apple Earnings Growth Seen Stalling Amid Dearth Of Catalysts",
+      "source": {
+        "name": "Investor's Business Daily",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.investors.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Patrick Seitz"
+        ]
+      },
+      "link": "https://www.investors.com/news/technology/apple-stock-aapl-fiscal-q3-earnings-preview/",
+      "thumbnail": "https://www.investors.com/wp-content/uploads/2025/07/Stock-Apple-ExchangeTRX-company.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNWxhbWRUZWw5NmNHOTBSVE42VFJDTUF4aUhCaWdLTWdhQllZSnFRUU0",
+      "date": "07/23/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 76,
+      "title": "Apple (AAPL) Faces Google Deal Fallout—Should Investors Be Worried?",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ghazal Ahmed"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/apple-aapl-faces-google-deal-235227091.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/8taE7UVa..JXX21T_2uUvA--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD02NzM-/https://media.zenfs.com/en/insidermonkey.com/8591b721983e13534e161de9a53ccbf6",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNWtNSFJVUWpGWlNFUlpNUzE0VFJDZkF4amtCU2dLTWdZRlFwanluQWs",
+      "date": "07/30/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 77,
+      "title": "Apple & 2 More Stocks to Watch for Stellar Earnings Growth",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Tirthankar Chakraborty"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/apple-2-more-stocks-watch-190000079.html",
+      "thumbnail": "https://media.zenfs.com/en/zacks.com/188198a223a8c3b598f95bc0f5aae696",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXBkRlpNYkc1b05uWlFUVVY1VFJDUUF4ajdCQ2dLTWdhQlJJNnNJUWc",
+      "date": "08/06/2025, 07:00 PM, +0000 UTC"
+    },
+    {
+      "position": 78,
+      "title": "Apple (AAPL.O) Makes 5.59% Intraday Move – Was It a Technical Signal or Sentiment Shift?",
+      "source": {
+        "name": "AInvest",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.ainvest.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://www.ainvest.com/news/apple-aapl-5-59-intraday-move-technical-signal-sentiment-shift-2508/",
+      "thumbnail": "https://www.ainvest.com/wencai-ssr/og-image-news-20240226.png",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXBRVWxTVFZCQk1IRlpYMEpwVFJDUkF4ajhCU2dLTWdhVlFaQUlvUWs",
+      "date": "08/06/2025, 05:49 PM, +0000 UTC"
+    },
+    {
+      "position": 79,
+      "title": "Samsung shares rise as Apple taps Texas factory for chip supply (AAPL:NASDAQ)",
+      "source": {
+        "name": "Seeking Alpha",
+        "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://seekingalpha.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Arundhati Sarkar"
+        ]
+      },
+      "link": "https://seekingalpha.com/news/4480964-samsung-shares-rise-as-apple-taps-texas-factory-for-chip-supply",
+      "thumbnail": "https://static.seekingalpha.com/cdn/s3/uploads/getty_images/2191751727/image_2191751727.jpg?io=getty-c-w750",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNW5iV3hKZUVZMGIyZHBkMWh4VFJERUF4aW1CU2dLTWdZRmdJeEl0Z1k",
+      "date": "08/07/2025, 06:19 AM, +0000 UTC"
+    },
+    {
+      "position": 80,
+      "title": "Apple Is Going To Surprise Wall Street, Says Tom Lee, As iPhone Maker 'Could Be Quietly Ready To Pounce On AI'",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Rishabh Mishra"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/apple-going-surprise-wall-street-003026452.html",
+      "thumbnail": "https://media.zenfs.com/en/benzinga_79/5ab0e193929ac26e615580168a922219",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNUxlV2hQVlVabVh6QXljbWMzVFJERUF4aW1CU2dLTWdhOVFZenpyQVU",
+      "date": "07/23/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 81,
+      "title": "As Apple Teases iOS 26, Is AAPL Stock a Buy, Sell, or Hold?",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Subhasree Kar"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/apple-teases-ios-26-aapl-135330918.html",
+      "thumbnail": "https://media.zenfs.com/en/barchart_com_477/817e968b931c314bb03e8c5bab2501d1",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNUNUM0V5UXpJMFEzaERiMXA1VFJEekF4am5CQ2dLTWdZcFJZanVxUVk",
+      "date": "07/31/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 82,
+      "title": "Do You Believe in Apple’s (AAPL) Long-Term Compelling Value Proposition?",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Soumya Eswaran"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/believe-apple-aapl-long-term-112212608.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/.7sVr7NnfySwipHp52gmHA--/YXBwaWQ9aGlnaGxhbmRlcjt3PTE1MzY7aD04NjA-/https://media.zenfs.com/en/insidermonkey.com/40db70dce127c32806bec193cdc8e622",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNHhSMWRRYmtwRE1HZFljRXhPVFJDZUF4amtCU2dLTWdhQlVwTGtJUWs",
+      "date": "08/05/2025, 11:22 AM, +0000 UTC"
+    },
+    {
+      "position": 83,
+      "title": "Apple revenue forecast beats estimates, tariff costs projected at $1.1 billion",
+      "source": {
+        "name": "Reuters",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.reuters.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Stephen Nellis",
+          "Akash Sriram"
+        ]
+      },
+      "link": "https://www.reuters.com/world/asia-pacific/apple-revenue-forecast-beats-estimates-tariff-costs-projected-11-billion-2025-08-01/",
+      "thumbnail": "https://www.reuters.com/resizer/v2/WEWAA4ZC6RNOTCGZ5LXIE3BNPA.jpg?auth=108983e860503168e26c21f05c9c8a164b11ccc5be31b7eab8107f0d823cb8cd&height=1920&width=1920&quality=80&smart=true",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXdVVzlRZFhKM1VHVXdRbk5mVFJDcUJCaXFCQ2dLTWdZVk1Jb3JsZ28",
+      "date": "07/31/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 84,
+      "title": "Apple made a 24k gold and glass statue for Donald Trump",
+      "source": {
+        "name": "The Verge",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.theverge.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Jay Peters"
+        ]
+      },
+      "link": "https://www.theverge.com/news/737757/apple-president-donald-trump-ceo-tim-cook-glass-corning",
+      "thumbnail": "https://platform.theverge.com/wp-content/uploads/sites/2/2025/08/gettyimages-2228840629.jpg?quality=90&strip=all&crop=0%2C1.8038388101698%2C100%2C96.39232237966&w=2400",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNDNPVEF0ZEdwdVVUaHZUV0pQVFJEREF4aW9CU2dLTWdZaEJKYktqUXM",
+      "date": "08/06/2025, 09:48 PM, +0000 UTC"
+    },
+    {
+      "position": 85,
+      "title": "Apple Inc. (AAPL): It’s “Outrageous” To Say Tim Cook Should Leave, Says Jim Cramer",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ramish Cheema"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/apple-inc-aapl-outrageous-tim-180420043.html",
+      "date": "07/15/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 86,
+      "title": "Analyst Says Apple (AAPL) Will Have Problems in Second Half of 2025 - ‘They Still Don’t Have AI Strategy’",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Fahad Saleem"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/analyst-says-apple-aapl-problems-130010255.html",
+      "date": "07/18/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 88,
+      "title": "Apple Inc. (AAPL): I Don’t Want To See Anymore People Leaving, Says Jim Cramer",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ramish Cheema"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/apple-inc-aapl-don-t-184110782.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/e1QwhqQiBt5ecLL5Qx6Rkg--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD02NzM-/https://media.zenfs.com/en/insidermonkey.com/bd47dc2e86b4a3086f845d200d9daf1f",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNVRVazg0TkRsRmVEbDNSRk4zVFJDZkF4amtCU2dLTWdZTmdveExMUVU",
+      "date": "07/12/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 89,
+      "title": "Should You Buy or Sell Apple Stock Before July 31? The Answer May Surprise You",
+      "source": {
+        "name": "The Motley Fool",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.fool.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Brett Schafer"
+        ]
+      },
+      "link": "https://www.fool.com/investing/2025/07/21/should-you-buy-or-sell-apple-stock-before-july-31s/",
+      "thumbnail": "https://g.foolcdn.com/image/?url=https%3A%2F%2Fg.foolcdn.com%2Feditorial%2Fimages%2F825712%2Fwoman-looking-at-phone.jpg&op=resize&w=1200&h=630",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNUZSSFZXVGtoU1FWZHhVM0UyVFJERUF4aW1CU2dLTWdhcGhaTE5zUVk",
+      "date": "07/21/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 90,
+      "title": "Apple reports biggest revenue growth since December 2021",
+      "source": {
+        "name": "CNBC",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.cnbc.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Kif Leswing"
+        ]
+      },
+      "link": "https://www.cnbc.com/2025/07/31/apple-aapl-q3-earnings-report-2025.html",
+      "thumbnail": "https://image.cnbcfm.com/api/v1/image/108160413-1750173079374-gettyimages-2219793840-AFP_62LZ7QJ.jpeg?v=1754496788&w=1600&h=900",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNW9aV3N6ZDJwc1ZtbzRiMFowVFJDZkF4ampCU2dLTWdhaFJKaVBvUWc",
+      "date": "07/31/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 91,
+      "title": "CEO Tim Cook says Apple ready to open its wallet to catch up in AI",
+      "source": {
+        "name": "Reuters",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.reuters.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Stephen Nellis"
+        ]
+      },
+      "link": "https://www.reuters.com/business/ceo-tim-cook-says-apple-ready-open-its-wallet-catch-up-ai-2025-08-01/",
+      "thumbnail": "https://www.reuters.com/resizer/v2/NQL777UEBRMRHFPRPKXIEX2KNM.jpg?auth=3ed292cee6b15089a7c32585763c855f331012f709efc7e7ebbbdce5d89e3f8d&height=1920&width=1920&quality=80&smart=true",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXpOREI1YmxNNVNVNXJUMXBIVFJDcUJCaXFCQ2dLTWdZZGRwRHJxUWM",
+      "date": "08/01/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 92,
+      "title": "AAPL: Goldman Sets $266 Target Amid App Store Surge — But $490M China Sales Settlement Still Weighs",
+      "source": {
+        "name": "TradingView",
+        "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.tradingview.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://www.tradingview.com/news/11thestate:2d4684b4c094b:0-aapl-goldman-sets-266-target-amid-app-store-surge-but-490m-china-sales-settlement-still-weighs/",
+      "thumbnail": "https://s.tradingview.com/static/images/illustrations/news-story.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNURZazV6YjAxTVVtMDBUVGxSVFJDUkF4ajhCU2dLTWdhQlVZaUV5Z00",
+      "date": "08/07/2025, 03:58 AM, +0000 UTC"
+    },
+    {
+      "position": 96,
+      "title": "Wedbush: Apple (AAPL.US) Global Strategy for AI Requires a 'Three-Pronged Approach': Acquiring Perplexity, Attracting Talent, and Partnering with Gemini",
+      "source": {
+        "name": "富途牛牛",
+        "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://news.futunn.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+      },
+      "link": "https://news.futunn.com/en/post/60347707/wedbush-apple-aaplus-global-strategy-for-ai-requires-a-three",
+      "thumbnail": "https://pubimg.futunn.com/20220509000002083656ab0d382.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iL0NnNDNVSEl6YVRJdGFscFhZMUYwVFJDS0FoaVFBeWdLTWdrQklJTHVVR0pFUndJ",
+      "date": "08/08/2025, 02:18 PM, +0000 UTC"
+    },
+    {
+      "position": 97,
+      "title": "Jim Cramer Reiterates \"Own It, Don’t Trade It\" on Apple Stock",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Syeda Seirut Javed"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/jim-cramer-reiterates-own-don-184557546.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/e1QwhqQiBt5ecLL5Qx6Rkg--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD02NzM-/https://media.zenfs.com/en/insidermonkey.com/bd47dc2e86b4a3086f845d200d9daf1f",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNVRVazg0TkRsRmVEbDNSRk4zVFJDZkF4amtCU2dLTWdZTmdveExMUVU",
+      "date": "07/14/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 98,
+      "title": "This Is How Apple (AAPL) Is Staying on Trump’s Good Side",
+      "source": {
+        "name": "TipRanks",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.tipranks.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Vince Condarcuri"
+        ]
+      },
+      "link": "https://www.tipranks.com/news/this-is-how-apple-aapl-is-staying-on-trumps-good-side",
+      "thumbnail": "https://blog.tipranks.com/wp-content/uploads/2025/08/shutterstock_2549436547-2-750x406.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNHdNMUV0VTFCQ09HNVpRMEozVFJDV0F4anVCU2dLTWdhWlU1Q3RKUWM",
+      "date": "08/08/2025, 04:07 PM, +0000 UTC"
+    },
+    {
+      "position": 99,
+      "title": "Apple (AAPL) $240 PT, Buy — Citi Sees Tariff Boost Now, AI Risks Later",
+      "source": {
+        "name": "Yahoo Finance",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://finance.yahoo.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Ghazal Ahmed"
+        ]
+      },
+      "link": "https://finance.yahoo.com/news/apple-aapl-240-pt-buy-224233409.html",
+      "thumbnail": "https://s.yimg.com/ny/api/res/1.2/e1QwhqQiBt5ecLL5Qx6Rkg--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD02NzM-/https://media.zenfs.com/en/insidermonkey.com/bd47dc2e86b4a3086f845d200d9daf1f",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNVRVazg0TkRsRmVEbDNSRk4zVFJDZkF4amtCU2dLTWdZTmdveExMUVU",
+      "date": "07/14/2025, 07:00 AM, +0000 UTC"
+    },
+    {
+      "position": 100,
+      "title": "Watch These MP Materials Price Levels After Apple, DOD Investments Send Stock Soaring",
+      "source": {
+        "name": "Investopedia",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://www.investopedia.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Tim Smith"
+        ]
+      },
+      "link": "https://www.investopedia.com/watch-these-mp-materials-price-levels-after-apple-dod-investments-send-stock-soaring-11773065",
+      "thumbnail": "https://www.investopedia.com/thmb/La0xYVXLh0iv5PWqRDrtO1mOrjM=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/MPChart-ea36011b8a934219b6f8f1eddbac38dd.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNXNZbEpKYW5aV2RWSnJTblpHVFJEU0FoaUxCeWdLTWdhQkVZeXpIQW8",
+      "date": "07/16/2025, 07:00 AM, +0000 UTC"
+    }
+  ],
+  "metadata": {
+    "source": "google_news",
+    "cached": false
+  }
+}

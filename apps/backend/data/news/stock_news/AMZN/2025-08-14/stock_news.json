@@ -1,0 +1,15 @@
+{
+  "symbol": "AMZN",
+  "date": "2025-08-14",
+  "timestamp": "2025-08-14T05:15:21.288Z",
+  "query": "AMZN enhanced search",
+  "summary": {
+    "headline": "AMZN company updates",
+    "source": "mock_data"
+  },
+  "articles": [],
+  "metadata": {
+    "source": "mock_data",
+    "cached": false
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "symbol": "AAPL",
+  "date": "2025-08-10",
+  "timestamp": "2025-08-10T03:02:14.109Z",
+  "query": "AAPL stock",
+  "summary": {
+    "headline": "Apple reports strong quarterly earnings with Services growth",
+    "source": "mock_data"
+  },
+  "metadata": {
+    "source": "mock_data",
+    "cached": false
+  }
+}

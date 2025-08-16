@@ -1,0 +1,43 @@
+{
+  "date": "2025-08-11",
+  "timestamp": "2025-08-11T05:06:31.821Z",
+  "query": "stock market economy finance business",
+  "topHeadline": "Nasdaq Explained: History, Trading System, and Financial Insights",
+  "totalArticles": 2,
+  "articles": [
+    {
+      "position": 1,
+      "title": "Nasdaq Explained: History, Trading System, and Financial Insights",
+      "source": {
+        "name": "Investopedia",
+        "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://www.investopedia.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Adam Hayes"
+        ]
+      },
+      "link": "https://www.investopedia.com/terms/n/nasdaq.asp",
+      "thumbnail": "https://www.investopedia.com/thmb/mKTGEd8koYvMzZ9wHD32sIRlaPg=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/GettyImages-1459193203-8f82c781a8854072b2a6253a42803372.jpg",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iL0NnNUZaWEZCYjNCbVJrRk5RVWhVVFJERUF4aW1CU2dLTWdtSkE0SUtEaXhVdHdB",
+      "date": "08/08/2025, 08:03 PM, +0000 UTC"
+    },
+    {
+      "position": 2,
+      "title": "Is the U.S. Stock Market a Riskier Investment Than Emerging Global Markets?",
+      "source": {
+        "name": "The New York Times",
+        "icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.nytimes.com&client=NEWS_360&size=96&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
+        "authors": [
+          "Jeff Sommer"
+        ]
+      },
+      "link": "https://www.nytimes.com/2025/07/18/business/stocks-emerging-markets-risk.html",
+      "thumbnail": "https://static01.nyt.com/images/2025/07/20/business/20Strategies-illo/20Strategies-illo-articleLarge.jpg?quality=75&auto=webp&disable=upscale",
+      "thumbnail_small": "https://news.google.com/api/attachments/CC8iK0NnNUNhWE5ZWjBWVmNIQjRhbmx0VFJDcUJCaXFCQ2dLTWdhWmM1Q01MUWM",
+      "date": "07/18/2025, 07:00 AM, +0000 UTC"
+    }
+  ],
+  "metadata": {
+    "source": "serpapi_google_news",
+    "cached": false
+  }
+}
