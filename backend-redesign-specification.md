@@ -370,9 +370,581 @@ const API_CONFIG = {
 
 ---
 
+## ☁️ 무료 클라우드 서비스 분석 및 권장사항 (2025년 기준)
+
+### Firebase vs Supabase 상세 비교
+
+#### 1. 무료 티어 한계 비교
+```yaml
+firebase_free_tier:
+  projects: 3개 프로젝트 제한
+  database:
+    firestore: 1GB 저장공간, 50K reads/day, 20K writes/day
+    realtime_db: 1GB 저장공간, 10GB 전송량/월
+  storage: 5GB 저장공간, 1GB 다운로드/day
+  hosting: 10GB 저장공간, 360MB 다운로드/day
+  functions: 125K 호출/월, 40K CPU초/월
+  authentication: 무제한 사용자
+  pricing_model: "사용량 기반 (예측 어려움)"
+
+supabase_free_tier:
+  projects: "무제한 프로젝트"
+  database:
+    postgresql: "1GB 저장공간, 무제한 읽기/쓰기"
+    realtime: "무제한 구독자, 200MB 전송량/월"
+  storage: "1GB 저장공간, 2GB 전송량/월"  
+  edge_functions: "500K 실행/월"
+  authentication: "50K 활성 사용자/월"
+  pricing_model: "예측 가능한 고정 요금제"
+  additional_features:
+    - "PostgREST API 자동 생성"
+    - "실시간 구독 기능"
+    - "Row Level Security (RLS)"
+    - "Database 백업 기능"
+```
+
+#### 2. 투자 플랫폼 요구사항 맞춤 분석
+```typescript
+// 프로젝트 요구사항별 점수 (10점 만점)
+const requirementAnalysis = {
+  
+  데이터_저장_용량: {
+    requirement: "뉴스, AI분석, 시장데이터 (예상 1GB/년)",
+    firebase: {
+      score: 7,
+      note: "1GB Firestore + 5GB Storage로 충분하지만 NoSQL 제약"
+    },
+    supabase: {
+      score: 9, 
+      note: "1GB PostgreSQL + 1GB Storage, SQL 관계형 DB로 더 적합"
+    }
+  },
+  
+  API_요청_빈도: {
+    requirement: "대시보드 API, 실시간 데이터 (예상 10K req/day)",
+    firebase: {
+      score: 6,
+      note: "50K reads/day로 충분하지만 writes 20K/day 제한적"
+    },
+    supabase: {
+      score: 10,
+      note: "무제한 읽기/쓰기, PostgREST API 자동 생성"
+    }
+  },
+  
+  개발_편의성: {
+    requirement: "NestJS 통합, 기존 JSON 구조 호환성",
+    firebase: {
+      score: 7,
+      note: "Firebase Admin SDK 지원, NoSQL은 스키마 변경 자유롭지만 복잡한 쿼리 제한"
+    },
+    supabase: {
+      score: 9,
+      note: "PostgreSQL + Prisma ORM, SQL 관계형 DB로 복잡한 조인 가능"
+    }
+  },
+  
+  확장성: {
+    requirement: "사용자 증가, 데이터 볼륨 확장",
+    firebase: {
+      score: 9,
+      note: "Google 인프라 기반 자동 스케일링"
+    },
+    supabase: {
+      score: 8,
+      note: "PostgreSQL 기반으로 수직/수평 확장 가능"
+    }
+  },
+  
+  비용_예측성: {
+    requirement: "개발 단계에서 비용 예측 가능성",
+    firebase: {
+      score: 5,
+      note: "사용량 기반 요금으로 예측 어려움, 갑작스런 비용 증가 위험"
+    },
+    supabase: {
+      score: 10,
+      note: "고정 요금제로 비용 예측 가능"
+    }
+  }
+};
+
+// 총점 계산
+const totalScores = {
+  firebase: 34/50, // 68%
+  supabase: 46/50  // 92%
+};
+```
+
+#### 3. 최종 권장사항: **Supabase 선택**
+
+**선택 이유**:
+1. **무제한 프로젝트**: 개발/스테이징/프로덕션 환경 분리 가능
+2. **PostgreSQL**: 기존 JSON 데이터를 관계형으로 정규화 가능
+3. **예측 가능한 비용**: 갑작스런 요금 폭증 위험 없음
+4. **NestJS 호환성**: Prisma ORM으로 타입 안전 보장
+5. **API 자동 생성**: PostgREST로 CRUD API 자동 생성
+
+### Supabase 프로젝트 설정 가이드
+
+#### Step 1: Supabase 프로젝트 생성
+```bash
+# 1. Supabase 계정 생성 및 로그인
+# 브라우저에서 https://supabase.com 접속 → GitHub 로그인
+
+# 2. 새 프로젝트 생성
+# Dashboard → "New Project" 클릭
+# Organization: 개인 계정 선택
+# Project Name: investie-backend-dev (개발용)
+# Database Password: [강력한 비밀번호 설정]
+# Region: Northeast Asia (ap-northeast-1) 선택
+# Pricing Plan: Free tier 선택
+
+# 3. 환경별 프로젝트 생성 (권장)
+# - investie-backend-dev (개발)
+# - investie-backend-staging (스테이징) 
+# - investie-backend-prod (프로덕션)
+```
+
+#### Step 2: 데이터베이스 스키마 설계
+```sql
+-- Supabase Dashboard → SQL Editor에서 실행
+
+-- 1. 뉴스 데이터 테이블
+CREATE TABLE news_data (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  symbol TEXT NOT NULL,
+  date DATE NOT NULL,
+  overview JSONB NOT NULL,
+  stock_news JSONB NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 2. 매크로 뉴스 테이블  
+CREATE TABLE macro_news (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  date DATE NOT NULL,
+  top_headline TEXT NOT NULL,
+  articles JSONB NOT NULL,
+  total_articles INTEGER NOT NULL,
+  query TEXT NOT NULL,
+  metadata JSONB NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 3. 시장 데이터 테이블
+CREATE TABLE market_data (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  date DATE NOT NULL,
+  timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
+  indices JSONB NOT NULL,
+  sectors JSONB NOT NULL,
+  market_sentiment TEXT,
+  volatility_index NUMERIC,
+  source TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 4. 인덱스 생성
+CREATE INDEX idx_news_data_symbol_date ON news_data(symbol, date DESC);
+CREATE INDEX idx_news_data_created_at ON news_data(created_at DESC);
+CREATE INDEX idx_macro_news_date ON macro_news(date DESC);
+CREATE INDEX idx_market_data_date ON market_data(date DESC);
+
+-- 5. RLS (Row Level Security) 활성화
+ALTER TABLE news_data ENABLE ROW LEVEL SECURITY;
+ALTER TABLE macro_news ENABLE ROW LEVEL SECURITY;
+ALTER TABLE market_data ENABLE ROW LEVEL SECURITY;
+
+-- 6. 공개 읽기 정책 (현재는 인증 없이 모든 데이터 읽기 허용)
+CREATE POLICY "Public read access" ON news_data FOR SELECT USING (true);
+CREATE POLICY "Public read access" ON macro_news FOR SELECT USING (true);
+CREATE POLICY "Public read access" ON market_data FOR SELECT USING (true);
+
+-- 7. 서버 전용 쓰기 정책 (API 키로만 쓰기 가능)
+CREATE POLICY "Service role write access" ON news_data FOR ALL USING (auth.role() = 'service_role');
+CREATE POLICY "Service role write access" ON macro_news FOR ALL USING (auth.role() = 'service_role');
+CREATE POLICY "Service role write access" ON market_data FOR ALL USING (auth.role() = 'service_role');
+```
+
+#### Step 3: NestJS 프로젝트 Supabase 연동 설정
+
+```bash
+# 1. 필요한 패키지 설치
+cd apps/backend
+npm install @supabase/supabase-js
+npm install prisma @prisma/client
+npm install --save-dev prisma
+```
+
+```typescript
+// 2. 환경 변수 설정 (.env 파일)
+# apps/backend/.env.development
+SUPABASE_URL=https://your-project-id.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_KEY=your-service-role-key
+DATABASE_URL=postgresql://postgres:[password]@db.[project-id].supabase.co:5432/postgres
+
+# apps/backend/.env.staging  
+SUPABASE_URL=https://staging-project-id.supabase.co
+SUPABASE_ANON_KEY=staging-anon-key
+SUPABASE_SERVICE_KEY=staging-service-role-key
+DATABASE_URL=postgresql://postgres:[password]@db.[staging-project-id].supabase.co:5432/postgres
+
+# apps/backend/.env.production
+SUPABASE_URL=https://prod-project-id.supabase.co
+SUPABASE_ANON_KEY=prod-anon-key  
+SUPABASE_SERVICE_KEY=prod-service-role-key
+DATABASE_URL=postgresql://postgres:[password]@db.[prod-project-id].supabase.co:5432/postgres
+```
+
+```typescript
+// 3. Supabase 클라이언트 설정
+// apps/backend/src/config/supabase.config.ts
+import { createClient } from '@supabase/supabase-js';
+
+export const supabaseConfig = {
+  url: process.env.SUPABASE_URL,
+  anonKey: process.env.SUPABASE_ANON_KEY,
+  serviceKey: process.env.SUPABASE_SERVICE_KEY,
+};
+
+export const supabase = createClient(
+  supabaseConfig.url,
+  supabaseConfig.serviceKey, // 서버에서는 service_role 키 사용
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  }
+);
+```
+
+```typescript
+// 4. Prisma 스키마 설정
+// apps/backend/prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model NewsData {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  symbol     String
+  date       DateTime @db.Date
+  overview   Json
+  stockNews  Json     @map("stock_news")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([symbol, date(sort: Desc)])
+  @@map("news_data")
+}
+
+model MacroNews {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  date          DateTime @db.Date
+  topHeadline   String   @map("top_headline")
+  articles      Json
+  totalArticles Int      @map("total_articles")
+  query         String
+  metadata      Json
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([date(sort: Desc)])
+  @@map("macro_news")
+}
+
+model MarketData {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  date             DateTime @db.Date
+  timestamp        DateTime @db.Timestamptz(6)
+  indices          Json
+  sectors          Json
+  marketSentiment  String?  @map("market_sentiment")
+  volatilityIndex  Decimal? @map("volatility_index") @db.Decimal
+  source           String
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([date(sort: Desc)])
+  @@map("market_data")
+}
+```
+
+```bash
+# 5. Prisma 클라이언트 생성
+cd apps/backend
+npx prisma generate
+npx prisma db push  # 스키마를 Supabase DB에 적용
+```
+
+#### Step 4: 데이터 마이그레이션 스크립트 구현
+
+```typescript
+// apps/backend/src/migration/supabase-migration.service.ts
+import { Injectable, Logger } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import * as fs from 'fs';
+import * as path from 'path';
+
+@Injectable()
+export class SupabaseMigrationService {
+  private readonly logger = new Logger(SupabaseMigrationService.name);
+
+  constructor(private prisma: PrismaService) {}
+
+  async migrateLocalDataToSupabase(): Promise<void> {
+    try {
+      this.logger.log('🚀 Supabase 데이터 마이그레이션 시작...');
+
+      // Step 1: 로컬 데이터 폴더 스캔
+      const dataPath = path.join(process.cwd(), 'data');
+      const newsPath = path.join(dataPath, 'news');
+
+      // Step 2: 주식 뉴스 데이터 마이그레이션
+      await this.migrateStockNews(newsPath);
+
+      // Step 3: 매크로 뉴스 데이터 마이그레이션  
+      await this.migrateMacroNews(newsPath);
+
+      this.logger.log('✅ 마이그레이션 완료!');
+
+    } catch (error) {
+      this.logger.error('❌ 마이그레이션 실패:', error);
+      throw error;
+    }
+  }
+
+  private async migrateStockNews(newsPath: string): Promise<void> {
+    const stockNewsPath = path.join(newsPath, 'stock_news');
+    const symbols = fs.readdirSync(stockNewsPath);
+
+    for (const symbol of symbols) {
+      const symbolPath = path.join(stockNewsPath, symbol);
+      const dates = fs.readdirSync(symbolPath);
+
+      for (const date of dates) {
+        const datePath = path.join(symbolPath, date);
+        
+        // overview.json 읽기
+        const overviewPath = path.join(datePath, 'overview.json');
+        const stockNewsPath = path.join(datePath, 'stock_news.json');
+
+        if (fs.existsSync(overviewPath) && fs.existsSync(stockNewsPath)) {
+          const overview = JSON.parse(fs.readFileSync(overviewPath, 'utf8'));
+          const stockNews = JSON.parse(fs.readFileSync(stockNewsPath, 'utf8'));
+
+          // Supabase에 저장
+          await this.prisma.newsData.upsert({
+            where: {
+              symbol_date: { symbol, date: new Date(date) }
+            },
+            update: {
+              overview,
+              stockNews,
+              updatedAt: new Date()
+            },
+            create: {
+              symbol,
+              date: new Date(date),
+              overview,
+              stockNews
+            }
+          });
+
+          this.logger.log(`✅ 마이그레이션 완료: ${symbol} - ${date}`);
+        }
+      }
+    }
+  }
+
+  private async migrateMacroNews(newsPath: string): Promise<void> {
+    const macroNewsPath = path.join(newsPath, 'macro_news');
+    const dates = fs.readdirSync(macroNewsPath);
+
+    for (const date of dates) {
+      const filePath = path.join(macroNewsPath, date, 'macro_news.json');
+      
+      if (fs.existsSync(filePath)) {
+        const macroNews = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+
+        await this.prisma.macroNews.upsert({
+          where: { date: new Date(date) },
+          update: {
+            topHeadline: macroNews.topHeadline,
+            articles: macroNews.articles,
+            totalArticles: macroNews.totalArticles,
+            query: macroNews.query,
+            metadata: macroNews.metadata,
+            updatedAt: new Date()
+          },
+          create: {
+            date: new Date(date),
+            topHeadline: macroNews.topHeadline,
+            articles: macroNews.articles,
+            totalArticles: macroNews.totalArticles,
+            query: macroNews.query,
+            metadata: macroNews.metadata
+          }
+        });
+
+        this.logger.log(`✅ 매크로 뉴스 마이그레이션 완료: ${date}`);
+      }
+    }
+  }
+}
+```
+
+```typescript
+// apps/backend/src/migration/migration.controller.ts  
+import { Controller, Post } from '@nestjs/common';
+import { SupabaseMigrationService } from './supabase-migration.service';
+
+@Controller('migration')
+export class MigrationController {
+
+  constructor(private migrationService: SupabaseMigrationService) {}
+
+  @Post('supabase')
+  async migrateToSupabase() {
+    await this.migrationService.migrateLocalDataToSupabase();
+    return { message: 'Migration completed successfully' };
+  }
+}
+```
+
+#### Step 5: API 서비스 Supabase 연동
+
+```typescript
+// apps/backend/src/dashboard/dashboard.service.ts
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+
+@Injectable()
+export class DashboardService {
+
+  constructor(private prisma: PrismaService) {}
+
+  async getDashboardData(symbol: string) {
+    // 최신 뉴스 데이터 조회
+    const newsData = await this.prisma.newsData.findFirst({
+      where: { symbol },
+      orderBy: { date: 'desc' }
+    });
+
+    // 당일 매크로 뉴스 조회
+    const today = new Date().toISOString().split('T')[0];
+    const macroNews = await this.prisma.macroNews.findFirst({
+      where: { date: new Date(today) }
+    });
+
+    // 당일 시장 데이터 조회 (향후 추가)
+    const marketData = await this.prisma.marketData.findFirst({
+      where: { date: new Date(today) }
+    });
+
+    return {
+      success: true,
+      data: {
+        aiAnalysis: newsData?.overview || null,
+        stockNews: newsData?.stockNews || null,
+        macroNews: macroNews || null,
+        marketData: marketData || null,
+        lastUpdated: newsData?.updatedAt || new Date()
+      }
+    };
+  }
+
+  async getStockProfile(symbol: string) {
+    // PostgREST API 직접 호출 (선택사항)
+    const { data, error } = await this.supabase
+      .from('news_data')
+      .select('overview')
+      .eq('symbol', symbol)
+      .order('date', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+}
+```
+
+#### Step 6: 배포 설정
+
+```bash
+# Railway 환경 변수 설정
+# Railway Dashboard → Variables 탭에서 설정
+
+# Development
+SUPABASE_URL=https://dev-project-id.supabase.co
+SUPABASE_SERVICE_KEY=your-dev-service-key
+DATABASE_URL=postgresql://postgres:password@db.dev-project-id.supabase.co:5432/postgres
+
+# Production  
+SUPABASE_URL=https://prod-project-id.supabase.co
+SUPABASE_SERVICE_KEY=your-prod-service-key
+DATABASE_URL=postgresql://postgres:password@db.prod-project-id.supabase.co:5432/postgres
+```
+
+### 마이그레이션 실행 체크리스트
+
+#### 필수 작업 (사용자 직접 수행)
+```bash
+# ✅ 1. Supabase 계정 생성 및 프로젝트 생성
+# - https://supabase.com 가입 (GitHub 계정 연동)
+# - 3개 프로젝트 생성 (dev/staging/prod)
+# - Database 비밀번호 안전하게 보관
+
+# ✅ 2. API 키 복사 및 환경 변수 설정
+# - Project Settings → API → Copy keys
+# - .env 파일에 SUPABASE_URL, SUPABASE_SERVICE_KEY 설정
+
+# ✅ 3. 데이터베이스 스키마 생성
+# - Supabase Dashboard → SQL Editor
+# - 제공된 SQL 스크립트 실행
+
+# ✅ 4. Railway 환경 변수 업데이트
+# - Railway Dashboard → Variables
+# - Supabase 연결 정보 추가
+```
+
+#### 자동화 가능 작업
+```bash
+# 🤖 1. 패키지 설치 및 Prisma 설정
+npm run setup:supabase
+
+# 🤖 2. 로컬 데이터 마이그레이션 실행
+npm run migrate:supabase
+
+# 🤖 3. API 테스트 및 검증
+npm run test:supabase-connection
+```
+
+### 예상 개발 시간
+- **Supabase 설정**: 1-2시간 (계정 생성, 프로젝트 설정)
+- **스키마 마이그레이션**: 2-3시간 (테이블 생성, 데이터 이전)
+- **API 연동**: 4-6시간 (Prisma 설정, 서비스 개발)
+- **테스트 및 검증**: 2-3시간 (통합 테스트, 성능 확인)
+
+**총 예상 시간**: 9-14시간 (1-2일)
+
+---
+
 ## 🔧 기술 스택 및 도구
 
-### Backend 기술 스택 확장
+### Backend 기술 스택 확장 (Supabase 기반)
 ```json
 {
   "core": {
@@ -382,10 +954,10 @@ const API_CONFIG = {
   },
   
   "database": {
-    "primary": "MongoDB 7.0 (Atlas)",
-    "orm": "Mongoose 8",
-    "migration": "Custom Migration Scripts",
-    "backup": "MongoDB Atlas Backup"
+    "primary": "PostgreSQL 15 (Supabase)",
+    "orm": "Prisma 5",
+    "migration": "Prisma Migrate + Custom Scripts",
+    "backup": "Supabase 자동 백업 + Point-in-time Recovery"
   },
   
   "caching": {
@@ -409,23 +981,22 @@ const API_CONFIG = {
 }
 ```
 
-### 새로운 Dependencies
+### 새로운 Dependencies (Supabase 기반)
 ```json
 {
   "dependencies": {
-    "@nestjs/mongoose": "^10.0.0",
-    "mongoose": "^8.0.0",
+    "@supabase/supabase-js": "^2.39.0",
+    "prisma": "^5.9.0",
+    "@prisma/client": "^5.9.0",
     "@nestjs/cache-manager": "^2.0.0",
     "cache-manager-redis-store": "^3.0.0",
     "@nestjs/schedule": "^4.0.0",
-    "node-cron": "^3.0.0",
-    "aws-sdk": "^2.1400.0",
-    "@google-cloud/storage": "^7.0.0"
+    "node-cron": "^3.0.0"
   },
   
   "devDependencies": {
-    "@types/mongoose": "^5.11.97",
-    "mongodb-memory-server": "^9.0.0"
+    "prisma": "^5.9.0",
+    "@types/pg": "^8.11.0"
   }
 }
 ```

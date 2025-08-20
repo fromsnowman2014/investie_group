@@ -349,87 +349,315 @@ interface NewsAnalysisProps {
 - **TypeScript**: 완전한 타입 안전성
 - **API Client**: Custom fetch wrapper (`/lib/api.ts`)
 
-### 새로운 Dependencies
+### 새로운 Dependencies (Supabase 및 최적화 포함)
 ```json
 {
   "dependencies": {
     "recharts": "^2.8.0",
     "date-fns": "^2.30.0",
-    "lucide-react": "^0.263.1"
+    "lucide-react": "^0.263.1",
+    "@supabase/supabase-js": "^2.39.0",
+    "swr": "^2.2.0",
+    "react-query": "^3.39.0",
+    "react-intersection-observer": "^9.5.0",
+    "react-window": "^1.8.8",
+    "react-virtualized-auto-sizer": "^1.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0"
+    "@types/node": "^20.0.0",
+    "@types/react-window": "^1.8.0"
   }
 }
 ```
 
-### 로컬 데이터 연동을 위한 추가 유틸리티
+### 🆕 환경별 설정 및 API 클라이언트 (Supabase 기반)
 ```typescript
-// apps/web/src/lib/localDataReader.ts
+// apps/web/src/lib/apiClient.ts
+interface APIConfig {
+  baseURL: string;
+  features: {
+    localDataFallback: boolean;
+    mockData: boolean;
+    debugMode: boolean;
+    realtimeUpdates: boolean;
+    supabaseDirect: boolean;  // 🆕 Supabase PostgREST 직접 접근
+  };
+  supabase?: {
+    url: string;
+    anonKey: string;
+  };
+}
+
+const API_CONFIG: Record<string, APIConfig> = {
+  development: {
+    baseURL: 'http://localhost:3001',
+    features: {
+      localDataFallback: true,
+      mockData: true,
+      debugMode: true,
+      realtimeUpdates: false,
+      supabaseDirect: false,
+    }
+  },
+  
+  staging: {
+    baseURL: 'https://investie-backend-staging.railway.app',
+    features: {
+      localDataFallback: false,
+      mockData: false,
+      debugMode: true,
+      realtimeUpdates: true,
+      supabaseDirect: true,
+    },
+    supabase: {
+      url: process.env.NEXT_PUBLIC_SUPABASE_URL_STAGING!,
+      anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_STAGING!,
+    }
+  },
+  
+  production: {
+    baseURL: 'https://investie-backend-02-production.up.railway.app',
+    features: {
+      localDataFallback: false,
+      mockData: false,
+      debugMode: false,
+      realtimeUpdates: true,
+      supabaseDirect: true,
+    },
+    supabase: {
+      url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    }
+  }
+};
+
+// 🆕 통합 API 클라이언트
+export class InvestieAPIClient {
+  private config: APIConfig;
+  private cache: FrontendCache;
+  private supabase?: SupabaseClient;
+  
+  constructor(environment: string = process.env.NODE_ENV || 'development') {
+    this.config = API_CONFIG[environment];
+    this.cache = new FrontendCache();
+    
+    if (this.config.supabase) {
+      this.supabase = createClient(
+        this.config.supabase.url,
+        this.config.supabase.anonKey
+      );
+    }
+  }
+  
+  // 🆕 통합 대시보드 데이터 조회
+  async getDashboardData(symbol: string): Promise<DashboardResponse> {
+    const cacheKey = `dashboard:${symbol}`;
+    const cached = this.cache.get<DashboardResponse>(cacheKey);
+    
+    if (cached) return cached;
+    
+    try {
+      const response = await this.fetchWithRetry(
+        `${this.config.baseURL}/api/v1/dashboard/${symbol}`
+      );
+      
+      const data = await response.json();
+      this.cache.set(cacheKey, data, this.config.features.debugMode ? 60 : 900); // 15분 캐시
+      
+      return data;
+    } catch (error) {
+      if (this.config.features.localDataFallback) {
+        return this.getLocalDashboardData(symbol);
+      }
+      throw error;
+    }
+  }
+  
+  // 🆕 실시간 데이터 조회
+  async getRealtimeData(symbol: string): Promise<RealtimeResponse> {
+    if (!this.config.features.realtimeUpdates) {
+      return null;
+    }
+    
+    const cacheKey = `realtime:${symbol}`;
+    const cached = this.cache.get<RealtimeResponse>(cacheKey);
+    
+    if (cached) return cached;
+    
+    const response = await this.fetchWithRetry(
+      `${this.config.baseURL}/api/v1/realtime/${symbol}`
+    );
+    
+    const data = await response.json();
+    this.cache.set(cacheKey, data, 60); // 1분 캐시
+    
+    return data;
+  }
+  
+  // 🆕 데이터 가용성 확인
+  async checkDataAvailability(symbol: string): Promise<DataAvailabilityResponse> {
+    const response = await this.fetchWithRetry(
+      `${this.config.baseURL}/api/v1/data-availability/${symbol}`
+    );
+    
+    return response.json();
+  }
+  
+  // 🆕 배치 요청 처리
+  async getBatchDashboard(
+    symbols: string[], 
+    fields?: string[]
+  ): Promise<BatchDashboardResponse> {
+    const response = await this.fetchWithRetry(
+      `${this.config.baseURL}/api/v1/batch/dashboard`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ symbols, fields })
+      }
+    );
+    
+    return response.json();
+  }
+  
+  // 🆕 Supabase 직접 조회 (Fallback/성능 최적화)
+  async getSupabaseData(symbol: string): Promise<any> {
+    if (!this.supabase || !this.config.features.supabaseDirect) {
+      throw new Error('Supabase direct access not available');
+    }
+    
+    const { data, error } = await this.supabase
+      .from('news_data')
+      .select('*')
+      .eq('symbol', symbol)
+      .order('date', { ascending: false })
+      .limit(1)
+      .single();
+    
+    if (error) throw error;
+    return data;
+  }
+  
+  // 개발용 로컬 데이터 Fallback
+  private async getLocalDashboardData(symbol: string): Promise<DashboardResponse> {
+    // Next.js API Routes를 통한 서버사이드 로컬 데이터 읽기
+    const response = await fetch(`/api/local-data/dashboard/${symbol}`);
+    return response.json();
+  }
+  
+  // 재시도 로직이 포함된 fetch
+  private async fetchWithRetry(
+    url: string, 
+    options?: RequestInit, 
+    retries: number = 3
+  ): Promise<Response> {
+    for (let i = 0; i < retries; i++) {
+      try {
+        const response = await fetch(url, {
+          ...options,
+          timeout: 10000, // 10초 타임아웃
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        return response;
+      } catch (error) {
+        if (i === retries - 1) throw error;
+        await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1))); // 지수 백오프
+      }
+    }
+    
+    throw new Error('Max retries exceeded');
+  }
+  
+  // 캐시 관리
+  invalidateCache(pattern?: string): void {
+    this.cache.invalidate(pattern);
+  }
+  
+  // 환경 설정 조회
+  getConfig(): APIConfig {
+    return this.config;
+  }
+}
+
+// 싱글톤 인스턴스
+export const apiClient = new InvestieAPIClient();
+```
+
+### 🆕 로컬 데이터 Fallback을 위한 Next.js API Routes
+```typescript
+// apps/web/src/pages/api/local-data/dashboard/[symbol].ts
+import { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
 import path from 'path';
 
-export class LocalDataReader {
-  private dataPath = path.join(process.cwd(), '../backend/data');
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const { symbol } = req.query;
   
-  async readStockOverview(symbol: string, date?: string): Promise<any> {
-    const targetDate = date || new Date().toISOString().split('T')[0];
-    const filePath = path.join(this.dataPath, 'news/stock_news', symbol, targetDate, 'overview.json');
-    
-    try {
-      const data = await fs.promises.readFile(filePath, 'utf-8');
-      return JSON.parse(data);
-    } catch (error) {
-      console.warn(`Local overview data not found for ${symbol} on ${targetDate}`);
-      return null;
-    }
+  if (process.env.NODE_ENV !== 'development') {
+    return res.status(403).json({ error: 'Local data access only in development' });
   }
   
-  async readStockNews(symbol: string, date?: string): Promise<any> {
-    const targetDate = date || new Date().toISOString().split('T')[0];
-    const filePath = path.join(this.dataPath, 'news/stock_news', symbol, targetDate, 'stock_news.json');
+  try {
+    const dataPath = path.join(process.cwd(), '../backend/data');
+    const today = new Date().toISOString().split('T')[0];
     
-    try {
-      const data = await fs.promises.readFile(filePath, 'utf-8');
-      return JSON.parse(data);
-    } catch (error) {
-      console.warn(`Local stock news data not found for ${symbol} on ${targetDate}`);
-      return null;
-    }
-  }
-  
-  async readMacroNews(date?: string): Promise<any> {
-    const targetDate = date || new Date().toISOString().split('T')[0];
-    const filePath = path.join(this.dataPath, 'news/macro_news', targetDate, 'macro_news.json');
-    
-    try {
-      const data = await fs.promises.readFile(filePath, 'utf-8');
-      return JSON.parse(data);
-    } catch (error) {
-      console.warn(`Local macro news data not found for ${targetDate}`);
-      return null;
-    }
-  }
-  
-  async checkDataAvailability(symbol: string, date?: string): Promise<{
-    hasOverview: boolean;
-    hasStockNews: boolean;
-    hasMacroNews: boolean;
-  }> {
-    const targetDate = date || new Date().toISOString().split('T')[0];
-    
-    const overviewPath = path.join(this.dataPath, 'news/stock_news', symbol, targetDate, 'overview.json');
-    const stockNewsPath = path.join(this.dataPath, 'news/stock_news', symbol, targetDate, 'stock_news.json');
-    const macroNewsPath = path.join(this.dataPath, 'news/macro_news', targetDate, 'macro_news.json');
-    
-    const [hasOverview, hasStockNews, hasMacroNews] = await Promise.all([
-      fs.promises.access(overviewPath).then(() => true).catch(() => false),
-      fs.promises.access(stockNewsPath).then(() => true).catch(() => false),
-      fs.promises.access(macroNewsPath).then(() => true).catch(() => false),
+    // 병렬로 모든 데이터 읽기
+    const [overview, stockNews, macroNews] = await Promise.allSettled([
+      readJSONFile(path.join(dataPath, 'news/stock_news', symbol as string, today, 'overview.json')),
+      readJSONFile(path.join(dataPath, 'news/stock_news', symbol as string, today, 'stock_news.json')),
+      readJSONFile(path.join(dataPath, 'news/macro_news', today, 'macro_news.json')),
     ]);
     
-    return { hasOverview, hasStockNews, hasMacroNews };
+    // 통합 대시보드 응답 구조로 변환
+    const dashboardData: DashboardResponse = {
+      success: true,
+      data: {
+        aiAnalysis: overview.status === 'fulfilled' ? overview.value : null,
+        stockProfile: {
+          symbol: symbol as string,
+          currentPrice: 0, // TradingView에서 가져올 예정
+          changePercent: 0,
+          marketCap: 'N/A',
+          pe: 0,
+          volume: 'N/A',
+          lastUpdated: new Date().toISOString()
+        },
+        newsAnalysis: {
+          stockNews: stockNews.status === 'fulfilled' ? stockNews.value : null,
+          macroNews: macroNews.status === 'fulfilled' ? macroNews.value : null,
+        },
+        marketIndicators: null, // 별도 API에서 가져올 예정
+        lastUpdated: new Date().toISOString(),
+        dataFreshness: {
+          aiAnalysis: overview.status === 'fulfilled' ? 'fresh' : 'stale',
+          stockProfile: 'external',
+          newsAnalysis: stockNews.status === 'fulfilled' ? 'fresh' : 'stale',
+          marketIndicators: 'external',
+        }
+      },
+      timestamp: new Date().toISOString()
+    };
+    
+    res.status(200).json(dashboardData);
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to read local data',
+      details: error.message 
+    });
   }
+}
+
+async function readJSONFile(filePath: string): Promise<any> {
+  const data = await fs.promises.readFile(filePath, 'utf-8');
+  return JSON.parse(data);
 }
 ```
 
@@ -459,119 +687,196 @@ apps/web/src/app/components/
 
 ---
 
-## 📊 데이터 흐름 아키텍처
+## 📊 데이터 흐름 아키텍처 (Supabase 기반)
 
-### 실제 데이터 구조 분석 결과
+### Backend 아키텍처 변경 반영
 
-#### 1. Backend Data 폴더 구조
+#### 1. 새로운 클라우드 데이터베이스 구조 (Supabase PostgreSQL)
+```sql
+-- Supabase PostgreSQL 테이블 구조
+CREATE TABLE news_data (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  symbol TEXT NOT NULL,
+  date DATE NOT NULL,
+  overview JSONB NOT NULL,           -- AI 분석 결과
+  stock_news JSONB NOT NULL,         -- 종목 뉴스 데이터
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE macro_news (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  date DATE NOT NULL,
+  top_headline TEXT NOT NULL,
+  articles JSONB NOT NULL,
+  total_articles INTEGER NOT NULL,
+  query TEXT NOT NULL,
+  metadata JSONB NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE market_data (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  date DATE NOT NULL,
+  timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
+  indices JSONB NOT NULL,
+  sectors JSONB NOT NULL,
+  market_sentiment TEXT,
+  volatility_index NUMERIC,
+  source TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 마이그레이션된 로컬 데이터는 개발 환경에서만 사용 (Fallback)
+-- 프로덕션: Supabase PostgreSQL
+-- 개발: 로컬 apps/backend/data 폴더 (마이그레이션 소스)
 ```
-apps/backend/data/
-├── news/
-│   ├── stock_news/
-│   │   └── {SYMBOL}/
-│   │       └── {YYYY-MM-DD}/
-│   │           ├── overview.json      # AI 투자 분석 결과
-│   │           └── stock_news.json    # 종목별 뉴스 데이터
-│   └── macro_news/
-│       └── {YYYY-MM-DD}/
-│           └── macro_news.json        # 매크로 뉴스 데이터
-```
 
-#### 2. API Endpoints 및 실제 데이터 구조
+#### 2. 통합 API 엔드포인트 및 최적화된 데이터 구조
 
-##### AI Investment Analysis
+##### 🆕 통합 대시보드 API (Single Request 최적화)
 ```typescript
-// GET /api/v1/news/{symbol} - 실제 검증된 구조
-interface NewsResponse {
+// GET /api/v1/dashboard/{symbol} - 새로운 통합 API
+interface DashboardResponse {
   success: boolean;
   data: {
-    symbol: string;
-    overview: {
-      symbol: string;
-      overview: string;              // AI 분석 요약
+    // AI Investment Analysis Section
+    aiAnalysis: {
+      overview: string;
       recommendation: 'BUY' | 'HOLD' | 'SELL';
-      confidence: number;            // 0-100
-      keyFactors: string[];          // 핵심 투자 포인트
+      confidence: number;
+      keyFactors: string[];
       riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
-      timeHorizon: string;           // "3-6 months" 등
-      source: string;                // "claude_ai_analysis"
-      timestamp: string;             // ISO 8601 형식
+      timeHorizon: string;
+      timestamp: string;
     };
-    stockNews: {
+    
+    // Stock Profile Section  
+    stockProfile: {
       symbol: string;
-      date: string;                  // YYYY-MM-DD
-      timestamp: string;
-      query: string;                 // "{SYMBOL} enhanced search"
-      summary: {
-        headline: string;            // 주요 헤드라인
-        source: string;              // "mock_data"
+      currentPrice: number;
+      changePercent: number;
+      marketCap: string;
+      pe: number;
+      volume: string;
+      lastUpdated: string;
+    };
+    
+    // News Analysis Section
+    newsAnalysis: {
+      stockNews: {
+        headline: string;
+        articles: Article[];
+        sentiment: 'positive' | 'neutral' | 'negative';
       };
-      articles: any[];               // 현재는 빈 배열
-      metadata: {
-        source: string;
-        cached: boolean;
+      macroNews: {
+        topHeadline: string;
+        articles: Article[];
+        marketImpact: 'bullish' | 'neutral' | 'bearish';
       };
     };
-    macroNews: {
-      date: string;
-      timestamp: string;
-      query: string;                 // "stock market economy finance business"
-      topHeadline: string;          // 주요 매크로 뉴스 헤드라인
-      totalArticles: number;
-      articles: Array<{
-        title: string;
-        link: string;
-        snippet: string;
-        date: string;
-        source: string;
+    
+    // Market Indicators Section
+    marketIndicators: {
+      indices: {
+        sp500: { value: number; change: number; changePercent: number; };
+        nasdaq: { value: number; change: number; changePercent: number; };
+        dow: { value: number; change: number; changePercent: number; };
+      };
+      sectors: Array<{
+        name: string;
+        change: number;
+        performance: 'positive' | 'negative';
       }>;
-      metadata: {
-        source: string;
-        cached: boolean;
-      };
+      marketSentiment: string;
+      volatilityIndex: number;
+      // Phase 2 확장: FRED API 데이터
+      macroEconomicData?: MacroEconomicData;
     };
-    validationResult: {
-      isValid: boolean;
-      method: string;
-      symbol?: string;
-      reason?: string;
+    
+    // 메타데이터 및 데이터 신선도
+    lastUpdated: string;
+    dataFreshness: {
+      aiAnalysis: string;
+      stockProfile: string;
+      newsAnalysis: string;
+      marketIndicators: string;
     };
   };
+  timestamp: string;
 }
 ```
 
-##### Market Overview (기존 API 활용)
+##### 🆕 실시간 데이터 업데이트 API
 ```typescript
-// GET /api/v1/market/overview - 검증된 구조
-interface MarketOverviewResponse {
+// GET /api/v1/realtime/{symbol} - 자주 변경되는 데이터만
+interface RealtimeResponse {
   success: boolean;
   data: {
-    indices: {
-      sp500: {
-        value: number;               // 4150.23
-        change: number;              // 12.45
-        changePercent: number;       // 0.3
-      };
-      nasdaq: {
-        value: number;
-        change: number;
-        changePercent: number;
-      };
-      dow: {
-        value: number;
-        change: number;
-        changePercent: number;
-      };
-    };
-    sectors: Array<{
-      name: string;                  // "Technology", "Healthcare" 등
-      change: number;                // 0.25, -0.15 등
-      performance: 'positive' | 'negative';
-    }>;
-    marketSentiment: 'bullish' | 'neutral' | 'bearish';
-    volatilityIndex: number;         // VIX 대용 (18.45)
-    source: string;                  // "mock_data"
+    symbol: string;
+    currentPrice: number;
+    changePercent: number;
+    volume: string;
+    marketStatus: 'open' | 'closed' | 'pre_market' | 'after_hours';
+    lastUpdated: string;
+    newsHeadlines?: string[];  // 최신 헤드라인만
   };
+  timestamp: string;
+}
+```
+
+##### 🆕 데이터 가용성 확인 API
+```typescript
+// GET /api/v1/data-availability/{symbol} - 데이터 상태 확인
+interface DataAvailabilityResponse {
+  success: boolean;
+  data: {
+    symbol: string;
+    availability: {
+      aiAnalysis: boolean;
+      stockProfile: boolean;
+      newsAnalysis: boolean;
+      marketIndicators: boolean;
+    };
+    lastUpdated: {
+      aiAnalysis: string | null;
+      stockProfile: string | null;
+      newsAnalysis: string | null;
+      marketIndicators: string | null;
+    };
+    dataAge: {
+      aiAnalysis: number; // hours
+      stockProfile: number;
+      newsAnalysis: number;
+      marketIndicators: number;
+    };
+    isStale: boolean;
+    refreshScheduled: boolean;
+  };
+  timestamp: string;
+}
+```
+
+##### 🆕 배치 요청 처리 API
+```typescript
+// POST /api/v1/batch/dashboard - 다중 종목 동시 조회
+interface BatchDashboardRequest {
+  symbols: string[];
+  fields?: string[];  // 필요한 필드만 선택적 조회
+}
+
+interface BatchDashboardResponse {
+  success: boolean;
+  data: Array<{
+    symbol: string;
+    success: boolean;
+    data: DashboardResponse['data'] | null;
+    error: string | null;
+  }>;
+  totalRequested: number;
+  totalSuccessful: number;
   timestamp: string;
 }
 ```
@@ -597,19 +902,20 @@ interface LocalDataReader {
 }
 ```
 
-### 상태 관리 확장
+### 상태 관리 확장 (통합 API 및 실시간 데이터 지원)
 ```typescript
-// StockProvider 확장 - 실제 데이터 구조 반영
+// StockProvider 확장 - 새로운 통합 API 및 실시간 기능 반영
 interface StockContextType {
   // 기존
   currentSymbol: StockSymbol;
   setCurrentSymbol: (symbol: StockSymbol) => void;
   
-  // 신규 추가 - 실제 Backend 데이터 구조 기반
-  newsData: NewsResponse | null;           // 전체 뉴스 응답 데이터
-  marketData: MarketOverviewResponse | null;  // 시장 개요 데이터
+  // 🆕 통합 대시보드 데이터 (Single Request)
+  dashboardData: DashboardResponse | null;
+  realtimeData: RealtimeResponse | null;
+  dataAvailability: DataAvailabilityResponse | null;
   
-  // 편의성을 위한 파싱된 데이터
+  // 편의성을 위한 파싱된 데이터 (통합 API 기반)
   aiAnalysis: {
     overview: string;
     recommendation: 'BUY' | 'HOLD' | 'SELL';
@@ -620,25 +926,27 @@ interface StockContextType {
     timestamp: string;
   } | null;
   
-  stockNews: {
-    headline: string;
-    articles: any[];
-    metadata: {
-      source: string;
-      cached: boolean;
-    };
+  stockProfile: {
+    symbol: string;
+    currentPrice: number;
+    changePercent: number;
+    marketCap: string;
+    pe: number;
+    volume: string;
+    lastUpdated: string;
   } | null;
   
-  macroNews: {
-    topHeadline: string;
-    articles: Array<{
-      title: string;
-      link: string;
-      snippet: string;
-      date: string;
-      source: string;
-    }>;
-    totalArticles: number;
+  newsAnalysis: {
+    stockNews: {
+      headline: string;
+      articles: Article[];
+      sentiment: 'positive' | 'neutral' | 'negative';
+    };
+    macroNews: {
+      topHeadline: string;
+      articles: Article[];
+      marketImpact: 'bullish' | 'neutral' | 'bearish';
+    };
   } | null;
   
   marketIndicators: {
@@ -652,36 +960,158 @@ interface StockContextType {
       change: number;
       performance: 'positive' | 'negative';
     }>;
-    marketSentiment: 'bullish' | 'neutral' | 'bearish';
+    marketSentiment: string;
     volatilityIndex: number;
+    macroEconomicData?: MacroEconomicData;
   } | null;
   
+  // 🆕 실시간 데이터 상태
+  realtime: {
+    currentPrice: number;
+    changePercent: number;
+    volume: string;
+    marketStatus: 'open' | 'closed' | 'pre_market' | 'after_hours';
+    lastUpdated: string;
+    newsHeadlines: string[];
+  } | null;
+  
+  // 🆕 데이터 신선도 및 가용성
+  dataFreshness: {
+    aiAnalysis: string;
+    stockProfile: string;
+    newsAnalysis: string;
+    marketIndicators: string;
+    isStale: boolean;
+    refreshScheduled: boolean;
+  };
+  
   loading: {
-    news: boolean;
-    market: boolean;
-    dataRefresh: boolean;
+    dashboard: boolean;
+    realtime: boolean;
+    dataAvailability: boolean;
+    batchRequest: boolean;
   };
   
   error: {
-    news: string | null;
-    market: string | null;
+    dashboard: string | null;
+    realtime: string | null;
+    dataAvailability: string | null;
+    network: string | null;
   };
   
-  // 데이터 페칭 함수
-  fetchNewsData: (symbol: string) => Promise<void>;
-  fetchMarketData: () => Promise<void>;
+  // 🆕 통합 API 페칭 함수
+  fetchDashboardData: (symbol: string) => Promise<void>;
+  fetchRealtimeData: (symbol: string) => Promise<void>;
+  checkDataAvailability: (symbol: string) => Promise<void>;
   refreshAllData: () => Promise<void>;
   
-  // 로컬 데이터 읽기 (개발용)
+  // 🆕 배치 요청 처리
+  fetchBatchDashboard: (symbols: string[], fields?: string[]) => Promise<BatchDashboardResponse>;
+  
+  // 🆕 실시간 업데이트 제어
+  enableRealtimeUpdates: boolean;
+  setEnableRealtimeUpdates: (enabled: boolean) => void;
+  realtimeInterval: number; // seconds
+  setRealtimeInterval: (interval: number) => void;
+  
+  // 🆕 캐싱 전략 제어
+  cacheStrategy: {
+    enabled: boolean;
+    ttl: {
+      dashboard: number;    // 15분
+      realtime: number;     // 1분
+      market: number;       // 30분
+    };
+    invalidateCache: () => void;
+  };
+  
+  // 환경별 설정
+  environment: 'development' | 'staging' | 'production';
+  apiConfig: {
+    baseURL: string;
+    features: {
+      localDataFallback: boolean;
+      mockData: boolean;
+      debugMode: boolean;
+      realtimeUpdates: boolean;
+    };
+  };
+  
+  // 로컬 데이터 읽기 (개발용 Fallback)
   useLocalData: boolean;
   setUseLocalData: (useLocal: boolean) => void;
+}
+```
+
+### 🆕 실시간 데이터 훅 및 캐싱 전략
+```typescript
+// 실시간 데이터 업데이트 커스텀 훅
+const useRealtimeData = (symbol: string, interval: number = 60) => {
+  const { enableRealtimeUpdates, fetchRealtimeData, realtimeData } = useStock();
   
-  // 데이터 가용성 상태
-  dataAvailability: {
-    hasNewsData: boolean;
-    hasMarketData: boolean;
-    lastUpdated: string | null;
+  useEffect(() => {
+    if (!enableRealtimeUpdates) return;
+    
+    const intervalId = setInterval(() => {
+      fetchRealtimeData(symbol);
+    }, interval * 1000);
+    
+    return () => clearInterval(intervalId);
+  }, [symbol, interval, enableRealtimeUpdates]);
+  
+  return realtimeData;
+};
+
+// 데이터 신선도 확인 훅
+const useDataFreshness = (symbol: string) => {
+  const { checkDataAvailability, dataAvailability } = useStock();
+  
+  useEffect(() => {
+    checkDataAvailability(symbol);
+  }, [symbol]);
+  
+  return {
+    isStale: dataAvailability?.data.isStale ?? false,
+    dataAge: dataAvailability?.data.dataAge,
+    availability: dataAvailability?.data.availability,
   };
+};
+
+// Frontend 캐싱 구현
+class FrontendCache {
+  private cache = new Map<string, CacheItem>();
+  
+  get<T>(key: string): T | null {
+    const item = this.cache.get(key);
+    if (!item || this.isExpired(item)) {
+      this.cache.delete(key);
+      return null;
+    }
+    return item.data;
+  }
+  
+  set<T>(key: string, data: T, ttl: number): void {
+    this.cache.set(key, {
+      data,
+      expiredAt: Date.now() + ttl * 1000
+    });
+  }
+  
+  invalidate(pattern?: string): void {
+    if (pattern) {
+      for (const key of this.cache.keys()) {
+        if (key.includes(pattern)) {
+          this.cache.delete(key);
+        }
+      }
+    } else {
+      this.cache.clear();
+    }
+  }
+  
+  private isExpired(item: CacheItem): boolean {
+    return Date.now() > item.expiredAt;
+  }
 }
 ```
 
@@ -828,37 +1258,198 @@ const MacroIndicatorsDashboard = () => {
 };
 ```
 
-### 2. 데이터 페칭 최적화
+### 2. 데이터 페칭 최적화 (SWR + 통합 API)
 ```typescript
-// SWR 또는 React Query 도입 고려
-const useMarketData = (symbol: string) => {
-  const { data, error, isLoading } = useSWR(
-    `/api/v1/market/indicators/${symbol}`,
-    fetcher,
-    { refreshInterval: 60000 } // 1분마다 갱신
+// 🆕 SWR 기반 데이터 페칭 훅
+const useDashboardData = (symbol: string) => {
+  const { data, error, isLoading, mutate } = useSWR(
+    symbol ? `dashboard:${symbol}` : null,
+    () => apiClient.getDashboardData(symbol),
+    {
+      refreshInterval: 900000, // 15분마다 갱신
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+      dedupingInterval: 60000, // 1분간 중복 요청 방지
+      errorRetryCount: 3,
+      errorRetryInterval: 5000,
+      onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
+        // 네트워크 에러만 재시도
+        if (error.status === 404) return;
+        if (retryCount >= 3) return;
+        setTimeout(() => revalidate({ retryCount }), 5000 * Math.pow(2, retryCount));
+      }
+    }
   );
   
-  return { data, error, isLoading };
+  return { 
+    dashboardData: data,
+    isLoading,
+    error,
+    refresh: mutate
+  };
+};
+
+// 🆕 실시간 데이터 훅 (짧은 간격)
+const useRealtimeData = (symbol: string, enabled: boolean = true) => {
+  const { data, error, isLoading } = useSWR(
+    enabled && symbol ? `realtime:${symbol}` : null,
+    () => apiClient.getRealtimeData(symbol),
+    {
+      refreshInterval: 60000, // 1분마다 갱신
+      revalidateOnFocus: true,
+      revalidateOnReconnect: true,
+      dedupingInterval: 30000, // 30초간 중복 요청 방지
+    }
+  );
+  
+  return { realtimeData: data, isLoading, error };
+};
+
+// 🆕 배치 요청 훅 (다중 종목)
+const useBatchDashboard = (symbols: string[], fields?: string[]) => {
+  const { data, error, isLoading } = useSWR(
+    symbols.length > 0 ? `batch:${symbols.join(',')}:${fields?.join(',')}` : null,
+    () => apiClient.getBatchDashboard(symbols, fields),
+    {
+      refreshInterval: 300000, // 5분마다 갱신
+      revalidateOnFocus: false,
+      dedupingInterval: 120000, // 2분간 중복 요청 방지
+    }
+  );
+  
+  return { batchData: data, isLoading, error };
+};
+
+// 🆕 데이터 신선도 확인 훅
+const useDataFreshness = (symbol: string) => {
+  const { data, error } = useSWR(
+    symbol ? `availability:${symbol}` : null,
+    () => apiClient.checkDataAvailability(symbol),
+    {
+      refreshInterval: 600000, // 10분마다 확인
+      revalidateOnFocus: false,
+    }
+  );
+  
+  return { 
+    availability: data?.data.availability,
+    dataAge: data?.data.dataAge,
+    isStale: data?.data.isStale,
+    error 
+  };
 };
 ```
 
-### 3. 레이지 로딩
+### 3. 레이지 로딩 및 가상화
 ```typescript
-// 컴포넌트 레이지 로딩
+// 🆕 컴포넌트 레이지 로딩 (React.lazy + Suspense)
 const AINewsAnalysisReport = lazy(() => 
-  import('./Market/AINewsAnalysisReport')
+  import('./Market/AINewsAnalysisReport').then(module => ({
+    default: module.AINewsAnalysisReport
+  }))
 );
 
-// 이미지 레이지 로딩
-const OptimizedImage = ({ src, alt, ...props }) => {
+const MacroIndicatorsDashboard = lazy(() => 
+  import('./Market/MacroIndicatorsDashboard')
+);
+
+// 🆕 Intersection Observer 기반 레이지 로딩
+const LazySection = ({ children, fallback, threshold = 0.1 }) => {
+  const { ref, inView } = useInView({
+    threshold,
+    triggerOnce: true,
+    rootMargin: '50px 0px', // 50px 전에 미리 로드
+  });
+
   return (
-    <img 
-      src={src} 
-      alt={alt} 
-      loading="lazy"
-      {...props}
-    />
+    <div ref={ref}>
+      {inView ? (
+        <Suspense fallback={fallback}>
+          {children}
+        </Suspense>
+      ) : (
+        fallback
+      )}
+    </div>
   );
+};
+
+// 🆕 가상화된 뉴스 목록 (대용량 데이터 처리)
+const VirtualizedNewsList = ({ articles }) => {
+  const Row = ({ index, style }) => (
+    <div style={style}>
+      <NewsItem article={articles[index]} />
+    </div>
+  );
+
+  return (
+    <AutoSizer>
+      {({ height, width }) => (
+        <FixedSizeList
+          height={height}
+          width={width}
+          itemCount={articles.length}
+          itemSize={120}
+          overscanCount={5}
+        >
+          {Row}
+        </FixedSizeList>
+      )}
+    </AutoSizer>
+  );
+};
+
+// 🆕 이미지 최적화 및 레이지 로딩
+const OptimizedImage = ({ src, alt, width, height, priority = false, ...props }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [error, setError] = useState(false);
+
+  return (
+    <div className="relative overflow-hidden">
+      {!isLoaded && !error && (
+        <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+      )}
+      <img 
+        src={src} 
+        alt={alt}
+        width={width}
+        height={height}
+        loading={priority ? "eager" : "lazy"}
+        decoding="async"
+        onLoad={() => setIsLoaded(true)}
+        onError={() => setError(true)}
+        className={`transition-opacity duration-300 ${
+          isLoaded ? 'opacity-100' : 'opacity-0'
+        }`}
+        {...props}
+      />
+      {error && (
+        <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
+          <span className="text-gray-500 text-sm">이미지 로드 실패</span>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// 🆕 Progressive Enhancement Pattern
+const EnhancedStockProfile = ({ symbol }) => {
+  const { dashboardData, isLoading, error } = useDashboardData(symbol);
+  const { realtimeData } = useRealtimeData(symbol, !isLoading && !error);
+
+  // 기본 데이터 표시
+  const baseData = dashboardData?.data.stockProfile;
+  
+  // 실시간 데이터로 점진적 향상
+  const enhancedData = realtimeData ? {
+    ...baseData,
+    currentPrice: realtimeData.data.currentPrice,
+    changePercent: realtimeData.data.changePercent,
+    volume: realtimeData.data.volume,
+    marketStatus: realtimeData.data.marketStatus,
+  } : baseData;
+
+  return <StockProfile data={enhancedData} isLive={!!realtimeData} />;
 };
 ```
 
@@ -994,10 +1585,14 @@ const AIOpinion = ({ recommendation, confidence }) => {
 - [ ] TickerTape: 숨김 처리 (코드 유지)
 
 ### 성능 요구사항
-- [ ] 초기 로딩 시간 < 3초
-- [ ] API 응답 시간 < 2초
-- [ ] 컴포넌트 렌더링 최적화
-- [ ] 메모리 사용량 최적화
+- [ ] 초기 로딩 시간 < 3초 (SWR 캐싱으로 후속 방문 < 1초)
+- [ ] API 응답 시간 < 2초 (통합 대시보드 API 활용)
+- [ ] 컴포넌트 렌더링 최적화 (React.memo, lazy loading)
+- [ ] 메모리 사용량 최적화 (가상화, 자동 정리)
+- [ ] 번들 크기 < 500KB (초기), < 2MB (전체)
+- [ ] Core Web Vitals: LCP < 2.5s, FID < 100ms, CLS < 0.1
+- [ ] 실시간 업데이트 성능 < 500ms
+- [ ] 캐시 적중률 > 80% (SWR + 브라우저 캐시)
 
 ### 접근성 요구사항
 - [ ] WCAG 2.1 AA 레벨 준수
@@ -1104,7 +1699,12 @@ const AIOpinion = ({ recommendation, confidence }) => {
 
 ---
 
-**최종 업데이트**: 2025년 8월 19일  
-**문서 버전**: 2.0 (실제 데이터 검증 반영)  
+**최종 업데이트**: 2025년 8월 20일  
+**문서 버전**: 3.0 (Supabase 통합 아키텍처 반영)  
 **작성자**: Claude (Frontend Persona)  
-**검증 완료**: Backend API 및 로컬 데이터 구조 확인
+**검증 완료**: Backend 설계, Supabase 구조, 실제 데이터 구조 확인
+**주요 변경사항**: 
+- Supabase PostgreSQL 데이터베이스 통합
+- 통합 대시보드 API 엔드포인트 구조
+- SWR 기반 캐싱 및 실시간 업데이트
+- 성능 최적화 및 Progressive Enhancement
