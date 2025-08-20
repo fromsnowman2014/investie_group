@@ -7,109 +7,78 @@ export default function TickerTape() {
 
   useEffect(() => {
     const container = containerRef.current;
-    const script1 = document.createElement('script');
-    script1.src = 'https://s3.tradingview.com/external-embedding/embed-widget-tickers.js';
-    script1.async = true;
-    script1.innerHTML = JSON.stringify({
-      symbols: [
-        {
-          proName: "FRED:DJIA",
-          title: "Dow Jones"
-        },
-        {
-          proName: "SPREADEX:SPX",
-          title: "S&P 500"
-        },
-        {
-          proName: "NASDAQ:IXIC",
-          title: "NASDAQ"
-        },
-        {
-          proName: "IG:RUSSELL",
-          title: "Russell"
-        },
-        {
-          proName: "BITSTAMP:BTCUSD",
-          title: "Bitcoin"
-        },
-        {
-          proName: "BITSTAMP:ETHUSD",
-          title: "Ethereum"
-        }
-      ],
-      colorTheme: "light",
-      locale: "en",
-      largeChartUrl: "",
-      isTransparent: true,
-      showSymbolLogo: true
-    });
+    if (!container) return;
 
-    const script2 = document.createElement('script');
-    script2.src = 'https://s3.tradingview.com/external-embedding/embed-widget-tickers.js';
-    script2.async = true;
-    script2.innerHTML = JSON.stringify({
-      symbols: [
-        {
-          proName: "PYTH:US02Y",
-          title: "US 2yr Bond"
-        },
-        {
-          proName: "PYTH:US10Y",
-          title: "US 10yr Bond"
-        },
-        {
-          proName: "MARKETSCOM:OIL",
-          title: "Oil"
-        },
-        {
-          proName: "CAPITALCOM:GOLD",
-          title: "Gold"
-        },
-        {
-          proName: "NASDAQ:MSTR",
-          title: "MicroStrategy"
-        },
-        {
-          proName: "AMEX:BMNR",
-          title: "Bitmine"
-        }
-      ],
-      colorTheme: "light",
-      locale: "en",
-      largeChartUrl: "",
-      isTransparent: true,
-      showSymbolLogo: true
-    });
+    // Clear container first
+    container.innerHTML = '';
 
-    if (container) {
-      const widget1 = document.createElement('div');
-      widget1.className = 'tradingview-widget-container';
-      const widgetInner1 = document.createElement('div');
-      widgetInner1.className = 'tradingview-widget-container__widget';
-      widget1.appendChild(widgetInner1);
-      widget1.appendChild(script1);
+    // Configuration for compact ticker widgets
+    const createTickerWidget = (symbols: Array<{proName: string, title: string}>) => {
+      const script = document.createElement('script');
+      script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-tickers.js';
+      script.async = true;
+      script.innerHTML = JSON.stringify({
+        symbols,
+        colorTheme: "light",
+        locale: "en",
+        largeChartUrl: "",
+        isTransparent: false,
+        showSymbolLogo: false,
+        backgroundColor: "#ffffff",
+        gridLineColor: "#e0e3eb",
+        fontColor: "#000000"
+      });
 
-      const widget2 = document.createElement('div');
-      widget2.className = 'tradingview-widget-container';
-      const widgetInner2 = document.createElement('div');
-      widgetInner2.className = 'tradingview-widget-container__widget';
-      widget2.appendChild(widgetInner2);
-      widget2.appendChild(script2);
+      const widgetContainer = document.createElement('div');
+      widgetContainer.className = 'tradingview-widget-container';
+      
+      const widgetInner = document.createElement('div');
+      widgetInner.className = 'tradingview-widget-container__widget';
+      
+      widgetContainer.appendChild(widgetInner);
+      widgetContainer.appendChild(script);
+      
+      return widgetContainer;
+    };
 
-      container.appendChild(widget1);
-      container.appendChild(widget2);
-    }
+    // Major Market Indices
+    const majorIndices = [
+      { proName: "FRED:DJIA", title: "Dow Jones" },
+      { proName: "SPREADEX:SPX", title: "S&P 500" },
+      { proName: "NASDAQ:IXIC", title: "NASDAQ" },
+      { proName: "IG:RUSSELL", title: "Russell 2000" },
+      { proName: "BITSTAMP:BTCUSD", title: "Bitcoin" },
+      { proName: "BITSTAMP:ETHUSD", title: "Ethereum" }
+    ];
+
+    // Bonds & Commodities
+    const bondsAndCommodities = [
+      { proName: "PYTH:US02Y", title: "US 2Y" },
+      { proName: "PYTH:US10Y", title: "US 10Y" },
+      { proName: "MARKETSCOM:OIL", title: "Oil" },
+      { proName: "CAPITALCOM:GOLD", title: "Gold" },
+      { proName: "FX_IDC:USDX", title: "DXY" },
+      { proName: "FX_IDC:EURUSD", title: "EUR/USD" }
+    ];
+
+    // Create and append widgets
+    const widget1 = createTickerWidget(majorIndices);
+    const widget2 = createTickerWidget(bondsAndCommodities);
+    
+    container.appendChild(widget1);
+    container.appendChild(widget2);
 
     return () => {
-      if (container) {
-        container.innerHTML = '';
-      }
+      container.innerHTML = '';
     };
   }, []);
 
   return (
-    <nav className="ticker-tape widget-container" ref={containerRef}>
-      {/* TradingView widgets will be inserted here */}
+    <nav className="ticker-tape widget-container" ref={containerRef} role="banner" aria-label="Market Data Ticker">
+      {/* Market data loading indicator */}
+      <div className="ticker-loading" aria-hidden="true">
+        <span className="loading-text">Loading market data...</span>
+      </div>
     </nav>
   );
 }
