@@ -89,7 +89,7 @@ export class MigrationService {
       this.logger.log('Testing database connection...');
       const result = await this.supabaseService.testConnection();
       
-      if (result.connected) {
+      if (result.success) {
         return {
           step: 'connection_test',
           success: true,
@@ -368,7 +368,7 @@ export class MigrationService {
       const missingTables = requiredTables.filter(table => !existingTables.includes(table));
       
       let status = 'unknown';
-      if (!connectionTest.connected) {
+      if (!connectionTest.success) {
         status = 'connection_failed';
       } else if (missingTables.length > 0) {
         status = 'partial_migration';
@@ -377,7 +377,7 @@ export class MigrationService {
       }
 
       return {
-        success: connectionTest.connected,
+        success: connectionTest.success,
         status,
         details: {
           connection: connectionTest,

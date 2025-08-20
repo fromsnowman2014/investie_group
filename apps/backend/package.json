@@ -24,7 +24,8 @@
     "test:pre-deploy": "npm run lint && npm run test:all && npm run build",
     "migrate": "ts-node -r tsconfig-paths/register scripts/migrate.ts",
     "migrate:status": "ts-node -r tsconfig-paths/register scripts/migrate.ts status",
-    "migrate:rollback": "ts-node -r tsconfig-paths/register scripts/migrate.ts rollback"
+    "migrate:rollback": "ts-node -r tsconfig-paths/register scripts/migrate.ts rollback",
+    "verify:supabase": "ts-node -r tsconfig-paths/register scripts/verify-supabase.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.59.0",
