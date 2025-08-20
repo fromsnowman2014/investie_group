@@ -17,7 +17,8 @@ export default function TopStories() {
       feedMode: "symbol",
       colorTheme: "light",
       symbol: `NASDAQ:${currentSymbol}`,
-      isTransparent: true,
+      isTransparent: false,
+      backgroundColor: "#ffffff",
       locale: "en",
       width: "100%",
       height: "100%"

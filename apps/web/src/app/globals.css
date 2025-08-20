@@ -1919,6 +1919,61 @@ body {
   margin-top: 0;
 }
 
+/* Specific overrides for problematic TradingView widgets */
+/* CompanyProfile widget */
+#company-profile .tradingview-widget-container,
+#company-profile .tradingview-widget-container__widget {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+#company-profile .tradingview-widget-container * {
+  background-color: transparent !important;
+  color: #000000 !important;
+}
+
+#company-profile .tradingview-widget-container iframe {
+  background: #ffffff !important;
+}
+
+/* FundamentalData widget */
+#fundamental-data .tradingview-widget-container,
+#fundamental-data .tradingview-widget-container__widget {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+#fundamental-data .tradingview-widget-container * {
+  background-color: transparent !important;
+  color: #000000 !important;
+}
+
+#fundamental-data .tradingview-widget-container iframe {
+  background: #ffffff !important;
+}
+
+/* TopStories widget */
+#top-stories .tradingview-widget-container,
+#top-stories .tradingview-widget-container__widget {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+#top-stories .tradingview-widget-container * {
+  background-color: transparent !important;
+  color: #000000 !important;
+}
+
+#top-stories .tradingview-widget-container iframe {
+  background: #ffffff !important;
+}
+
+/* Force light theme for all problematic widgets */
+.fundamental-data, .company-profile, .top-stories {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
 /* Responsive ticker tape */
 @media (max-width: 768px) {
   .ticker-tape {

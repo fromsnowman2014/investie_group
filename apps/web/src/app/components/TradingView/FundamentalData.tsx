@@ -16,7 +16,8 @@ export default function FundamentalData() {
       symbol: `NASDAQ:${currentSymbol}`,
       colorTheme: "light",
       displayMode: "regular",
-      isTransparent: true,
+      isTransparent: false,
+      backgroundColor: "#ffffff",
       locale: "en",
       width: "100%",
       height: "100%"
