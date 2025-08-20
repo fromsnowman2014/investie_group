@@ -1,33 +1,32 @@
+'use client';
+
+import React from 'react';
+import { useStock } from './components/StockProvider';
+import MainLayout from './components/MainLayout';
 import Header from './components/Header';
-import Footer from './components/Footer';
+import AIAnalysis from './components/AIAnalysis';
+import MarketIntelligence from './components/MarketIntelligence';
+import ChartAnalysis from './components/ChartAnalysis';
 import TickerTape from './components/TradingView/TickerTape';
-import SymbolInfo from './components/TradingView/SymbolInfo';
-import TechnicalAnalysis from './components/TradingView/TechnicalAnalysis';
-import AdvancedChart from './components/TradingView/AdvancedChart';
-import CompanyProfile from './components/TradingView/CompanyProfile';
-import FundamentalData from './components/TradingView/FundamentalData';
-import TopStories from './components/TradingView/TopStories';
-import PoweredByTradingView from './components/TradingView/PoweredByTradingView';
+import Footer from './components/Footer';
 
 export default function Home() {
+  const { currentSymbol } = useStock();
+
   return (
     <>
-      <Header />
-      
-      {/* Ticker Tape */}
+      {/* Ticker Tape - Global Market Overview */}
       <TickerTape />
       
-      {/* Main Trading Grid */}
-      <main className="trading-grid">
-        <SymbolInfo />
-        <TechnicalAnalysis />
-        <AdvancedChart />
-        <CompanyProfile />
-        <FundamentalData />
-        <TopStories />
-        <PoweredByTradingView />
-      </main>
+      {/* Main Application Layout */}
+      <MainLayout
+        header={<Header />}
+        aiAnalysis={<AIAnalysis symbol={currentSymbol} />}
+        marketIntelligence={<MarketIntelligence symbol={currentSymbol} />}
+        chartAnalysis={<ChartAnalysis symbol={currentSymbol} />}
+      />
       
+      {/* Footer */}
       <Footer />
     </>
   );
