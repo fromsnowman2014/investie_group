@@ -52,36 +52,50 @@ export default function Header() {
   );
 
   return (
-    <header className="header">
-      <a href="#" className="site-logo">
-        Investie the intern
-      </a>
+    <header className="modern-header">
+      {/* Logo */}
+      <div className="header-logo">
+        <span className="logo-icon">📊</span>
+        <span className="logo-text">Investie</span>
+        <span className="logo-subtitle">AI Investment Analysis</span>
+      </div>
       
-      <div className="flex items-center gap-4">
+      {/* Navigation & Controls */}
+      <div className="header-controls">
+        {/* Current Stock Display */}
+        <div className="current-stock-display">
+          <span className="stock-label">Analyzing:</span>
+          <span className="stock-symbol">{currentSymbol}</span>
+        </div>
+
         {/* Stock Selector Dropdown */}
-        <div className="relative">
+        <div className="stock-selector">
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="selector-button"
           >
-            {currentSymbol}
-            <svg className="ml-2 h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span>Change Stock</span>
+            <svg className="dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </button>
           
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
-              <div className="py-1">
+            <div className="selector-dropdown">
+              <div className="dropdown-header">
+                <span>Popular Stocks</span>
+              </div>
+              <div className="dropdown-items">
                 {STOCK_SYMBOLS.map(symbol => (
                   <button
                     key={symbol}
                     onClick={() => handleStockSelect(symbol)}
-                    className={`block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${
-                      currentSymbol === symbol ? 'bg-blue-50 text-blue-700' : ''
-                    }`}
+                    className={`dropdown-item ${currentSymbol === symbol ? 'selected' : ''}`}
                   >
-                    {symbol}
+                    <span className="item-symbol">{symbol}</span>
+                    <span className="item-indicator">
+                      {currentSymbol === symbol ? '✓' : ''}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -89,18 +103,27 @@ export default function Header() {
           )}
         </div>
 
-        {/* Search Form */}
-        <form onSubmit={handleSearch} className="flex-1 max-w-md">
-          <div className="relative">
-            <input
-              type="search"
-              placeholder="Search stocks..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="search-input w-full"
-            />
+        {/* Enhanced Search */}
+        <form onSubmit={handleSearch} className="stock-search">
+          <div className="search-container">
+            <div className="search-input-wrapper">
+              <svg className="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="search"
+                placeholder="Search stocks by symbol or name..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="search-input-field"
+              />
+            </div>
+            
             {searchQuery && filteredStocks.length > 0 && (
-              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-b-lg shadow-lg z-20">
+              <div className="search-results">
+                <div className="results-header">
+                  <span>Search Results</span>
+                </div>
                 {filteredStocks.slice(0, 5).map(stock => (
                   <button
                     key={stock.symbol}
@@ -109,11 +132,11 @@ export default function Header() {
                       setCurrentSymbol(stock.symbol);
                       setSearchQuery('');
                     }}
-                    className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="result-item"
                   >
-                    <span className="font-medium">{stock.symbol}</span>
+                    <div className="result-symbol">{stock.symbol}</div>
                     {stock.name && stock.name !== stock.symbol && (
-                      <span className="text-gray-500 ml-2">{stock.name}</span>
+                      <div className="result-name">{stock.name}</div>
                     )}
                   </button>
                 ))}
