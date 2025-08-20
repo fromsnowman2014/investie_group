@@ -194,10 +194,7 @@ body {
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--color-text-primary);
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  /* Removed gradient text for better visibility in light theme */
 }
 
 .section-content {
@@ -233,10 +230,8 @@ body {
 .logo-text {
   font-size: 1.5rem;
   font-weight: 700;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--color-primary);
+  /* Replaced gradient with solid color for better visibility */
 }
 
 .logo-subtitle {
@@ -273,10 +268,7 @@ body {
   font-size: 0.875rem;
   font-weight: 700;
   color: var(--color-primary);
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  /* Removed gradient text for better visibility */
 }
 
 .stock-selector {
@@ -538,10 +530,8 @@ body {
   font-weight: 600;
   font-size: 32px;
   padding: 16px;
-  background: linear-gradient(90deg, #00bce5 0%, #2962ff 100%);
-  -webkit-text-fill-color: transparent;
-  -webkit-background-clip: text;
-  background-clip: text;
+  color: var(--color-primary);
+  /* Replaced gradient with solid color for better visibility in light theme */
 }
 
 /* Grid layout for trading widgets */
