@@ -175,7 +175,7 @@ export class SchemaSetupService {
     }
   }
 
-  async checkTablesExist(): Promise<{ success: boolean; tables: string[]; message: string }> {
+  async checkTablesExist(): Promise<{ success: boolean; tables: string[]; message: string; tableStatus?: { [key: string]: any } }> {
     try {
       this.logger.log('Checking which tables exist...');
       
