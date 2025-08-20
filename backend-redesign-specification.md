@@ -14,6 +14,10 @@
 3. **확장 가능한 아키텍처**: 실시간 데이터, 사용자 맞춤화, 알림 시스템 준비
 4. **무중단 서비스**: 기존 프로덕션 서비스 영향 없이 점진적 개선
 
+--------- temporary data for backend development. this should be removed before commiting the code to git -----------
+supabase configuration is stored in apps/backend/.env.local
+
+
 ---
 
 ## 🏗️ Architecture 전략 분석

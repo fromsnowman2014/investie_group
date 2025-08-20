@@ -30,6 +30,7 @@
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
+    "@supabase/supabase-js": "^2.55.0",
     "axios": "^1.11.0",
     "cache-manager": "^7.1.1",
     "class-transformer": "^0.5.1",

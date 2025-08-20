@@ -7,6 +7,8 @@ import { StocksModule } from './stocks/stocks.module';
 import { NewsModule } from './news/news.module';
 import { MarketModule } from './market/market.module';
 import { AIModule } from './ai/ai.module';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
@@ -23,11 +25,15 @@ import { AIModule } from './ai/ai.module';
       max: 100, // Default cache size
     }),
     
+    // Database module
+    DatabaseModule,
+    
     // Feature modules
     StocksModule,
     NewsModule,
     MarketModule,
     AIModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
