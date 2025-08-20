@@ -15,7 +15,8 @@ export default function CompanyProfile() {
     script.innerHTML = JSON.stringify({
       symbol: `NASDAQ:${currentSymbol}`,
       colorTheme: "light",
-      isTransparent: true,
+      isTransparent: false,
+      backgroundColor: "#ffffff",
       locale: "en",
       width: "100%",
       height: "100%"
