@@ -1,12 +1,14 @@
 import { Controller, Get, Post } from '@nestjs/common';
 import { SupabaseService } from './supabase.service';
 import { SchemaSetupService } from './schema-setup.service';
+import { MigrationService } from './migration.service';
 
 @Controller('api/v1/database')
 export class DatabaseController {
   constructor(
     private readonly supabaseService: SupabaseService,
     private readonly schemaSetupService: SchemaSetupService,
+    private readonly migrationService: MigrationService,
   ) {}
 
   @Get('health')
@@ -73,6 +75,60 @@ export class DatabaseController {
   async createTables() {
     try {
       const result = await this.schemaSetupService.createTablesManually();
+      
+      return {
+        ...result,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message,
+        timestamp: new Date().toISOString(),
+      };
+    }
+  }
+
+  @Post('migrate')
+  async runMigration() {
+    try {
+      const result = await this.migrationService.runFullMigration();
+      
+      return {
+        ...result,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message,
+        timestamp: new Date().toISOString(),
+      };
+    }
+  }
+
+  @Post('rollback')
+  async rollback() {
+    try {
+      const result = await this.migrationService.rollback();
+      
+      return {
+        ...result,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message,
+        timestamp: new Date().toISOString(),
+      };
+    }
+  }
+
+  @Get('migration-status')
+  async getMigrationStatus() {
+    try {
+      const result = await this.migrationService.checkMigrationStatus();
       
       return {
         ...result,

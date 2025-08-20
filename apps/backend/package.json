@@ -21,7 +21,10 @@
     "test:e2e:isolated": "pkill -f \"nest start --watch\" || true && npm run test:e2e",
     "test:all": "npm run test && npm run test:e2e:isolated",
     "test:coverage:full": "npm run test:cov && npm run test:e2e:isolated",
-    "test:pre-deploy": "npm run lint && npm run test:all && npm run build"
+    "test:pre-deploy": "npm run lint && npm run test:all && npm run build",
+    "migrate": "ts-node -r tsconfig-paths/register scripts/migrate.ts",
+    "migrate:status": "ts-node -r tsconfig-paths/register scripts/migrate.ts status",
+    "migrate:rollback": "ts-node -r tsconfig-paths/register scripts/migrate.ts rollback"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.59.0",
