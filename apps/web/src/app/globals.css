@@ -563,11 +563,54 @@ body {
   border-radius: 4px;
 }
 
-/* Ticker tape styling */
+/* 2025 Modern Ticker Tape Styling */
 .ticker-tape {
-  width: 90%;
-  margin: var(--gap-size);
-  height: 170px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: #ffffff;
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  position: relative;
+  z-index: 90;
+}
+
+.ticker-tape.widget-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--spacing-xs) var(--spacing-md);
+  background: #ffffff;
+  border-radius: 0;
+  font-size: 14px;
+  text-align: left;
+  min-height: 110px;
+}
+
+/* Ticker loading state */
+.ticker-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 110px;
+  background: #ffffff;
+}
+
+.loading-text {
+  color: var(--color-text-tertiary);
+  font-size: 0.875rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* Hide loading when widgets are loaded */
+.ticker-tape:has(.tradingview-widget-container) .ticker-loading {
+  display: none;
 }
 
 /* Individual widget heights */
@@ -1810,13 +1853,71 @@ body {
   }
 }
 
-/* TradingView widget overrides */
+/* TradingView Widget Overrides - General */
 .tradingview-widget-container {
   width: 100% !important;
   height: 100% !important;
+  background: var(--color-background) !important;
 }
 
 .tradingview-widget-container__widget {
   width: 100% !important;
   height: calc(100% - 32px) !important;
+}
+
+/* Ticker Tape Specific Widget Styling */
+.ticker-tape .tradingview-widget-container {
+  width: 100% !important;
+  height: 50px !important;
+  background: #ffffff !important;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-shadow: none;
+  border: 1px solid var(--color-border-light);
+}
+
+.ticker-tape .tradingview-widget-container__widget {
+  width: 100% !important;
+  height: 48px !important;
+  background: #ffffff !important;
+}
+
+/* Ensure text visibility in ticker widgets */
+.ticker-tape .tradingview-widget-container * {
+  color: #000000 !important;
+  background-color: #ffffff !important;
+}
+
+/* Remove margins between ticker widgets */
+.ticker-tape .tradingview-widget-container + .tradingview-widget-container {
+  margin-top: 0;
+}
+
+/* Responsive ticker tape */
+@media (max-width: 768px) {
+  .ticker-tape {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+  
+  .ticker-tape .tradingview-widget-container {
+    height: 45px !important;
+  }
+  
+  .ticker-tape .tradingview-widget-container__widget {
+    height: 43px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .ticker-tape {
+    padding: var(--spacing-xs);
+  }
+  
+  .ticker-tape .tradingview-widget-container {
+    height: 40px !important;
+  }
+  
+  .ticker-tape .tradingview-widget-container__widget {
+    height: 38px !important;
+  }
 }
