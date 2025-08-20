@@ -183,31 +183,48 @@ export class SchemaSetupService {
       const tableNames = ['ai_analysis', 'stock_news', 'macro_news', 'market_indicators', 'stock_profiles'];
       const existingTables: string[] = [];
       const missingTables: string[] = [];
+      const tableStatus: { [key: string]: any } = {};
 
       for (const tableName of tableNames) {
         try {
-          const { data, error } = await supabase
+          this.logger.log(`Checking table: ${tableName}`);
+          
+          // SELECT 대신 COUNT를 사용하여 테이블 존재 여부 확인
+          const { data, error, count } = await supabase
             .from(tableName)
-            .select('*')
-            .limit(1);
+            .select('*', { count: 'exact', head: true });
 
           if (error) {
-            if (error.code === 'PGRST116') {
+            this.logger.warn(`Table ${tableName} error: ${error.code} - ${error.message}`);
+            
+            if (error.code === 'PGRST116' || error.code === '42P01') {
+              // Table does not exist
               missingTables.push(tableName);
+              tableStatus[tableName] = { exists: false, error: error.code };
             } else {
-              this.logger.warn(`Error checking table ${tableName}: ${error.message}`);
+              // Table exists but has other issues (RLS, permissions, etc.)
+              existingTables.push(tableName);
+              tableStatus[tableName] = { exists: true, error: error.code, message: error.message };
             }
           } else {
+            // Table exists and is accessible
             existingTables.push(tableName);
+            tableStatus[tableName] = { exists: true, count: count || 0 };
+            this.logger.log(`Table ${tableName} exists with ${count || 0} rows`);
           }
         } catch (err) {
+          this.logger.warn(`Exception checking table ${tableName}: ${err.message}`);
           missingTables.push(tableName);
+          tableStatus[tableName] = { exists: false, exception: err.message };
         }
       }
 
       const message = `Found ${existingTables.length} existing tables, ${missingTables.length} missing tables`;
       this.logger.log(message);
       
+      if (existingTables.length > 0) {
+        this.logger.log(`Existing tables: ${existingTables.join(', ')}`);
+      }
       if (missingTables.length > 0) {
         this.logger.log(`Missing tables: ${missingTables.join(', ')}`);
       }
@@ -215,7 +232,8 @@ export class SchemaSetupService {
       return {
         success: true,
         tables: existingTables,
-        message: `${message}. Missing: ${missingTables.join(', ') || 'none'}`
+        message: `${message}. Missing: ${missingTables.join(', ') || 'none'}`,
+        tableStatus // 추가 디버깅 정보
       };
 
     } catch (error) {
