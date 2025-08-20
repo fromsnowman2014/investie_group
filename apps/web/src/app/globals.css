@@ -23,9 +23,9 @@
   --color-warning: #d97706;
   --color-error: #dc2626;
   
-  /* Surface Colors */
+  /* Surface Colors - Light Theme */
   --color-background: #ffffff;
-  --color-surface: #f8fafc;
+  --color-surface: #ffffff;
   --color-surface-elevated: #ffffff;
   --color-border: #e2e8f0;
   --color-border-light: #f1f5f9;
@@ -115,7 +115,7 @@ body {
   min-height: 100vh;
   display: grid;
   grid-template-rows: var(--header-height) 1fr;
-  background: var(--color-background);
+  background: #f8fafc;
 }
 
 .layout-header {
@@ -136,7 +136,7 @@ body {
   padding: var(--spacing-lg);
   gap: var(--spacing-xl);
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto;
+  grid-template-rows: 600px auto;
   grid-template-areas: 
     "ai-analysis market-intelligence"
     "chart-analysis chart-analysis";
@@ -158,28 +158,35 @@ body {
 .ai-analysis-section,
 .market-intelligence-section,
 .chart-analysis-section {
-  background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border);
+  background: #ffffff;
+  border: 1px solid var(--color-border-light);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   overflow: hidden;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Equal height for top sections */
+.ai-analysis-section,
+.market-intelligence-section {
+  height: 600px;
 }
 
 .ai-analysis-section:hover,
 .market-intelligence-section:hover,
 .chart-analysis-section:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+  border-color: var(--color-primary);
 }
 
 .section-header {
   padding: var(--spacing-lg) var(--spacing-xl);
-  background: var(--color-surface);
+  background: #f8fafc;
   border-bottom: 1px solid var(--color-border-light);
-  position: sticky;
-  top: var(--header-height);
-  z-index: 50;
+  flex-shrink: 0;
 }
 
 .section-header h2 {
@@ -194,9 +201,10 @@ body {
 }
 
 .section-content {
+  flex: 1;
   padding: var(--spacing-xl);
-  height: 100%;
   overflow: auto;
+  background: #ffffff;
 }
 
 /* 2025 Modern Header Styles */
@@ -579,13 +587,13 @@ body {
 .ticker-tape.widget-container {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: var(--spacing-xs) var(--spacing-md);
+  gap: 3px;
+  padding: var(--spacing-sm) var(--spacing-md);
   background: #ffffff;
   border-radius: 0;
   font-size: 14px;
   text-align: left;
-  min-height: 110px;
+  min-height: 170px;
 }
 
 /* Ticker loading state */
@@ -593,7 +601,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 110px;
+  height: 170px;
   background: #ffffff;
 }
 
@@ -709,12 +717,18 @@ body {
 @media (max-width: 768px) {
   .content-grid {
     grid-template-columns: 1fr;
+    grid-template-rows: 500px 500px auto;
     grid-template-areas: 
       "ai-analysis"
       "market-intelligence" 
       "chart-analysis";
     gap: var(--spacing-md);
     padding: var(--spacing-sm);
+  }
+  
+  .ai-analysis-section,
+  .market-intelligence-section {
+    height: 500px;
   }
   
   .section-header {
@@ -733,8 +747,14 @@ body {
 /* Small mobile breakpoint */
 @media (max-width: 480px) {
   .content-grid {
+    grid-template-rows: 450px 450px auto;
     padding: var(--spacing-xs);
     gap: var(--spacing-sm);
+  }
+  
+  .ai-analysis-section,
+  .market-intelligence-section {
+    height: 450px;
   }
   
   .section-header {
@@ -767,23 +787,25 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
-  gap: var(--spacing-xl);
+  gap: var(--spacing-md);
 }
 
 .ai-analysis-subsection {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--color-background);
+  background: #ffffff;
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-md);
   overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .subsection-header {
-  background: var(--color-surface);
+  background: #f8fafc;
   padding: var(--spacing-sm) var(--spacing-md);
   border-bottom: 1px solid var(--color-border-light);
+  flex-shrink: 0;
 }
 
 .subsection-header h3 {
@@ -800,6 +822,7 @@ body {
   flex: 1;
   padding: var(--spacing-md);
   overflow: auto;
+  background: #ffffff;
 }
 
 /* StockProfile Styles */
@@ -1289,17 +1312,18 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
-  gap: var(--spacing-xl);
+  gap: var(--spacing-md);
 }
 
 .market-intelligence-subsection {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--color-background);
+  background: #ffffff;
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-md);
   overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 /* MacroIndicatorsDashboard Styles */
@@ -1783,11 +1807,12 @@ body {
 }
 
 .primary-chart {
-  background: var(--color-background);
+  background: #ffffff;
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-md);
   overflow: hidden;
   min-height: 500px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .secondary-analysis-grid {
@@ -1798,12 +1823,13 @@ body {
 }
 
 .chart-subsection {
-  background: var(--color-background);
+  background: #ffffff;
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-md);
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .chart-subsection .subsection-content {
@@ -1868,7 +1894,7 @@ body {
 /* Ticker Tape Specific Widget Styling */
 .ticker-tape .tradingview-widget-container {
   width: 100% !important;
-  height: 50px !important;
+  height: 80px !important;
   background: #ffffff !important;
   border-radius: var(--radius-sm);
   overflow: hidden;
@@ -1878,7 +1904,7 @@ body {
 
 .ticker-tape .tradingview-widget-container__widget {
   width: 100% !important;
-  height: 48px !important;
+  height: 78px !important;
   background: #ffffff !important;
 }
 
@@ -1900,11 +1926,11 @@ body {
   }
   
   .ticker-tape .tradingview-widget-container {
-    height: 45px !important;
+    height: 75px !important;
   }
   
   .ticker-tape .tradingview-widget-container__widget {
-    height: 43px !important;
+    height: 73px !important;
   }
 }
 
@@ -1914,10 +1940,10 @@ body {
   }
   
   .ticker-tape .tradingview-widget-container {
-    height: 40px !important;
+    height: 70px !important;
   }
   
   .ticker-tape .tradingview-widget-container__widget {
-    height: 38px !important;
+    height: 68px !important;
   }
 }
