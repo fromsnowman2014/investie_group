@@ -1,4 +1,4 @@
-import { Controller, Get, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Param, HttpException, HttpStatus } from '@nestjs/common';
 import { ClaudeService } from './claude.service';
 import { AIEvaluationService } from './ai-evaluation.service';
 
@@ -65,6 +65,48 @@ export class AIController {
         {
           success: false,
           error: 'Failed to fetch AI models',
+          message: error.message,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get('analysis/:symbol')
+  async getAIAnalysis(@Param('symbol') symbol: string) {
+    try {
+      if (!symbol || typeof symbol !== 'string') {
+        throw new HttpException('Symbol is required', HttpStatus.BAD_REQUEST);
+      }
+
+      const cleanSymbol = symbol.trim().toUpperCase();
+      if (!cleanSymbol) {
+        throw new HttpException(
+          'Symbol cannot be empty',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      // Generate AI evaluation for the stock
+      const evaluation = await this.aiEvaluationService.generateEvaluation(cleanSymbol as any);
+
+      return {
+        success: true,
+        symbol: cleanSymbol,
+        rating: evaluation.rating,
+        confidence: evaluation.confidence,
+        summary: evaluation.summary,
+        keyFactors: evaluation.keyFactors,
+        timeframe: evaluation.timeframe,
+        source: evaluation.source,
+        lastUpdated: evaluation.lastUpdated,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          error: 'Failed to generate AI analysis',
           message: error.message,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
