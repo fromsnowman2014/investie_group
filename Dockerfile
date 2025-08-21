@@ -41,8 +41,8 @@ RUN npm install --only=production --ignore-scripts && \
 # Copy built application from builder stage
 COPY --from=builder /app/apps/backend/dist ./dist
 
-# Copy necessary runtime files
-COPY --from=builder /app/apps/backend/data ./data
+# Create data directory for news cache (will be populated at runtime)
+RUN mkdir -p ./data/news
 
 # Change ownership to non-root user
 RUN chown -R investie:nodejs /app
