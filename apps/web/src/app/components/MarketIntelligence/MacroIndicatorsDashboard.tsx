@@ -17,6 +17,18 @@ export default function MacroIndicatorsDashboard({ symbol }: MacroIndicatorsDash
     refetch: mutate 
   } = useMacroIndicatorsData();
 
+  // Debug logging
+  React.useEffect(() => {
+    console.log('📊 MacroIndicators State:', {
+      isLoading,
+      hasData: !!data,
+      hasError: !!error,
+      errorMessage: error?.message,
+      isMarketOpen,
+      apiUrl: process.env.NEXT_PUBLIC_API_URL
+    });
+  }, [isLoading, data, error, isMarketOpen]);
+
   if (isLoading) {
     return (
       <div className="macro-dashboard">
