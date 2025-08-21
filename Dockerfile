@@ -1,19 +1,24 @@
-# Multi-stage build for optimized production image
+# Multi-stage build for backend in monorepo
 FROM node:18-alpine AS builder
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy package files from root (for workspaces)
 COPY package*.json ./
+COPY turbo.json ./
 
-# Install ALL dependencies (including dev) for building
+# Copy backend package files
+COPY apps/backend/package*.json ./apps/backend/
+
+# Install dependencies for the entire monorepo
 RUN npm ci && npm cache clean --force
 
-# Copy source code
-COPY . .
+# Copy backend source code only
+COPY apps/backend ./apps/backend
 
-# Build the application
+# Build only the backend
+WORKDIR /app/apps/backend
 RUN npm run build
 
 # Production stage
@@ -26,18 +31,18 @@ WORKDIR /app
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S investie -u 1001
 
-# Copy package files
-COPY package*.json ./
+# Copy backend package files
+COPY apps/backend/package*.json ./
 
-# Install only production dependencies
+# Install only production dependencies for backend
 RUN npm ci --only=production --ignore-scripts && \
     npm cache clean --force
 
 # Copy built application from builder stage
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/apps/backend/dist ./dist
 
 # Copy necessary runtime files
-COPY --from=builder /app/data ./data
+COPY --from=builder /app/apps/backend/data ./data
 
 # Change ownership to non-root user
 RUN chown -R investie:nodejs /app

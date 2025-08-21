@@ -2,6 +2,9 @@
 node_modules
 npm-debug.log*
 
+# Frontend (not needed for backend deployment)
+apps/web
+
 # Testing
 coverage
 test
@@ -52,11 +55,13 @@ Thumbs.db
 docs
 README.md
 CHANGELOG.md
+RAILWAY_REDEPLOY_TRIGGER.md
 
 # Git
 .git
 .gitignore
 
-# Other
-*.md
-!package.json
+# Scripts
+compare-local-vs-production.sh
+test-railway-endpoints.sh
+verify-railway-deployment.sh
