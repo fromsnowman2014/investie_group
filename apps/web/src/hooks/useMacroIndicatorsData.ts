@@ -13,7 +13,12 @@ const checkMarketHours = (): boolean => {
 };
 
 const fetcher = async (url: string): Promise<MarketOverviewData> => {
-  const response = await fetch(url);
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+  
+  console.log('🔗 Fetching from:', fullUrl); // Debug log
+  
+  const response = await fetch(fullUrl);
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
