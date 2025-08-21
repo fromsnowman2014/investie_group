@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Param, Body, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  Body,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
 
 @Controller('api/v1/dashboard')
@@ -13,7 +21,7 @@ export class DashboardController {
   async getBatchDashboardData(@Body() batchRequest: { symbols: string[] }) {
     try {
       const { symbols } = batchRequest;
-      
+
       if (!symbols || !Array.isArray(symbols) || symbols.length === 0) {
         throw new HttpException(
           {
@@ -38,7 +46,8 @@ export class DashboardController {
         );
       }
 
-      const batchData = await this.dashboardService.getBatchDashboardData(symbols);
+      const batchData =
+        await this.dashboardService.getBatchDashboardData(symbols);
       return {
         success: true,
         data: batchData,
@@ -48,7 +57,7 @@ export class DashboardController {
       if (error instanceof HttpException) {
         throw error;
       }
-      
+
       throw new HttpException(
         {
           success: false,
@@ -94,7 +103,8 @@ export class DashboardController {
   @Get(':symbol/data-availability')
   async getDataAvailability(@Param('symbol') symbol: string) {
     try {
-      const availabilityData = await this.dashboardService.getDataAvailability(symbol);
+      const availabilityData =
+        await this.dashboardService.getDataAvailability(symbol);
       return {
         success: true,
         data: availabilityData,
@@ -120,7 +130,8 @@ export class DashboardController {
   @Get(':symbol')
   async getDashboardData(@Param('symbol') symbol: string) {
     try {
-      const dashboardData = await this.dashboardService.getDashboardData(symbol);
+      const dashboardData =
+        await this.dashboardService.getDashboardData(symbol);
       return {
         success: true,
         data: dashboardData,

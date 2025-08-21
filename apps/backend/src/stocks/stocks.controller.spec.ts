@@ -16,14 +16,14 @@ describe('StocksController', () => {
       current: 150.25,
       change: 2.45,
       changePercent: 1.66,
-      source: 'mock'
+      source: 'mock',
     },
     fundamentals: {
       pe: 25.5,
       marketCap: 2500000000000,
       volume: 45000000,
       fiftyTwoWeekHigh: 180.0,
-      fiftyTwoWeekLow: 120.0
+      fiftyTwoWeekLow: 120.0,
     },
     aiEvaluation: {
       rating: 'buy',
@@ -32,7 +32,7 @@ describe('StocksController', () => {
       keyFactors: ['Innovation', 'Market position'],
       timeframe: '3M',
       source: 'claude_ai',
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
     },
     technicals: {
       rsi: 62.5,
@@ -41,18 +41,18 @@ describe('StocksController', () => {
       volume: 45000000,
       signals: {
         trend: 'bullish',
-        strength: 'moderate'
-      }
+        strength: 'moderate',
+      },
     },
     newsSummary: {
       headline: 'Apple reports strong quarterly results',
       sentiment: 'positive',
-      source: 'financial_news'
+      source: 'financial_news',
     },
     sectorPerformance: {
       name: 'Technology',
-      weeklyChange: 3.2
-    }
+      weeklyChange: 3.2,
+    },
   };
 
   const mockSearchResults = [
@@ -63,8 +63,8 @@ describe('StocksController', () => {
       marketCap: 2500000000000,
       price: 150.25,
       change: 2.45,
-      changePercent: 1.66
-    }
+      changePercent: 1.66,
+    },
   ];
 
   const mockStocksService = {
@@ -112,7 +112,9 @@ describe('StocksController', () => {
     });
 
     it('should handle service errors', async () => {
-      mockStocksService.getAllStocks.mockRejectedValue(new Error('Service error'));
+      mockStocksService.getAllStocks.mockRejectedValue(
+        new Error('Service error'),
+      );
 
       await expect(controller.getAllStocks()).rejects.toThrow(HttpException);
       expect(mockStocksService.getAllStocks).toHaveBeenCalledWith();
@@ -132,27 +134,23 @@ describe('StocksController', () => {
     });
 
     it('should reject invalid symbol format', async () => {
-      await expect(controller.getStock('INVALID123'))
-        .rejects
-        .toThrow(HttpException);
-      
+      await expect(controller.getStock('INVALID123')).rejects.toThrow(
+        HttpException,
+      );
+
       expect(mockStocksService.getStock).not.toHaveBeenCalled();
     });
 
     it('should handle stock not found', async () => {
       mockStocksService.getStock.mockResolvedValue(null);
 
-      await expect(controller.getStock('XXXX'))
-        .rejects
-        .toThrow(HttpException);
+      await expect(controller.getStock('XXXX')).rejects.toThrow(HttpException);
     });
 
     it('should handle service errors', async () => {
       mockStocksService.getStock.mockRejectedValue(new Error('Service error'));
 
-      await expect(controller.getStock('AAPL'))
-        .rejects
-        .toThrow(HttpException);
+      await expect(controller.getStock('AAPL')).rejects.toThrow(HttpException);
     });
   });
 
@@ -179,98 +177,105 @@ describe('StocksController', () => {
     });
 
     it('should reject empty query', async () => {
-      await expect(controller.searchStocks(''))
-        .rejects
-        .toThrow(HttpException);
-      
+      await expect(controller.searchStocks('')).rejects.toThrow(HttpException);
+
       expect(mockStocksService.searchStocks).not.toHaveBeenCalled();
     });
 
     it('should reject invalid limit values', async () => {
-      await expect(controller.searchStocks('apple', '0'))
-        .rejects
-        .toThrow(HttpException);
+      await expect(controller.searchStocks('apple', '0')).rejects.toThrow(
+        HttpException,
+      );
 
-      await expect(controller.searchStocks('apple', '100'))
-        .rejects
-        .toThrow(HttpException);
+      await expect(controller.searchStocks('apple', '100')).rejects.toThrow(
+        HttpException,
+      );
 
-      await expect(controller.searchStocks('apple', 'invalid'))
-        .rejects
-        .toThrow(HttpException);
+      await expect(controller.searchStocks('apple', 'invalid')).rejects.toThrow(
+        HttpException,
+      );
     });
 
     it('should handle service errors', async () => {
-      mockStocksService.searchStocks.mockRejectedValue(new Error('Service error'));
+      mockStocksService.searchStocks.mockRejectedValue(
+        new Error('Service error'),
+      );
 
-      await expect(controller.searchStocks('apple'))
-        .rejects
-        .toThrow(HttpException);
+      await expect(controller.searchStocks('apple')).rejects.toThrow(
+        HttpException,
+      );
     });
   });
 
   describe('getBatchStocks', () => {
     it('should return batch stock data for valid symbols', async () => {
       const mockBatchData = {
-        'AAPL': mockStockData,
-        'MSFT': { ...mockStockData, symbol: 'MSFT' as StockSymbol }
+        AAPL: mockStockData,
+        MSFT: { ...mockStockData, symbol: 'MSFT' as StockSymbol },
       };
       mockStocksService.getBatchStocks.mockResolvedValue(mockBatchData);
 
-      const result = await controller.getBatchStocks({ symbols: ['AAPL', 'MSFT'] });
+      const result = await controller.getBatchStocks({
+        symbols: ['AAPL', 'MSFT'],
+      });
 
       expect(result.success).toBe(true);
       expect(result.data).toEqual(mockBatchData);
       expect(result.count).toBe(2);
       expect(result.requested).toBe(2);
       expect(result.timestamp).toBeDefined();
-      expect(mockStocksService.getBatchStocks).toHaveBeenCalledWith(['AAPL', 'MSFT']);
+      expect(mockStocksService.getBatchStocks).toHaveBeenCalledWith([
+        'AAPL',
+        'MSFT',
+      ]);
     });
 
     it('should reject invalid request body', async () => {
-      await expect(controller.getBatchStocks({}))
-        .rejects
-        .toThrow(HttpException);
+      await expect(controller.getBatchStocks({})).rejects.toThrow(
+        HttpException,
+      );
 
-      await expect(controller.getBatchStocks({ symbols: 'not-array' } as any))
-        .rejects
-        .toThrow(HttpException);
-      
+      await expect(
+        controller.getBatchStocks({ symbols: 'not-array' } as any),
+      ).rejects.toThrow(HttpException);
+
       expect(mockStocksService.getBatchStocks).not.toHaveBeenCalled();
     });
 
     it('should reject empty symbols array', async () => {
-      await expect(controller.getBatchStocks({ symbols: [] }))
-        .rejects
-        .toThrow(HttpException);
-      
+      await expect(controller.getBatchStocks({ symbols: [] })).rejects.toThrow(
+        HttpException,
+      );
+
       expect(mockStocksService.getBatchStocks).not.toHaveBeenCalled();
     });
 
     it('should reject too many symbols', async () => {
       const tooManySymbols = Array(21).fill('AAPL');
-      
-      await expect(controller.getBatchStocks({ symbols: tooManySymbols }))
-        .rejects
-        .toThrow(HttpException);
-      
+
+      await expect(
+        controller.getBatchStocks({ symbols: tooManySymbols }),
+      ).rejects.toThrow(HttpException);
+
       expect(mockStocksService.getBatchStocks).not.toHaveBeenCalled();
     });
 
     it('should reject invalid symbol formats', async () => {
-      await expect(controller.getBatchStocks({ symbols: ['AAPL', 'INVALID123'] }))
-        .rejects
-        .toThrow(HttpException);
-      
+      await expect(
+        controller.getBatchStocks({ symbols: ['AAPL', 'INVALID123'] }),
+      ).rejects.toThrow(HttpException);
+
       expect(mockStocksService.getBatchStocks).not.toHaveBeenCalled();
     });
 
     it('should handle service errors', async () => {
-      mockStocksService.getBatchStocks.mockRejectedValue(new Error('Service error'));
+      mockStocksService.getBatchStocks.mockRejectedValue(
+        new Error('Service error'),
+      );
 
-      await expect(controller.getBatchStocks({ symbols: ['AAPL'] }))
-        .rejects
-        .toThrow(HttpException);
+      await expect(
+        controller.getBatchStocks({ symbols: ['AAPL'] }),
+      ).rejects.toThrow(HttpException);
     });
   });
 
@@ -279,15 +284,26 @@ describe('StocksController', () => {
       symbol: 'AAPL',
       period: '1W',
       data: [
-        { time: '2023-01-01', open: 150, high: 155, low: 148, close: 152, volume: 1000000 }
+        {
+          time: '2023-01-01',
+          open: 150,
+          high: 155,
+          low: 148,
+          close: 152,
+          volume: 1000000,
+        },
       ],
       technicalIndicators: {
         movingAverages: { ma20: [150], ma50: [148] },
         rsi: [65],
-        volumeProfile: { totalVolume: 1000000, avgVolume: 1000000, volumeTrend: 'above_average' },
-        bollinger: { upperBand: [155], lowerBand: [145], middleBand: [150] }
+        volumeProfile: {
+          totalVolume: 1000000,
+          avgVolume: 1000000,
+          volumeTrend: 'above_average',
+        },
+        bollinger: { upperBand: [155], lowerBand: [145], middleBand: [150] },
       },
-      source: 'mock_data'
+      source: 'mock_data',
     };
 
     it('should return chart data for valid symbol', async () => {
@@ -298,7 +314,10 @@ describe('StocksController', () => {
       expect(result.success).toBe(true);
       expect(result.data).toEqual(mockChartData);
       expect(result.timestamp).toBeDefined();
-      expect(mockStocksService.getStockChart).toHaveBeenCalledWith('AAPL', '1W');
+      expect(mockStocksService.getStockChart).toHaveBeenCalledWith(
+        'AAPL',
+        '1W',
+      );
     });
 
     it('should use default period when not provided', async () => {
@@ -306,7 +325,10 @@ describe('StocksController', () => {
 
       await controller.getStockChart('AAPL');
 
-      expect(mockStocksService.getStockChart).toHaveBeenCalledWith('AAPL', '1W');
+      expect(mockStocksService.getStockChart).toHaveBeenCalledWith(
+        'AAPL',
+        '1W',
+      );
     });
 
     it('should validate and normalize period values', async () => {
@@ -314,7 +336,10 @@ describe('StocksController', () => {
 
       await controller.getStockChart('AAPL', '1m');
 
-      expect(mockStocksService.getStockChart).toHaveBeenCalledWith('AAPL', '1M');
+      expect(mockStocksService.getStockChart).toHaveBeenCalledWith(
+        'AAPL',
+        '1M',
+      );
     });
 
     it('should handle invalid periods', async () => {
@@ -322,15 +347,20 @@ describe('StocksController', () => {
 
       const result = await controller.getStockChart('AAPL', 'invalid');
 
-      expect(mockStocksService.getStockChart).toHaveBeenCalledWith('AAPL', '1W'); // defaults to 1W
+      expect(mockStocksService.getStockChart).toHaveBeenCalledWith(
+        'AAPL',
+        '1W',
+      ); // defaults to 1W
     });
 
     it('should handle service errors', async () => {
-      mockStocksService.getStockChart.mockRejectedValue(new Error('Service error'));
+      mockStocksService.getStockChart.mockRejectedValue(
+        new Error('Service error'),
+      );
 
-      await expect(controller.getStockChart('AAPL'))
-        .rejects
-        .toThrow(HttpException);
+      await expect(controller.getStockChart('AAPL')).rejects.toThrow(
+        HttpException,
+      );
     });
   });
 });

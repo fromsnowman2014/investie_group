@@ -282,25 +282,25 @@ describe('API Endpoints (e2e)', () => {
   describe('Performance Tests', () => {
     it('should respond within reasonable time limits', async () => {
       const startTime = Date.now();
-      
-      await request(app.getHttpServer())
-        .get('/api/v1/stocks/AAPL')
-        .expect(200);
-        
+
+      await request(app.getHttpServer()).get('/api/v1/stocks/AAPL').expect(200);
+
       const responseTime = Date.now() - startTime;
       expect(responseTime).toBeLessThan(5000); // 5 seconds max
     });
 
     it('should handle concurrent requests', async () => {
-      const promises = Array(5).fill(null).map(() => 
-        request(app.getHttpServer())
-          .get('/api/v1/market/overview')
-          .expect(200)
-      );
+      const promises = Array(5)
+        .fill(null)
+        .map(() =>
+          request(app.getHttpServer())
+            .get('/api/v1/market/overview')
+            .expect(200),
+        );
 
       const results = await Promise.all(promises);
       expect(results).toHaveLength(5);
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result.body.success).toBe(true);
       });
     });

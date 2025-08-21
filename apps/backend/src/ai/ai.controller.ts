@@ -6,37 +6,37 @@ import { AIEvaluationService } from './ai-evaluation.service';
 export class AIController {
   constructor(
     private readonly claudeService: ClaudeService,
-    private readonly aiEvaluationService: AIEvaluationService
+    private readonly aiEvaluationService: AIEvaluationService,
   ) {}
 
   @Get('health')
   async getAIHealth() {
     try {
       const claudeHealth = await this.claudeService.healthCheck();
-      
+
       return {
         success: true,
         data: {
           claude: {
             status: claudeHealth.hasApiKey ? 'configured' : 'not_configured',
             model: claudeHealth.model,
-            hasApiKey: claudeHealth.hasApiKey
+            hasApiKey: claudeHealth.hasApiKey,
           },
           evaluationService: {
             status: 'operational',
-            cacheEnabled: true
-          }
+            cacheEnabled: true,
+          },
         },
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     } catch (error) {
       throw new HttpException(
         {
           success: false,
           error: 'AI health check failed',
-          message: error.message
+          message: error.message,
         },
-        HttpStatus.INTERNAL_SERVER_ERROR
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -50,24 +50,24 @@ export class AIController {
           claude: {
             model: 'claude-3-haiku-20240307',
             provider: 'anthropic',
-            status: 'available'
+            status: 'available',
           },
           fallback: {
             model: 'mock_responses',
             provider: 'internal',
-            status: 'always_available'
-          }
+            status: 'always_available',
+          },
         },
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     } catch (error) {
       throw new HttpException(
         {
           success: false,
           error: 'Failed to fetch AI models',
-          message: error.message
+          message: error.message,
         },
-        HttpStatus.INTERNAL_SERVER_ERROR
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -83,28 +83,28 @@ export class AIController {
         cacheHitRate: 68.3,
         modelUsage: {
           claude: 85.2,
-          fallback: 14.8
+          fallback: 14.8,
         },
         evaluationBreakdown: {
           buy: 23,
           hold: 52,
-          sell: 25
-        }
+          sell: 25,
+        },
       };
 
       return {
         success: true,
         data: stats,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     } catch (error) {
       throw new HttpException(
         {
           success: false,
           error: 'Failed to fetch AI statistics',
-          message: error.message
+          message: error.message,
         },
-        HttpStatus.INTERNAL_SERVER_ERROR
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }

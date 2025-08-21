@@ -103,7 +103,7 @@ describe('StocksService', () => {
       expect(result).toBeDefined();
       expect(Array.isArray(result)).toBe(true);
       expect(result.length).toBeGreaterThan(0);
-      
+
       // Check structure of first stock
       if (result.length > 0) {
         const stock = result[0];
@@ -120,7 +120,7 @@ describe('StocksService', () => {
   describe('getStock', () => {
     it('should return stock data for valid symbol', async () => {
       const mockSymbol = 'AAPL';
-      
+
       // Mock successful responses
       aiEvaluationService.generateEvaluation.mockResolvedValue({
         rating: 'buy',
@@ -172,11 +172,17 @@ describe('StocksService', () => {
 
     it('should handle service failures gracefully', async () => {
       const mockSymbol = 'TSLA';
-      
+
       // Mock service failures
-      aiEvaluationService.generateEvaluation.mockRejectedValue(new Error('AI service unavailable'));
-      technicalAnalysisService.getAnalysis.mockRejectedValue(new Error('Technical analysis failed'));
-      newsService.processStockNews.mockRejectedValue(new Error('News service error'));
+      aiEvaluationService.generateEvaluation.mockRejectedValue(
+        new Error('AI service unavailable'),
+      );
+      technicalAnalysisService.getAnalysis.mockRejectedValue(
+        new Error('Technical analysis failed'),
+      );
+      newsService.processStockNews.mockRejectedValue(
+        new Error('News service error'),
+      );
 
       const result = await service.getStock(mockSymbol);
 
@@ -202,7 +208,7 @@ describe('StocksService', () => {
 
     it('should handle different time periods', async () => {
       const periods = ['1W', '1M', '3M', '1Y'];
-      
+
       for (const period of periods) {
         const result = await service.getStockChart('AAPL', period);
         expect(result.period).toBe(period);

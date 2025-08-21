@@ -5,20 +5,92 @@ import { ValidationResult } from '../common/types';
 @Injectable()
 export class StockValidatorHelper {
   private readonly logger = new Logger(StockValidatorHelper.name);
-  
+
   private knownValidSymbols = new Set([
     // Major US Stocks
-    'AAPL', 'MSFT', 'GOOGL', 'GOOG', 'AMZN', 'TSLA', 'META', 'NVDA', 'AMD', 'INTC',
-    'NFLX', 'UBER', 'LYFT', 'SNAP', 'TWTR', 'SHOP', 'PYPL', 'SQ', 'ZOOM', 'CRM',
-    'ORCL', 'IBM', 'CSCO', 'V', 'MA', 'JPM', 'BAC', 'WFC', 'GS', 'MS',
-    'JNJ', 'PFE', 'MRNA', 'ABBV', 'UNH', 'CVS', 'WMT', 'TGT', 'COST', 'HD',
-    'KO', 'PEP', 'MCD', 'SBUX', 'NKE', 'DIS', 'CMCSA', 'VZ', 'T', 'TMUS',
+    'AAPL',
+    'MSFT',
+    'GOOGL',
+    'GOOG',
+    'AMZN',
+    'TSLA',
+    'META',
+    'NVDA',
+    'AMD',
+    'INTC',
+    'NFLX',
+    'UBER',
+    'LYFT',
+    'SNAP',
+    'TWTR',
+    'SHOP',
+    'PYPL',
+    'SQ',
+    'ZOOM',
+    'CRM',
+    'ORCL',
+    'IBM',
+    'CSCO',
+    'V',
+    'MA',
+    'JPM',
+    'BAC',
+    'WFC',
+    'GS',
+    'MS',
+    'JNJ',
+    'PFE',
+    'MRNA',
+    'ABBV',
+    'UNH',
+    'CVS',
+    'WMT',
+    'TGT',
+    'COST',
+    'HD',
+    'KO',
+    'PEP',
+    'MCD',
+    'SBUX',
+    'NKE',
+    'DIS',
+    'CMCSA',
+    'VZ',
+    'T',
+    'TMUS',
     // Tech giants
-    'AVGO', 'QCOM', 'TXN', 'ADBE', 'NOW', 'INTU', 'MU', 'LRCX', 'KLAC', 'AMAT',
+    'AVGO',
+    'QCOM',
+    'TXN',
+    'ADBE',
+    'NOW',
+    'INTU',
+    'MU',
+    'LRCX',
+    'KLAC',
+    'AMAT',
     // Popular ETFs
-    'SPY', 'QQQ', 'IWM', 'VTI', 'VOO', 'VEA', 'VWO', 'BND', 'VXUS', 'VTEB',
+    'SPY',
+    'QQQ',
+    'IWM',
+    'VTI',
+    'VOO',
+    'VEA',
+    'VWO',
+    'BND',
+    'VXUS',
+    'VTEB',
     // Recent popular stocks
-    'PLTR', 'COIN', 'RBLX', 'HOOD', 'SOFI', 'RIVN', 'LCID', 'AI', 'SMCI', 'ARM'
+    'PLTR',
+    'COIN',
+    'RBLX',
+    'HOOD',
+    'SOFI',
+    'RIVN',
+    'LCID',
+    'AI',
+    'SMCI',
+    'ARM',
   ]);
 
   async validateSymbol(symbol: string): Promise<ValidationResult> {
@@ -40,7 +112,7 @@ export class StockValidatorHelper {
 
   private hasValidFormat(symbol: string): ValidationResult {
     const cleanSymbol = symbol.trim().toUpperCase();
-    
+
     // Basic format validation
     if (!cleanSymbol) {
       return {
@@ -88,9 +160,10 @@ export class StockValidatorHelper {
         {
           timeout: 8000,
           headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-          }
-        }
+            'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+          },
+        },
       );
 
       const chart = response.data.chart;
@@ -101,10 +174,12 @@ export class StockValidatorHelper {
         method: 'yahoo_finance_api',
         symbol: symbol.toUpperCase(),
         reason: isValid ? 'Found market data' : 'No market data found',
-        price: isValid ? chart.result[0].meta.regularMarketPrice : undefined
+        price: isValid ? chart.result[0].meta.regularMarketPrice : undefined,
       };
     } catch (error) {
-      this.logger.warn(`Yahoo Finance validation failed for ${symbol}: ${error.message}`);
+      this.logger.warn(
+        `Yahoo Finance validation failed for ${symbol}: ${error.message}`,
+      );
       return {
         isValid: false,
         method: 'yahoo_finance_api',
@@ -119,7 +194,10 @@ export class StockValidatorHelper {
     const upperSymbol = invalidSymbol.toUpperCase();
 
     for (const validSymbol of this.knownValidSymbols) {
-      if (validSymbol.includes(upperSymbol) || upperSymbol.includes(validSymbol)) {
+      if (
+        validSymbol.includes(upperSymbol) ||
+        upperSymbol.includes(validSymbol)
+      ) {
         suggestions.push(validSymbol);
       }
       if (suggestions.length >= 5) break;

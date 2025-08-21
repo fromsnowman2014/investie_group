@@ -16,7 +16,7 @@ export class DatabaseController {
     try {
       const connectionTest = await this.supabaseService.testConnection();
       const schemaInfo = await this.supabaseService.checkSchema();
-      
+
       return {
         success: true,
         connection: connectionTest,
@@ -36,7 +36,7 @@ export class DatabaseController {
   async getTables() {
     try {
       const tablesInfo = await this.schemaSetupService.checkTablesExist();
-      
+
       return {
         success: tablesInfo.success,
         tables: tablesInfo.tables,
@@ -57,7 +57,7 @@ export class DatabaseController {
   async setupSchema() {
     try {
       const result = await this.schemaSetupService.setupSchema();
-      
+
       return {
         ...result,
         timestamp: new Date().toISOString(),
@@ -75,7 +75,7 @@ export class DatabaseController {
   async createTables() {
     try {
       const result = await this.schemaSetupService.createTablesManually();
-      
+
       return {
         ...result,
         timestamp: new Date().toISOString(),
@@ -93,7 +93,7 @@ export class DatabaseController {
   async runMigration() {
     try {
       const result = await this.migrationService.runFullMigration();
-      
+
       return {
         ...result,
         timestamp: new Date().toISOString(),
@@ -111,7 +111,7 @@ export class DatabaseController {
   async rollback() {
     try {
       const result = await this.migrationService.rollback();
-      
+
       return {
         ...result,
         timestamp: new Date().toISOString(),
@@ -129,7 +129,7 @@ export class DatabaseController {
   async getMigrationStatus() {
     try {
       const result = await this.migrationService.checkMigrationStatus();
-      
+
       return {
         ...result,
         timestamp: new Date().toISOString(),

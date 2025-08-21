@@ -11,11 +11,11 @@ export class AppService {
         stocks: '/api/v1/stocks',
         news: '/api/v1/news',
         market: '/api/v1/market',
-        ai: '/api/v1/ai'
+        ai: '/api/v1/ai',
       },
       documentation: 'https://api.investie.com/docs',
       status: 'operational',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -27,9 +27,10 @@ export class AppService {
       environment: process.env.NODE_ENV || 'development',
       memory: {
         used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024) + ' MB',
-        total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024) + ' MB'
+        total:
+          Math.round(process.memoryUsage().heapTotal / 1024 / 1024) + ' MB',
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 }

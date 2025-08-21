@@ -62,19 +62,19 @@ export class TechnicalAnalysisService {
   private getMockTechnicalAnalysis(symbol: string): StockTechnicals {
     // Mock data based on symbol - in production, this would be calculated from real price data
     const mockData: Record<string, Partial<StockTechnicals>> = {
-      'AAPL': {
+      AAPL: {
         rsi: 65.2,
-        sma20: 182.50,
-        sma50: 178.20,
+        sma20: 182.5,
+        sma50: 178.2,
         volume: 45000000,
         signals: {
           trend: 'bullish',
           strength: 'moderate',
         },
       },
-      'NVDA': {
+      NVDA: {
         rsi: 72.8,
-        sma20: 685.30,
+        sma20: 685.3,
         sma50: 620.15,
         volume: 38000000,
         signals: {
@@ -82,30 +82,30 @@ export class TechnicalAnalysisService {
           strength: 'strong',
         },
       },
-      'TSLA': {
+      TSLA: {
         rsi: 45.6,
-        sma20: 245.80,
-        sma50: 252.40,
+        sma20: 245.8,
+        sma50: 252.4,
         volume: 42000000,
         signals: {
           trend: 'bearish',
           strength: 'weak',
         },
       },
-      'GOOGL': {
+      GOOGL: {
         rsi: 58.3,
-        sma20: 138.90,
-        sma50: 135.70,
+        sma20: 138.9,
+        sma50: 135.7,
         volume: 25000000,
         signals: {
           trend: 'bullish',
           strength: 'moderate',
         },
       },
-      'MSFT': {
+      MSFT: {
         rsi: 62.1,
-        sma20: 378.20,
-        sma50: 365.80,
+        sma20: 378.2,
+        sma50: 365.8,
         volume: 20000000,
         signals: {
           trend: 'bullish',

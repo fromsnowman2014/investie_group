@@ -17,17 +17,17 @@ import { DatabaseModule } from './database/database.module';
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
     }),
-    
+
     // Global cache configuration
     CacheModule.register({
       isGlobal: true,
       ttl: 300, // 5 minutes default TTL
       max: 100, // Default cache size
     }),
-    
+
     // Database module
     DatabaseModule,
-    
+
     // Feature modules
     StocksModule,
     NewsModule,

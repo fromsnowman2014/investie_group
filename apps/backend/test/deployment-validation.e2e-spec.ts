@@ -118,7 +118,7 @@ describe('Deployment Validation (e2e)', () => {
   describe('Performance & Scalability', () => {
     it('should respond to multiple requests within time limits', async () => {
       const startTime = Date.now();
-      
+
       const promises = [
         request(app.getHttpServer()).get('/api/v1/stocks/AAPL').expect(200),
         request(app.getHttpServer()).get('/api/v1/stocks/TSLA').expect(200),
@@ -127,7 +127,7 @@ describe('Deployment Validation (e2e)', () => {
 
       await Promise.all(promises);
       const totalTime = Date.now() - startTime;
-      
+
       expect(totalTime).toBeLessThan(3000); // Should complete within 3 seconds
     });
 
@@ -192,16 +192,27 @@ describe('Deployment Validation (e2e)', () => {
     });
 
     it('should handle all target stock symbols', async () => {
-      const targetSymbols = ['AAPL', 'TSLA', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'NFLX', 'AVGO', 'AMD'];
-      
-      const promises = targetSymbols.map(symbol => 
+      const targetSymbols = [
+        'AAPL',
+        'TSLA',
+        'MSFT',
+        'GOOGL',
+        'AMZN',
+        'NVDA',
+        'META',
+        'NFLX',
+        'AVGO',
+        'AMD',
+      ];
+
+      const promises = targetSymbols.map((symbol) =>
         request(app.getHttpServer())
           .get(`/api/v1/stocks/${symbol}`)
-          .expect(200)
+          .expect(200),
       );
 
       const results = await Promise.all(promises);
-      
+
       results.forEach((result, index) => {
         expect(result.body.data.symbol).toBe(targetSymbols[index]);
       });
@@ -209,7 +220,7 @@ describe('Deployment Validation (e2e)', () => {
 
     it('should provide chart data for all periods', async () => {
       const periods = ['1W', '1M', '3M', '1Y'];
-      
+
       for (const period of periods) {
         await request(app.getHttpServer())
           .get(`/api/v1/stocks/AAPL/chart?period=${period}`)

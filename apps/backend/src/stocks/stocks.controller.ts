@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Param, Query, Body, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  Query,
+  Body,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { StocksService } from './stocks.service';
 import { StockSymbol } from '../common/types';
 
@@ -14,16 +23,16 @@ export class StocksController {
         success: true,
         data: stocks,
         timestamp: new Date().toISOString(),
-        count: stocks.length
+        count: stocks.length,
       };
     } catch (error) {
       throw new HttpException(
         {
           success: false,
           error: 'Failed to fetch stock data',
-          message: error.message
+          message: error.message,
         },
-        HttpStatus.INTERNAL_SERVER_ERROR
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -31,7 +40,7 @@ export class StocksController {
   @Get('search')
   async searchStocks(
     @Query('q') query: string,
-    @Query('limit') limit?: string
+    @Query('limit') limit?: string,
   ) {
     try {
       if (!query || query.trim().length === 0) {
@@ -39,9 +48,9 @@ export class StocksController {
           {
             success: false,
             error: 'Missing query parameter',
-            message: 'Query parameter "q" is required'
+            message: 'Query parameter "q" is required',
           },
-          HttpStatus.BAD_REQUEST
+          HttpStatus.BAD_REQUEST,
         );
       }
 
@@ -51,33 +60,36 @@ export class StocksController {
           {
             success: false,
             error: 'Invalid limit parameter',
-            message: 'Limit must be a number between 1 and 50'
+            message: 'Limit must be a number between 1 and 50',
           },
-          HttpStatus.BAD_REQUEST
+          HttpStatus.BAD_REQUEST,
         );
       }
 
-      const results = await this.stocksService.searchStocks(query.trim(), searchLimit);
-      
+      const results = await this.stocksService.searchStocks(
+        query.trim(),
+        searchLimit,
+      );
+
       return {
         success: true,
         data: results,
         timestamp: new Date().toISOString(),
         count: results.length,
-        query: query.trim()
+        query: query.trim(),
       };
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
-      
+
       throw new HttpException(
         {
           success: false,
           error: 'Search failed',
-          message: error.message
+          message: error.message,
         },
-        HttpStatus.INTERNAL_SERVER_ERROR
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -90,9 +102,9 @@ export class StocksController {
           {
             success: false,
             error: 'Invalid request body',
-            message: 'Request body must contain "symbols" array'
+            message: 'Request body must contain "symbols" array',
           },
-          HttpStatus.BAD_REQUEST
+          HttpStatus.BAD_REQUEST,
         );
       }
 
@@ -101,9 +113,9 @@ export class StocksController {
           {
             success: false,
             error: 'Empty symbols array',
-            message: 'At least one symbol is required'
+            message: 'At least one symbol is required',
           },
-          HttpStatus.BAD_REQUEST
+          HttpStatus.BAD_REQUEST,
         );
       }
 
@@ -112,9 +124,9 @@ export class StocksController {
           {
             success: false,
             error: 'Too many symbols',
-            message: 'Maximum 20 symbols allowed per batch request'
+            message: 'Maximum 20 symbols allowed per batch request',
           },
-          HttpStatus.BAD_REQUEST
+          HttpStatus.BAD_REQUEST,
         );
       }
 
@@ -122,7 +134,7 @@ export class StocksController {
       const validSymbols: StockSymbol[] = [];
       const invalidSymbols: string[] = [];
 
-      body.symbols.forEach(symbol => {
+      body.symbols.forEach((symbol) => {
         const upperSymbol = symbol.toUpperCase();
         if (/^[A-Z]{1,5}$/.test(upperSymbol)) {
           validSymbols.push(upperSymbol as StockSymbol);
@@ -136,33 +148,33 @@ export class StocksController {
           {
             success: false,
             error: 'Invalid symbols',
-            message: `Invalid symbol format: ${invalidSymbols.join(', ')}`
+            message: `Invalid symbol format: ${invalidSymbols.join(', ')}`,
           },
-          HttpStatus.BAD_REQUEST
+          HttpStatus.BAD_REQUEST,
         );
       }
 
       const stockData = await this.stocksService.getBatchStocks(validSymbols);
-      
+
       return {
         success: true,
         data: stockData,
         timestamp: new Date().toISOString(),
         count: Object.keys(stockData).length,
-        requested: validSymbols.length
+        requested: validSymbols.length,
       };
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
-      
+
       throw new HttpException(
         {
           success: false,
           error: 'Batch request failed',
-          message: error.message
+          message: error.message,
         },
-        HttpStatus.INTERNAL_SERVER_ERROR
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -170,33 +182,34 @@ export class StocksController {
   @Get(':symbol/chart')
   async getStockChart(
     @Param('symbol') symbol: string,
-    @Query('period') period?: string
+    @Query('period') period?: string,
   ) {
     try {
       const upperSymbol = symbol.toUpperCase();
       const validPeriods = ['1W', '1M', '3M', '1Y'];
-      const chartPeriod = period && validPeriods.includes(period.toUpperCase()) 
-        ? period.toUpperCase() 
-        : '1W';
+      const chartPeriod =
+        period && validPeriods.includes(period.toUpperCase())
+          ? period.toUpperCase()
+          : '1W';
 
       const chartData = await this.stocksService.getStockChart(
-        upperSymbol as StockSymbol, 
-        chartPeriod
+        upperSymbol as StockSymbol,
+        chartPeriod,
       );
 
       return {
         success: true,
         data: chartData,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     } catch (error) {
       throw new HttpException(
         {
           success: false,
           error: 'Failed to fetch chart data',
-          message: error.message
+          message: error.message,
         },
-        HttpStatus.INTERNAL_SERVER_ERROR
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -211,42 +224,44 @@ export class StocksController {
           {
             success: false,
             error: 'Invalid symbol format',
-            message: 'Symbol must be 1-5 letters only'
+            message: 'Symbol must be 1-5 letters only',
           },
-          HttpStatus.BAD_REQUEST
+          HttpStatus.BAD_REQUEST,
         );
       }
 
-      const stock = await this.stocksService.getStock(upperSymbol as StockSymbol);
-      
+      const stock = await this.stocksService.getStock(
+        upperSymbol as StockSymbol,
+      );
+
       if (!stock) {
         throw new HttpException(
           {
             success: false,
             error: 'Stock not found',
-            message: `No data available for symbol ${upperSymbol}`
+            message: `No data available for symbol ${upperSymbol}`,
           },
-          HttpStatus.NOT_FOUND
+          HttpStatus.NOT_FOUND,
         );
       }
 
       return {
         success: true,
         data: stock,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
-      
+
       throw new HttpException(
         {
           success: false,
           error: 'Failed to fetch stock data',
-          message: error.message
+          message: error.message,
         },
-        HttpStatus.INTERNAL_SERVER_ERROR
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
