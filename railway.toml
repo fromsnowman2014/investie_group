@@ -1,6 +1,6 @@
 [build]
 builder = "DOCKERFILE"
-dockerfilePath = "apps/backend/Dockerfile"
+dockerfilePath = "Dockerfile"
 
 [deploy]
 startCommand = "node dist/main"
@@ -14,14 +14,3 @@ variables = { NODE_ENV = "production", PORT = "3001" }
 
 [environments.staging]
 variables = { NODE_ENV = "staging", PORT = "3001" }
-
-[[services]]
-name = "investie-backend"
-source = "apps/backend"
-
-[[services.environments.production]]
-variables = { NODE_ENV = "production" }
-
-[[services.healthchecks]]
-path = "/health"
-interval = 30
