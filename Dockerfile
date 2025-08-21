@@ -5,11 +5,11 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 
 # Copy package files from root (for workspaces)
-COPY package*.json ./
+COPY package.json package-lock.json ./
 COPY turbo.json ./
 
 # Copy backend package files
-COPY apps/backend/package*.json ./apps/backend/
+COPY apps/backend/package.json ./apps/backend/
 
 # Install dependencies for the entire monorepo
 RUN npm ci && npm cache clean --force
@@ -32,10 +32,10 @@ RUN addgroup -g 1001 -S nodejs && \
     adduser -S investie -u 1001
 
 # Copy backend package files
-COPY apps/backend/package*.json ./
+COPY apps/backend/package.json ./
 
 # Install only production dependencies for backend
-RUN npm ci --only=production --ignore-scripts && \
+RUN npm install --only=production --ignore-scripts && \
     npm cache clean --force
 
 # Copy built application from builder stage
