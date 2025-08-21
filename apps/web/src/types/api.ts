@@ -65,7 +65,31 @@ export interface ChartData {
   }>;
 }
 
-// Market overview interface
+// Market overview interface (matches backend response)
+export interface MarketIndex {
+  value: number;
+  change: number;
+  changePercent: number;
+}
+
+export interface SectorPerformance {
+  name: string;
+  change: number;
+  performance: 'positive' | 'negative';
+}
+
+export interface MarketOverviewData {
+  indices: {
+    sp500: MarketIndex;
+    nasdaq: MarketIndex;
+    dow: MarketIndex;
+  };
+  sectors: SectorPerformance[];
+  marketSentiment: 'bullish' | 'bearish' | 'neutral';
+  volatilityIndex: number;
+  source: string;
+}
+
 export interface MarketOverview {
   indices: {
     sp500: { value: number; change: number; changePercent: number };
