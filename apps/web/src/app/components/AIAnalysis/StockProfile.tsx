@@ -23,7 +23,23 @@ interface StockProfileProps {
   symbol: string;
 }
 
-const fetcher = (url: string) => fetch(url).then(res => res.json());
+const fetcher = async (url: string) => {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+  
+  console.log('📊 Stock Profile API Request:', {
+    originalUrl: url,
+    baseUrl: baseUrl,
+    fullUrl: fullUrl,
+    timestamp: new Date().toISOString()
+  });
+  
+  const response = await fetch(fullUrl);
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  return response.json();
+};
 
 export default function StockProfile({ symbol }: StockProfileProps) {
   const { data, error, isLoading } = useSWR<StockProfileData>(

@@ -17,16 +17,41 @@ export default function MacroIndicatorsDashboard({ symbol }: MacroIndicatorsDash
     refetch: mutate 
   } = useMacroIndicatorsData();
 
-  // Debug logging
+  // Enhanced debug logging for deployment troubleshooting
   React.useEffect(() => {
-    console.log('📊 MacroIndicators State:', {
-      isLoading,
-      hasData: !!data,
-      hasError: !!error,
-      errorMessage: error?.message,
-      isMarketOpen,
-      apiUrl: process.env.NEXT_PUBLIC_API_URL
-    });
+    console.group('📊 MacroIndicators Component Debug');
+    console.log('🔄 Loading State:', isLoading);
+    console.log('📦 Has Data:', !!data);
+    console.log('❌ Has Error:', !!error);
+    console.log('💥 Error Message:', error?.message);
+    console.log('🕐 Market Open:', isMarketOpen);
+    console.log('🌍 API URL from ENV:', process.env.NEXT_PUBLIC_API_URL);
+    console.log('🏗️ Environment:', process.env.NODE_ENV);
+    
+    // Critical debugging: Check data source
+    if (data) {
+      console.log('📊 Data Source:', data.source);
+      console.log('🎯 Data Sample:', {
+        sp500Value: data.indices?.sp500?.value,
+        sectorsCount: data.sectors?.length,
+        volatilityIndex: data.volatilityIndex
+      });
+      
+      if (data.source === 'mock_data') {
+        console.warn('⚠️ Still getting mock data from backend');
+      } else if (data.source === 'alpha_vantage') {
+        console.log('✅ Getting real Alpha Vantage data from Railway');
+      }
+    }
+    
+    // Window and environment debug info
+    if (typeof window !== 'undefined') {
+      console.log('🌐 Current Origin:', window.location.origin);
+      console.log('🔗 Full URL:', window.location.href);
+      console.log('📱 User Agent:', navigator.userAgent.substring(0, 50) + '...');
+    }
+    
+    console.groupEnd();
   }, [isLoading, data, error, isMarketOpen]);
 
   if (isLoading) {
