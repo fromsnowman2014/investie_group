@@ -78,6 +78,24 @@ export default function MacroIndicatorsDashboard({ symbol }: MacroIndicatorsDash
           <h4>Market Data Unavailable</h4>
           <p>Unable to fetch market overview</p>
           <p className="error-details">{error.message}</p>
+          
+          {/* Debug information for deployed environment */}
+          <div className="debug-info">
+            <h5>Debug Info:</h5>
+            <div className="debug-item">
+              <strong>API URL:</strong> {process.env.NEXT_PUBLIC_API_URL || 'undefined'}
+            </div>
+            <div className="debug-item">
+              <strong>Environment:</strong> {process.env.NODE_ENV}
+            </div>
+            <div className="debug-item">
+              <strong>Market Open:</strong> {isMarketOpen ? 'Yes' : 'No'}
+            </div>
+            <div className="debug-item">
+              <strong>Timestamp:</strong> {new Date().toISOString()}
+            </div>
+          </div>
+          
           <button 
             className="retry-button"
             onClick={() => mutate()}
@@ -238,6 +256,16 @@ export default function MacroIndicatorsDashboard({ symbol }: MacroIndicatorsDash
           <div className="metric-item">
             <div className="metric-label">Data Source</div>
             <div className="metric-value">{data.source === 'mock_data' ? 'Mock' : 'Live'}</div>
+          </div>
+          <div className="metric-item">
+            <div className="metric-label">API Endpoint</div>
+            <div className="metric-value" style={{fontSize: '10px', wordBreak: 'break-all'}}>
+              {process.env.NEXT_PUBLIC_API_URL || 'localhost:3001'}
+            </div>
+          </div>
+          <div className="metric-item">
+            <div className="metric-label">Environment</div>
+            <div className="metric-value">{process.env.NODE_ENV}</div>
           </div>
         </div>
       </div>
@@ -514,6 +542,34 @@ export default function MacroIndicatorsDashboard({ symbol }: MacroIndicatorsDash
 
         .retry-button:hover {
           background: #2563eb;
+        }
+
+        /* Debug information styles */
+        .debug-info {
+          background: #f1f5f9;
+          border: 1px solid #e2e8f0;
+          border-radius: 6px;
+          padding: 12px;
+          margin: 12px 0;
+          font-size: 11px;
+        }
+
+        .debug-info h5 {
+          margin: 0 0 8px 0;
+          font-size: 12px;
+          color: #374151;
+          font-weight: 600;
+        }
+
+        .debug-item {
+          margin-bottom: 4px;
+          color: #6b7280;
+          font-family: monospace;
+        }
+
+        .debug-item strong {
+          color: #374151;
+          font-weight: 600;
         }
 
         /* Empty state */

@@ -16,14 +16,50 @@ const fetcher = async (url: string): Promise<MarketOverviewData> => {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
   const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
   
-  console.log('🔗 Fetching from:', fullUrl); // Debug log
+  // Enhanced debugging for deployed environment
+  console.log('🔍 MacroIndicators API Debug:', {
+    originalUrl: url,
+    baseUrl: baseUrl,
+    fullUrl: fullUrl,
+    envApiUrl: process.env.NEXT_PUBLIC_API_URL,
+    timestamp: new Date().toISOString(),
+    isProduction: process.env.NODE_ENV === 'production'
+  });
   
-  const response = await fetch(fullUrl);
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+  try {
+    const response = await fetch(fullUrl);
+    
+    console.log('📡 API Response:', {
+      status: response.status,
+      statusText: response.statusText,
+      ok: response.ok,
+      url: response.url,
+      headers: Object.fromEntries(response.headers.entries())
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+    }
+    
+    const result: ApiResponse<MarketOverviewData> = await response.json();
+    
+    console.log('📊 Market Data Response:', {
+      hasData: !!result.data,
+      dataSource: result.data?.source,
+      indicesCount: Object.keys(result.data?.indices || {}).length,
+      sectorsCount: result.data?.sectors?.length || 0,
+      timestamp: result.timestamp
+    });
+    
+    return result.data;
+  } catch (error) {
+    console.error('❌ MacroIndicators API Error:', {
+      error: error instanceof Error ? error.message : error,
+      fullUrl: fullUrl,
+      baseUrl: baseUrl
+    });
+    throw error;
   }
-  const result: ApiResponse<MarketOverviewData> = await response.json();
-  return result.data;
 };
 
 export const useMacroIndicatorsData = () => {
