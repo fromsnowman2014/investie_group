@@ -1,64 +1,103 @@
 import { Injectable, Logger } from '@nestjs/common';
+import axios from 'axios';
 import { AIEvaluationService } from '../ai/ai-evaluation.service';
 import { TechnicalAnalysisService } from '../ai/technical-analysis.service';
 import { NewsService } from '../news/news.service';
+import { SupabaseService } from '../database/supabase.service';
 import { StockCardData, StockSymbol } from '../common/types';
 
 @Injectable()
 export class StocksService {
   private readonly logger = new Logger(StocksService.name);
+  private readonly alphaVantageApiKey = process.env.ALPHA_VANTAGE_API_KEY;
+  private readonly alphaVantageBaseUrl = 'https://www.alphavantage.co/query';
 
   constructor(
     private readonly aiEvaluationService: AIEvaluationService,
     private readonly technicalAnalysisService: TechnicalAnalysisService,
     private readonly newsService: NewsService,
+    private readonly supabaseService: SupabaseService,
   ) {}
 
   async getAllStocks(): Promise<StockCardData[]> {
     const targetSymbols: StockSymbol[] = [
-      'AAPL', 'TSLA', 'MSFT', 'GOOGL', 'AMZN',
-      'NVDA', 'META', 'NFLX', 'AVGO', 'AMD'
+      'AAPL',
+      'TSLA',
+      'MSFT',
+      'GOOGL',
+      'AMZN',
+      'NVDA',
+      'META',
+      'NFLX',
+      'AVGO',
+      'AMD',
     ];
 
-    const stockPromises = targetSymbols.map(symbol => this.getStock(symbol));
+    const stockPromises = targetSymbols.map((symbol) => this.getStock(symbol));
     const results = await Promise.allSettled(stockPromises);
 
     return results
-      .filter(result => result.status === 'fulfilled' && result.value !== null)
-      .map(result => (result as PromiseFulfilledResult<StockCardData>).value);
+      .filter(
+        (result) => result.status === 'fulfilled' && result.value !== null,
+      )
+      .map((result) => (result as PromiseFulfilledResult<StockCardData>).value);
   }
 
   async getStock(symbol: StockSymbol): Promise<StockCardData | null> {
     try {
       // Fetch all data in parallel
-      const [stockData, aiEvaluation, technicalData, newsData] = 
+      const [stockData, aiEvaluation, technicalData, newsData] =
         await Promise.allSettled([
           this.getStockData(symbol),
           this.aiEvaluationService.generateEvaluation(symbol),
           this.technicalAnalysisService.getAnalysis(symbol),
-          this.newsService.processStockNews(symbol)
+          this.newsService.processStockNews(symbol),
         ]);
 
       // Extract results with fallbacks
-      const price = stockData.status === 'fulfilled' ? stockData.value : this.getMockPriceData(symbol);
-      const evaluation = aiEvaluation.status === 'fulfilled' ? aiEvaluation.value : this.getMockAIEvaluation(symbol);
-      const technicals = technicalData.status === 'fulfilled' ? technicalData.value : this.getMockTechnicals();
-      const newsSummary = newsData.status === 'fulfilled' && newsData.value.isValid 
-        ? {
-            headline: newsData.value.overview?.overview || 'No news available',
-            sentiment: this.extractSentimentFromOverview(newsData.value.overview),
-            source: newsData.value.overview?.source || 'fallback_data'
-          }
-        : this.getMockNewsSummary(symbol);
+      const price =
+        stockData.status === 'fulfilled'
+          ? stockData.value
+          : this.getMockPriceData(symbol);
+      const evaluation =
+        aiEvaluation.status === 'fulfilled'
+          ? aiEvaluation.value
+          : this.getMockAIEvaluation(symbol);
+      const technicals =
+        technicalData.status === 'fulfilled'
+          ? technicalData.value
+          : this.getMockTechnicals();
+      const newsSummary =
+        newsData.status === 'fulfilled' && newsData.value.isValid
+          ? {
+              headline:
+                newsData.value.overview?.overview || 'No news available',
+              sentiment: this.extractSentimentFromOverview(
+                newsData.value.overview,
+              ),
+              source: newsData.value.overview?.source || 'fallback_data',
+            }
+          : this.getMockNewsSummary(symbol);
 
-      return this.transformToStockCardData(price, evaluation, technicals, newsSummary, symbol);
+      return this.transformToStockCardData(
+        price,
+        evaluation,
+        technicals,
+        newsSummary,
+        symbol,
+      );
     } catch (error) {
-      this.logger.error(`Failed to get stock data for ${symbol}: ${error.message}`);
+      this.logger.error(
+        `Failed to get stock data for ${symbol}: ${error.message}`,
+      );
       return null;
     }
   }
 
-  async getStockChart(symbol: StockSymbol, period: string = '1W'): Promise<any> {
+  async getStockChart(
+    symbol: StockSymbol,
+    period: string = '1W',
+  ): Promise<any> {
     // Mock chart data - in production this would fetch real chart data
     return this.getMockChartData(symbol, period);
   }
@@ -66,20 +105,23 @@ export class StocksService {
   async searchStocks(query: string, limit: number = 10): Promise<any[]> {
     try {
       const allStocks = await this.getAllStocks();
-      
-      const filtered = allStocks.filter(stock => 
-        stock.symbol.toLowerCase().includes(query.toLowerCase()) ||
-        stock.name.toLowerCase().includes(query.toLowerCase())
-      ).slice(0, limit);
-      
-      return filtered.map(stock => ({
+
+      const filtered = allStocks
+        .filter(
+          (stock) =>
+            stock.symbol.toLowerCase().includes(query.toLowerCase()) ||
+            stock.name.toLowerCase().includes(query.toLowerCase()),
+        )
+        .slice(0, limit);
+
+      return filtered.map((stock) => ({
         symbol: stock.symbol,
         name: stock.name,
         sector: stock.sectorPerformance.name,
         marketCap: stock.fundamentals.marketCap,
         price: stock.price.current,
         change: stock.price.change,
-        changePercent: stock.price.changePercent
+        changePercent: stock.price.changePercent,
       }));
     } catch (error) {
       this.logger.error(`Search failed for query "${query}": ${error.message}`);
@@ -87,9 +129,11 @@ export class StocksService {
     }
   }
 
-  async getBatchStocks(symbols: StockSymbol[]): Promise<Record<string, StockCardData | null>> {
+  async getBatchStocks(
+    symbols: StockSymbol[],
+  ): Promise<Record<string, StockCardData | null>> {
     try {
-      const stockPromises = symbols.map(async symbol => {
+      const stockPromises = symbols.map(async (symbol) => {
         try {
           const stock = await this.getStock(symbol);
           return { symbol, stock };
@@ -102,7 +146,7 @@ export class StocksService {
       const results = await Promise.allSettled(stockPromises);
       const stockData: Record<string, StockCardData | null> = {};
 
-      results.forEach(result => {
+      results.forEach((result) => {
         if (result.status === 'fulfilled') {
           const { symbol, stock } = result.value;
           stockData[symbol] = stock;
@@ -117,11 +161,82 @@ export class StocksService {
   }
 
   private async getStockData(symbol: StockSymbol): Promise<any> {
-    // Mock implementation - in production this would use SerpApi
-    return this.getMockStockData(symbol);
+    try {
+      // Check if API key is configured
+      if (!this.alphaVantageApiKey) {
+        this.logger.warn(
+          'Alpha Vantage API key not configured, using mock data',
+        );
+        return this.getMockStockData(symbol);
+      }
+
+      // Try to load from Supabase cache first
+      const cachedData = await this.loadStockDataFromSupabase(symbol);
+      if (cachedData && this.isDataFresh(cachedData.updated_at)) {
+        this.logger.log(`Using cached stock data for ${symbol}`);
+        return {
+          price: cachedData.current_price,
+          change: this.calculateChange(
+            cachedData.current_price,
+            cachedData.change_percent,
+          ),
+          changePercent: cachedData.change_percent,
+          marketCap: cachedData.market_cap,
+          volume: cachedData.volume,
+          pe: cachedData.pe_ratio,
+          source: 'supabase_cache',
+        };
+      }
+
+      // Fetch fresh data from Alpha Vantage
+      const realTimeData = await this.fetchAlphaVantageQuote(symbol);
+      const overviewData = await this.fetchAlphaVantageOverview(symbol);
+
+      if (realTimeData && overviewData) {
+        const stockData = {
+          price: parseFloat(realTimeData['05. price']),
+          change: parseFloat(realTimeData['09. change']),
+          changePercent: parseFloat(
+            realTimeData['10. change percent'].replace('%', ''),
+          ),
+          marketCap: this.parseMarketCap(overviewData.MarketCapitalization),
+          volume: parseInt(realTimeData['06. volume']),
+          pe: parseFloat(overviewData.PERatio) || null,
+          fiftyTwoWeekHigh: parseFloat(overviewData['52WeekHigh']),
+          fiftyTwoWeekLow: parseFloat(overviewData['52WeekLow']),
+          source: 'alpha_vantage',
+        };
+
+        // Store in Supabase for caching
+        await this.storeStockDataInSupabase(symbol, stockData);
+
+        this.logger.log(
+          `Fetched fresh stock data for ${symbol} from Alpha Vantage`,
+        );
+        return stockData;
+      }
+
+      // Fallback to mock data if API fails
+      this.logger.warn(
+        `Alpha Vantage API failed for ${symbol}, using mock data`,
+      );
+      return this.getMockStockData(symbol);
+    } catch (error) {
+      this.logger.error(
+        `Error fetching stock data for ${symbol}:`,
+        error.message,
+      );
+      return this.getMockStockData(symbol);
+    }
   }
 
-  private transformToStockCardData(stockData: any, aiEvaluation: any, technicals: any, newsSummary: any, symbol: StockSymbol): StockCardData {
+  private transformToStockCardData(
+    stockData: any,
+    aiEvaluation: any,
+    technicals: any,
+    newsSummary: any,
+    symbol: StockSymbol,
+  ): StockCardData {
     return {
       symbol,
       name: this.getCompanyName(symbol),
@@ -129,33 +244,43 @@ export class StocksService {
         current: stockData.price || 100,
         change: stockData.change || 0,
         changePercent: stockData.changePercent || 0,
-        source: 'google_finance'
+        source: 'google_finance',
       },
       fundamentals: {
         pe: stockData.pe || 20,
         marketCap: stockData.marketCap || 1000000000,
         volume: stockData.volume || 1000000,
         fiftyTwoWeekHigh: stockData.fiftyTwoWeekHigh || 120,
-        fiftyTwoWeekLow: stockData.fiftyTwoWeekLow || 80
+        fiftyTwoWeekLow: stockData.fiftyTwoWeekLow || 80,
       },
       aiEvaluation,
       technicals,
       newsSummary,
       sectorPerformance: {
         name: this.getSectorName(symbol),
-        weeklyChange: this.getMockSectorChange()
-      }
+        weeklyChange: this.getMockSectorChange(),
+      },
     };
   }
 
-  private extractSentimentFromOverview(overview: any): 'positive' | 'neutral' | 'negative' {
+  private extractSentimentFromOverview(
+    overview: any,
+  ): 'positive' | 'neutral' | 'negative' {
     if (!overview) return 'neutral';
-    
+
     const text = (overview.overview || '').toLowerCase();
-    if (text.includes('positive') || text.includes('buy') || text.includes('bullish')) {
+    if (
+      text.includes('positive') ||
+      text.includes('buy') ||
+      text.includes('bullish')
+    ) {
       return 'positive';
     }
-    if (text.includes('negative') || text.includes('sell') || text.includes('bearish')) {
+    if (
+      text.includes('negative') ||
+      text.includes('sell') ||
+      text.includes('bearish')
+    ) {
       return 'negative';
     }
     return 'neutral';
@@ -163,32 +288,32 @@ export class StocksService {
 
   private getCompanyName(symbol: StockSymbol): string {
     const names: Record<StockSymbol, string> = {
-      'AAPL': 'Apple Inc.',
-      'TSLA': 'Tesla, Inc.',
-      'MSFT': 'Microsoft Corporation',
-      'GOOGL': 'Alphabet Inc.',
-      'AMZN': 'Amazon.com, Inc.',
-      'NVDA': 'NVIDIA Corporation',
-      'META': 'Meta Platforms, Inc.',
-      'NFLX': 'Netflix, Inc.',
-      'AVGO': 'Broadcom Inc.',
-      'AMD': 'Advanced Micro Devices, Inc.'
+      AAPL: 'Apple Inc.',
+      TSLA: 'Tesla, Inc.',
+      MSFT: 'Microsoft Corporation',
+      GOOGL: 'Alphabet Inc.',
+      AMZN: 'Amazon.com, Inc.',
+      NVDA: 'NVIDIA Corporation',
+      META: 'Meta Platforms, Inc.',
+      NFLX: 'Netflix, Inc.',
+      AVGO: 'Broadcom Inc.',
+      AMD: 'Advanced Micro Devices, Inc.',
     };
     return names[symbol] || symbol;
   }
 
   private getSectorName(symbol: StockSymbol): string {
     const sectors: Record<StockSymbol, string> = {
-      'AAPL': 'Technology',
-      'TSLA': 'Automotive',
-      'MSFT': 'Technology',
-      'GOOGL': 'Technology',
-      'AMZN': 'Consumer Discretionary',
-      'NVDA': 'Technology',
-      'META': 'Technology',
-      'NFLX': 'Communication Services',
-      'AVGO': 'Technology',
-      'AMD': 'Technology'
+      AAPL: 'Technology',
+      TSLA: 'Automotive',
+      MSFT: 'Technology',
+      GOOGL: 'Technology',
+      AMZN: 'Consumer Discretionary',
+      NVDA: 'Technology',
+      META: 'Technology',
+      NFLX: 'Communication Services',
+      AVGO: 'Technology',
+      AMD: 'Technology',
     };
     return sectors[symbol] || 'Technology';
   }
@@ -199,16 +324,16 @@ export class StocksService {
 
   private getMockPriceData(symbol: StockSymbol) {
     const mockPrices: Record<StockSymbol, number> = {
-      'AAPL': 182.52,
-      'TSLA': 245.83,
-      'MSFT': 378.24,
-      'GOOGL': 138.93,
-      'AMZN': 146.80,
-      'NVDA': 685.32,
-      'META': 298.57,
-      'NFLX': 456.78,
-      'AVGO': 892.13,
-      'AMD': 143.29
+      AAPL: 182.52,
+      TSLA: 245.83,
+      MSFT: 378.24,
+      GOOGL: 138.93,
+      AMZN: 146.8,
+      NVDA: 685.32,
+      META: 298.57,
+      NFLX: 456.78,
+      AVGO: 892.13,
+      AMD: 143.29,
     };
 
     const basePrice = mockPrices[symbol] || 100;
@@ -223,7 +348,7 @@ export class StocksService {
       marketCap: Math.random() * 2000000000000,
       volume: Math.random() * 50000000,
       fiftyTwoWeekHigh: basePrice * 1.2,
-      fiftyTwoWeekLow: basePrice * 0.8
+      fiftyTwoWeekLow: basePrice * 0.8,
     };
   }
 
@@ -236,10 +361,14 @@ export class StocksService {
       rating: 'hold' as const,
       confidence: 70,
       summary: `Mock evaluation for ${symbol}. Please configure API keys for real analysis.`,
-      keyFactors: ['Mock data', 'API configuration needed', 'Real-time analysis pending'],
+      keyFactors: [
+        'Mock data',
+        'API configuration needed',
+        'Real-time analysis pending',
+      ],
       timeframe: '3M' as const,
       source: 'claude_ai' as const,
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
     };
   }
 
@@ -251,8 +380,8 @@ export class StocksService {
       volume: Math.random() * 50000000,
       signals: {
         trend: 'neutral' as const,
-        strength: 'moderate' as const
-      }
+        strength: 'moderate' as const,
+      },
     };
   }
 
@@ -260,8 +389,159 @@ export class StocksService {
     return {
       headline: `Latest ${symbol} market updates and analysis`,
       sentiment: 'neutral' as const,
-      source: 'mock_data'
+      source: 'mock_data',
     };
+  }
+
+  // Alpha Vantage API methods
+  private async fetchAlphaVantageQuote(symbol: StockSymbol): Promise<any> {
+    try {
+      const response = await axios.get(this.alphaVantageBaseUrl, {
+        params: {
+          function: 'GLOBAL_QUOTE',
+          symbol: symbol,
+          apikey: this.alphaVantageApiKey,
+        },
+        timeout: 10000,
+      });
+
+      const quote = response.data['Global Quote'];
+      if (!quote || Object.keys(quote).length === 0) {
+        this.logger.warn(`No quote data returned for ${symbol}`);
+        return null;
+      }
+
+      return quote;
+    } catch (error) {
+      this.logger.error(
+        `Alpha Vantage quote API error for ${symbol}:`,
+        error.message,
+      );
+      return null;
+    }
+  }
+
+  private async fetchAlphaVantageOverview(symbol: StockSymbol): Promise<any> {
+    try {
+      const response = await axios.get(this.alphaVantageBaseUrl, {
+        params: {
+          function: 'OVERVIEW',
+          symbol: symbol,
+          apikey: this.alphaVantageApiKey,
+        },
+        timeout: 10000,
+      });
+
+      const overview = response.data;
+      if (!overview || overview.Symbol !== symbol) {
+        this.logger.warn(`No overview data returned for ${symbol}`);
+        return null;
+      }
+
+      return overview;
+    } catch (error) {
+      this.logger.error(
+        `Alpha Vantage overview API error for ${symbol}:`,
+        error.message,
+      );
+      return null;
+    }
+  }
+
+  // Supabase storage methods
+  private async loadStockDataFromSupabase(symbol: StockSymbol): Promise<any> {
+    try {
+      const supabase = this.supabaseService.getClient();
+      const { data, error } = await supabase
+        .from('stock_profiles')
+        .select('*')
+        .eq('symbol', symbol)
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error || !data) {
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      this.logger.warn(
+        `Failed to load stock data from Supabase for ${symbol}:`,
+        error.message,
+      );
+      return null;
+    }
+  }
+
+  private async storeStockDataInSupabase(
+    symbol: StockSymbol,
+    stockData: any,
+  ): Promise<void> {
+    try {
+      const supabase = this.supabaseService.getClient();
+
+      const { error } = await supabase.from('stock_profiles').upsert(
+        {
+          symbol: symbol,
+          current_price: stockData.price,
+          change_percent: stockData.changePercent,
+          market_cap: stockData.marketCap?.toString() || null,
+          pe_ratio: stockData.pe,
+          volume: stockData.volume?.toString() || null,
+          source: stockData.source || 'alpha_vantage',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        {
+          onConflict: 'symbol',
+        },
+      );
+
+      if (error) {
+        this.logger.error(
+          `Failed to store stock data in Supabase for ${symbol}:`,
+          error,
+        );
+      } else {
+        this.logger.log(
+          `Stock data stored successfully in Supabase for ${symbol}`,
+        );
+      }
+    } catch (error) {
+      this.logger.error(`Supabase store error for ${symbol}:`, error.message);
+    }
+  }
+
+  // Helper methods
+  private isDataFresh(updatedAt: string): boolean {
+    const now = new Date();
+    const dataTime = new Date(updatedAt);
+    const diffMinutes = (now.getTime() - dataTime.getTime()) / (1000 * 60);
+
+    // Consider data fresh if it's less than 15 minutes old
+    return diffMinutes < 15;
+  }
+
+  private calculateChange(price: number, changePercent: number): number {
+    return (price * changePercent) / 100;
+  }
+
+  private parseMarketCap(marketCapString: string): number {
+    if (!marketCapString || marketCapString === 'None') return 0;
+
+    const cleanString = marketCapString.replace(/[^0-9.]/g, '');
+    const value = parseFloat(cleanString);
+
+    if (marketCapString.includes('T')) {
+      return value * 1e12;
+    } else if (marketCapString.includes('B')) {
+      return value * 1e9;
+    } else if (marketCapString.includes('M')) {
+      return value * 1e6;
+    }
+
+    return value;
   }
 
   private getMockChartData(symbol: StockSymbol, period: string) {
@@ -272,12 +552,14 @@ export class StocksService {
     for (let i = 0; i < dataPoints; i++) {
       const close = basePrice + Math.random() * 10;
       data.push({
-        time: new Date(Date.now() - (dataPoints - i) * 24 * 60 * 60 * 1000).toISOString(),
+        time: new Date(
+          Date.now() - (dataPoints - i) * 24 * 60 * 60 * 1000,
+        ).toISOString(),
         open: basePrice + Math.random() * 10,
         high: basePrice + Math.random() * 15,
         low: basePrice - Math.random() * 10,
         close,
-        volume: Math.random() * 1000000
+        volume: Math.random() * 1000000,
       });
     }
 
@@ -289,70 +571,85 @@ export class StocksService {
       period,
       data,
       technicalIndicators,
-      source: 'mock_data'
+      source: 'mock_data',
     };
   }
 
   private calculateTechnicalIndicators(data: any[]) {
-    const closePrices = data.map(item => item.close);
-    
+    const closePrices = data.map((item) => item.close);
+
     return {
       movingAverages: {
         ma20: this.calculateMovingAverage(closePrices, 20),
-        ma50: this.calculateMovingAverage(closePrices, 50)
+        ma50: this.calculateMovingAverage(closePrices, 50),
       },
       rsi: this.calculateRSI(closePrices),
       volumeProfile: this.calculateVolumeProfile(data),
-      bollinger: this.calculateBollingerBands(closePrices, 20)
+      bollinger: this.calculateBollingerBands(closePrices, 20),
     };
   }
 
-  private calculateMovingAverage(prices: number[], period: number): (number | null)[] {
+  private calculateMovingAverage(
+    prices: number[],
+    period: number,
+  ): (number | null)[] {
     const ma: (number | null)[] = [];
-    
+
     for (let i = 0; i < prices.length; i++) {
       if (i < period - 1) {
         ma.push(null);
       } else {
-        const sum = prices.slice(i - period + 1, i + 1).reduce((a, b) => a + b, 0);
+        const sum = prices
+          .slice(i - period + 1, i + 1)
+          .reduce((a, b) => a + b, 0);
         ma.push(sum / period);
       }
     }
-    
+
     return ma;
   }
 
   private calculateRSI(prices: number[], period: number = 14): number[] {
     if (prices.length < period + 1) return [];
-    
+
     const rsi: number[] = [];
     const gains: number[] = [];
     const losses: number[] = [];
-    
+
     // Calculate price changes
     for (let i = 1; i < prices.length; i++) {
       const change = prices[i] - prices[i - 1];
       gains.push(change > 0 ? change : 0);
       losses.push(change < 0 ? Math.abs(change) : 0);
     }
-    
+
     // Calculate RSI for each point
     for (let i = period - 1; i < gains.length; i++) {
       if (i === period - 1) {
         // Initial average
-        const avgGain = gains.slice(0, period).reduce((a, b) => a + b, 0) / period;
-        const avgLoss = losses.slice(0, period).reduce((a, b) => a + b, 0) / period;
+        const avgGain =
+          gains.slice(0, period).reduce((a, b) => a + b, 0) / period;
+        const avgLoss =
+          losses.slice(0, period).reduce((a, b) => a + b, 0) / period;
         const rs = avgLoss === 0 ? 100 : avgGain / avgLoss;
-        rsi.push(100 - (100 / (1 + rs)));
+        rsi.push(100 - 100 / (1 + rs));
       } else {
         // Smoothed averages
-        const prevAvgGain = (rsi.length > 0) ? gains.slice(i - period + 1, i + 1).reduce((a, b) => a + b, 0) / period : 0;
-        const prevAvgLoss = (rsi.length > 0) ? losses.slice(i - period + 1, i + 1).reduce((a, b) => a + b, 0) / period : 0;
+        const prevAvgGain =
+          rsi.length > 0
+            ? gains.slice(i - period + 1, i + 1).reduce((a, b) => a + b, 0) /
+              period
+            : 0;
+        const prevAvgLoss =
+          rsi.length > 0
+            ? losses.slice(i - period + 1, i + 1).reduce((a, b) => a + b, 0) /
+              period
+            : 0;
         const rs = prevAvgLoss === 0 ? 100 : prevAvgGain / prevAvgLoss;
-        rsi.push(100 - (100 / (1 + rs)));
+        rsi.push(100 - 100 / (1 + rs));
       }
     }
-    
+
     // Pad with nulls for missing values
     const paddedRsi = new Array(period).fill(null).concat(rsi);
     return paddedRsi.slice(0, prices.length);
@@ -361,19 +658,27 @@ export class StocksService {
   private calculateVolumeProfile(data: any[]) {
     const totalVolume = data.reduce((sum, item) => sum + item.volume, 0);
     const avgVolume = totalVolume / data.length;
-    
+
     return {
       totalVolume,
       avgVolume,
-      volumeTrend: data.slice(-5).reduce((sum, item) => sum + item.volume, 0) / 5 > avgVolume ? 'above_average' : 'below_average'
+      volumeTrend:
+        data.slice(-5).reduce((sum, item) => sum + item.volume, 0) / 5 >
+        avgVolume
+          ? 'above_average'
+          : 'below_average',
     };
   }
 
-  private calculateBollingerBands(prices: number[], period: number = 20, stdDev: number = 2) {
+  private calculateBollingerBands(
+    prices: number[],
+    period: number = 20,
+    stdDev: number = 2,
+  ) {
     const ma = this.calculateMovingAverage(prices, period);
     const upperBand: (number | null)[] = [];
     const lowerBand: (number | null)[] = [];
-    
+
     for (let i = 0; i < prices.length; i++) {
       if (i < period - 1 || ma[i] === null) {
         upperBand.push(null);
@@ -381,18 +686,20 @@ export class StocksService {
       } else {
         const slice = prices.slice(i - period + 1, i + 1);
         const mean = ma[i] as number;
-        const variance = slice.reduce((sum, price) => sum + Math.pow(price - mean, 2), 0) / period;
+        const variance =
+          slice.reduce((sum, price) => sum + Math.pow(price - mean, 2), 0) /
+          period;
         const standardDeviation = Math.sqrt(variance);
-        
-        upperBand.push(mean + (standardDeviation * stdDev));
-        lowerBand.push(mean - (standardDeviation * stdDev));
+
+        upperBand.push(mean + standardDeviation * stdDev);
+        lowerBand.push(mean - standardDeviation * stdDev);
       }
     }
-    
+
     return {
       upperBand,
       lowerBand,
-      middleBand: ma
+      middleBand: ma,
     };
   }
 }

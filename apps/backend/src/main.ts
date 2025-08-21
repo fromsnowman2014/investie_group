@@ -24,7 +24,7 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
-    })
+    }),
   );
 
   // Global prefix for all routes
@@ -34,7 +34,7 @@ async function bootstrap() {
   const host = process.env.HOST ?? '0.0.0.0';
 
   await app.listen(port, host);
-  
+
   logger.log(`🚀 Investie Backend API is running on: http://${host}:${port}`);
   logger.log(`📊 Health check: http://${host}:${port}/health`);
   logger.log(`📈 Stocks API: http://${host}:${port}/api/v1/stocks`);

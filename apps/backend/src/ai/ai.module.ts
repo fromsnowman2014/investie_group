@@ -13,15 +13,7 @@ import { TechnicalAnalysisService } from './technical-analysis.service';
     }),
   ],
   controllers: [AIController],
-  providers: [
-    AIEvaluationService,
-    ClaudeService,
-    TechnicalAnalysisService,
-  ],
-  exports: [
-    AIEvaluationService,
-    ClaudeService,
-    TechnicalAnalysisService,
-  ],
+  providers: [AIEvaluationService, ClaudeService, TechnicalAnalysisService],
+  exports: [AIEvaluationService, ClaudeService, TechnicalAnalysisService],
 })
 export class AIModule {}

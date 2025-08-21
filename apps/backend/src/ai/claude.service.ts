@@ -14,7 +14,9 @@ export class ClaudeService {
     });
 
     if (!this.isConfigured) {
-      this.logger.warn('Claude API key not configured - using fallback responses');
+      this.logger.warn(
+        'Claude API key not configured - using fallback responses',
+      );
     }
   }
 
@@ -47,7 +49,10 @@ export class ClaudeService {
     }
   }
 
-  async generateStructuredResponse<T>(prompt: string, schema: string): Promise<T> {
+  async generateStructuredResponse<T>(
+    prompt: string,
+    schema: string,
+  ): Promise<T> {
     if (!this.isConfigured) {
       return this.getFallbackStructuredResponse<T>(prompt, schema);
     }
@@ -124,11 +129,17 @@ export class ClaudeService {
 
   private getFallbackResponse(prompt: string): string {
     // Intelligent keyword-based fallback selection
-    if (prompt.toLowerCase().includes('stock') || prompt.toLowerCase().includes('evaluation')) {
+    if (
+      prompt.toLowerCase().includes('stock') ||
+      prompt.toLowerCase().includes('evaluation')
+    ) {
       return 'Stock analysis requires Claude API integration. Please configure CLAUDE_API_KEY for real-time AI evaluation.';
     }
 
-    if (prompt.toLowerCase().includes('fear') || prompt.toLowerCase().includes('greed')) {
+    if (
+      prompt.toLowerCase().includes('fear') ||
+      prompt.toLowerCase().includes('greed')
+    ) {
       return 'Market sentiment analysis requires API access. Current index value estimation: 45 (neutral).';
     }
 
@@ -139,24 +150,35 @@ export class ClaudeService {
     // Parse schema to determine expected structure
     try {
       const schemaObj = JSON.parse(schema);
-      
+
       // Stock evaluation fallback
-      if (prompt.toLowerCase().includes('stock') || prompt.toLowerCase().includes('evaluation')) {
+      if (
+        prompt.toLowerCase().includes('stock') ||
+        prompt.toLowerCase().includes('evaluation')
+      ) {
         return {
           rating: 'neutral',
           confidence: 50,
-          summary: 'Analysis requires Claude API. Configure CLAUDE_API_KEY for real-time insights.',
-          keyFactors: ['API Configuration Required', 'Mock Data Active', 'Limited Analysis']
+          summary:
+            'Analysis requires Claude API. Configure CLAUDE_API_KEY for real-time insights.',
+          keyFactors: [
+            'API Configuration Required',
+            'Mock Data Active',
+            'Limited Analysis',
+          ],
         } as T;
       }
 
       // News analysis fallback
-      if (prompt.toLowerCase().includes('news') || prompt.toLowerCase().includes('sentiment')) {
+      if (
+        prompt.toLowerCase().includes('news') ||
+        prompt.toLowerCase().includes('sentiment')
+      ) {
         return {
           sentiment: 'neutral',
           summary: 'Sentiment analysis requires API access.',
           confidence: 50,
-          topics: ['API Configuration', 'Mock Data']
+          topics: ['API Configuration', 'Mock Data'],
         } as T;
       }
 
@@ -174,13 +196,12 @@ export class ClaudeService {
         }
       }
       return fallback as T;
-
     } catch (error) {
       // If schema parsing fails, return a generic fallback
       return {
         status: 'fallback',
         message: 'Claude API not configured',
-        data: 'mock_response'
+        data: 'mock_response',
       } as T;
     }
   }

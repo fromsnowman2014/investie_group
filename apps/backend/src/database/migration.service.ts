@@ -24,7 +24,7 @@ export class MigrationService {
 
   async runFullMigration(): Promise<MigrationResult> {
     this.logger.log('Starting full database migration...');
-    
+
     const steps: MigrationResult['steps'] = [];
     let overallSuccess = true;
 
@@ -54,32 +54,31 @@ export class MigrationService {
       steps.push(integrityStep);
       if (!integrityStep.success) overallSuccess = false;
 
-      const message = overallSuccess 
+      const message = overallSuccess
         ? 'Full migration completed successfully'
         : 'Migration completed with some issues';
-      
+
       this.logger.log(message);
-      
+
       return {
         success: overallSuccess,
         message,
-        steps
+        steps,
       };
-
     } catch (error) {
       this.logger.error('Migration failed with exception:', error);
-      
+
       steps.push({
         step: 'migration_exception',
         success: false,
         message: `Migration failed: ${error.message}`,
-        details: { error: error.message }
+        details: { error: error.message },
       });
 
       return {
         success: false,
         message: `Migration failed: ${error.message}`,
-        steps
+        steps,
       };
     }
   }
@@ -88,20 +87,20 @@ export class MigrationService {
     try {
       this.logger.log('Testing database connection...');
       const result = await this.supabaseService.testConnection();
-      
+
       if (result.success) {
         return {
           step: 'connection_test',
           success: true,
           message: 'Database connection successful',
-          details: result
+          details: result,
         };
       } else {
         return {
           step: 'connection_test',
           success: false,
           message: 'Database connection failed',
-          details: result
+          details: result,
         };
       }
     } catch (error) {
@@ -109,7 +108,7 @@ export class MigrationService {
         step: 'connection_test',
         success: false,
         message: `Connection test failed: ${error.message}`,
-        details: { error: error.message }
+        details: { error: error.message },
       };
     }
   }
@@ -118,19 +117,19 @@ export class MigrationService {
     try {
       this.logger.log('Setting up database schema...');
       const result = await this.schemaSetupService.setupSchema();
-      
+
       return {
         step: 'schema_setup',
         success: result.success,
         message: result.message,
-        details: result.details
+        details: result.details,
       };
     } catch (error) {
       return {
         step: 'schema_setup',
         success: false,
         message: `Schema setup failed: ${error.message}`,
-        details: { error: error.message }
+        details: { error: error.message },
       };
     }
   }
@@ -139,23 +138,31 @@ export class MigrationService {
     try {
       this.logger.log('Verifying tables exist...');
       const result = await this.schemaSetupService.checkTablesExist();
-      
-      const requiredTables = ['ai_analysis', 'stock_news', 'macro_news', 'market_indicators', 'stock_profiles'];
-      const missingTables = requiredTables.filter(table => !result.tables.includes(table));
-      
+
+      const requiredTables = [
+        'ai_analysis',
+        'stock_news',
+        'macro_news',
+        'market_indicators',
+        'stock_profiles',
+      ];
+      const missingTables = requiredTables.filter(
+        (table) => !result.tables.includes(table),
+      );
+
       if (missingTables.length === 0) {
         return {
           step: 'table_verification',
           success: true,
           message: `All ${requiredTables.length} required tables exist`,
-          details: { existingTables: result.tables, missingTables: [] }
+          details: { existingTables: result.tables, missingTables: [] },
         };
       } else {
         return {
           step: 'table_verification',
           success: false,
           message: `Missing ${missingTables.length} required tables`,
-          details: { existingTables: result.tables, missingTables }
+          details: { existingTables: result.tables, missingTables },
         };
       }
     } catch (error) {
@@ -163,7 +170,7 @@ export class MigrationService {
         step: 'table_verification',
         success: false,
         message: `Table verification failed: ${error.message}`,
-        details: { error: error.message }
+        details: { error: error.message },
       };
     }
   }
@@ -172,23 +179,23 @@ export class MigrationService {
     try {
       this.logger.log('Setting up initial data...');
       const supabase = this.supabaseService.getClient();
-      
+
       // Initial market indicators data
       const marketData = {
         date: new Date().toISOString().split('T')[0],
         indices: {
-          sp500: { value: 4100.50, change: 1.2 },
+          sp500: { value: 4100.5, change: 1.2 },
           dow: { value: 33500.25, change: 0.8 },
-          nasdaq: { value: 12800.75, change: 1.8 }
+          nasdaq: { value: 12800.75, change: 1.8 },
         },
         sectors: [
           { name: 'Technology', performance: 2.1 },
           { name: 'Healthcare', performance: 0.8 },
-          { name: 'Finance', performance: 1.4 }
+          { name: 'Finance', performance: 1.4 },
         ],
         market_sentiment: 'bullish',
         volatility_index: 18.5,
-        source: 'migration_initial_data'
+        source: 'migration_initial_data',
       };
 
       // Insert initial market indicators (if not exists)
@@ -202,9 +209,12 @@ export class MigrationService {
         const { error: marketError } = await supabase
           .from('market_indicators')
           .insert([marketData]);
-        
+
         if (marketError) {
-          this.logger.warn('Failed to insert initial market data:', marketError);
+          this.logger.warn(
+            'Failed to insert initial market data:',
+            marketError,
+          );
         } else {
           this.logger.log('Initial market data inserted successfully');
         }
@@ -212,14 +222,14 @@ export class MigrationService {
 
       // Initial stock symbols for testing
       const stockSymbols = ['AAPL', 'TSLA', 'MSFT', 'GOOGL', 'AMZN'];
-      const stockProfilesData = stockSymbols.map(symbol => ({
+      const stockProfilesData = stockSymbols.map((symbol) => ({
         symbol,
         current_price: Math.random() * 200 + 50, // Random price between 50-250
         change_percent: (Math.random() - 0.5) * 10, // Random change -5% to +5%
         market_cap: `${Math.floor(Math.random() * 1000)}B`,
         pe_ratio: Math.random() * 30 + 10,
         volume: `${Math.floor(Math.random() * 50 + 10)}M`,
-        source: 'migration_initial_data'
+        source: 'migration_initial_data',
       }));
 
       // Insert stock profiles
@@ -234,9 +244,12 @@ export class MigrationService {
           const { error } = await supabase
             .from('stock_profiles')
             .insert([stockData]);
-          
+
           if (error) {
-            this.logger.warn(`Failed to insert stock profile for ${stockData.symbol}:`, error);
+            this.logger.warn(
+              `Failed to insert stock profile for ${stockData.symbol}:`,
+              error,
+            );
           }
         }
       }
@@ -246,17 +259,16 @@ export class MigrationService {
         success: true,
         message: 'Initial data setup completed',
         details: {
-          marketData: !!existingMarket ? 'existed' : 'inserted',
-          stockProfiles: stockProfilesData.length
-        }
+          marketData: existingMarket ? 'existed' : 'inserted',
+          stockProfiles: stockProfilesData.length,
+        },
       };
-
     } catch (error) {
       return {
         step: 'initial_data_setup',
         success: false,
         message: `Initial data setup failed: ${error.message}`,
-        details: { error: error.message }
+        details: { error: error.message },
       };
     }
   }
@@ -265,13 +277,13 @@ export class MigrationService {
     try {
       this.logger.log('Verifying data integrity...');
       const supabase = this.supabaseService.getClient();
-      
+
       const checks = {
         market_indicators: 0,
         stock_profiles: 0,
         ai_analysis: 0,
         stock_news: 0,
-        macro_news: 0
+        macro_news: 0,
       };
 
       // Count records in each table
@@ -280,7 +292,7 @@ export class MigrationService {
           const { count, error } = await supabase
             .from(table)
             .select('*', { count: 'exact', head: true });
-          
+
           if (!error) {
             checks[table] = count || 0;
           }
@@ -289,8 +301,13 @@ export class MigrationService {
         }
       }
 
-      const totalRecords = Object.values(checks).reduce((sum, count) => sum + count, 0);
-      const tablesWithData = Object.values(checks).filter(count => count > 0).length;
+      const totalRecords = Object.values(checks).reduce(
+        (sum, count) => sum + count,
+        0,
+      );
+      const tablesWithData = Object.values(checks).filter(
+        (count) => count > 0,
+      ).length;
 
       return {
         step: 'data_integrity_check',
@@ -299,16 +316,15 @@ export class MigrationService {
         details: {
           recordCounts: checks,
           totalRecords,
-          tablesWithData
-        }
+          tablesWithData,
+        },
       };
-
     } catch (error) {
       return {
         step: 'data_integrity_check',
         success: false,
         message: `Data integrity check failed: ${error.message}`,
-        details: { error: error.message }
+        details: { error: error.message },
       };
     }
   }
@@ -317,18 +333,24 @@ export class MigrationService {
     try {
       this.logger.log('Starting database rollback...');
       const supabase = this.supabaseService.getClient();
-      
+
       // Note: This is a simple rollback that clears data
       // In production, you might want more sophisticated rollback logic
-      const tables = ['ai_analysis', 'stock_news', 'macro_news', 'market_indicators', 'stock_profiles'];
-      
+      const tables = [
+        'ai_analysis',
+        'stock_news',
+        'macro_news',
+        'market_indicators',
+        'stock_profiles',
+      ];
+
       for (const table of tables) {
         try {
           const { error } = await supabase
             .from(table)
             .delete()
             .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all records
-          
+
           if (error) {
             this.logger.warn(`Could not clear table ${table}:`, error);
           } else {
@@ -341,14 +363,13 @@ export class MigrationService {
 
       return {
         success: true,
-        message: 'Database rollback completed'
+        message: 'Database rollback completed',
       };
-
     } catch (error) {
       this.logger.error('Rollback failed:', error);
       return {
         success: false,
-        message: `Rollback failed: ${error.message}`
+        message: `Rollback failed: ${error.message}`,
       };
     }
   }
@@ -362,11 +383,19 @@ export class MigrationService {
       const connectionTest = await this.supabaseService.testConnection();
       const schemaInfo = await this.supabaseService.checkSchema();
       const tablesInfo = await this.schemaSetupService.checkTablesExist();
-      
-      const requiredTables = ['ai_analysis', 'stock_news', 'macro_news', 'market_indicators', 'stock_profiles'];
+
+      const requiredTables = [
+        'ai_analysis',
+        'stock_news',
+        'macro_news',
+        'market_indicators',
+        'stock_profiles',
+      ];
       const existingTables = tablesInfo.tables || [];
-      const missingTables = requiredTables.filter(table => !existingTables.includes(table));
-      
+      const missingTables = requiredTables.filter(
+        (table) => !existingTables.includes(table),
+      );
+
       let status = 'unknown';
       if (!connectionTest.success) {
         status = 'connection_failed';
@@ -385,16 +414,15 @@ export class MigrationService {
           tables: {
             existing: existingTables,
             missing: missingTables,
-            required: requiredTables
-          }
-        }
+            required: requiredTables,
+          },
+        },
       };
-
     } catch (error) {
       return {
         success: false,
         status: 'check_failed',
-        details: { error: error.message }
+        details: { error: error.message },
       };
     }
   }

@@ -4,14 +4,16 @@ import { NewsController } from './news.controller';
 import { NewsService } from './news.service';
 import { StockValidatorHelper } from './stock-validator.helper';
 import { AIModule } from '../ai/ai.module';
+import { DatabaseModule } from '../database/database.module';
 
 @Module({
   imports: [
     CacheModule.register({
       ttl: 21600, // 6 hours for news content
-      max: 500,   // Maximum number of items in cache
+      max: 500, // Maximum number of items in cache
     }),
     AIModule,
+    DatabaseModule,
   ],
   controllers: [NewsController],
   providers: [NewsService, StockValidatorHelper],

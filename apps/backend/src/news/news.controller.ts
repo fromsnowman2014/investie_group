@@ -1,4 +1,13 @@
-import { Controller, Post, Get, Body, Param, Logger, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Param,
+  Logger,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { NewsService } from './news.service';
 
 interface NewsArticle {
@@ -98,19 +107,21 @@ export class NewsController {
   constructor(private readonly newsService: NewsService) {}
 
   // Helper method to calculate date range from articles
-  private calculateDateRange(articles: NewsArticle[]): { oldest: string; newest: string } | undefined {
+  private calculateDateRange(
+    articles: NewsArticle[],
+  ): { oldest: string; newest: string } | undefined {
     if (!articles || articles.length === 0) return undefined;
 
     const dates = articles
-      .map(article => new Date(article.date))
-      .filter(date => !isNaN(date.getTime()))
+      .map((article) => new Date(article.date))
+      .filter((date) => !isNaN(date.getTime()))
       .sort((a, b) => a.getTime() - b.getTime());
 
     if (dates.length === 0) return undefined;
 
     return {
       oldest: dates[0].toISOString(),
-      newest: dates[dates.length - 1].toISOString()
+      newest: dates[dates.length - 1].toISOString(),
     };
   }
 
@@ -124,7 +135,7 @@ export class NewsController {
       query: stockNews.query,
       fetchedAt: currentTime,
       totalArticles: stockNews.articles?.length || 0,
-      dateRange: this.calculateDateRange(stockNews.articles)
+      dateRange: this.calculateDateRange(stockNews.articles),
     };
   }
 
@@ -137,23 +148,31 @@ export class NewsController {
       articles: macroNews.articles,
       totalArticles: macroNews.totalArticles,
       fetchedAt: currentTime,
-      query: macroNews.query || 'stock market economy finance business'
+      query: macroNews.query || 'stock market economy finance business',
     };
   }
 
   @Post('process')
-  async processStockNews(@Body() request: ProcessNewsRequest): Promise<ProcessNewsResponse> {
+  async processStockNews(
+    @Body() request: ProcessNewsRequest,
+  ): Promise<ProcessNewsResponse> {
     this.logger.log(`Processing news request for symbol: ${request.symbol}`);
 
     try {
       // Validate request
       if (!request.symbol || typeof request.symbol !== 'string') {
-        throw new HttpException('Symbol is required and must be a string', HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          'Symbol is required and must be a string',
+          HttpStatus.BAD_REQUEST,
+        );
       }
 
       const symbol = request.symbol.trim();
       if (!symbol) {
-        throw new HttpException('Symbol cannot be empty', HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          'Symbol cannot be empty',
+          HttpStatus.BAD_REQUEST,
+        );
       }
 
       // Process the stock news using the complete workflow
@@ -164,7 +183,7 @@ export class NewsController {
         return {
           success: false,
           error: result.error,
-          suggestions: result.suggestions
+          suggestions: result.suggestions,
         };
       }
 
@@ -177,16 +196,18 @@ export class NewsController {
           overview: result.overview,
           stockNews: this.transformStockNews(result.stockNews, currentTime),
           macroNews: this.transformMacroNews(result.macroNews, currentTime),
-          validationResult: result.validationResult
-        }
+          validationResult: result.validationResult,
+        },
       };
-
     } catch (error) {
-      this.logger.error(`Error processing news for symbol ${request.symbol}:`, error instanceof Error ? error.message : 'Unknown error');
-      
+      this.logger.error(
+        `Error processing news for symbol ${request.symbol}:`,
+        error instanceof Error ? error.message : 'Unknown error',
+      );
+
       throw new HttpException(
         `Failed to process news: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        HttpStatus.INTERNAL_SERVER_ERROR
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -202,7 +223,10 @@ export class NewsController {
 
       const cleanSymbol = symbol.trim().toUpperCase();
       if (!cleanSymbol) {
-        throw new HttpException('Symbol cannot be empty', HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          'Symbol cannot be empty',
+          HttpStatus.BAD_REQUEST,
+        );
       }
 
       // Process the stock news to get comprehensive data
@@ -211,7 +235,7 @@ export class NewsController {
       if (!result.isValid) {
         throw new HttpException(
           result.error || 'Invalid symbol or unable to fetch news',
-          HttpStatus.NOT_FOUND
+          HttpStatus.NOT_FOUND,
         );
       }
 
@@ -223,43 +247,48 @@ export class NewsController {
         stockNews: this.transformStockNews(result.stockNews, currentTime),
         macroNews: this.transformMacroNews(result.macroNews, currentTime),
         validationResult: result.validationResult,
-        timestamp: currentTime
+        timestamp: currentTime,
       };
-
     } catch (error) {
-      this.logger.error(`Error getting news for symbol ${symbol}:`, error instanceof Error ? error.message : 'Unknown error');
-      
+      this.logger.error(
+        `Error getting news for symbol ${symbol}:`,
+        error instanceof Error ? error.message : 'Unknown error',
+      );
+
       if (error instanceof HttpException) {
         throw error;
       }
-      
+
       throw new HttpException(
         `Failed to get news: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        HttpStatus.INTERNAL_SERVER_ERROR
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
 
   @Get('macro/today')
   async getTodayMacroNews() {
-    this.logger.log('Getting today\'s macro news');
+    this.logger.log("Getting today's macro news");
 
     try {
       // Use a placeholder symbol to trigger macro news fetching
       await this.newsService.processStockNews('AAPL');
-      
+
       return {
         success: true,
-        message: 'Macro news processing initiated. Check data directory for results.',
-        timestamp: new Date().toISOString()
+        message:
+          'Macro news processing initiated. Check data directory for results.',
+        timestamp: new Date().toISOString(),
       };
-
     } catch (error) {
-      this.logger.error('Error getting macro news:', error instanceof Error ? error.message : 'Unknown error');
-      
+      this.logger.error(
+        'Error getting macro news:',
+        error instanceof Error ? error.message : 'Unknown error',
+      );
+
       throw new HttpException(
         `Failed to get macro news: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        HttpStatus.INTERNAL_SERVER_ERROR
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }

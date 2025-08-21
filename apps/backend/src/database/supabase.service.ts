@@ -12,15 +12,17 @@ export class SupabaseService {
     const supabaseKey = this.configService.get<string>('SUPABASE_ANON_KEY');
 
     if (!supabaseUrl || !supabaseKey) {
-      this.logger.warn('Supabase configuration missing - some features may be limited');
+      this.logger.warn(
+        'Supabase configuration missing - some features may be limited',
+      );
       return;
     }
 
     this.supabase = createClient(supabaseUrl, supabaseKey, {
       auth: {
         autoRefreshToken: false,
-        persistSession: false
-      }
+        persistSession: false,
+      },
     });
 
     this.logger.log('Supabase client initialized successfully');
@@ -44,8 +46,9 @@ export class SupabaseService {
         .from('_health_check')
         .select('*')
         .limit(1);
-      
-      if (error && error.code !== 'PGRST116') { // 테이블이 없는 경우는 정상
+
+      if (error && error.code !== 'PGRST116') {
+        // 테이블이 없는 경우는 정상
         return { success: false, error: error.message };
       }
 
@@ -61,7 +64,7 @@ export class SupabaseService {
   async checkSchema(): Promise<{ tables: string[]; error?: string }> {
     try {
       const { data, error } = await this.supabase.rpc('get_table_names');
-      
+
       if (error) {
         return { tables: [], error: error.message };
       }
@@ -69,7 +72,7 @@ export class SupabaseService {
       return { tables: data || [] };
     } catch (error) {
       this.logger.warn('Schema check failed, using alternative method');
-      
+
       // 대안: information_schema 사용
       try {
         const { data, error: schemaError } = await this.supabase
@@ -81,7 +84,7 @@ export class SupabaseService {
           return { tables: [], error: schemaError.message };
         }
 
-        const tableNames = data?.map(row => row.table_name) || [];
+        const tableNames = data?.map((row) => row.table_name) || [];
         return { tables: tableNames };
       } catch (altError) {
         return { tables: [], error: altError.message };

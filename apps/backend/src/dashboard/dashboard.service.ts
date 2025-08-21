@@ -1,5 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { NewsService } from '../news/news.service';
+import { StocksService } from '../stocks/stocks.service';
+import { MarketService } from '../market/market.service';
 
 export interface RealtimeResponse {
   symbol: string;
@@ -8,7 +10,7 @@ export interface RealtimeResponse {
   volume: string;
   marketStatus: 'open' | 'closed' | 'pre_market' | 'after_hours';
   lastUpdated: string;
-  newsHeadlines?: string[];  // 최신 헤드라인만
+  newsHeadlines?: string[]; // 최신 헤드라인만
 }
 
 export interface DataAvailabilityResponse {
@@ -66,8 +68,8 @@ export interface DashboardResponse {
     timeHorizon: string;
     timestamp: string;
   };
-  
-  // Stock Profile Section  
+
+  // Stock Profile Section
   stockProfile: {
     symbol: string;
     currentPrice: number;
@@ -77,7 +79,7 @@ export interface DashboardResponse {
     volume: string;
     lastUpdated: string;
   };
-  
+
   // News Analysis Section
   newsAnalysis: {
     stockNews: {
@@ -91,13 +93,13 @@ export interface DashboardResponse {
       marketImpact: 'bullish' | 'neutral' | 'bearish';
     };
   };
-  
+
   // Market Indicators Section
   marketIndicators: {
     indices: {
-      sp500: { value: number; change: number; changePercent: number; };
-      nasdaq: { value: number; change: number; changePercent: number; };
-      dow: { value: number; change: number; changePercent: number; };
+      sp500: { value: number; change: number; changePercent: number };
+      nasdaq: { value: number; change: number; changePercent: number };
+      dow: { value: number; change: number; changePercent: number };
     };
     sectors: Array<{
       name: string;
@@ -109,7 +111,7 @@ export interface DashboardResponse {
     // Phase 2 확장: FRED API 데이터
     macroEconomicData?: any;
   };
-  
+
   // 메타데이터 및 데이터 신선도
   lastUpdated: string;
   dataFreshness: {
@@ -126,6 +128,8 @@ export class DashboardService {
 
   constructor(
     private readonly newsService: NewsService,
+    private readonly stocksService: StocksService,
+    private readonly marketService: MarketService,
   ) {}
 
   async getDashboardData(symbol: string): Promise<DashboardResponse> {
@@ -139,28 +143,32 @@ export class DashboardService {
       ]);
 
       // 뉴스 데이터 처리
-      const processedNewsData = (newsData.status === 'fulfilled' && newsData.value.isValid) 
-        ? newsData.value 
-        : this.getEmptyNewsData(symbol);
+      const processedNewsData =
+        newsData.status === 'fulfilled' && newsData.value.isValid
+          ? newsData.value
+          : this.getEmptyNewsData(symbol);
 
       // 마켓 데이터 처리
-      const processedMarketData = marketData.status === 'fulfilled' 
-        ? marketData.value 
-        : this.getEmptyMarketData();
+      const processedMarketData =
+        marketData.status === 'fulfilled'
+          ? marketData.value
+          : this.getEmptyMarketData();
 
       // 통합 대시보드 응답 구성
       const dashboardResponse: DashboardResponse = {
         // AI Investment Analysis Section
         aiAnalysis: {
-          overview: processedNewsData.overview?.overview || 'Analysis not available',
+          overview:
+            processedNewsData.overview?.overview || 'Analysis not available',
           recommendation: processedNewsData.overview?.recommendation || 'HOLD',
           confidence: processedNewsData.overview?.confidence || 0,
           keyFactors: processedNewsData.overview?.keyFactors || [],
           riskLevel: processedNewsData.overview?.riskLevel || 'MEDIUM',
           timeHorizon: processedNewsData.overview?.timeHorizon || 'N/A',
-          timestamp: processedNewsData.overview?.timestamp || new Date().toISOString(),
+          timestamp:
+            processedNewsData.overview?.timestamp || new Date().toISOString(),
         },
-        
+
         // Stock Profile Section (현재는 Mock 데이터, 향후 실제 API 연동)
         stockProfile: {
           symbol: symbol,
@@ -171,28 +179,35 @@ export class DashboardService {
           volume: 'N/A',
           lastUpdated: new Date().toISOString(),
         },
-        
+
         // News Analysis Section
         newsAnalysis: {
           stockNews: {
             headline: processedNewsData.stockNews?.headline || 'No recent news',
             articles: processedNewsData.stockNews?.articles || [],
-            sentiment: this.determineSentiment(processedNewsData.stockNews?.headline),
+            sentiment: this.determineSentiment(
+              processedNewsData.stockNews?.headline,
+            ),
           },
           macroNews: {
-            topHeadline: processedNewsData.macroNews?.topHeadline || 'No macro news',
+            topHeadline:
+              processedNewsData.macroNews?.topHeadline || 'No macro news',
             articles: processedNewsData.macroNews?.articles || [],
-            marketImpact: this.determineMarketImpact(processedNewsData.macroNews?.topHeadline),
+            marketImpact: this.determineMarketImpact(
+              processedNewsData.macroNews?.topHeadline,
+            ),
           },
         },
-        
+
         // Market Indicators Section
         marketIndicators: processedMarketData,
-        
+
         // 메타데이터
         lastUpdated: new Date().toISOString(),
         dataFreshness: {
-          aiAnalysis: this.calculateDataAge(processedNewsData.overview?.timestamp),
+          aiAnalysis: this.calculateDataAge(
+            processedNewsData.overview?.timestamp,
+          ),
           stockProfile: 'external', // TradingView 연동 시 변경
           newsAnalysis: this.calculateDataAge(processedNewsData.timestamp),
           marketIndicators: 'fresh',
@@ -201,7 +216,6 @@ export class DashboardService {
 
       this.logger.log(`Successfully compiled dashboard data for ${symbol}`);
       return dashboardResponse;
-
     } catch (error) {
       this.logger.error(`Failed to fetch dashboard data for ${symbol}:`, error);
       throw error;
@@ -213,7 +227,10 @@ export class DashboardService {
       const newsData = await this.newsService.processStockNews(symbol);
       return newsData;
     } catch (error) {
-      this.logger.warn(`Failed to fetch news data for ${symbol}:`, error.message);
+      this.logger.warn(
+        `Failed to fetch news data for ${symbol}:`,
+        error.message,
+      );
       return this.getEmptyNewsData(symbol);
     }
   }
@@ -226,44 +243,44 @@ export class DashboardService {
           sp500: {
             value: 4150.23,
             change: 12.45,
-            changePercent: 0.30
+            changePercent: 0.3,
           },
           nasdaq: {
             value: 12850.67,
             change: -23.12,
-            changePercent: -0.18
+            changePercent: -0.18,
           },
           dow: {
             value: 34250.89,
             change: 45.67,
-            changePercent: 0.13
-          }
+            changePercent: 0.13,
+          },
         },
         sectors: [
           {
             name: 'Technology',
             change: 0.25,
-            performance: 'positive'
+            performance: 'positive',
           },
           {
             name: 'Healthcare',
             change: -0.15,
-            performance: 'negative'
+            performance: 'negative',
           },
           {
             name: 'Energy',
             change: 1.23,
-            performance: 'positive'
+            performance: 'positive',
           },
           {
             name: 'Financial',
             change: 0.45,
-            performance: 'positive'
-          }
+            performance: 'positive',
+          },
         ],
         marketSentiment: 'neutral',
         volatilityIndex: 18.45,
-        source: 'mock_data'
+        source: 'mock_data',
       };
 
       return marketOverview;
@@ -310,39 +327,73 @@ export class DashboardService {
     };
   }
 
-  private determineSentiment(headline: string): 'positive' | 'neutral' | 'negative' {
+  private determineSentiment(
+    headline: string,
+  ): 'positive' | 'neutral' | 'negative' {
     if (!headline) return 'neutral';
-    
-    const positiveWords = ['growth', 'surge', 'gains', 'success', 'record', 'strong', 'expansion'];
-    const negativeWords = ['decline', 'fall', 'loss', 'concern', 'weak', 'drop', 'struggle'];
-    
+
+    const positiveWords = [
+      'growth',
+      'surge',
+      'gains',
+      'success',
+      'record',
+      'strong',
+      'expansion',
+    ];
+    const negativeWords = [
+      'decline',
+      'fall',
+      'loss',
+      'concern',
+      'weak',
+      'drop',
+      'struggle',
+    ];
+
     const lowerHeadline = headline.toLowerCase();
-    
-    if (positiveWords.some(word => lowerHeadline.includes(word))) {
+
+    if (positiveWords.some((word) => lowerHeadline.includes(word))) {
       return 'positive';
     }
-    if (negativeWords.some(word => lowerHeadline.includes(word))) {
+    if (negativeWords.some((word) => lowerHeadline.includes(word))) {
       return 'negative';
     }
-    
+
     return 'neutral';
   }
 
-  private determineMarketImpact(headline: string): 'bullish' | 'neutral' | 'bearish' {
+  private determineMarketImpact(
+    headline: string,
+  ): 'bullish' | 'neutral' | 'bearish' {
     if (!headline) return 'neutral';
-    
-    const bullishWords = ['optimism', 'growth', 'recovery', 'positive', 'strong', 'boost'];
-    const bearishWords = ['uncertainty', 'concern', 'decline', 'weak', 'volatility', 'risk'];
-    
+
+    const bullishWords = [
+      'optimism',
+      'growth',
+      'recovery',
+      'positive',
+      'strong',
+      'boost',
+    ];
+    const bearishWords = [
+      'uncertainty',
+      'concern',
+      'decline',
+      'weak',
+      'volatility',
+      'risk',
+    ];
+
     const lowerHeadline = headline.toLowerCase();
-    
-    if (bullishWords.some(word => lowerHeadline.includes(word))) {
+
+    if (bullishWords.some((word) => lowerHeadline.includes(word))) {
       return 'bullish';
     }
-    if (bearishWords.some(word => lowerHeadline.includes(word))) {
+    if (bearishWords.some((word) => lowerHeadline.includes(word))) {
       return 'bearish';
     }
-    
+
     return 'neutral';
   }
 
@@ -357,14 +408,14 @@ export class DashboardService {
       ]);
 
       // 주식 가격 데이터 처리
-      const priceData = stockPrice.status === 'fulfilled' 
-        ? stockPrice.value 
-        : this.getMockRealtimePrice(symbol);
+      const priceData =
+        stockPrice.status === 'fulfilled'
+          ? stockPrice.value
+          : this.getMockRealtimePrice(symbol);
 
       // 뉴스 헤드라인 처리
-      const headlines = newsHeadlines.status === 'fulfilled' 
-        ? newsHeadlines.value 
-        : [];
+      const headlines =
+        newsHeadlines.status === 'fulfilled' ? newsHeadlines.value : [];
 
       // 실시간 응답 구성
       const realtimeResponse: RealtimeResponse = {
@@ -379,7 +430,6 @@ export class DashboardService {
 
       this.logger.log(`Successfully fetched realtime data for ${symbol}`);
       return realtimeResponse;
-
     } catch (error) {
       this.logger.error(`Failed to fetch realtime data for ${symbol}:`, error);
       throw error;
@@ -388,10 +438,24 @@ export class DashboardService {
 
   private async getRealtimeStockPrice(symbol: string): Promise<any> {
     try {
-      // 현재는 Mock 데이터, 향후 TradingView API 연동 예정
+      // Use StocksService to get real stock data from Alpha Vantage
+      const stockData = await this.stocksService.getStock(symbol as any);
+
+      if (stockData && stockData.price) {
+        return {
+          currentPrice: stockData.price.current,
+          changePercent: stockData.price.changePercent,
+          volume: stockData.fundamentals.volume?.toLocaleString() || '0',
+        };
+      }
+
+      // Fallback to mock data if stock service fails
       return this.getMockRealtimePrice(symbol);
     } catch (error) {
-      this.logger.warn(`Failed to fetch realtime price for ${symbol}:`, error.message);
+      this.logger.warn(
+        `Failed to fetch realtime price for ${symbol}:`,
+        error.message,
+      );
       return this.getMockRealtimePrice(symbol);
     }
   }
@@ -412,26 +476,41 @@ export class DashboardService {
   private async getLatestNewsHeadlines(symbol: string): Promise<string[]> {
     try {
       const newsData = await this.newsService.processStockNews(symbol);
-      
+
       // 뉴스 데이터에서 헤드라인 추출
       const headlines: string[] = [];
-      
+
       if (newsData && newsData.stockNews && newsData.stockNews.articles) {
-        headlines.push(...newsData.stockNews.articles.slice(0, 2).map(article => article.title));
-      }
-      
-      if (newsData && newsData.macroNews && newsData.macroNews.articles) {
-        headlines.push(...newsData.macroNews.articles.slice(0, 1).map(article => article.title));
+        headlines.push(
+          ...newsData.stockNews.articles
+            .slice(0, 2)
+            .map((article) => article.title),
+        );
       }
 
-      return headlines.filter(headline => headline && headline.length > 0);
+      if (newsData && newsData.macroNews && newsData.macroNews.articles) {
+        headlines.push(
+          ...newsData.macroNews.articles
+            .slice(0, 1)
+            .map((article) => article.title),
+        );
+      }
+
+      return headlines.filter((headline) => headline && headline.length > 0);
     } catch (error) {
-      this.logger.warn(`Failed to fetch news headlines for ${symbol}:`, error.message);
+      this.logger.warn(
+        `Failed to fetch news headlines for ${symbol}:`,
+        error.message,
+      );
       return []; // 빈 배열 반환
     }
   }
 
-  private getCurrentMarketStatus(): 'open' | 'closed' | 'pre_market' | 'after_hours' {
+  private getCurrentMarketStatus():
+    | 'open'
+    | 'closed'
+    | 'pre_market'
+    | 'after_hours' {
     const now = new Date();
     const hour = now.getHours();
     const day = now.getDay(); // 0 = Sunday, 6 = Saturday
@@ -458,24 +537,47 @@ export class DashboardService {
       this.logger.log(`Checking data availability for symbol: ${symbol}`);
 
       // 병렬로 모든 데이터 소스 상태 확인
-      const [aiStatus, stockStatus, newsStatus, marketStatus] = await Promise.allSettled([
-        this.checkAIAnalysisAvailability(symbol),
-        this.checkStockPriceAvailability(symbol),
-        this.checkNewsDataAvailability(symbol),
-        this.checkMarketIndicatorsAvailability(),
-      ]);
+      const [aiStatus, stockStatus, newsStatus, marketStatus] =
+        await Promise.allSettled([
+          this.checkAIAnalysisAvailability(symbol),
+          this.checkStockPriceAvailability(symbol),
+          this.checkNewsDataAvailability(symbol),
+          this.checkMarketIndicatorsAvailability(),
+        ]);
 
       // 각 서비스 상태 처리
-      const aiAnalysis = aiStatus.status === 'fulfilled' ? aiStatus.value : this.getUnavailableStatus('ai_analysis');
-      const stockPrice = stockStatus.status === 'fulfilled' ? stockStatus.value : this.getUnavailableStatus('stock_price');
-      const newsData = newsStatus.status === 'fulfilled' ? newsStatus.value : this.getUnavailableStatus('news_data');
-      const marketIndicators = marketStatus.status === 'fulfilled' ? marketStatus.value : this.getUnavailableStatus('market_indicators');
+      const aiAnalysis =
+        aiStatus.status === 'fulfilled'
+          ? aiStatus.value
+          : this.getUnavailableStatus('ai_analysis');
+      const stockPrice =
+        stockStatus.status === 'fulfilled'
+          ? stockStatus.value
+          : this.getUnavailableStatus('stock_price');
+      const newsData =
+        newsStatus.status === 'fulfilled'
+          ? newsStatus.value
+          : this.getUnavailableStatus('news_data');
+      const marketIndicators =
+        marketStatus.status === 'fulfilled'
+          ? marketStatus.value
+          : this.getUnavailableStatus('market_indicators');
 
       // 전체 건강도 평가
-      const overallHealth = this.calculateOverallHealth([aiAnalysis, stockPrice, newsData, marketIndicators]);
-      
+      const overallHealth = this.calculateOverallHealth([
+        aiAnalysis,
+        stockPrice,
+        newsData,
+        marketIndicators,
+      ]);
+
       // 권장 액션 생성
-      const recommendedActions = this.generateRecommendedActions([aiAnalysis, stockPrice, newsData, marketIndicators]);
+      const recommendedActions = this.generateRecommendedActions([
+        aiAnalysis,
+        stockPrice,
+        newsData,
+        marketIndicators,
+      ]);
 
       const availabilityResponse: DataAvailabilityResponse = {
         symbol,
@@ -490,11 +592,15 @@ export class DashboardService {
         checkTime: new Date().toISOString(),
       };
 
-      this.logger.log(`Data availability check completed for ${symbol} - Health: ${overallHealth}`);
+      this.logger.log(
+        `Data availability check completed for ${symbol} - Health: ${overallHealth}`,
+      );
       return availabilityResponse;
-
     } catch (error) {
-      this.logger.error(`Failed to check data availability for ${symbol}:`, error);
+      this.logger.error(
+        `Failed to check data availability for ${symbol}:`,
+        error,
+      );
       throw error;
     }
   }
@@ -503,8 +609,9 @@ export class DashboardService {
     try {
       const newsData = await this.newsService.processStockNews(symbol);
       const isAvailable = newsData && newsData.isValid && newsData.overview;
-      const lastUpdated = newsData?.overview?.timestamp || new Date().toISOString();
-      
+      const lastUpdated =
+        newsData?.overview?.timestamp || new Date().toISOString();
+
       return {
         available: isAvailable,
         lastUpdated,
@@ -534,11 +641,14 @@ export class DashboardService {
     try {
       const newsData = await this.newsService.processStockNews(symbol);
       const isAvailable = newsData && newsData.isValid;
-      
+
       // 타임스탬프는 macroNews에서 가져오거나 현재 시간 사용
-      const lastUpdated = newsData?.macroNews?.timestamp || new Date().toISOString();
-      const articleCount = (newsData?.stockNews?.articles?.length || 0) + (newsData?.macroNews?.articles?.length || 0);
-      
+      const lastUpdated =
+        newsData?.macroNews?.timestamp || new Date().toISOString();
+      const articleCount =
+        (newsData?.stockNews?.articles?.length || 0) +
+        (newsData?.macroNews?.articles?.length || 0);
+
       return {
         available: isAvailable,
         lastUpdated,
@@ -577,10 +687,17 @@ export class DashboardService {
     };
   }
 
-  private calculateOverallHealth(services: any[]): 'excellent' | 'good' | 'fair' | 'poor' {
-    const availableCount = services.filter(service => service.available).length;
-    const freshCount = services.filter(service => service.freshness === 'fresh' || service.freshness === 'recent').length;
-    
+  private calculateOverallHealth(
+    services: any[],
+  ): 'excellent' | 'good' | 'fair' | 'poor' {
+    const availableCount = services.filter(
+      (service) => service.available,
+    ).length;
+    const freshCount = services.filter(
+      (service) =>
+        service.freshness === 'fresh' || service.freshness === 'recent',
+    ).length;
+
     if (availableCount === 4 && freshCount >= 3) return 'excellent';
     if (availableCount >= 3 && freshCount >= 2) return 'good';
     if (availableCount >= 2) return 'fair';
@@ -589,43 +706,61 @@ export class DashboardService {
 
   private generateRecommendedActions(services: any[]): string[] {
     const actions: string[] = [];
-    
-    if (!services[0].available) { // AI Analysis
-      actions.push('AI analysis service unavailable - check Claude API configuration');
+
+    if (!services[0].available) {
+      // AI Analysis
+      actions.push(
+        'AI analysis service unavailable - check Claude API configuration',
+      );
     }
-    
-    if (!services[1].available) { // Stock Price
-      actions.push('Stock price data unavailable - check TradingView API connection');
+
+    if (!services[1].available) {
+      // Stock Price
+      actions.push(
+        'Stock price data unavailable - check TradingView API connection',
+      );
     }
-    
-    if (!services[2].available) { // News Data
+
+    if (!services[2].available) {
+      // News Data
       actions.push('News data unavailable - check SerpAPI configuration');
     } else if (services[2].articleCount === 0) {
       actions.push('No recent news articles found - data may be stale');
     }
-    
-    if (!services[3].available) { // Market Indicators
-      actions.push('Market indicators unavailable - check market data API connection');
+
+    if (!services[3].available) {
+      // Market Indicators
+      actions.push(
+        'Market indicators unavailable - check market data API connection',
+      );
     }
-    
-    const staleServices = services.filter(service => service.freshness === 'stale').length;
+
+    const staleServices = services.filter(
+      (service) => service.freshness === 'stale',
+    ).length;
     if (staleServices > 0) {
-      actions.push(`${staleServices} data source(s) have stale data - consider refreshing`);
+      actions.push(
+        `${staleServices} data source(s) have stale data - consider refreshing`,
+      );
     }
-    
+
     if (actions.length === 0) {
       actions.push('All systems operational - no action required');
     }
-    
+
     return actions;
   }
 
-  async getBatchDashboardData(symbols: string[]): Promise<BatchDashboardResponse> {
+  async getBatchDashboardData(
+    symbols: string[],
+  ): Promise<BatchDashboardResponse> {
     const startTime = Date.now();
     const batchId = `batch_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
+
     try {
-      this.logger.log(`Processing batch dashboard request for ${symbols.length} symbols: ${symbols.join(', ')}`);
+      this.logger.log(
+        `Processing batch dashboard request for ${symbols.length} symbols: ${symbols.join(', ')}`,
+      );
 
       // 병렬로 모든 심볼의 대시보드 데이터 요청
       const dashboardPromises = symbols.map(async (symbol) => {
@@ -633,11 +768,14 @@ export class DashboardService {
           const dashboardData = await this.getDashboardData(symbol);
           return { symbol, data: dashboardData, success: true };
         } catch (error) {
-          this.logger.warn(`Failed to fetch dashboard data for ${symbol}:`, error.message);
-          return { 
-            symbol, 
-            data: { error: error.message || 'Unknown error occurred' }, 
-            success: false 
+          this.logger.warn(
+            `Failed to fetch dashboard data for ${symbol}:`,
+            error.message,
+          );
+          return {
+            symbol,
+            data: { error: error.message || 'Unknown error occurred' },
+            success: false,
           };
         }
       });
@@ -646,17 +784,19 @@ export class DashboardService {
       const results = await Promise.allSettled(dashboardPromises);
 
       // 결과 처리
-      const dashboards: { [symbol: string]: DashboardResponse | { error: string } } = {};
+      const dashboards: {
+        [symbol: string]: DashboardResponse | { error: string };
+      } = {};
       let successCount = 0;
       let errorCount = 0;
 
       results.forEach((result, index) => {
         const symbol = symbols[index];
-        
+
         if (result.status === 'fulfilled') {
           const { data, success } = result.value;
           dashboards[symbol] = data;
-          
+
           if (success) {
             successCount++;
           } else {
@@ -664,7 +804,9 @@ export class DashboardService {
           }
         } else {
           // Promise 자체가 실패한 경우
-          dashboards[symbol] = { error: result.reason?.message || 'Promise failed' };
+          dashboards[symbol] = {
+            error: result.reason?.message || 'Promise failed',
+          };
           errorCount++;
         }
       });
@@ -681,22 +823,28 @@ export class DashboardService {
         timestamp: new Date().toISOString(),
       };
 
-      this.logger.log(`Batch request ${batchId} completed - Success: ${successCount}, Errors: ${errorCount}, Time: ${executionTime}ms`);
+      this.logger.log(
+        `Batch request ${batchId} completed - Success: ${successCount}, Errors: ${errorCount}, Time: ${executionTime}ms`,
+      );
       return batchResponse;
-
     } catch (error) {
-      this.logger.error(`Batch dashboard request failed for batch ${batchId}:`, error);
+      this.logger.error(
+        `Batch dashboard request failed for batch ${batchId}:`,
+        error,
+      );
       throw error;
     }
   }
 
   private calculateDataAge(timestamp: string): string {
     if (!timestamp) return 'unknown';
-    
+
     const now = new Date();
     const dataTime = new Date(timestamp);
-    const ageInMinutes = Math.floor((now.getTime() - dataTime.getTime()) / (1000 * 60));
-    
+    const ageInMinutes = Math.floor(
+      (now.getTime() - dataTime.getTime()) / (1000 * 60),
+    );
+
     if (ageInMinutes < 5) return 'fresh';
     if (ageInMinutes < 30) return 'recent';
     if (ageInMinutes < 120) return 'moderate';

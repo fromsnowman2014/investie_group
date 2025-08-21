@@ -5,6 +5,7 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 import { ClaudeService } from '../ai/claude.service';
+import { SupabaseService } from '../database/supabase.service';
 import { StockValidatorHelper } from './stock-validator.helper';
 import {
   NewsProcessingResult,
@@ -12,7 +13,7 @@ import {
   MacroNewsData,
   StockNewsSummary,
   StockOverview,
-  SerpApiNewsResult
+  SerpApiNewsResult,
 } from '../common/types';
 
 @Injectable()
@@ -26,6 +27,7 @@ export class NewsService {
 
   constructor(
     private readonly claudeService: ClaudeService,
+    private readonly supabaseService: SupabaseService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {
     this.stockValidator = new StockValidatorHelper();
@@ -37,12 +39,13 @@ export class NewsService {
   async processStockNews(inputSymbol: string): Promise<NewsProcessingResult> {
     try {
       // Step 1-2: Multi-tier symbol validation
-      const validationResult = await this.stockValidator.validateSymbol(inputSymbol);
+      const validationResult =
+        await this.stockValidator.validateSymbol(inputSymbol);
       if (!validationResult.isValid) {
         return {
           isValid: false,
           error: validationResult.reason,
-          suggestions: this.stockValidator.getSuggestions(inputSymbol)
+          suggestions: this.stockValidator.getSuggestions(inputSymbol),
         };
       }
 
@@ -53,42 +56,59 @@ export class NewsService {
       let macroNews: MacroNewsData | null = null;
       if (!this.hasTodaysMacroNews(today)) {
         macroNews = await this.loadMacroNews(today);
-        if (macroNews) this.storeMacroNews(macroNews, today);
+        if (macroNews) await this.storeMacroNews(macroNews, today);
       } else {
-        macroNews = this.loadStoredMacroNews(today);
+        macroNews = await this.loadStoredMacroNews(today);
       }
 
       // Step 5: Load or fetch stock-specific news
-      let stockNewsData: { summary: StockNewsSummary; articles: SerpApiNewsResult[]; query?: string } | null = null;
+      let stockNewsData: {
+        summary: StockNewsSummary;
+        articles: SerpApiNewsResult[];
+        query?: string;
+      } | null = null;
       if (!this.hasTodaysStockNews(symbol, today)) {
         stockNewsData = await this.loadStockNews(symbol, today);
-        if (stockNewsData) this.storeStockNews(stockNewsData, symbol, today);
+        if (stockNewsData)
+          await this.storeStockNews(stockNewsData, symbol, today);
       } else {
-        stockNewsData = this.loadStoredStockNews(symbol, today);
+        stockNewsData = await this.loadStoredStockNews(symbol, today);
       }
 
       // Step 6: Generate comprehensive AI overview
-      const overview = await this.generateOverview(symbol, stockNewsData?.summary || null, stockNewsData?.articles || [], macroNews);
+      const overview = await this.generateOverview(
+        symbol,
+        stockNewsData?.summary || null,
+        stockNewsData?.articles || [],
+        macroNews,
+      );
       if (overview) {
-        this.storeOverview(overview, symbol, today);
-        return { 
-          isValid: true, 
-          symbol, 
-          overview, 
-          stockNews: stockNewsData ? { 
-            headline: stockNewsData.summary.headline,
-            source: stockNewsData.summary.source,
-            articles: stockNewsData.articles,
-            query: stockNewsData.query
-          } : undefined,
+        await this.storeOverview(overview, symbol, today);
+        return {
+          isValid: true,
+          symbol,
+          overview,
+          stockNews: stockNewsData
+            ? {
+                headline: stockNewsData.summary.headline,
+                source: stockNewsData.summary.source,
+                articles: stockNewsData.articles,
+                query: stockNewsData.query,
+              }
+            : undefined,
           macroNews: macroNews || undefined,
-          validationResult 
+          validationResult,
         };
       }
 
-      return { isValid: false, error: 'Failed to generate investment overview' };
+      return {
+        isValid: false,
+        error: 'Failed to generate investment overview',
+      };
     } catch (error) {
-      this.logger.error(`News processing failed for ${inputSymbol}: ${error.message}`);
+      this.logger.error(
+        `News processing failed for ${inputSymbol}: ${error.message}`,
+      );
       return { isValid: false, error: 'Internal processing error' };
     }
   }
@@ -119,10 +139,10 @@ export class NewsService {
       // Filter out articles that are too old (older than 30 days) as a backup
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      
-      const filteredResults = newsResults.filter(article => {
+
+      const filteredResults = newsResults.filter((article) => {
         if (!article.date) return true; // Keep if no date info
-        
+
         try {
           // Parse the article date (format: "MM/dd/yyyy, hh:mm AM/PM, +0000 UTC")
           const dateParts = article.date.split(', ');
@@ -136,8 +156,10 @@ export class NewsService {
           return true;
         }
       });
-      
-      this.logger.log(`[Macro News] Filtered out old articles: ${newsResults.length} -> ${filteredResults.length}`);
+
+      this.logger.log(
+        `[Macro News] Filtered out old articles: ${newsResults.length} -> ${filteredResults.length}`,
+      );
 
       return {
         topHeadline: filteredResults[0]?.title || 'Market news',
@@ -145,7 +167,7 @@ export class NewsService {
         totalArticles: filteredResults.length,
         source: 'serpapi_google_news',
         timestamp: new Date().toISOString(),
-        query: macroQuery
+        query: macroQuery,
       };
     } catch (error) {
       this.logger.error(`Failed to load macro news: ${error.message}`);
@@ -153,7 +175,14 @@ export class NewsService {
     }
   }
 
-  async loadStockNews(symbol: StockSymbol, date: string): Promise<{ summary: StockNewsSummary; articles: SerpApiNewsResult[]; query?: string } | null> {
+  async loadStockNews(
+    symbol: StockSymbol,
+    date: string,
+  ): Promise<{
+    summary: StockNewsSummary;
+    articles: SerpApiNewsResult[];
+    query?: string;
+  } | null> {
     if (!this.serpApiKey) {
       this.logger.warn('SerpAPI key not configured, using mock data');
       const mockSummary = this.getMockStockNews(symbol);
@@ -163,18 +192,22 @@ export class NewsService {
     try {
       // Get full company name for better search results
       const companyName = await this.getCompanyName(symbol);
-      
+
       // Create shorter, more generic search queries for better coverage
       const searchQueries = [
         `${symbol} news`,
         `${companyName} stock`,
         `${symbol} earnings`,
         `${companyName} today`,
-        `${symbol} trending news`
+        `${symbol} trending news`,
       ];
 
-      this.logger.log(`🔍 Starting enhanced search for ${symbol} (${companyName})`);
-      this.logger.log(`🔍 Search queries prepared: ${searchQueries.length} variants`);
+      this.logger.log(
+        `🔍 Starting enhanced search for ${symbol} (${companyName})`,
+      );
+      this.logger.log(
+        `🔍 Search queries prepared: ${searchQueries.length} variants`,
+      );
 
       // Try queries until we get good results
       let newsResults: any[] = [];
@@ -182,14 +215,14 @@ export class NewsService {
 
       for (const query of searchQueries) {
         this.logger.log(`Trying search query: "${query}"`);
-        
+
         try {
           const response = await axios.get('https://serpapi.com/search', {
             params: {
               engine: 'google_news',
               q: query,
-              gl: 'us', 
-              hl: 'en', 
+              gl: 'us',
+              hl: 'en',
               num: 25,
               api_key: this.serpApiKey,
             },
@@ -199,7 +232,9 @@ export class NewsService {
           if (response.data.news_results?.length > 5) {
             newsResults = response.data.news_results;
             selectedQuery = query;
-            this.logger.log(`Success with query: "${query}" - ${newsResults.length} articles found`);
+            this.logger.log(
+              `Success with query: "${query}" - ${newsResults.length} articles found`,
+            );
             break;
           }
         } catch (queryError) {
@@ -210,26 +245,33 @@ export class NewsService {
 
       // If we still don't have enough results, try a simple fallback
       if (newsResults.length < 5) {
-        this.logger.log(`Limited results (${newsResults.length}), trying fallback search`);
-        
+        this.logger.log(
+          `Limited results (${newsResults.length}), trying fallback search`,
+        );
+
         try {
           const fallbackQuery = `"${companyName}" ${symbol}`;
-          const fallbackResponse = await axios.get('https://serpapi.com/search', {
-            params: {
-              engine: 'google_news',
-              q: fallbackQuery,
-              gl: 'us', 
-              hl: 'en', 
-              num: 15,
-              api_key: this.serpApiKey,
+          const fallbackResponse = await axios.get(
+            'https://serpapi.com/search',
+            {
+              params: {
+                engine: 'google_news',
+                q: fallbackQuery,
+                gl: 'us',
+                hl: 'en',
+                num: 15,
+                api_key: this.serpApiKey,
+              },
+              timeout: 15000,
             },
-            timeout: 15000,
-          });
-          
+          );
+
           if (fallbackResponse.data.news_results?.length > newsResults.length) {
             newsResults = fallbackResponse.data.news_results;
             selectedQuery = fallbackQuery;
-            this.logger.log(`Fallback search found ${newsResults.length} articles`);
+            this.logger.log(
+              `Fallback search found ${newsResults.length} articles`,
+            );
           }
         } catch (fallbackError) {
           this.logger.warn(`Fallback search failed: ${fallbackError.message}`);
@@ -239,14 +281,14 @@ export class NewsService {
       // Filter out articles that are too old (older than 30 days) as a backup
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      
-      const filteredResults = newsResults.filter(article => {
+
+      const filteredResults = newsResults.filter((article) => {
         if (!article.date) return true; // Keep if no date info
-        
+
         try {
           // Parse the article date - try multiple formats
           let articleDate: Date | null = null;
-          
+
           if (article.date.includes(',')) {
             // Format: "MM/dd/yyyy, hh:mm AM/PM, +0000 UTC"
             const dateParts = article.date.split(', ');
@@ -254,25 +296,27 @@ export class NewsService {
               articleDate = new Date(dateParts[0] + ', ' + dateParts[1]);
             }
           }
-          
+
           if (!articleDate || isNaN(articleDate.getTime())) {
             // Try parsing the full date string
             articleDate = new Date(article.date);
           }
-          
+
           if (!articleDate || isNaN(articleDate.getTime())) {
             // Keep article if we can't parse the date
             return true;
           }
-          
+
           return articleDate >= thirtyDaysAgo;
         } catch (error) {
           // If we can't parse the date, keep the article
           return true;
         }
       });
-      
-      this.logger.log(`Filtered out old articles: ${newsResults.length} -> ${filteredResults.length}`);
+
+      this.logger.log(
+        `Filtered out old articles: ${newsResults.length} -> ${filteredResults.length}`,
+      );
       newsResults = filteredResults;
 
       if (!newsResults || newsResults.length === 0) {
@@ -283,12 +327,17 @@ export class NewsService {
       // Debug: Log some article dates to understand the format
       this.logger.log(`Sample article dates from API:`);
       newsResults.slice(0, 3).forEach((article, index) => {
-        this.logger.log(`Article ${index + 1}: "${article.title}" - Date: ${article.date}`);
+        this.logger.log(
+          `Article ${index + 1}: "${article.title}" - Date: ${article.date}`,
+        );
       });
 
-      const topHeadline = newsResults[0]?.title || `${companyName} trending news`;
+      const topHeadline =
+        newsResults[0]?.title || `${companyName} trending news`;
 
-      this.logger.log(`Final query used: "${selectedQuery}" - ${newsResults.length} articles returned after filtering`);
+      this.logger.log(
+        `Final query used: "${selectedQuery}" - ${newsResults.length} articles returned after filtering`,
+      );
 
       const summary: StockNewsSummary = {
         headline: topHeadline,
@@ -298,18 +347,30 @@ export class NewsService {
       return {
         summary,
         articles: newsResults,
-        query: selectedQuery
+        query: selectedQuery,
       };
     } catch (error) {
-      this.logger.error(`Failed to load stock news for ${symbol}: ${error.message}`);
+      this.logger.error(
+        `Failed to load stock news for ${symbol}: ${error.message}`,
+      );
       const mockSummary = this.getMockStockNews(symbol);
       return mockSummary ? { summary: mockSummary, articles: [] } : null;
     }
   }
 
-  async generateOverview(symbol: StockSymbol, stockNews: StockNewsSummary | null, stockArticles: SerpApiNewsResult[], macroNews: MacroNewsData | null): Promise<StockOverview | null> {
+  async generateOverview(
+    symbol: StockSymbol,
+    stockNews: StockNewsSummary | null,
+    stockArticles: SerpApiNewsResult[],
+    macroNews: MacroNewsData | null,
+  ): Promise<StockOverview | null> {
     // Try Claude AI first (most sophisticated)
-    const claudeResult = await this.analyzeWithClaude(symbol, stockNews, stockArticles, macroNews);
+    const claudeResult = await this.analyzeWithClaude(
+      symbol,
+      stockNews,
+      stockArticles,
+      macroNews,
+    );
     if (claudeResult) return claudeResult;
 
     // Final fallback to rule-based analysis
@@ -323,7 +384,7 @@ export class NewsService {
     openaiConfigured: boolean;
   }> {
     const claudeHealth = await this.claudeService.healthCheck();
-    
+
     return {
       status: 'operational',
       serpApiConfigured: !!this.serpApiKey,
@@ -341,27 +402,36 @@ export class NewsService {
 
     try {
       // Try Yahoo Finance API first - it's free and reliable
-      const response = await axios.get(`https://query1.finance.yahoo.com/v1/finance/search`, {
-        params: { q: symbol, quotesCount: 1, newsCount: 0 },
-        timeout: 10000,
-        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Investie/1.0)' }
-      });
+      const response = await axios.get(
+        `https://query1.finance.yahoo.com/v1/finance/search`,
+        {
+          params: { q: symbol, quotesCount: 1, newsCount: 0 },
+          timeout: 10000,
+          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Investie/1.0)' },
+        },
+      );
 
-      if (response.data?.quotes?.[0]?.longname || response.data?.quotes?.[0]?.shortname) {
-        const companyName = response.data.quotes[0].longname || response.data.quotes[0].shortname;
+      if (
+        response.data?.quotes?.[0]?.longname ||
+        response.data?.quotes?.[0]?.shortname
+      ) {
+        const companyName =
+          response.data.quotes[0].longname || response.data.quotes[0].shortname;
         // Cache for 24 hours
         await this.cacheManager.set(cacheKey, companyName, 86400000);
         this.logger.log(`Found company name for ${symbol}: ${companyName}`);
         return companyName;
       }
     } catch (error) {
-      this.logger.warn(`Yahoo Finance API failed for ${symbol}: ${error.message}`);
+      this.logger.warn(
+        `Yahoo Finance API failed for ${symbol}: ${error.message}`,
+      );
     }
 
     // Fallback to enhanced static mapping
     const enhancedCompanyMap: Record<string, string> = {
       AAPL: 'Apple Inc',
-      TSLA: 'Tesla Inc', 
+      TSLA: 'Tesla Inc',
       MSFT: 'Microsoft Corporation',
       GOOGL: 'Alphabet Inc',
       AMZN: 'Amazon.com Inc',
@@ -369,7 +439,7 @@ export class NewsService {
       META: 'Meta Platforms Inc',
       NFLX: 'Netflix Inc',
       AVGO: 'Broadcom Inc',
-      AMD: 'Advanced Micro Devices Inc'
+      AMD: 'Advanced Micro Devices Inc',
     };
 
     const fallbackName = enhancedCompanyMap[symbol] || symbol;
@@ -378,9 +448,19 @@ export class NewsService {
     return fallbackName;
   }
 
-  private async analyzeWithClaude(symbol: StockSymbol, stockNews: StockNewsSummary | null, stockArticles: SerpApiNewsResult[], macroNews: MacroNewsData | null): Promise<StockOverview | null> {
+  private async analyzeWithClaude(
+    symbol: StockSymbol,
+    stockNews: StockNewsSummary | null,
+    stockArticles: SerpApiNewsResult[],
+    macroNews: MacroNewsData | null,
+  ): Promise<StockOverview | null> {
     try {
-      const prompt = this.buildAnalysisPrompt(symbol, stockNews, stockArticles, macroNews);
+      const prompt = this.buildAnalysisPrompt(
+        symbol,
+        stockNews,
+        stockArticles,
+        macroNews,
+      );
       const schema = `{
         "overview": "2-3 sentence analysis of the stock's outlook based on the news",
         "recommendation": "BUY|HOLD|SELL",
@@ -390,58 +470,81 @@ export class NewsService {
         "timeHorizon": "1-3 months|3-6 months|6-12 months"
       }`;
 
-      const response = await this.claudeService.generateStructuredResponse<any>(prompt, schema);
+      const response = await this.claudeService.generateStructuredResponse<any>(
+        prompt,
+        schema,
+      );
 
       return {
         symbol,
         overview: response.overview || `Analysis for ${symbol}`,
         recommendation: response.recommendation || 'HOLD',
         confidence: response.confidence || 70,
-        keyFactors: response.keyFactors || ['Market conditions', 'Company fundamentals'],
+        keyFactors: response.keyFactors || [
+          'Market conditions',
+          'Company fundamentals',
+        ],
         riskLevel: response.riskLevel || 'MEDIUM',
         timeHorizon: response.timeHorizon || '3-6 months',
         source: 'claude_ai_analysis',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     } catch (error) {
-      this.logger.error(`Claude analysis failed for ${symbol}: ${error.message}`);
+      this.logger.error(
+        `Claude analysis failed for ${symbol}: ${error.message}`,
+      );
       return null;
     }
   }
 
-  private buildAnalysisPrompt(symbol: StockSymbol, stockNews: StockNewsSummary | null, stockArticles: SerpApiNewsResult[], macroNews: MacroNewsData | null): string {
+  private buildAnalysisPrompt(
+    symbol: StockSymbol,
+    stockNews: StockNewsSummary | null,
+    stockArticles: SerpApiNewsResult[],
+    macroNews: MacroNewsData | null,
+  ): string {
     const currentDate = new Date().toISOString().split('T')[0];
     let prompt = `Analyze ${symbol} stock for investment recommendation based on the following comprehensive news data (Analysis Date: ${currentDate}):\n\n`;
 
     if (stockNews) {
       prompt += `COMPANY-SPECIFIC NEWS:\n- Headline: ${stockNews.headline}\n- Source: ${stockNews.source}\n`;
-      
+
       // Add ALL article titles and content with timing analysis
       if (stockArticles && stockArticles.length > 0) {
         prompt += `\nAll Recent Articles (${stockArticles.length} total):\n`;
-        
+
         // Calculate article recency
-        const articlesByRecency = stockArticles.map(article => {
-          const articleDate = new Date(article.date);
-          const daysDiff = Math.floor((Date.now() - articleDate.getTime()) / (1000 * 60 * 60 * 24));
-          return { ...article, daysAgo: daysDiff };
-        }).sort((a, b) => a.daysAgo - b.daysAgo);
+        const articlesByRecency = stockArticles
+          .map((article) => {
+            const articleDate = new Date(article.date);
+            const daysDiff = Math.floor(
+              (Date.now() - articleDate.getTime()) / (1000 * 60 * 60 * 24),
+            );
+            return { ...article, daysAgo: daysDiff };
+          })
+          .sort((a, b) => a.daysAgo - b.daysAgo);
 
         // Show ALL article titles with timing information
         prompt += `\nArticle Headlines (with timing):\n`;
         articlesByRecency.forEach((article, index) => {
-          const recencyText = article.daysAgo === 0 ? 'Today' : 
-                             article.daysAgo === 1 ? '1 day ago' : 
-                             `${article.daysAgo} days ago`;
+          const recencyText =
+            article.daysAgo === 0
+              ? 'Today'
+              : article.daysAgo === 1
+                ? '1 day ago'
+                : `${article.daysAgo} days ago`;
           prompt += `${index + 1}. "${article.title}" (${recencyText} - ${article.date})\n`;
         });
-        
+
         // Add detailed content for most recent articles
         prompt += `\nDetailed Content (Most Recent Articles):\n`;
         articlesByRecency.slice(0, 5).forEach((article, index) => {
-          const recencyText = article.daysAgo === 0 ? 'Today' : 
-                             article.daysAgo === 1 ? '1 day ago' : 
-                             `${article.daysAgo} days ago`;
+          const recencyText =
+            article.daysAgo === 0
+              ? 'Today'
+              : article.daysAgo === 1
+                ? '1 day ago'
+                : `${article.daysAgo} days ago`;
           prompt += `${index + 1}. "${article.title}" (${recencyText})\n`;
           if (article.snippet) {
             prompt += `   Content: ${article.snippet}\n`;
@@ -455,10 +558,15 @@ export class NewsService {
       prompt += `\nMARKET & ECONOMIC NEWS:\n- Top Headline: ${macroNews.topHeadline}\n\nKey Market Articles:\n`;
       macroNews.articles.slice(0, 5).forEach((article, index) => {
         const articleDate = new Date(article.date);
-        const daysDiff = Math.floor((Date.now() - articleDate.getTime()) / (1000 * 60 * 60 * 24));
-        const recencyText = daysDiff === 0 ? 'Today' : 
-                           daysDiff === 1 ? '1 day ago' : 
-                           `${daysDiff} days ago`;
+        const daysDiff = Math.floor(
+          (Date.now() - articleDate.getTime()) / (1000 * 60 * 60 * 24),
+        );
+        const recencyText =
+          daysDiff === 0
+            ? 'Today'
+            : daysDiff === 1
+              ? '1 day ago'
+              : `${daysDiff} days ago`;
         prompt += `${index + 1}. "${article.title}" (${recencyText})\n`;
         if (article.snippet) {
           prompt += `   Content: ${article.snippet}\n`;
@@ -467,7 +575,9 @@ export class NewsService {
       });
     }
 
-    return prompt + `
+    return (
+      prompt +
+      `
 Based on this comprehensive time-aware news analysis with ALL ${stockArticles.length} article headlines and recency information, provide an investment assessment for ${symbol} in JSON format:
 
 CRITICAL TIMING CONSIDERATIONS:
@@ -486,10 +596,15 @@ IMPORTANT: Consider ALL ${stockArticles.length} article headlines in your analys
 - Frequency and consistency of positive/negative themes across different time periods
 - Overall news momentum and timing patterns for stock price impact predictions
 
-Generate keyFactors that reflect insights from the complete set of articles with emphasis on timing and recency patterns.`;
+Generate keyFactors that reflect insights from the complete set of articles with emphasis on timing and recency patterns.`
+    );
   }
 
-  private generateBasicOverview(symbol: StockSymbol, stockNews: StockNewsSummary | null, macroNews: MacroNewsData | null): StockOverview {
+  private generateBasicOverview(
+    symbol: StockSymbol,
+    stockNews: StockNewsSummary | null,
+    macroNews: MacroNewsData | null,
+  ): StockOverview {
     const keyFactors: string[] = [];
     let confidence = 50;
 
@@ -514,7 +629,7 @@ Generate keyFactors that reflect insights from the complete set of articles with
       riskLevel: 'MEDIUM',
       timeHorizon: '3-6 months',
       source: 'fallback_data_analysis',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -535,51 +650,241 @@ Generate keyFactors that reflect insights from the complete set of articles with
   }
 
   private hasTodaysStockNews(symbol: StockSymbol, date: string): boolean {
-    const stockPath = path.join(this.stockNewsDir, symbol, date, 'stock_news.json');
+    const stockPath = path.join(
+      this.stockNewsDir,
+      symbol,
+      date,
+      'stock_news.json',
+    );
     return fs.existsSync(stockPath);
   }
 
-  private storeMacroNews(macroNews: MacroNewsData, date: string): void {
+  private async storeMacroNews(
+    macroNews: MacroNewsData,
+    date: string,
+  ): Promise<void> {
+    try {
+      const supabase = this.supabaseService.getClient();
+
+      const { error } = await supabase.from('macro_news').upsert(
+        {
+          top_headline: macroNews.topHeadline,
+          articles: macroNews.articles,
+          total_articles: macroNews.totalArticles,
+          query_used: 'stock market economy finance business',
+          source: macroNews.source || 'serpapi',
+          created_at: macroNews.timestamp,
+          updated_at: new Date().toISOString(),
+        },
+        {
+          onConflict: 'created_at::date',
+        },
+      );
+
+      if (error) {
+        this.logger.error('Failed to store macro news in Supabase:', error);
+        // Fallback to file storage
+        this.storeMacroNewsToFile(macroNews, date);
+      } else {
+        this.logger.log(
+          `Macro news stored successfully in Supabase for ${date}`,
+        );
+      }
+    } catch (error) {
+      this.logger.error('Supabase storeMacroNews error:', error);
+      // Fallback to file storage
+      this.storeMacroNewsToFile(macroNews, date);
+    }
+  }
+
+  private storeMacroNewsToFile(macroNews: MacroNewsData, date: string): void {
     const macroDir = path.join(this.macroNewsDir, date);
     this.ensureDirectoryExists(macroDir);
 
     const storeData = {
-      date, timestamp: macroNews.timestamp,
+      date,
+      timestamp: macroNews.timestamp,
       query: 'stock market economy finance business',
       topHeadline: macroNews.topHeadline,
       totalArticles: macroNews.totalArticles,
       articles: macroNews.articles,
-      metadata: { source: macroNews.source, cached: false }
+      metadata: { source: macroNews.source, cached: false },
     };
 
-    fs.writeFileSync(path.join(macroDir, 'macro_news.json'), JSON.stringify(storeData, null, 2));
+    fs.writeFileSync(
+      path.join(macroDir, 'macro_news.json'),
+      JSON.stringify(storeData, null, 2),
+    );
   }
 
-  private storeStockNews(stockNewsData: { summary: StockNewsSummary; articles: SerpApiNewsResult[]; query?: string }, symbol: StockSymbol, date: string): void {
+  private async storeStockNews(
+    stockNewsData: {
+      summary: StockNewsSummary;
+      articles: SerpApiNewsResult[];
+      query?: string;
+    },
+    symbol: StockSymbol,
+    date: string,
+  ): Promise<void> {
+    try {
+      const supabase = this.supabaseService.getClient();
+
+      const { error } = await supabase.from('stock_news').upsert(
+        {
+          symbol: symbol,
+          headline: stockNewsData.summary.headline,
+          articles: stockNewsData.articles,
+          sentiment: 'neutral', // Default value, can be enhanced later
+          source: stockNewsData.summary.source || 'serpapi',
+          query_used: stockNewsData.query || `${symbol} enhanced search`,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        {
+          onConflict: 'symbol,created_at::date',
+        },
+      );
+
+      if (error) {
+        this.logger.error('Failed to store stock news in Supabase:', error);
+        // Fallback to file storage
+        this.storeStockNewsToFile(stockNewsData, symbol, date);
+      } else {
+        this.logger.log(
+          `Stock news stored successfully in Supabase for ${symbol} on ${date}`,
+        );
+      }
+    } catch (error) {
+      this.logger.error('Supabase storeStockNews error:', error);
+      // Fallback to file storage
+      this.storeStockNewsToFile(stockNewsData, symbol, date);
+    }
+  }
+
+  private storeStockNewsToFile(
+    stockNewsData: {
+      summary: StockNewsSummary;
+      articles: SerpApiNewsResult[];
+      query?: string;
+    },
+    symbol: StockSymbol,
+    date: string,
+  ): void {
     const stockDir = path.join(this.stockNewsDir, symbol, date);
     this.ensureDirectoryExists(stockDir);
 
     const storeData = {
-      symbol, date, timestamp: new Date().toISOString(),
+      symbol,
+      date,
+      timestamp: new Date().toISOString(),
       query: stockNewsData.query || `${symbol} enhanced search`,
-      summary: { 
-        headline: stockNewsData.summary.headline, 
-        source: stockNewsData.summary.source 
+      summary: {
+        headline: stockNewsData.summary.headline,
+        source: stockNewsData.summary.source,
       },
       articles: stockNewsData.articles,
-      metadata: { source: stockNewsData.summary.source, cached: false }
+      metadata: { source: stockNewsData.summary.source, cached: false },
     };
 
-    fs.writeFileSync(path.join(stockDir, 'stock_news.json'), JSON.stringify(storeData, null, 2));
+    fs.writeFileSync(
+      path.join(stockDir, 'stock_news.json'),
+      JSON.stringify(storeData, null, 2),
+    );
   }
 
-  private storeOverview(overview: StockOverview, symbol: StockSymbol, date: string): void {
+  private async storeOverview(
+    overview: StockOverview,
+    symbol: StockSymbol,
+    date: string,
+  ): Promise<void> {
+    try {
+      const supabase = this.supabaseService.getClient();
+
+      const { error } = await supabase.from('ai_analysis').upsert(
+        {
+          symbol: symbol,
+          overview: overview.overview,
+          recommendation: overview.recommendation?.toUpperCase() || 'HOLD',
+          confidence: overview.confidence || 50,
+          key_factors: overview.keyFactors || [],
+          risk_level: overview.riskLevel?.toUpperCase() || 'MEDIUM',
+          time_horizon: overview.timeHorizon || 'medium-term',
+          source: 'claude_ai',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        {
+          onConflict: 'symbol,created_at::date',
+        },
+      );
+
+      if (error) {
+        this.logger.error('Failed to store AI analysis in Supabase:', error);
+        // Fallback to file storage
+        this.storeOverviewToFile(overview, symbol, date);
+      } else {
+        this.logger.log(
+          `AI analysis stored successfully in Supabase for ${symbol} on ${date}`,
+        );
+      }
+    } catch (error) {
+      this.logger.error('Supabase storeOverview error:', error);
+      // Fallback to file storage
+      this.storeOverviewToFile(overview, symbol, date);
+    }
+  }
+
+  private storeOverviewToFile(
+    overview: StockOverview,
+    symbol: StockSymbol,
+    date: string,
+  ): void {
     const stockDir = path.join(this.stockNewsDir, symbol, date);
     this.ensureDirectoryExists(stockDir);
-    fs.writeFileSync(path.join(stockDir, 'overview.json'), JSON.stringify(overview, null, 2));
+    fs.writeFileSync(
+      path.join(stockDir, 'overview.json'),
+      JSON.stringify(overview, null, 2),
+    );
   }
 
-  private loadStoredMacroNews(date: string): MacroNewsData | null {
+  private async loadStoredMacroNews(
+    date: string,
+  ): Promise<MacroNewsData | null> {
+    try {
+      // Try Supabase first
+      const supabase = this.supabaseService.getClient();
+      const { data, error } = await supabase
+        .from('macro_news')
+        .select('*')
+        .gte('created_at', `${date}T00:00:00Z`)
+        .lt('created_at', `${date}T23:59:59Z`)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (!error && data) {
+        return {
+          topHeadline: data.top_headline,
+          articles: data.articles,
+          totalArticles: data.total_articles,
+          source: data.source,
+          timestamp: data.created_at,
+          query: data.query_used,
+        };
+      }
+
+      // Fallback to file storage
+      return this.loadStoredMacroNewsFromFile(date);
+    } catch (error) {
+      this.logger.warn(
+        'Failed to load macro news from Supabase, trying file storage:',
+        error,
+      );
+      return this.loadStoredMacroNewsFromFile(date);
+    }
+  }
+
+  private loadStoredMacroNewsFromFile(date: string): MacroNewsData | null {
     try {
       const macroPath = path.join(this.macroNewsDir, date, 'macro_news.json');
       const data = JSON.parse(fs.readFileSync(macroPath, 'utf8'));
@@ -588,24 +893,79 @@ Generate keyFactors that reflect insights from the complete set of articles with
         articles: data.articles,
         totalArticles: data.totalArticles,
         source: data.source,
-        timestamp: data.timestamp
+        timestamp: data.timestamp,
       };
     } catch (error) {
       return null;
     }
   }
 
-  private loadStoredStockNews(symbol: StockSymbol, date: string): { summary: StockNewsSummary; articles: SerpApiNewsResult[]; query?: string } | null {
+  private async loadStoredStockNews(
+    symbol: StockSymbol,
+    date: string,
+  ): Promise<{
+    summary: StockNewsSummary;
+    articles: SerpApiNewsResult[];
+    query?: string;
+  } | null> {
     try {
-      const stockPath = path.join(this.stockNewsDir, symbol, date, 'stock_news.json');
+      // Try Supabase first
+      const supabase = this.supabaseService.getClient();
+      const { data, error } = await supabase
+        .from('stock_news')
+        .select('*')
+        .eq('symbol', symbol)
+        .gte('created_at', `${date}T00:00:00Z`)
+        .lt('created_at', `${date}T23:59:59Z`)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (!error && data) {
+        return {
+          summary: {
+            headline: data.headline,
+            source: data.source,
+          },
+          articles: data.articles || [],
+          query: data.query_used,
+        };
+      }
+
+      // Fallback to file storage
+      return this.loadStoredStockNewsFromFile(symbol, date);
+    } catch (error) {
+      this.logger.warn(
+        `Failed to load stock news from Supabase for ${symbol}, trying file storage:`,
+        error,
+      );
+      return this.loadStoredStockNewsFromFile(symbol, date);
+    }
+  }
+
+  private loadStoredStockNewsFromFile(
+    symbol: StockSymbol,
+    date: string,
+  ): {
+    summary: StockNewsSummary;
+    articles: SerpApiNewsResult[];
+    query?: string;
+  } | null {
+    try {
+      const stockPath = path.join(
+        this.stockNewsDir,
+        symbol,
+        date,
+        'stock_news.json',
+      );
       const data = JSON.parse(fs.readFileSync(stockPath, 'utf8'));
       return {
         summary: {
           headline: data.summary.headline,
-          source: data.summary.source
+          source: data.summary.source,
         },
         articles: data.articles || [],
-        query: data.query
+        query: data.query,
       };
     } catch (error) {
       return null;
@@ -622,28 +982,28 @@ Generate keyFactors that reflect insights from the complete set of articles with
           link: 'https://example.com/news1',
           snippet: 'Economic indicators suggest cautious optimism',
           date: new Date().toISOString(),
-          source: 'MockNews'
-        }
+          source: 'MockNews',
+        },
       ],
       totalArticles: 1,
       source: 'mock_data',
       timestamp: new Date().toISOString(),
-      query: 'stock market economy finance business'
+      query: 'stock market economy finance business',
     };
   }
 
   private getMockStockNews(symbol: StockSymbol): StockNewsSummary {
     const mockHeadlines: Record<string, string> = {
-      'AAPL': 'Apple reports strong quarterly earnings with Services growth',
-      'TSLA': 'Tesla expands charging network amid EV competition',
-      'NVDA': 'NVIDIA sees continued AI chip demand growth',
-      'GOOGL': 'Google Cloud revenue acceleration continues',
-      'MSFT': 'Microsoft Azure gains market share in cloud computing'
+      AAPL: 'Apple reports strong quarterly earnings with Services growth',
+      TSLA: 'Tesla expands charging network amid EV competition',
+      NVDA: 'NVIDIA sees continued AI chip demand growth',
+      GOOGL: 'Google Cloud revenue acceleration continues',
+      MSFT: 'Microsoft Azure gains market share in cloud computing',
     };
 
     return {
       headline: mockHeadlines[symbol] || `${symbol} company updates`,
-      source: 'mock_data'
+      source: 'mock_data',
     };
   }
 }

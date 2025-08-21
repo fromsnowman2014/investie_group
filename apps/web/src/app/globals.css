@@ -802,10 +802,17 @@ body {
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
-  color: var(--color-text-primary) !important;
+  color: #0f172a !important;
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
+}
+
+/* Dark mode specific override */
+@media (prefers-color-scheme: dark) {
+  .subsection-header h3 {
+    color: #f1f5f9 !important;
+  }
 }
 
 .subsection-content {

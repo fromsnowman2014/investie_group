@@ -66,9 +66,9 @@ describe('ClaudeService', () => {
 
       // Mock Anthropic API error
       if (mockAnthropic && mockAnthropic.messages) {
-        mockAnthropic.messages.create = jest.fn().mockRejectedValue(
-          new Error('API rate limit exceeded')
-        );
+        mockAnthropic.messages.create = jest
+          .fn()
+          .mockRejectedValue(new Error('API rate limit exceeded'));
       }
 
       const result = await service.generateResponse('test prompt');
@@ -85,7 +85,10 @@ describe('ClaudeService', () => {
       const mockSchema = '{"rating": "string", "confidence": "number"}';
 
       try {
-        const result = await service.generateStructuredResponse(mockPrompt, mockSchema);
+        const result = await service.generateStructuredResponse(
+          mockPrompt,
+          mockSchema,
+        );
         expect(result).toBeDefined();
         expect(typeof result).toBe('object');
       } catch (error) {
@@ -105,8 +108,11 @@ describe('ClaudeService', () => {
         });
       }
 
-      const result = await service.generateStructuredResponse(mockPrompt, mockSchema);
-      
+      const result = await service.generateStructuredResponse(
+        mockPrompt,
+        mockSchema,
+      );
+
       // Should return fallback structured response instead of throwing
       expect(result).toBeDefined();
       expect(result.rating).toBe('neutral');
@@ -141,7 +147,7 @@ describe('ClaudeService', () => {
   describe('fallback responses', () => {
     it('should provide intelligent fallback for stock queries', async () => {
       const stockPrompt = 'Analyze MSFT stock performance';
-      
+
       const result = await service.generateResponse(stockPrompt);
 
       expect(result).toBeDefined();
@@ -150,7 +156,7 @@ describe('ClaudeService', () => {
 
     it('should provide fear and greed fallback', async () => {
       const sentimentPrompt = 'What is the current fear and greed index?';
-      
+
       const originalEnv = process.env.ANTHROPIC_API_KEY;
       delete process.env.ANTHROPIC_API_KEY;
 

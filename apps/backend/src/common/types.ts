@@ -1,6 +1,15 @@
 // Shared TypeScript types for the backend
-export type StockSymbol = 'AAPL' | 'TSLA' | 'MSFT' | 'GOOGL' | 'AMZN' 
-                         | 'NVDA' | 'META' | 'NFLX' | 'AVGO' | 'AMD';
+export type StockSymbol =
+  | 'AAPL'
+  | 'TSLA'
+  | 'MSFT'
+  | 'GOOGL'
+  | 'AMZN'
+  | 'NVDA'
+  | 'META'
+  | 'NFLX'
+  | 'AVGO'
+  | 'AMD';
 
 export interface StockCardData {
   symbol: StockSymbol;

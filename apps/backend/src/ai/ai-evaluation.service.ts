@@ -13,7 +13,10 @@ export class AIEvaluationService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
-  async generateEvaluation(symbol: StockSymbol, stockData?: any): Promise<AIEvaluation> {
+  async generateEvaluation(
+    symbol: StockSymbol,
+    stockData?: any,
+  ): Promise<AIEvaluation> {
     try {
       // Check cache first (12-hour TTL for AI content)
       const cacheKey = `evaluation:${symbol}`;
@@ -31,13 +34,18 @@ export class AIEvaluationService {
 
       return evaluation;
     } catch (error) {
-      this.logger.error(`Failed to generate evaluation for ${symbol}: ${error.message}`);
+      this.logger.error(
+        `Failed to generate evaluation for ${symbol}: ${error.message}`,
+      );
       // Graceful fallback to enhanced mock data
       return this.getEnhancedMockEvaluation(symbol);
     }
   }
 
-  async refreshEvaluation(symbol: StockSymbol, stockData?: any): Promise<AIEvaluation> {
+  async refreshEvaluation(
+    symbol: StockSymbol,
+    stockData?: any,
+  ): Promise<AIEvaluation> {
     const cacheKey = `evaluation:${symbol}`;
     await this.cacheManager.del(cacheKey);
     return this.generateEvaluation(symbol, stockData);
@@ -62,24 +70,35 @@ export class AIEvaluationService {
     }
   }
 
-  private async generateFreshEvaluation(symbol: StockSymbol, stockData?: any): Promise<AIEvaluation> {
+  private async generateFreshEvaluation(
+    symbol: StockSymbol,
+    stockData?: any,
+  ): Promise<AIEvaluation> {
     const prompt = this.buildEvaluationPrompt(symbol, stockData);
     const schema = this.getEvaluationSchema();
 
     try {
-      const response = await this.claudeService.generateStructuredResponse<any>(prompt, schema);
+      const response = await this.claudeService.generateStructuredResponse<any>(
+        prompt,
+        schema,
+      );
 
       return {
         rating: this.mapRatingToStandardFormat(response.rating),
         confidence: response.confidence || 70,
         summary: response.summary || `Analysis for ${symbol} completed`,
-        keyFactors: response.keyFactors || ['Market conditions', 'Company fundamentals'],
+        keyFactors: response.keyFactors || [
+          'Market conditions',
+          'Company fundamentals',
+        ],
         timeframe: '3M',
         source: 'claude_ai',
         lastUpdated: new Date().toISOString(),
       };
     } catch (error) {
-      this.logger.error(`Claude service failed for ${symbol}: ${error.message}`);
+      this.logger.error(
+        `Claude service failed for ${symbol}: ${error.message}`,
+      );
       return this.getEnhancedMockEvaluation(symbol);
     }
   }
@@ -137,35 +156,65 @@ Be specific about ${symbol}'s business model, competitive advantages, and curren
 
   private getEnhancedMockEvaluation(symbol: StockSymbol): AIEvaluation {
     const evaluations: Partial<Record<StockSymbol, Partial<AIEvaluation>>> = {
-      'AAPL': {
-        summary: 'Apple demonstrates strong fundamentals with robust Services revenue growth and Vision Pro innovation potential. iPhone upgrade cycle momentum building despite supply chain challenges.',
+      AAPL: {
+        summary:
+          'Apple demonstrates strong fundamentals with robust Services revenue growth and Vision Pro innovation potential. iPhone upgrade cycle momentum building despite supply chain challenges.',
         rating: 'buy',
         confidence: 85,
-        keyFactors: ['Services revenue expansion', 'Vision Pro market opportunity', 'Strong balance sheet', 'AI integration across products'],
+        keyFactors: [
+          'Services revenue expansion',
+          'Vision Pro market opportunity',
+          'Strong balance sheet',
+          'AI integration across products',
+        ],
       },
-      'NVDA': {
-        summary: 'NVIDIA leads AI chip market with strong data center demand. Gaming recovery and automotive AI expansion provide diversification.',
+      NVDA: {
+        summary:
+          'NVIDIA leads AI chip market with strong data center demand. Gaming recovery and automotive AI expansion provide diversification.',
         rating: 'buy',
         confidence: 90,
-        keyFactors: ['AI chip market dominance', 'Data center demand surge', 'Gaming market recovery', 'Automotive AI partnerships'],
+        keyFactors: [
+          'AI chip market dominance',
+          'Data center demand surge',
+          'Gaming market recovery',
+          'Automotive AI partnerships',
+        ],
       },
-      'TSLA': {
-        summary: 'Tesla maintains EV leadership with expanding charging network and energy storage growth. Autonomous driving progress supports long-term value proposition.',
+      TSLA: {
+        summary:
+          'Tesla maintains EV leadership with expanding charging network and energy storage growth. Autonomous driving progress supports long-term value proposition.',
         rating: 'hold',
         confidence: 75,
-        keyFactors: ['EV market leadership', 'Supercharger network expansion', 'Energy storage growth', 'Autonomous driving development'],
+        keyFactors: [
+          'EV market leadership',
+          'Supercharger network expansion',
+          'Energy storage growth',
+          'Autonomous driving development',
+        ],
       },
-      'GOOGL': {
-        summary: 'Alphabet shows strong search dominance with cloud growth acceleration. AI integration across products positions for future growth.',
+      GOOGL: {
+        summary:
+          'Alphabet shows strong search dominance with cloud growth acceleration. AI integration across products positions for future growth.',
         rating: 'buy',
         confidence: 80,
-        keyFactors: ['Search market dominance', 'Cloud revenue acceleration', 'AI product integration', 'YouTube monetization'],
+        keyFactors: [
+          'Search market dominance',
+          'Cloud revenue acceleration',
+          'AI product integration',
+          'YouTube monetization',
+        ],
       },
-      'MSFT': {
-        summary: 'Microsoft benefits from cloud computing leadership and AI integration. Azure growth and productivity suite strength drive consistent performance.',
+      MSFT: {
+        summary:
+          'Microsoft benefits from cloud computing leadership and AI integration. Azure growth and productivity suite strength drive consistent performance.',
         rating: 'buy',
         confidence: 85,
-        keyFactors: ['Azure cloud dominance', 'AI integration across products', 'Enterprise software strength', 'Recurring revenue model'],
+        keyFactors: [
+          'Azure cloud dominance',
+          'AI integration across products',
+          'Enterprise software strength',
+          'Recurring revenue model',
+        ],
       },
     };
 
@@ -173,14 +222,24 @@ Be specific about ${symbol}'s business model, competitive advantages, and curren
       summary: `${symbol} analysis requires real-time market data integration. Current market conditions remain mixed with fundamental uncertainty.`,
       rating: 'hold' as const,
       confidence: 60,
-      keyFactors: ['Market volatility', 'Economic uncertainty', 'Sector performance', 'Technical indicators'],
+      keyFactors: [
+        'Market volatility',
+        'Economic uncertainty',
+        'Sector performance',
+        'Technical indicators',
+      ],
     };
 
     return {
-      summary: evaluation.summary || 'Stock evaluation unavailable at this time.',
+      summary:
+        evaluation.summary || 'Stock evaluation unavailable at this time.',
       rating: evaluation.rating || 'hold',
       confidence: evaluation.confidence || 50,
-      keyFactors: evaluation.keyFactors || ['Market conditions', 'Company fundamentals', 'Technical analysis'],
+      keyFactors: evaluation.keyFactors || [
+        'Market conditions',
+        'Company fundamentals',
+        'Technical analysis',
+      ],
       timeframe: '3M',
       source: 'claude_ai',
       lastUpdated: new Date().toISOString(),

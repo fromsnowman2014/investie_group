@@ -62,18 +62,22 @@ describe('StockValidatorHelper', () => {
 
     it('should attempt Yahoo Finance API validation for unknown symbols', async () => {
       const unknownSymbol = 'UNKNOWN';
-      
+
       const result = await service.validateSymbol(unknownSymbol);
 
       // Should process unknown symbols (format validation should pass)
       expect(result).toBeDefined();
       expect(result.symbol).toBe(unknownSymbol);
-      expect(['yahoo_finance_api', 'known_symbols_lookup', 'format_validation']).toContain(result.method);
+      expect([
+        'yahoo_finance_api',
+        'known_symbols_lookup',
+        'format_validation',
+      ]).toContain(result.method);
     });
 
     it('should handle validation errors gracefully', async () => {
       const unknownSymbol = 'BADSTOCK';
-      
+
       const result = await service.validateSymbol(unknownSymbol);
 
       expect(result).toBeDefined();
@@ -85,7 +89,7 @@ describe('StockValidatorHelper', () => {
 
     it('should process symbols consistently', async () => {
       const testSymbol = 'TEST';
-      
+
       const result = await service.validateSymbol(testSymbol);
 
       expect(result).toBeDefined();
@@ -136,7 +140,7 @@ describe('StockValidatorHelper', () => {
     it('should process validation in correct order', async () => {
       // Test with unknown symbol
       const testSymbol = 'UNKNOWN';
-      
+
       const result = await service.validateSymbol(testSymbol);
 
       // Should have attempted validation (regardless of result)

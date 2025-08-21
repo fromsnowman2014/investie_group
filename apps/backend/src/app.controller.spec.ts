@@ -19,7 +19,7 @@ describe('AppController', () => {
   describe('getApiInfo', () => {
     it('should return API information object', () => {
       const result = appController.getApiInfo();
-      
+
       expect(result).toBeDefined();
       expect(result.name).toBe('Investie API');
       expect(result.version).toBe('1.0.0');
@@ -35,7 +35,7 @@ describe('AppController', () => {
   describe('getHealth', () => {
     it('should return health status', () => {
       const result = appController.getHealth();
-      
+
       expect(result).toBeDefined();
       expect(result.status).toBe('healthy');
       expect(result.version).toBe('1.0.0');

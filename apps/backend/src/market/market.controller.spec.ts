@@ -37,7 +37,7 @@ describe('MarketController', () => {
       // Validate sectors array
       expect(Array.isArray(result.data.sectors)).toBe(true);
       expect(result.data.sectors.length).toBeGreaterThan(0);
-      
+
       if (result.data.sectors.length > 0) {
         expect(result.data.sectors[0].name).toBeDefined();
         expect(result.data.sectors[0].change).toBeDefined();
@@ -51,8 +51,12 @@ describe('MarketController', () => {
 
       expect(result1.data.indices).toEqual(result2.data.indices);
       expect(result1.data.sectors).toEqual(result2.data.sectors);
-      expect(result1.data.marketSentiment).toEqual(result2.data.marketSentiment);
-      expect(result1.data.volatilityIndex).toEqual(result2.data.volatilityIndex);
+      expect(result1.data.marketSentiment).toEqual(
+        result2.data.marketSentiment,
+      );
+      expect(result1.data.volatilityIndex).toEqual(
+        result2.data.volatilityIndex,
+      );
     });
   });
 
