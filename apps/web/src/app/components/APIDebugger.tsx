@@ -51,10 +51,13 @@ export default function APIDebugger() {
         <strong>API URL:</strong> 
         <div style={{ 
           wordBreak: 'break-all', 
-          color: process.env.NEXT_PUBLIC_API_URL ? '#10b981' : '#ef4444',
+          color: process.env.NEXT_PUBLIC_API_URL ? '#10b981' : '#f59e0b',
           fontWeight: 'bold'
         }}>
-          {process.env.NEXT_PUBLIC_API_URL || 'UNDEFINED - Will use localhost!'}
+          {process.env.NEXT_PUBLIC_API_URL || 
+           (process.env.NODE_ENV === 'production' 
+            ? 'Using Railway fallback' 
+            : 'Using localhost fallback')}
         </div>
       </div>
 
@@ -62,11 +65,14 @@ export default function APIDebugger() {
         <div style={{ 
           marginTop: '6px', 
           padding: '4px 6px',
-          backgroundColor: '#7f1d1d',
+          backgroundColor: '#92400e',
           borderRadius: '4px',
           fontSize: '10px'
         }}>
-          🚨 Set NEXT_PUBLIC_API_URL in Vercel
+          ⚠️ Using Railway fallback URL
+          <div style={{ marginTop: '2px', fontSize: '9px', opacity: 0.9 }}>
+            Set NEXT_PUBLIC_API_URL=https://investiegroup-production.up.railway.app
+          </div>
         </div>
       )}
       
