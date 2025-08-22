@@ -282,16 +282,6 @@ export default function MacroIndicatorsDashboard({ symbol: _ }: MacroIndicatorsD
             <div className="metric-label">Data Source</div>
             <div className="metric-value">{data.source === 'mock_data' ? 'Mock' : 'Live'}</div>
           </div>
-          <div className="metric-item">
-            <div className="metric-label">API Endpoint</div>
-            <div className="metric-value" style={{fontSize: '10px', wordBreak: 'break-all'}}>
-              {process.env.NEXT_PUBLIC_API_URL || 'localhost:3001'}
-            </div>
-          </div>
-          <div className="metric-item">
-            <div className="metric-label">Environment</div>
-            <div className="metric-value">{process.env.NODE_ENV}</div>
-          </div>
         </div>
       </div>
 
@@ -461,7 +451,8 @@ export default function MacroIndicatorsDashboard({ symbol: _ }: MacroIndicatorsD
 
         .metrics-section {
           display: flex;
-          gap: 20px;
+          justify-content: center;
+          gap: 40px;
           padding: 16px;
           background: #f8fafc;
           border-radius: 8px;
