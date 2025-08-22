@@ -1,5 +1,6 @@
 import useSWR from 'swr';
 import { MarketOverviewData, ApiResponse } from '@/types/api';
+import { debugFetch, logEnvironmentStatus } from '@/lib/api-utils';
 
 // Check if market is open (simplified - US Eastern time)
 const checkMarketHours = (): boolean => {
@@ -13,51 +14,35 @@ const checkMarketHours = (): boolean => {
 };
 
 const fetcher = async (url: string): Promise<MarketOverviewData> => {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-  const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+  console.log('📊 MacroIndicators Fetcher Starting:', url);
   
-  // Enhanced debugging for deployed environment
-  console.log('🔍 MacroIndicators API Debug:', {
-    originalUrl: url,
-    baseUrl: baseUrl,
-    fullUrl: fullUrl,
-    envApiUrl: process.env.NEXT_PUBLIC_API_URL,
-    timestamp: new Date().toISOString(),
-    isProduction: process.env.NODE_ENV === 'production'
-  });
+  // Log environment status for debugging
+  logEnvironmentStatus();
   
   try {
-    const response = await fetch(fullUrl);
-    
-    console.log('📡 API Response:', {
-      status: response.status,
-      statusText: response.statusText,
-      ok: response.ok,
-      url: response.url,
-      headers: Object.fromEntries(response.headers.entries())
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
-    }
-    
+    const response = await debugFetch(url);
     const result: ApiResponse<MarketOverviewData> = await response.json();
     
-    console.log('📊 Market Data Response:', {
-      hasData: !!result.data,
-      dataSource: result.data?.source,
-      indicesCount: Object.keys(result.data?.indices || {}).length,
-      sectorsCount: result.data?.sectors?.length || 0,
-      timestamp: result.timestamp
-    });
+    console.group('📊 MacroIndicators Data Analysis');
+    console.log('✅ Response received successfully');
+    console.log('📦 Has Data:', !!result.data);
+    console.log('🏷️ Data Source:', result.data?.source);
+    console.log('📈 Indices Count:', Object.keys(result.data?.indices || {}).length);
+    console.log('🏭 Sectors Count:', result.data?.sectors?.length || 0);
+    console.log('💰 S&P 500 Value:', result.data?.indices?.sp500?.value);
+    console.log('⏰ API Timestamp:', result.timestamp);
     
+    if (result.data?.source === 'mock_data') {
+      console.warn('⚠️ Still receiving mock data from backend');
+      console.warn('🔧 Check Railway Alpha Vantage API key configuration');
+    } else if (result.data?.source === 'alpha_vantage') {
+      console.log('✅ Real Alpha Vantage data confirmed!');
+    }
+    
+    console.groupEnd();
     return result.data;
   } catch (error) {
-    console.error('❌ MacroIndicators API Error:', {
-      error: error instanceof Error ? error.message : error,
-      fullUrl: fullUrl,
-      baseUrl: baseUrl
-    });
+    console.error('❌ MacroIndicators Fetcher Error:', error);
     throw error;
   }
 };
