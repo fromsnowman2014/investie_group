@@ -2,6 +2,7 @@
 
 import React from 'react';
 import useSWR from 'swr';
+import { debugFetch } from '@/lib/api-utils';
 
 interface AIAnalysisData {
   symbol: string;
@@ -24,21 +25,11 @@ interface AIInvestmentOpinionProps {
 }
 
 const fetcher = async (url: string) => {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-  const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
-  
-  console.log('🤖 AI Analysis API Request:', {
-    originalUrl: url,
-    baseUrl: baseUrl,
-    fullUrl: fullUrl,
-    timestamp: new Date().toISOString()
-  });
-  
-  const response = await fetch(fullUrl);
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  return response.json();
+  console.log('🤖 AI Analysis Fetcher Starting:', url);
+  const response = await debugFetch(url);
+  const data = await response.json();
+  console.log('🤖 AI Analysis Data:', data);
+  return data;
 };
 
 export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps) {
