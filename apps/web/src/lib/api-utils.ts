@@ -37,8 +37,9 @@ export function getApiBaseUrl(): string {
   if (nodeEnv === 'production' && isClient) {
     console.error('🚨 CRITICAL: NEXT_PUBLIC_API_URL not set in production!');
     console.error('🔧 Please set the Railway backend URL in Vercel environment variables');
-    // Return a placeholder that will fail gracefully
-    return 'https://railway-backend-not-configured.invalid';
+    console.error('🔧 Expected URL: https://investiegroup-production.up.railway.app');
+    // Use the Railway URL as fallback based on the provided domain info
+    return 'https://investiegroup-production.up.railway.app';
   }
   
   // Development fallback
@@ -87,10 +88,10 @@ export async function debugFetch(url: string, options?: RequestInit): Promise<Re
     console.error('🔧 Current Full URL:', debugInfo.fullUrl);
   }
 
-  // Check for invalid URLs
-  if (debugInfo.fullUrl.includes('railway-backend-not-configured.invalid')) {
-    console.error('🚨 CRITICAL: Railway backend URL not configured!');
-    console.error('🔧 Set NEXT_PUBLIC_API_URL in Vercel environment variables');
+  // Check for missing environment variable (using fallback)
+  if (!debugInfo.envApiUrl && debugInfo.nodeEnv === 'production') {
+    console.warn('⚠️ Using Railway URL fallback (NEXT_PUBLIC_API_URL not set)');
+    console.warn('🔧 For better performance, set NEXT_PUBLIC_API_URL in Vercel to: https://investiegroup-production.up.railway.app');
   }
 
   console.groupEnd();
