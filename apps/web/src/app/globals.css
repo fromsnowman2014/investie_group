@@ -30,11 +30,11 @@
   --color-border: #e2e8f0;
   --color-border-light: #f1f5f9;
   
-  /* Text Colors */
-  --color-text-primary: #0f172a;
-  --color-text-secondary: #475569;
-  --color-text-tertiary: #94a3b8;
-  --color-text-inverse: #ffffff;
+  /* Text Colors - Light Mode Only */
+  --color-text-primary: #0f172a;    /* Dark text for light backgrounds */
+  --color-text-secondary: #475569;  /* Medium gray for secondary text */
+  --color-text-tertiary: #94a3b8;   /* Light gray for tertiary text */
+  --color-text-inverse: #ffffff;    /* White text for dark backgrounds */
   
   /* Chart Colors */
   --color-chart-positive: #10b981;
@@ -77,23 +77,8 @@
   color: var(--color-text-primary);
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-background: #0f172a;
-    --color-surface: #1e293b;
-    --color-surface-elevated: #334155;
-    --color-border: #334155;
-    --color-border-light: #475569;
-    
-    --color-text-primary: #f1f5f9;
-    --color-text-secondary: #cbd5e1;
-    --color-text-tertiary: #64748b;
-    --color-text-inverse: #0f172a;
-    
-    --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-  }
-}
+/* Force Light Mode Only - Dark mode completely disabled */
+/* Removed @media (prefers-color-scheme: dark) to prevent automatic theme switching */
 
 * {
   box-sizing: border-box;
@@ -802,18 +787,13 @@ body {
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #0f172a !important;
+  color: var(--color-text-primary) !important;  /* Consistent dark text for light theme */
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
 }
 
-/* Dark mode specific override */
-@media (prefers-color-scheme: dark) {
-  .subsection-header h3 {
-    color: #f1f5f9 !important;
-  }
-}
+/* Light mode only - no dark mode overrides needed */
 
 .subsection-content {
   flex: 1;
