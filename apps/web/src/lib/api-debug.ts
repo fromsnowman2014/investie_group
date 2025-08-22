@@ -131,7 +131,11 @@ class APIDebugger {
   // Add to window object for manual debugging
   addToWindow() {
     if (typeof window !== 'undefined') {
-      (window as any).apiDebugger = this;
+      // Extend Window interface to include apiDebugger
+      interface WindowWithDebugger {
+        apiDebugger: APIDebugger;
+      }
+      (window as unknown as WindowWithDebugger).apiDebugger = this;
       console.log('🔍 API Debugger available at window.apiDebugger');
       console.log('📋 Use window.apiDebugger.getLogs() to see all requests');
       console.log('🧹 Use window.apiDebugger.clearLogs() to clear logs');

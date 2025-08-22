@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 export default function APIDebugger() {
   useEffect(() => {
     // Dynamic import to avoid SSR issues
-    import('@/lib/api-debug').then(({ apiDebugger }) => {
+    import('@/lib/api-debug').then(() => {
       console.log('🔍 API Debugger initialized');
       
       // Display current environment info
