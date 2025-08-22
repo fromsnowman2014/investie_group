@@ -39,14 +39,14 @@ const fetcher = async (url: string) => {
   return result.data;
 };
 
-export default function EnhancedMacroIndicatorsDashboard({ symbol }: MacroIndicatorsDashboardProps) {
+export default function EnhancedMacroIndicatorsDashboard({ symbol: _ }: MacroIndicatorsDashboardProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'movers'>('overview');
   
   const { 
     marketData: data, 
     error, 
     isLoading, 
-    isEmpty, 
+    isEmpty: _isEmpty, 
     isMarketOpen, 
     refetch: mutate 
   } = useMacroIndicatorsData();

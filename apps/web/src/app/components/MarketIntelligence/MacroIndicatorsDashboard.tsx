@@ -7,12 +7,12 @@ interface MacroIndicatorsDashboardProps {
   symbol?: string;
 }
 
-export default function MacroIndicatorsDashboard({ symbol }: MacroIndicatorsDashboardProps) {
+export default function MacroIndicatorsDashboard({ symbol: _ }: MacroIndicatorsDashboardProps) {
   const { 
     marketData: data, 
     error, 
     isLoading, 
-    isEmpty, 
+    isEmpty: _isEmpty, 
     isMarketOpen, 
     refetch: mutate 
   } = useMacroIndicatorsData();
