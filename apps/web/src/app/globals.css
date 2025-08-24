@@ -849,15 +849,16 @@ body {
   padding: var(--spacing-md);
   gap: var(--spacing-lg);
   
-  /* 5-Row Layout for Desktop (1024px+) */
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 250px 200px 300px 400px 250px;
+  /* 5-Row Layout for Desktop (1024px+) - Symmetric 50:50 Design */
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 250px 200px 300px 400px 250px 250px;
   grid-template-areas: 
-    "ai-opinion ai-opinion ai-opinion"           /* Row 1: Full width */
-    "stock-profile stock-profile macro-indicators" /* Row 2: 2/3 + 1/3 = Full width ✅ */
-    "news-analysis news-analysis news-analysis" /* Row 3: Full width */
-    "advanced-chart advanced-chart tech-analysis" /* Row 4: 2/3 + 1/3 */
-    "company-widget fundamental-widget stories-widget"; /* Row 5: Three equal */
+    "ai-opinion ai-opinion"                      /* Row 1: Full width */
+    "stock-profile macro-indicators"             /* Row 2: 50% + 50% = Perfect symmetry ✅ */
+    "news-analysis news-analysis"                /* Row 3: Full width */
+    "advanced-chart tech-analysis"               /* Row 4: 50% + 50% */
+    "company-widget fundamental-widget"          /* Row 5a: 50% + 50% */
+    "stories-widget stories-widget";             /* Row 5b: Full width */
 }
 
 /* Section assignments for optimized grid */
@@ -944,7 +945,7 @@ body {
     grid-template-rows: 200px 180px 250px 300px 300px 250px 250px;
     grid-template-areas: 
       "ai-opinion ai-opinion"
-      "stock-profile macro-indicators"  
+      "stock-profile macro-indicators"         /* 50% + 50% - Perfect symmetry */
       "news-analysis news-analysis"
       "advanced-chart advanced-chart"
       "tech-analysis tech-analysis"
