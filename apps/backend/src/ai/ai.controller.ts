@@ -1,4 +1,10 @@
-import { Controller, Get, Param, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { ClaudeService } from './claude.service';
 import { AIEvaluationService } from './ai-evaluation.service';
 
@@ -88,7 +94,9 @@ export class AIController {
       }
 
       // Generate AI evaluation for the stock
-      const evaluation = await this.aiEvaluationService.generateEvaluation(cleanSymbol as any);
+      const evaluation = await this.aiEvaluationService.generateEvaluation(
+        cleanSymbol as any,
+      );
 
       return {
         success: true,
