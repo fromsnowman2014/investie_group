@@ -12,6 +12,7 @@ interface MainLayoutProps {
   technicalAnalysis: React.ReactNode;
   companyProfile: React.ReactNode;
   fundamentalData: React.ReactNode;
+  topStories: React.ReactNode;
 }
 
 export default function MainLayout({
@@ -23,7 +24,8 @@ export default function MainLayout({
   advancedChart,
   technicalAnalysis,
   companyProfile,
-  fundamentalData
+  fundamentalData,
+  topStories
 }: MainLayoutProps) {
   return (
     <div className="main-layout">
@@ -88,7 +90,7 @@ export default function MainLayout({
           </div>
         </section>
 
-        {/* Row 5: Two Sub Widgets (Half Width Each) */}
+        {/* Row 5: Three Sub Widgets (Third Width Each) */}
         <section className="company-profile-section">
           <div className="section-header">
             <h2>🏢 Company</h2>
@@ -104,6 +106,15 @@ export default function MainLayout({
           </div>
           <div className="section-content">
             {fundamentalData}
+          </div>
+        </section>
+
+        <section className="top-stories-section">
+          <div className="section-header">
+            <h2>📰 Stories</h2>
+          </div>
+          <div className="section-content">
+            {topStories}
           </div>
         </section>
       </div>

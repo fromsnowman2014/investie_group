@@ -850,14 +850,14 @@ body {
   gap: var(--spacing-lg);
   
   /* 5-Row Layout for Desktop (1024px+) */
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 250px 200px 300px 400px 250px;
   grid-template-areas: 
-    "ai-opinion ai-opinion"                      /* Row 1: Full width */
-    "stock-profile macro-indicators"             /* Row 2: Half + Half (full width) */
-    "news-analysis news-analysis"                /* Row 3: Full width */
-    "advanced-chart tech-analysis"               /* Row 4: Half + Half */
-    "company-widget fundamental-widget";         /* Row 5: Half + Half */
+    "ai-opinion ai-opinion ai-opinion"           /* Row 1: Full width */
+    "stock-profile macro-indicators ."           /* Row 2: Half + Half + Empty */
+    "news-analysis news-analysis news-analysis" /* Row 3: Full width */
+    "advanced-chart advanced-chart tech-analysis" /* Row 4: 2/3 + 1/3 */
+    "company-widget fundamental-widget stories-widget"; /* Row 5: Three equal */
 }
 
 /* Section assignments for optimized grid */
@@ -941,13 +941,15 @@ body {
 @media (max-width: 1023px) {
   .optimized-content-grid {
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 200px 180px 250px 300px 250px;
+    grid-template-rows: 200px 180px 250px 300px 300px 250px 250px;
     grid-template-areas: 
       "ai-opinion ai-opinion"
       "stock-profile macro-indicators"  
       "news-analysis news-analysis"
-      "advanced-chart tech-analysis"
-      "company-widget fundamental-widget";
+      "advanced-chart advanced-chart"
+      "tech-analysis tech-analysis"
+      "company-widget fundamental-widget"
+      "stories-widget stories-widget";
   }
 }
 
