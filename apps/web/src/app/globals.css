@@ -851,7 +851,7 @@ body {
   
   /* 5-Row Layout for Desktop (1024px+) - Symmetric 50:50 Design */
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 250px 200px 300px 400px 250px 250px;
+  grid-template-rows: 250px 300px 300px 400px 300px 300px;
   grid-template-areas: 
     "ai-opinion ai-opinion"                      /* Row 1: Full width */
     "stock-profile macro-indicators"             /* Row 2: 50% + 50% = Perfect symmetry ✅ */
@@ -916,15 +916,16 @@ body {
   flex-shrink: 0;
 }
 
-/* Optimized section content - no internal scrolling */
+/* Optimized section content - dynamic scrolling enabled */
 .ai-investment-opinion-section .section-content,
 .stock-profile-section .section-content,
 .macro-indicators-section .section-content,
 .ai-news-analysis-section .section-content {
   flex: 1;
   padding: var(--spacing-sm);
-  overflow: hidden; /* No scrolling - content must fit */
+  overflow: auto; /* Enable dynamic scrolling when content exceeds height */
   background: #ffffff;
+  position: relative; /* For scroll fade effect */
 }
 
 /* Chart sections can have slight overflow for precision */
@@ -2406,7 +2407,7 @@ body {
   background: var(--color-primary);
 }
 
-/* Scroll Fade Effect */
+/* Enhanced Scroll Fade Effect for Dynamic Content */
 .section-content::after {
   content: '';
   position: absolute;
@@ -2420,8 +2421,33 @@ body {
   transition: opacity 0.3s ease;
 }
 
+/* Show fade effect when content is scrollable */
 .section-content:hover::after {
   opacity: 1;
+}
+
+/* Improved scrollbar for Stock Profile and Macro Indicators */
+.stock-profile-section .section-content::-webkit-scrollbar,
+.macro-indicators-section .section-content::-webkit-scrollbar {
+  width: 8px; /* Slightly wider for better usability */
+}
+
+.stock-profile-section .section-content::-webkit-scrollbar-track,
+.macro-indicators-section .section-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.stock-profile-section .section-content::-webkit-scrollbar-thumb,
+.macro-indicators-section .section-content::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+  border: 1px solid var(--color-border-light);
+}
+
+.stock-profile-section .section-content::-webkit-scrollbar-thumb:hover,
+.macro-indicators-section .section-content::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
 }
 
 /* ==================================================
