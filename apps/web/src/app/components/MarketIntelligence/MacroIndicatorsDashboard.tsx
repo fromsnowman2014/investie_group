@@ -203,49 +203,54 @@ export default function MacroIndicatorsDashboard({ symbol: _ }: MacroIndicatorsD
       </div>
 
       <div className="macro-content">
-        {/* Major Indices */}
+        {/* Major Indices - Compact Layout */}
         <div className="indices-section">
-          <div className="section-title">Major Indices</div>
-          <div className="indices-grid">
-            <div className="index-card">
-              <div className="index-header">
-                <div className="index-name">S&P 500</div>
-                <div className="index-symbol">SPY</div>
+          <div className="indices-compact">
+            <div className="index-row">
+              <div className="index-info">
+                <span className="index-name">S&P 500</span>
+                <span className="index-symbol">SPY</span>
               </div>
-              <div className="index-value">{formatValue(data.indices.sp500.value)}</div>
-              <div 
-                className="index-change"
-                style={{ color: getChangeColor(data.indices.sp500.change) }}
-              >
-                {formatChange(data.indices.sp500.change, data.indices.sp500.changePercent)}
-              </div>
-            </div>
-            
-            <div className="index-card">
-              <div className="index-header">
-                <div className="index-name">NASDAQ</div>
-                <div className="index-symbol">QQQ</div>
-              </div>
-              <div className="index-value">{formatValue(data.indices.nasdaq.value)}</div>
-              <div 
-                className="index-change"
-                style={{ color: getChangeColor(data.indices.nasdaq.change) }}
-              >
-                {formatChange(data.indices.nasdaq.change, data.indices.nasdaq.changePercent)}
+              <div className="index-metrics">
+                <span className="index-value">{formatValue(data.indices.sp500.value)}</span>
+                <span 
+                  className="index-change"
+                  style={{ color: getChangeColor(data.indices.sp500.change) }}
+                >
+                  {formatChange(data.indices.sp500.change, data.indices.sp500.changePercent)}
+                </span>
               </div>
             </div>
             
-            <div className="index-card">
-              <div className="index-header">
-                <div className="index-name">Dow Jones</div>
-                <div className="index-symbol">DIA</div>
+            <div className="index-row">
+              <div className="index-info">
+                <span className="index-name">NASDAQ</span>
+                <span className="index-symbol">QQQ</span>
               </div>
-              <div className="index-value">{formatValue(data.indices.dow.value)}</div>
-              <div 
-                className="index-change"
-                style={{ color: getChangeColor(data.indices.dow.change) }}
-              >
-                {formatChange(data.indices.dow.change, data.indices.dow.changePercent)}
+              <div className="index-metrics">
+                <span className="index-value">{formatValue(data.indices.nasdaq.value)}</span>
+                <span 
+                  className="index-change"
+                  style={{ color: getChangeColor(data.indices.nasdaq.change) }}
+                >
+                  {formatChange(data.indices.nasdaq.change, data.indices.nasdaq.changePercent)}
+                </span>
+              </div>
+            </div>
+            
+            <div className="index-row">
+              <div className="index-info">
+                <span className="index-name">Dow Jones</span>
+                <span className="index-symbol">DIA</span>
+              </div>
+              <div className="index-metrics">
+                <span className="index-value">{formatValue(data.indices.dow.value)}</span>
+                <span 
+                  className="index-change"
+                  style={{ color: getChangeColor(data.indices.dow.change) }}
+                >
+                  {formatChange(data.indices.dow.change, data.indices.dow.changePercent)}
+                </span>
               </div>
             </div>
           </div>
@@ -277,10 +282,6 @@ export default function MacroIndicatorsDashboard({ symbol: _ }: MacroIndicatorsD
           <div className="metric-item">
             <div className="metric-label">VIX (Volatility)</div>
             <div className="metric-value">{data.volatilityIndex.toFixed(2)}</div>
-          </div>
-          <div className="metric-item">
-            <div className="metric-label">Data Source</div>
-            <div className="metric-value">{data.source === 'mock_data' ? 'Mock' : 'Live'}</div>
           </div>
         </div>
       </div>
@@ -369,24 +370,32 @@ export default function MacroIndicatorsDashboard({ symbol: _ }: MacroIndicatorsD
           margin-bottom: 12px;
         }
 
-        .indices-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 16px;
-        }
-
-        .index-card {
+        .indices-compact {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
           background: #f8fafc;
           border-radius: 8px;
           padding: 16px;
           border: 1px solid #e2e8f0;
         }
 
-        .index-header {
+        .index-row {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 8px;
+          padding: 8px 0;
+          border-bottom: 1px solid #e5e7eb;
+        }
+
+        .index-row:last-child {
+          border-bottom: none;
+        }
+
+        .index-info {
+          display: flex;
+          align-items: center;
+          gap: 8px;
         }
 
         .index-name {
@@ -396,18 +405,24 @@ export default function MacroIndicatorsDashboard({ symbol: _ }: MacroIndicatorsD
         }
 
         .index-symbol {
-          font-size: 12px;
+          font-size: 11px;
           color: #6b7280;
           background: #e5e7eb;
           padding: 2px 6px;
           border-radius: 4px;
+          font-weight: 500;
+        }
+
+        .index-metrics {
+          display: flex;
+          align-items: center;
+          gap: 12px;
         }
 
         .index-value {
-          font-size: 20px;
+          font-size: 16px;
           font-weight: 700;
           color: #1e293b;
-          margin-bottom: 4px;
         }
 
         .index-change {
@@ -612,8 +627,19 @@ export default function MacroIndicatorsDashboard({ symbol: _ }: MacroIndicatorsD
             justify-content: space-between;
           }
 
-          .indices-grid {
-            grid-template-columns: 1fr;
+          .indices-compact {
+            padding: 12px;
+          }
+          
+          .index-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+          }
+          
+          .index-metrics {
+            align-self: flex-end;
+            gap: 8px;
           }
 
           .sectors-grid {
