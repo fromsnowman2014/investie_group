@@ -3,6 +3,7 @@
 import React from 'react';
 import useSWR from 'swr';
 import { debugFetch } from '@/lib/api-utils';
+import FinancialExpandableSection from '../FinancialExpandableSection';
 
 interface AIAnalysisData {
   symbol: string;
@@ -108,7 +109,7 @@ export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps
   return (
     <div className="ai-investment-opinion">
       {/* AI Recommendation Header */}
-      <div className="recommendation-header">
+      <div className="recommendation-header data-density-high">
         <div className="rec-badge-container">
           <div 
             className="recommendation-badge"
@@ -130,65 +131,97 @@ export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps
       {/* Price Analysis */}
       <div className="price-analysis">
         <div className="price-card current-price">
-          <div className="price-label">Current Price</div>
-          <div className="price-value">{formatPrice(data.currentPrice)}</div>
-          <div className={`price-change ${data.priceChange >= 0 ? 'positive' : 'negative'}`}>
-            {formatPrice(data.priceChange)} ({formatPercent(data.priceChangePercent)})
+          <div className="data-row">
+            <span className="data-label">Current Price</span>
+            <span className="data-value financial-data-large">{formatPrice(data.currentPrice)}</span>
+          </div>
+          <div className="data-row">
+            <span className="data-label">Change</span>
+            <span className={`data-value financial-data ${data.priceChange >= 0 ? 'price-positive' : 'price-negative'}`}>
+              {formatPrice(data.priceChange)} ({formatPercent(data.priceChangePercent)})
+            </span>
           </div>
         </div>
         <div className="price-card target-price">
-          <div className="price-label">Target Price</div>
-          <div className="price-value">{formatPrice(data.targetPrice)}</div>
-          <div className="upside-potential">
-            {formatPercent(((data.targetPrice - data.currentPrice) / data.currentPrice) * 100)} upside
+          <div className="data-row">
+            <span className="data-label">Target Price</span>
+            <span className="data-value financial-data-large">{formatPrice(data.targetPrice)}</span>
+          </div>
+          <div className="data-row">
+            <span className="data-label">Upside</span>
+            <span className="data-value financial-data price-positive">
+              {formatPercent(((data.targetPrice - data.currentPrice) / data.currentPrice) * 100)}
+            </span>
           </div>
         </div>
       </div>
 
       {/* Investment Rating */}
       <div className="investment-rating">
-        <div className="rating-header">
-          <span className="rating-label">Investment Rating</span>
-          <span className="rating-value">{data.investmentRating}/10</span>
+        <div className="data-row">
+          <span className="data-label">Investment Rating</span>
+          <span className="data-value financial-data-large">{data.investmentRating}/10</span>
         </div>
-        <div className="rating-bar">
+        <div className="rating-bar mt-2 h-2 bg-gray-200 rounded">
           <div 
-            className="rating-fill"
+            className="rating-fill h-full bg-blue-600 rounded transition-all duration-300"
             style={{ width: `${(data.investmentRating / 10) * 100}%` }}
           ></div>
         </div>
-        <div className="rating-description">{getRatingLabel(data.investmentRating)}</div>
+        <div className="metadata-text mt-1 text-center">{getRatingLabel(data.investmentRating)}</div>
       </div>
 
-      {/* Analysis Points */}
-      <div className="analysis-sections">
-        <div className="analysis-section key-points">
-          <h4>💡 Key Points</h4>
-          <ul>
-            {data.keyPoints.map((point, index) => (
-              <li key={index}>{point}</li>
-            ))}
-          </ul>
-        </div>
+      {/* Analysis Points - Using FinancialExpandableSection */}
+      <FinancialExpandableSection
+        title="Analysis Details"
+        dataType="analysis"
+        priority="important"
+        initialHeight={{
+          mobile: 150,
+          tablet: 200,
+          desktop: 250
+        }}
+        metrics={{
+          confidence: data.confidence,
+          lastUpdated: new Date(data.analysisDate)
+        }}
+        className="mb-4"
+      >
+        <div className="analysis-sections">
+          <div className="analysis-section key-points mb-4">
+            <h4 className="financial-title mb-2 flex items-center gap-1">
+              <span>💡</span> Key Points
+            </h4>
+            <ul className="space-y-1">
+              {data.keyPoints.map((point, index) => (
+                <li key={index} className="supporting-text">{point}</li>
+              ))}
+            </ul>
+          </div>
 
-        <div className="analysis-section opportunities">
-          <h4>🚀 Opportunities</h4>
-          <ul>
-            {data.opportunities.map((opportunity, index) => (
-              <li key={index}>{opportunity}</li>
-            ))}
-          </ul>
-        </div>
+          <div className="analysis-section opportunities mb-4">
+            <h4 className="financial-title mb-2 flex items-center gap-1">
+              <span>🚀</span> Opportunities
+            </h4>
+            <ul className="space-y-1">
+              {data.opportunities.map((opportunity, index) => (
+                <li key={index} className="supporting-text">{opportunity}</li>
+              ))}
+            </ul>
+          </div>
 
-        <div className="analysis-section risks">
-          <h4>⚠️ Risks</h4>
-          <ul>
-            {data.risks.map((risk, index) => (
-              <li key={index}>{risk}</li>
-            ))}
-          </ul>
+          <div className="analysis-section risks">
+            <h4 className="financial-title mb-2 flex items-center gap-1">
+              <span>⚠️</span> Risks
+            </h4>
+            <ul className="space-y-1">
+              {data.risks.map((risk, index) => (
+                <li key={index} className="supporting-text">{risk}</li>
+              ))}
+            </ul>
+          </div>
         </div>
-      </div>
+      </FinancialExpandableSection>
 
       {/* Disclaimer */}
       <div className="ai-disclaimer">

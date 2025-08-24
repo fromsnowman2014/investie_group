@@ -13,15 +13,31 @@
   --spacing-2xl: 48px;
   --spacing-3xl: 64px;
 
-  /* Color System - Light Mode */
+  /* Financial Color System - Light Mode */
   --color-primary: #2563eb;
   --color-primary-light: #3b82f6;
   --color-primary-dark: #1d4ed8;
+  --color-primary-rgb: 37, 99, 235;
   
   --color-secondary: #7c3aed;
   --color-success: #059669;
   --color-warning: #d97706;
   --color-error: #dc2626;
+  
+  /* Financial Semantic Colors */
+  --color-positive: #00C853;       /* Green for gains */
+  --color-negative: #FF1744;       /* Red for losses */
+  --color-neutral: #757575;        /* Gray for neutral */
+  
+  /* Financial Confidence Levels */
+  --color-high-confidence: #1976D2;    /* Strong blue */
+  --color-medium-confidence: #FFC107;  /* Amber */
+  --color-low-confidence: #9E9E9E;     /* Gray */
+  
+  /* Financial Data Categories */
+  --color-primary-data: #212121;       /* Main figures */
+  --color-secondary-data: #616161;     /* Supporting data */
+  --color-metadata: #9E9E9E;           /* Timestamps, sources */
   
   /* Surface Colors - Light Theme */
   --color-background: #ffffff;
@@ -58,9 +74,24 @@
   --radius-lg: 12px;
   --radius-xl: 16px;
   
-  /* Typography */
+  /* Financial Typography System */
   --font-family-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   --font-family-mono: 'SF Mono', Monaco, 'Inconsolata', 'Roboto Mono', 'Source Code Pro', monospace;
+  
+  /* Financial Typography Scale - Optimized for data density */
+  --font-size-xs: 11px;           /* Metadata, timestamps */
+  --font-size-sm: 12px;           /* Supporting text, labels */
+  --font-size-base: 14px;         /* Base text, standard content */
+  --font-size-md: 15px;           /* Financial data, important numbers */
+  --font-size-lg: 16px;           /* Mobile headings */
+  --font-size-xl: 18px;           /* Desktop section titles */
+  --font-size-2xl: 20px;          /* Main headings */
+  
+  /* Financial Line Heights - Optimized for scanability */
+  --line-height-tight: 1.3;       /* Dense data layouts */
+  --line-height-snug: 1.4;        /* Financial data, numbers */
+  --line-height-normal: 1.5;      /* Longer text content */
+  --line-height-relaxed: 1.6;     /* Descriptive paragraphs */
   
   /* Layout Variables */
   --header-height: 64px;
@@ -89,8 +120,9 @@ body {
   padding: 0;
   background: var(--color-background);
   font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);    /* 14px base */
   color: var(--color-text-primary);
-  line-height: 1.6;
+  line-height: var(--line-height-normal); /* 1.5 */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -118,10 +150,11 @@ body {
   display: grid;
   max-width: var(--content-max-width);
   margin: 0 auto;
-  padding: var(--spacing-lg);
-  gap: var(--spacing-xl);
+  padding: var(--spacing-md);          /* 24px → 16px */
+  gap: var(--spacing-lg);              /* 32px → 24px */
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 600px auto;
+  grid-template-rows: auto auto;       /* 600px → auto */
+  align-items: start;                  /* Align to top */
   grid-template-areas: 
     "ai-analysis market-intelligence"
     "chart-analysis chart-analysis";
@@ -151,12 +184,15 @@ body {
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
+  padding: var(--spacing-md);          /* Add consistent padding */
 }
 
 /* Equal height for top sections */
 .ai-analysis-section,
 .market-intelligence-section {
-  height: 600px;
+  min-height: 400px;                   /* 600px → 400px */
+  height: auto;                        /* Allow dynamic height */
+  max-height: none;                    /* Remove height restrictions */
 }
 
 .ai-analysis-section:hover,
@@ -168,7 +204,7 @@ body {
 }
 
 .section-header {
-  padding: var(--spacing-lg) var(--spacing-xl);
+  padding: var(--spacing-sm) var(--spacing-md); /* More compact */
   background: #f8fafc;
   border-bottom: 1px solid var(--color-border-light);
   flex-shrink: 0;
@@ -176,17 +212,21 @@ body {
 
 .section-header h2 {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: var(--font-size-xl);      /* 18px - Optimized for data density */
+  line-height: var(--line-height-snug); /* 1.4 */
   font-weight: 600;
+  letter-spacing: -0.02em;             /* Improved readability */
   color: var(--color-text-primary);
-  /* Removed gradient text for better visibility in light theme */
 }
 
 .section-content {
   flex: 1;
-  padding: var(--spacing-xl);
+  padding: var(--spacing-md);          /* 32px → 16px */
   overflow: auto;
   background: #ffffff;
+  max-height: 500px;                   /* Smart scrolling limit */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
 }
 
 /* 2025 Modern Header Styles */
@@ -679,20 +719,15 @@ body {
 
 /* Responsive Design System */
 
-/* Tablet breakpoint */
-@media (max-width: 1024px) {
-  .content-grid {
-    max-width: 100%;
-    padding: var(--spacing-md);
-    gap: var(--spacing-lg);
-  }
-}
+/* ==================================================
+   FINANCIAL MOBILE-FIRST RESPONSIVE SYSTEM
+   ================================================== */
 
-/* Mobile breakpoint */
-@media (max-width: 768px) {
+/* Mobile First (320px+) - Critical Information Only */
+@media (max-width: 767px) {
   .content-grid {
     grid-template-columns: 1fr;
-    grid-template-rows: 500px 500px auto;
+    grid-template-rows: auto auto auto;
     grid-template-areas: 
       "ai-analysis"
       "market-intelligence" 
@@ -703,41 +738,304 @@ body {
   
   .ai-analysis-section,
   .market-intelligence-section {
-    height: 500px;
+    min-height: 300px;                 /* Drastically reduced from 500px */
+    padding: var(--spacing-sm);
   }
   
   .section-header {
-    padding: var(--spacing-md) var(--spacing-lg);
-  }
-  
-  .section-content {
-    padding: var(--spacing-lg);
+    padding: var(--spacing-xs) var(--spacing-sm);
   }
   
   .section-header h2 {
-    font-size: 1.125rem;
+    font-size: var(--font-size-lg);    /* 16px on mobile */
+  }
+  
+  .section-content {
+    padding: var(--spacing-sm);
+    max-height: 250px;                 /* Tighter scrolling */
+  }
+  
+  .financial-data {
+    font-size: var(--font-size-base);  /* 14px on mobile */
+    line-height: var(--line-height-tight); /* 1.3 for compactness */
+  }
+  
+  /* Hide supplementary data on mobile */
+  .data-priority-supplementary {
+    display: none;
+  }
+  
+  .data-row {
+    min-height: 24px;                  /* Tighter rows */
+    padding: 2px 0;
   }
 }
 
-/* Small mobile breakpoint */
-@media (max-width: 480px) {
+/* Tablet (768px+) - Add Important Information */
+@media (min-width: 768px) {
   .content-grid {
-    grid-template-rows: 450px 450px auto;
-    padding: var(--spacing-xs);
-    gap: var(--spacing-sm);
+    max-width: 100%;
+    padding: var(--spacing-md);
+    gap: var(--spacing-lg);
   }
   
   .ai-analysis-section,
   .market-intelligence-section {
-    height: 450px;
-  }
-  
-  .section-header {
-    padding: var(--spacing-sm) var(--spacing-md);
+    min-height: 350px;
+    padding: var(--spacing-md);
   }
   
   .section-content {
-    padding: var(--spacing-md);
+    max-height: 400px;
+  }
+  
+  .data-priority-important {
+    display: block;
+  }
+}
+
+/* Desktop (1024px+) - Full Information Display */
+@media (min-width: 1024px) {
+  .ai-analysis-section,
+  .market-intelligence-section {
+    min-height: 400px;
+  }
+  
+  .section-content {
+    max-height: 500px;
+  }
+  
+  .data-priority-supplementary {
+    display: block;
+    opacity: 0.8;
+  }
+}
+
+/* Container Query Support for Modern Browsers */
+@supports (container-type: inline-size) {
+  .ai-analysis-section,
+  .market-intelligence-section {
+    container-type: inline-size;
+  }
+  
+  @container (max-width: 400px) {
+    .section-content {
+      font-size: var(--font-size-sm);
+      padding: var(--spacing-xs);
+    }
+    
+    .data-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+    }
+    
+    .data-value {
+      text-align: left;
+    }
+  }
+}
+
+/* ==================================================
+   PHASE 2: OPTIMIZED CONTENT GRID SYSTEM
+   5-Row Layout with Information Priority-Based Space Allocation
+   ================================================== */
+
+/* New optimized content grid - replacing .content-grid for Phase 2 */
+.optimized-content-grid {
+  display: grid;
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: var(--spacing-md);
+  gap: var(--spacing-lg);
+  
+  /* 5-Row Layout for Desktop (1024px+) */
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 250px 200px 300px 400px 250px;
+  grid-template-areas: 
+    "ai-opinion ai-opinion"                      /* Row 1: Full width */
+    "stock-profile macro-indicators"             /* Row 2: Half + Half (full width) */
+    "news-analysis news-analysis"                /* Row 3: Full width */
+    "advanced-chart tech-analysis"               /* Row 4: Half + Half */
+    "company-widget fundamental-widget";         /* Row 5: Half + Half */
+}
+
+/* Section assignments for optimized grid */
+.ai-investment-opinion-section { grid-area: ai-opinion; }
+.stock-profile-section { 
+  grid-area: stock-profile; 
+  min-width: 0; /* Allow shrinking if needed */
+}
+.macro-indicators-section { 
+  grid-area: macro-indicators; 
+  min-width: 0; /* Allow shrinking if needed */
+}
+.ai-news-analysis-section { grid-area: news-analysis; }
+.advanced-chart-section { grid-area: advanced-chart; }
+.technical-analysis-section { grid-area: tech-analysis; }
+.company-profile-section { grid-area: company-widget; }
+.fundamental-data-section { grid-area: fundamental-widget; }
+.top-stories-section { grid-area: stories-widget; }
+
+/* All sections consistent styling */
+.ai-investment-opinion-section,
+.stock-profile-section,
+.macro-indicators-section,
+.ai-news-analysis-section,
+.advanced-chart-section,
+.technical-analysis-section,
+.company-profile-section,
+.fundamental-data-section,
+.top-stories-section {
+  background: #ffffff;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  width: 100%; /* Ensure full width */
+  box-sizing: border-box; /* Include padding and border in width calculation */
+}
+
+/* Optimized section headers - more compact */
+.ai-investment-opinion-section .section-header,
+.stock-profile-section .section-header,
+.macro-indicators-section .section-header,
+.ai-news-analysis-section .section-header,
+.advanced-chart-section .section-header,
+.technical-analysis-section .section-header,
+.company-profile-section .section-header,
+.fundamental-data-section .section-header,
+.top-stories-section .section-header {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: #f8fafc;
+  border-bottom: 1px solid var(--color-border-light);
+  flex-shrink: 0;
+}
+
+/* Optimized section content - no internal scrolling */
+.ai-investment-opinion-section .section-content,
+.stock-profile-section .section-content,
+.macro-indicators-section .section-content,
+.ai-news-analysis-section .section-content {
+  flex: 1;
+  padding: var(--spacing-sm);
+  overflow: hidden; /* No scrolling - content must fit */
+  background: #ffffff;
+}
+
+/* Chart sections can have slight overflow for precision */
+.advanced-chart-section .section-content,
+.technical-analysis-section .section-content,
+.company-profile-section .section-content,
+.fundamental-data-section .section-content,
+.top-stories-section .section-content {
+  flex: 1;
+  padding: 0; /* TradingView widgets handle their own padding */
+  overflow: hidden;
+}
+
+/* Tablet Layout (768px ~ 1023px) */
+@media (max-width: 1023px) {
+  .optimized-content-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 200px 180px 250px 300px 250px;
+    grid-template-areas: 
+      "ai-opinion ai-opinion"
+      "stock-profile macro-indicators"  
+      "news-analysis news-analysis"
+      "advanced-chart tech-analysis"
+      "company-widget fundamental-widget";
+  }
+}
+
+/* Mobile Layout (767px and below) */
+@media (max-width: 767px) {
+  .optimized-content-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(9, auto);
+    grid-template-areas: 
+      "ai-opinion"
+      "stock-profile"
+      "macro-indicators"
+      "news-analysis"
+      "advanced-chart"
+      "tech-analysis"
+      "company-widget"
+      "fundamental-widget"
+      "stories-widget";
+    gap: var(--spacing-md);
+  }
+
+  /* Mobile specific heights */
+  .ai-investment-opinion-section { height: 200px; }
+  .stock-profile-section { height: 150px; }
+  .macro-indicators-section { height: 150px; }
+  .ai-news-analysis-section { height: 250px; }
+  .advanced-chart-section { height: 300px; }
+  .technical-analysis-section { height: 250px; }
+  .company-profile-section { height: 200px; }
+  .fundamental-data-section { height: 200px; }
+  .top-stories-section { height: 200px; }
+}
+
+/* TradingView Widget Size Optimization for Phase 2 */
+/* Adjusted heights for TradingView widgets */
+.advanced-chart { 
+  height: 100%; /* Will be 400px from grid */
+}
+
+.technical-analysis { 
+  height: 100%; /* Will be 400px from grid */
+}
+
+.company-profile,
+.fundamental-data,
+.top-stories { 
+  height: 100%; /* Will be 250px from grid */
+}
+
+/* Ensure widgets fit in smaller containers */
+@media (max-width: 767px) {
+  .advanced-chart { min-height: 280px; }
+  .technical-analysis { min-height: 230px; }
+  .company-profile,
+  .fundamental-data,
+  .top-stories { min-height: 180px; }
+}
+
+/* Fluid Typography for Better Scaling */
+.financial-title {
+  font-size: clamp(var(--font-size-lg), 4vw + 0.5rem, var(--font-size-xl));
+}
+
+.financial-data {
+  font-size: clamp(var(--font-size-sm), 3vw + 0.25rem, var(--font-size-md));
+}
+
+/* Small mobile breakpoint - Ultra compact */
+@media (max-width: 480px) {
+  .ai-analysis-section,
+  .market-intelligence-section {
+    min-height: 280px;                 /* Even more compact */
+    padding: var(--spacing-xs);
+  }
+  
+  .section-content {
+    max-height: 200px;
+  }
+  
+  .data-row {
+    min-height: 20px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  
+  .data-value {
+    text-align: left;
   }
 }
 
@@ -1978,4 +2276,290 @@ body {
   .ticker-tape .tradingview-widget-container__widget {
     height: 68px !important;
   }
+}
+
+/* ==================================================
+   FINANCIAL UI/UX OPTIMIZATION SYSTEM
+   ================================================== */
+
+/* Financial Typography Classes */
+.financial-title {
+  font-size: var(--font-size-xl);      /* 18px */
+  line-height: var(--line-height-snug); /* 1.4 */
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.financial-data {
+  font-size: var(--font-size-md);      /* 15px */
+  line-height: var(--line-height-snug); /* 1.4 */
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;   /* Consistent number alignment */
+  color: var(--color-primary-data);
+}
+
+.financial-data-large {
+  font-size: var(--font-size-lg);      /* 16px */
+  line-height: var(--line-height-snug); /* 1.4 */
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-primary-data);
+}
+
+.supporting-text {
+  font-size: var(--font-size-sm);      /* 12px */
+  line-height: var(--line-height-normal); /* 1.5 */
+  color: var(--color-secondary-data);
+}
+
+.metadata-text {
+  font-size: var(--font-size-xs);      /* 11px */
+  line-height: var(--line-height-normal); /* 1.5 */
+  color: var(--color-metadata);
+  font-weight: 400;
+}
+
+/* Financial Color Coding */
+.price-positive { 
+  color: var(--color-positive); 
+}
+
+.price-negative { 
+  color: var(--color-negative); 
+}
+
+.price-neutral { 
+  color: var(--color-neutral); 
+}
+
+.confidence-high { 
+  border-left: 3px solid var(--color-high-confidence); 
+  background: rgba(25, 118, 210, 0.05);
+}
+
+.confidence-medium { 
+  border-left: 3px solid var(--color-medium-confidence); 
+  background: rgba(255, 193, 7, 0.05);
+}
+
+.confidence-low { 
+  border-left: 3px solid var(--color-low-confidence); 
+  background: rgba(158, 158, 158, 0.05);
+}
+
+/* Financial Data Layout Optimizations */
+.data-density-high {
+  padding: var(--spacing-xs) var(--spacing-sm); /* Compact spacing */
+  margin-bottom: var(--spacing-xs);
+}
+
+.data-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-xs) 0;
+  border-bottom: 1px solid var(--color-border-light);
+  min-height: 28px; /* Consistent row height */
+}
+
+.data-row:last-child {
+  border-bottom: none;
+}
+
+.data-label {
+  font-size: var(--font-size-sm);      /* 12px */
+  color: var(--color-secondary-data);
+  font-weight: 500;
+  min-width: 0;
+  flex: 1;
+}
+
+.data-value {
+  font-size: var(--font-size-md);      /* 15px */
+  color: var(--color-primary-data);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Custom Scrollbars for Better UX */
+.section-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.section-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.section-content::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+.section-content::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* Scroll Fade Effect */
+.section-content::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(transparent, var(--color-background));
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.section-content:hover::after {
+  opacity: 1;
+}
+
+/* ==================================================
+   MICRO-INTERACTIONS & ANIMATIONS
+   ================================================== */
+
+/* Real-time Data Change Animations */
+@keyframes price-increase {
+  0% { 
+    background-color: transparent; 
+    transform: scale(1);
+  }
+  50% { 
+    background-color: rgba(0, 200, 83, 0.15); 
+    transform: scale(1.02);
+  }
+  100% { 
+    background-color: transparent; 
+    transform: scale(1);
+  }
+}
+
+@keyframes price-decrease {
+  0% { 
+    background-color: transparent; 
+    transform: scale(1);
+  }
+  50% { 
+    background-color: rgba(255, 23, 68, 0.15); 
+    transform: scale(1.02);
+  }
+  100% { 
+    background-color: transparent; 
+    transform: scale(1);
+  }
+}
+
+.price-data-animated.increase {
+  animation: price-increase 0.6s ease-out;
+}
+
+.price-data-animated.decrease {
+  animation: price-decrease 0.6s ease-out;
+}
+
+/* Interactive Data Rows */
+.data-row {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 4px;
+  margin: 0 -4px;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.data-row:hover {
+  background: rgba(var(--color-primary-rgb), 0.04);
+  transform: translateX(2px);
+  border-color: rgba(var(--color-primary-rgb), 0.2);
+}
+
+/* Financial Section Interactions */
+.ai-analysis-section,
+.market-intelligence-section {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ai-analysis-section:hover,
+.market-intelligence-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  border-color: rgba(var(--color-primary-rgb), 0.3);
+}
+
+/* Loading States with Better Performance */
+.financial-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: financial-loading 1.5s infinite ease-in-out;
+  border-radius: 4px;
+  height: 16px;
+  margin: 2px 0;
+}
+
+@keyframes financial-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Smart Loading Indicators */
+.section-loading::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: loading-spin 0.8s linear infinite;
+}
+
+@keyframes loading-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Accessibility Enhancements */
+@media (prefers-reduced-motion: reduce) {
+  .price-data-animated.increase,
+  .price-data-animated.decrease,
+  .data-row,
+  .ai-analysis-section,
+  .market-intelligence-section {
+    animation: none;
+    transition: none;
+  }
+  
+  .data-row:hover {
+    transform: none;
+  }
+  
+  .ai-analysis-section:hover,
+  .market-intelligence-section:hover {
+    transform: none;
+  }
+}
+
+/* Focus Management for Better Keyboard Navigation */
+.data-row:focus-within {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  background: rgba(var(--color-primary-rgb), 0.08);
+}
+
+/* High Contrast Support */
+@media (prefers-contrast: high) {
+  .data-row:hover {
+    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid #000;
+  }
+  
+  .price-positive { color: #008000; }
+  .price-negative { color: #CC0000; }
 }
