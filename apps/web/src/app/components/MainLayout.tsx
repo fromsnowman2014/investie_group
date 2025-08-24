@@ -4,53 +4,106 @@ import React from 'react';
 
 interface MainLayoutProps {
   header: React.ReactNode;
-  aiAnalysis: React.ReactNode;
-  marketIntelligence: React.ReactNode;
-  chartAnalysis: React.ReactNode;
+  aiInvestmentOpinion: React.ReactNode;
+  stockProfile: React.ReactNode;
+  macroIndicatorsDashboard: React.ReactNode;
+  aiNewsAnalysisReport: React.ReactNode;
+  advancedChart: React.ReactNode;
+  technicalAnalysis: React.ReactNode;
+  companyProfile: React.ReactNode;
+  fundamentalData: React.ReactNode;
 }
 
-export default function MainLayout({ 
+export default function MainLayout({
   header, 
-  aiAnalysis, 
-  marketIntelligence, 
-  chartAnalysis 
+  aiInvestmentOpinion,
+  stockProfile,
+  macroIndicatorsDashboard, 
+  aiNewsAnalysisReport,
+  advancedChart,
+  technicalAnalysis,
+  companyProfile,
+  fundamentalData
 }: MainLayoutProps) {
   return (
     <div className="main-layout">
-      {/* Header Section - Fixed at top */}
-      <header className="layout-header">
-        {header}
-      </header>
-
-      {/* Main Content Grid - 4 sections */}
-      <div className="content-grid">
-        {/* AI Analysis Section - Left top */}
-        <section className="ai-analysis-section">
+      <header className="layout-header">{header}</header>
+      
+      <div className="optimized-content-grid">
+        {/* Row 1: AI Investment Opinion (Full Width) */}
+        <section className="ai-investment-opinion-section">
           <div className="section-header">
-            <h2>AI Analysis</h2>
+            <h2>🤖 AI Investment Opinion</h2>
           </div>
           <div className="section-content">
-            {aiAnalysis}
+            {aiInvestmentOpinion}
           </div>
         </section>
 
-        {/* Market Intelligence Section - Right top */}
-        <section className="market-intelligence-section">
+        {/* Row 2: Stock Profile + Macro Indicators (Half Width Each) */}
+        <section className="stock-profile-section">
           <div className="section-header">
-            <h2>Market Intelligence</h2>
+            <h2>📊 Stock Profile</h2>
           </div>
           <div className="section-content">
-            {marketIntelligence}
+            {stockProfile}
           </div>
         </section>
 
-        {/* Chart Analysis Section - Bottom spanning full width */}
-        <section className="chart-analysis-section">
+        <section className="macro-indicators-section">
           <div className="section-header">
-            <h2>Chart Analysis</h2>
+            <h2>📊 Macro Indicators</h2>
           </div>
           <div className="section-content">
-            {chartAnalysis}
+            {macroIndicatorsDashboard}
+          </div>
+        </section>
+
+        {/* Row 3: AI News Analysis (Full Width) */}
+        <section className="ai-news-analysis-section">
+          <div className="section-header">
+            <h2>📰 AI News Analysis</h2>
+          </div>
+          <div className="section-content">
+            {aiNewsAnalysisReport}
+          </div>
+        </section>
+
+        {/* Row 4: Advanced Chart + Technical Analysis (Half Width Each) */}
+        <section className="advanced-chart-section">
+          <div className="section-header">
+            <h2>📈 Advanced Chart</h2>
+          </div>
+          <div className="section-content">
+            {advancedChart}
+          </div>
+        </section>
+
+        <section className="technical-analysis-section">
+          <div className="section-header">
+            <h2>🔧 Technical Analysis</h2>
+          </div>
+          <div className="section-content">
+            {technicalAnalysis}
+          </div>
+        </section>
+
+        {/* Row 5: Two Sub Widgets (Half Width Each) */}
+        <section className="company-profile-section">
+          <div className="section-header">
+            <h2>🏢 Company</h2>
+          </div>
+          <div className="section-content">
+            {companyProfile}
+          </div>
+        </section>
+
+        <section className="fundamental-data-section">
+          <div className="section-header">
+            <h2>📊 Fundamentals</h2>
+          </div>
+          <div className="section-content">
+            {fundamentalData}
           </div>
         </section>
       </div>
