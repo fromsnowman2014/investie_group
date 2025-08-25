@@ -1,12 +1,35 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { MarketController } from './market.controller';
 import { MarketService } from './market.service';
 import { DatabaseModule } from '../database/database.module';
+import { FredApiService } from './services/fred-api.service';
+import { FearGreedIndexService } from './services/fear-greed-index.service';
+import { AlphaVantageService } from './services/alpha-vantage.service';
+import { MarketCacheService } from './services/market-cache.service';
+import { ScheduledMarketUpdatesService } from './services/scheduled-market-updates.service';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [
+    DatabaseModule, 
+    ScheduleModule.forRoot() // Enable scheduled tasks
+  ],
   controllers: [MarketController],
-  providers: [MarketService],
-  exports: [MarketService],
+  providers: [
+    MarketService,
+    FredApiService,
+    FearGreedIndexService,
+    AlphaVantageService,
+    MarketCacheService,
+    ScheduledMarketUpdatesService
+  ],
+  exports: [
+    MarketService,
+    FredApiService,
+    FearGreedIndexService,
+    AlphaVantageService,
+    MarketCacheService,
+    ScheduledMarketUpdatesService
+  ],
 })
 export class MarketModule {}

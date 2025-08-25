@@ -1,795 +1,409 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useMacroIndicatorsData } from '@/hooks/useMacroIndicatorsData';
+import React from 'react';
 import useSWR from 'swr';
-import { ApiResponse } from '@/types/api';
+import FearGreedGauge from './EnhancedComponents/FearGreedGauge';
+import EconomicIndicatorsGrid from './EnhancedComponents/EconomicIndicatorsGrid';
+import SP500SparklineWidget from './EnhancedComponents/SP500SparklineWidget';
+import EnhancedSectorGrid from './EnhancedComponents/EnhancedSectorGrid';
 
-interface MarketMoversData {
-  gainers: Array<{
-    symbol: string;
-    name: string;
-    change: number;
-    changePercent: number;
-  }>;
-  losers: Array<{
-    symbol: string;
-    name: string;
-    change: number;
-    changePercent: number;
-  }>;
-  mostActive: Array<{
-    symbol: string;
-    name: string;
-    volume: number;
-  }>;
-  source: string;
-}
-
-interface MacroIndicatorsDashboardProps {
-  symbol?: string;
-}
-
-const fetcher = async (url: string) => {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  const result: ApiResponse<MarketMoversData> = await response.json();
-  return result.data;
-};
-
-export default function EnhancedMacroIndicatorsDashboard({ symbol: _ }: MacroIndicatorsDashboardProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'movers'>('overview');
+interface EnhancedMarketSummary {
+  fearGreedIndex: {
+    value: number;
+    status: 'extreme-fear' | 'fear' | 'neutral' | 'greed' | 'extreme-greed';
+    confidence: number;
+    components: {
+      marketVolatility: number;
+      marketVolume: number;
+      marketMomentum: number;
+      stockPriceBreadth: number;
+      safehavenDemand: number;
+      junkBondDemand: number;
+      putCallRatio: number;
+    };
+    methodology: string;
+    lastUpdated: string;
+    source: string;
+  } | null;
   
-  const { 
-    marketData: data, 
-    error, 
-    isLoading, 
-    isEmpty: _isEmpty, 
-    isMarketOpen, 
-    refetch: mutate 
-  } = useMacroIndicatorsData();
+  economicIndicators: {
+    interestRate: {
+      value: number;
+      previousValue: number;
+      change: number;
+      percentChange: number;
+      basisPointsChange: number;
+      date: string;
+      trend: 'rising' | 'falling' | 'stable';
+      source: string;
+      aiOutlook?: string;
+    } | null;
+    cpi: {
+      value: number;
+      previousValue: number;
+      change: number;
+      percentChange: number;
+      monthOverMonth: number;
+      yearOverYear: number;
+      date: string;
+      trend: 'rising' | 'falling' | 'stable';
+      direction: 'up' | 'down' | 'stable';
+      inflationPressure: 'low' | 'moderate' | 'high';
+      source: string;
+    } | null;
+    unemployment: {
+      value: number;
+      previousValue: number;
+      change: number;
+      percentChange: number;
+      monthOverMonth: number;
+      date: string;
+      trend: 'rising' | 'falling' | 'stable';
+      employmentHealth: 'strong' | 'moderate' | 'weak';
+      source: string;
+    } | null;
+  } | null;
+  
+  sp500Sparkline: {
+    data: Array<{
+      timestamp: string;
+      price: number;
+      volume?: number;
+    }>;
+    currentPrice: number;
+    weeklyChange: number;
+    weeklyTrend: 'up' | 'down' | 'flat';
+    volatility: 'low' | 'moderate' | 'high';
+    marketSentiment: 'bullish' | 'neutral' | 'bearish';
+  } | null;
+  
+  sectorPerformance: Array<{
+    sector: string;
+    ticker: string;
+    name: string;
+    price: number;
+    change: number;
+    changePercent: number;
+    volume: number;
+    marketCap?: number;
+    weeklyPerformance: number;
+    monthlyPerformance: number;
+    momentum: 'strong-buy' | 'buy' | 'hold' | 'sell' | 'strong-sell';
+    leadership: 'leader' | 'laggard' | 'neutral';
+    rotationSignal: 'inflow' | 'outflow' | 'neutral';
+    relativeStrength: number;
+    correlation: number;
+    lastUpdated: string;
+  }> | null;
+  
+  lastUpdated: string;
+  cacheInfo: {
+    hitRate: number;
+    totalRequests: number;
+    averageResponseTime: number;
+  };
+}
 
-  // Fetch market movers data
-  const { 
-    data: moversData, 
-    error: moversError, 
-    isLoading: moversLoading 
-  } = useSWR('/api/v1/market/movers', fetcher, {
-    refreshInterval: isMarketOpen ? 300000 : 0,
-    revalidateOnFocus: false,
-    errorRetryCount: 3
-  });
+const fetcher = (url: string) => fetch(url).then(res => res.json());
 
-  if (isLoading) {
+const EnhancedMacroIndicatorsDashboard: React.FC = () => {
+  const { data, error, isLoading } = useSWR<EnhancedMarketSummary>(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/market/enhanced-summary`,
+    fetcher,
+    {
+      refreshInterval: 60000, // Refresh every minute
+      revalidateOnFocus: true,
+      revalidateOnReconnect: true,
+      errorRetryCount: 3,
+      errorRetryInterval: 5000,
+    }
+  );
+
+  // Loading state
+  if (isLoading || !data) {
     return (
-      <div className="macro-dashboard">
-        <div className="macro-header">
-          <h3 className="macro-title">
-            📊 Market Overview
-          </h3>
-          <div className="market-status loading">
-            Loading...
+      <div className="enhanced-macro-dashboard loading">
+        <div className="dashboard-header">
+          <h2>Enhanced Market Intelligence</h2>
+          <div className="loading-indicator">
+            <div className="loading-spinner"></div>
+            <span>Loading market data...</span>
           </div>
         </div>
-        <div className="macro-content loading">
-          <div className="tabs">
-            <div className="tab skeleton"></div>
-            <div className="tab skeleton"></div>
+        
+        <div className="dashboard-grid">
+          <div className="grid-section left-column">
+            <FearGreedGauge data={null} isLoading={true} />
+            <EconomicIndicatorsGrid data={null} isLoading={true} />
           </div>
-          <div className="indices-grid">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="index-card skeleton">
-                <div className="skeleton-line"></div>
-                <div className="skeleton-line short"></div>
-              </div>
-            ))}
+          
+          <div className="grid-section right-column">
+            <SP500SparklineWidget data={null} isLoading={true} />
+            <EnhancedSectorGrid sectors={null} isLoading={true} />
           </div>
         </div>
       </div>
     );
   }
 
+  // Error state
   if (error) {
     return (
-      <div className="macro-dashboard error">
-        <div className="macro-header">
-          <h3 className="macro-title">📊 Market Overview</h3>
-          <div className="market-status error">
-            API Error
+      <div className="enhanced-macro-dashboard error">
+        <div className="dashboard-header">
+          <h2>Enhanced Market Intelligence</h2>
+          <div className="error-indicator">
+            <span className="error-icon">⚠️</span>
+            <span>Unable to load market data. Retrying...</span>
           </div>
         </div>
-        <div className="error-content">
-          <div className="error-icon">⚠️</div>
-          <h4>Market Data Unavailable</h4>
-          <p>Unable to fetch market overview</p>
-          <p className="error-details">{error.message}</p>
-          <button 
-            className="retry-button"
-            onClick={() => mutate()}
-          >
-            Retry
-          </button>
+        
+        <div className="error-message">
+          <p>We&apos;re experiencing issues connecting to market data services.</p>
+          <p>Please check your connection and try again.</p>
         </div>
       </div>
     );
   }
 
-  if (!data) {
-    return (
-      <div className="macro-dashboard">
-        <div className="macro-header">
-          <h3 className="macro-title">📊 Market Overview</h3>
-          <div className="market-status">
-            No Data
-          </div>
-        </div>
-        <div className="empty-content">
-          <div className="empty-icon">📈</div>
-          <p>Market data not available</p>
-        </div>
-      </div>
-    );
-  }
 
-  const getSentimentColor = (sentiment: string) => {
-    switch (sentiment) {
-      case 'bullish': return '#10b981';
-      case 'bearish': return '#ef4444';
-      default: return '#f59e0b';
-    }
-  };
-
-  const getSentimentIcon = (sentiment: string) => {
-    switch (sentiment) {
-      case 'bullish': return '🐂';
-      case 'bearish': return '🐻';
-      default: return '⚖️';
-    }
-  };
-
-  const formatValue = (value: number) => {
-    if (value >= 1000) {
-      return (value / 1000).toFixed(2) + 'K';
-    }
-    return value.toFixed(2);
-  };
-
-  const formatChange = (change: number, changePercent: number) => {
-    const sign = change >= 0 ? '+' : '';
-    return `${sign}${change.toFixed(2)} (${sign}${changePercent.toFixed(2)}%)`;
-  };
-
-  const getChangeColor = (change: number) => {
-    return change >= 0 ? '#10b981' : '#ef4444';
-  };
-
-  const formatVolume = (volume: number) => {
-    if (volume >= 1e9) return `${(volume / 1e9).toFixed(1)}B`;
-    if (volume >= 1e6) return `${(volume / 1e6).toFixed(1)}M`;
-    if (volume >= 1e3) return `${(volume / 1e3).toFixed(1)}K`;
-    return volume.toString();
-  };
 
   return (
-    <div className="macro-dashboard">
-      {/* Header with Market Sentiment and Status */}
-      <div className="macro-header">
-        <h3 className="macro-title">
-          📊 Market Overview
-        </h3>
-        <div className="header-right">
-          <div 
-            className="market-sentiment-badge"
-            style={{ backgroundColor: getSentimentColor(data.marketSentiment) }}
-          >
-            <span className="sentiment-icon">{getSentimentIcon(data.marketSentiment)}</span>
-            <span className="sentiment-text">{data.marketSentiment.toUpperCase()}</span>
+    <div className="enhanced-macro-dashboard">
+      <div className="dashboard-header">
+        <div className="header-content">
+          <h2>Enhanced Market Intelligence</h2>
+          <div className="cache-performance">
+            <span className="cache-hit-rate">
+              Cache Hit: {(data.cacheInfo.hitRate * 100).toFixed(1)}%
+            </span>
+            <span className="avg-response">
+              Avg Response: {data.cacheInfo.averageResponseTime}ms
+            </span>
           </div>
-          <div className={`market-status ${isMarketOpen ? 'open' : 'closed'}`}>
-            {isMarketOpen ? '🟢 Open' : '🔴 Closed'}
-          </div>
+        </div>
+        <div className="last-updated">
+          Last updated: {new Date(data.lastUpdated).toLocaleString()}
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="tabs">
-        <button 
-          className={`tab ${activeTab === 'overview' ? 'active' : ''}`}
-          onClick={() => setActiveTab('overview')}
-        >
-          📊 Overview
-        </button>
-        <button 
-          className={`tab ${activeTab === 'movers' ? 'active' : ''}`}
-          onClick={() => setActiveTab('movers')}
-        >
-          🚀 Movers
-        </button>
-      </div>
-
-      <div className="macro-content">
-        {activeTab === 'overview' && (
-          <>
-            {/* Major Indices */}
-            <div className="indices-section">
-              <div className="section-title">Major Indices</div>
-              <div className="indices-grid">
-                <div className="index-card">
-                  <div className="index-header">
-                    <div className="index-name">S&P 500</div>
-                    <div className="index-symbol">SPY</div>
-                  </div>
-                  <div className="index-value">{formatValue(data.indices.sp500.value)}</div>
-                  <div 
-                    className="index-change"
-                    style={{ color: getChangeColor(data.indices.sp500.change) }}
-                  >
-                    {formatChange(data.indices.sp500.change, data.indices.sp500.changePercent)}
-                  </div>
-                </div>
-                
-                <div className="index-card">
-                  <div className="index-header">
-                    <div className="index-name">NASDAQ</div>
-                    <div className="index-symbol">QQQ</div>
-                  </div>
-                  <div className="index-value">{formatValue(data.indices.nasdaq.value)}</div>
-                  <div 
-                    className="index-change"
-                    style={{ color: getChangeColor(data.indices.nasdaq.change) }}
-                  >
-                    {formatChange(data.indices.nasdaq.change, data.indices.nasdaq.changePercent)}
-                  </div>
-                </div>
-                
-                <div className="index-card">
-                  <div className="index-header">
-                    <div className="index-name">Dow Jones</div>
-                    <div className="index-symbol">DIA</div>
-                  </div>
-                  <div className="index-value">{formatValue(data.indices.dow.value)}</div>
-                  <div 
-                    className="index-change"
-                    style={{ color: getChangeColor(data.indices.dow.change) }}
-                  >
-                    {formatChange(data.indices.dow.change, data.indices.dow.changePercent)}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Sector Performance */}
-            <div className="sectors-section">
-              <div className="section-title">Sector Performance</div>
-              <div className="sectors-grid">
-                {data.sectors.map((sector, index) => (
-                  <div key={index} className="sector-item">
-                    <div className="sector-name">{sector.name}</div>
-                    <div 
-                      className="sector-change"
-                      style={{ color: getChangeColor(sector.change) }}
-                    >
-                      {sector.change >= 0 ? '+' : ''}{sector.change.toFixed(2)}%
-                    </div>
-                    <div className="sector-indicator">
-                      {sector.performance === 'positive' ? '⬆️' : '⬇️'}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Market Metrics */}
-            <div className="metrics-section">
-              <div className="metric-item">
-                <div className="metric-label">VIX (Volatility)</div>
-                <div className="metric-value">{data.volatilityIndex.toFixed(2)}</div>
-              </div>
-              <div className="metric-item">
-                <div className="metric-label">Data Source</div>
-                <div className="metric-value">{data.source === 'mock_data' ? 'Mock' : 'Live'}</div>
-              </div>
-            </div>
-          </>
-        )}
-
-        {activeTab === 'movers' && (
-          <div className="movers-section">
-            {moversLoading ? (
-              <div className="movers-loading">
-                <div className="skeleton-line"></div>
-                <div className="skeleton-line"></div>
-                <div className="skeleton-line"></div>
-              </div>
-            ) : moversError ? (
-              <div className="movers-error">
-                <p>Failed to load market movers</p>
-              </div>
-            ) : moversData ? (
-              <div className="movers-grid">
-                <div className="movers-column">
-                  <h4 className="movers-title">🟢 Top Gainers</h4>
-                  {moversData.gainers.map((stock, index) => (
-                    <div key={index} className="mover-item">
-                      <div className="mover-info">
-                        <div className="mover-symbol">{stock.symbol}</div>
-                        <div className="mover-name">{stock.name}</div>
-                      </div>
-                      <div className="mover-change positive">
-                        +{stock.changePercent.toFixed(2)}%
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="movers-column">
-                  <h4 className="movers-title">🔴 Top Losers</h4>
-                  {moversData.losers.map((stock, index) => (
-                    <div key={index} className="mover-item">
-                      <div className="mover-info">
-                        <div className="mover-symbol">{stock.symbol}</div>
-                        <div className="mover-name">{stock.name}</div>
-                      </div>
-                      <div className="mover-change negative">
-                        {stock.changePercent.toFixed(2)}%
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="movers-column">
-                  <h4 className="movers-title">📊 Most Active</h4>
-                  {moversData.mostActive.map((stock, index) => (
-                    <div key={index} className="mover-item">
-                      <div className="mover-info">
-                        <div className="mover-symbol">{stock.symbol}</div>
-                        <div className="mover-name">{stock.name}</div>
-                      </div>
-                      <div className="mover-volume">
-                        {formatVolume(stock.volume)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="movers-empty">
-                <p>No market movers data available</p>
-              </div>
-            )}
-          </div>
-        )}
+      <div className="dashboard-grid">
+        <div className="grid-section left-column">
+          <FearGreedGauge 
+            data={data.fearGreedIndex} 
+            isLoading={false}
+          />
+          <EconomicIndicatorsGrid 
+            data={data.economicIndicators} 
+            isLoading={false}
+          />
+        </div>
+        
+        <div className="grid-section right-column">
+          <SP500SparklineWidget 
+            data={data.sp500Sparkline} 
+            isLoading={false}
+          />
+          <EnhancedSectorGrid 
+            sectors={data.sectorPerformance} 
+            isLoading={false}
+          />
+        </div>
       </div>
 
       <style jsx>{`
-        .macro-dashboard {
-          background: white;
-          border-radius: 12px;
-          border: 1px solid #e2e8f0;
+        .enhanced-macro-dashboard {
+          max-width: 1200px;
+          margin: 0 auto;
           padding: 20px;
-          margin-bottom: 20px;
         }
 
-        .macro-header {
+        .enhanced-macro-dashboard.loading {
+          opacity: 0.8;
+        }
+
+        .enhanced-macro-dashboard.error {
+          opacity: 0.9;
+        }
+
+        .dashboard-header {
+          margin-bottom: 24px;
+          padding-bottom: 16px;
+          border-bottom: 2px solid #e2e8f0;
+        }
+
+        .header-content {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 20px;
-          padding-bottom: 12px;
-          border-bottom: 1px solid #f1f5f9;
+          margin-bottom: 8px;
         }
 
-        .macro-title {
-          font-size: 18px;
-          font-weight: 600;
+        .dashboard-header h2 {
+          font-size: 24px;
+          font-weight: 700;
           color: #1e293b;
           margin: 0;
+          background: linear-gradient(135deg, #00bce5 0%, #2962ff 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
         }
 
-        .header-right {
+        .cache-performance {
           display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-
-        .market-sentiment-badge {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          padding: 4px 12px;
-          border-radius: 20px;
-          color: white;
-          font-size: 12px;
-          font-weight: 600;
-        }
-
-        .market-status {
-          font-size: 12px;
-          font-weight: 500;
-          padding: 4px 8px;
-          border-radius: 6px;
-          background: #f1f5f9;
-          color: #64748b;
-        }
-
-        .market-status.open {
-          background: #dcfce7;
-          color: #166534;
-        }
-
-        .market-status.closed {
-          background: #fef2f2;
-          color: #991b1b;
-        }
-
-        .market-status.loading {
-          background: #fef3c7;
-          color: #92400e;
-        }
-
-        .market-status.error {
-          background: #fef2f2;
-          color: #991b1b;
-        }
-
-        .tabs {
-          display: flex;
-          gap: 8px;
-          margin-bottom: 20px;
-          border-bottom: 1px solid #e2e8f0;
-        }
-
-        .tab {
-          padding: 8px 16px;
-          border: none;
-          background: transparent;
-          cursor: pointer;
-          font-size: 14px;
-          font-weight: 500;
-          color: #64748b;
-          border-bottom: 2px solid transparent;
-          transition: all 0.2s;
-        }
-
-        .tab.active {
-          color: #3b82f6;
-          border-bottom-color: #3b82f6;
-        }
-
-        .tab:hover {
-          color: #3b82f6;
-        }
-
-        .macro-content {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-        }
-
-        .section-title {
-          font-size: 14px;
-          font-weight: 600;
-          color: #374151;
-          margin-bottom: 12px;
-        }
-
-        .indices-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
           gap: 16px;
-        }
-
-        .index-card {
-          background: #f8fafc;
-          border-radius: 8px;
-          padding: 16px;
-          border: 1px solid #e2e8f0;
-        }
-
-        .index-header {
-          display: flex;
-          justify-content: space-between;
           align-items: center;
-          margin-bottom: 8px;
         }
 
-        .index-name {
-          font-size: 14px;
-          font-weight: 600;
-          color: #374151;
-        }
-
-        .index-symbol {
-          font-size: 12px;
-          color: #6b7280;
-          background: #e5e7eb;
-          padding: 2px 6px;
-          border-radius: 4px;
-        }
-
-        .index-value {
-          font-size: 20px;
-          font-weight: 700;
-          color: #1e293b;
-          margin-bottom: 4px;
-        }
-
-        .index-change {
-          font-size: 12px;
-          font-weight: 500;
-        }
-
-        .sectors-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-          gap: 12px;
-        }
-
-        .sector-item {
-          background: #f8fafc;
-          border-radius: 8px;
-          padding: 12px;
-          border: 1px solid #e2e8f0;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          text-align: center;
-        }
-
-        .sector-name {
-          font-size: 12px;
-          font-weight: 600;
-          color: #374151;
-          margin-bottom: 4px;
-        }
-
-        .sector-change {
-          font-size: 14px;
-          font-weight: 700;
-          margin-bottom: 4px;
-        }
-
-        .sector-indicator {
-          font-size: 16px;
-        }
-
-        .metrics-section {
-          display: flex;
-          gap: 20px;
-          padding: 16px;
-          background: #f8fafc;
-          border-radius: 8px;
-          border: 1px solid #e2e8f0;
-        }
-
-        .metric-item {
-          flex: 1;
-          text-align: center;
-        }
-
-        .metric-label {
-          font-size: 12px;
-          color: #6b7280;
-          margin-bottom: 4px;
-        }
-
-        .metric-value {
-          font-size: 16px;
-          font-weight: 600;
-          color: #1e293b;
-        }
-
-        .movers-section {
-          min-height: 300px;
-        }
-
-        .movers-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-          gap: 20px;
-        }
-
-        .movers-column {
-          background: #f8fafc;
-          border-radius: 8px;
-          padding: 16px;
-          border: 1px solid #e2e8f0;
-        }
-
-        .movers-title {
-          font-size: 14px;
-          font-weight: 600;
-          color: #374151;
-          margin-bottom: 12px;
-        }
-
-        .mover-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 8px 0;
-          border-bottom: 1px solid #e2e8f0;
-        }
-
-        .mover-item:last-child {
-          border-bottom: none;
-        }
-
-        .mover-info {
-          flex: 1;
-        }
-
-        .mover-symbol {
-          font-size: 14px;
-          font-weight: 600;
-          color: #1e293b;
-        }
-
-        .mover-name {
-          font-size: 12px;
-          color: #6b7280;
-          margin-top: 2px;
-        }
-
-        .mover-change {
-          font-size: 14px;
-          font-weight: 600;
-        }
-
-        .mover-change.positive {
-          color: #10b981;
-        }
-
-        .mover-change.negative {
-          color: #ef4444;
-        }
-
-        .mover-volume {
-          font-size: 12px;
-          color: #6b7280;
-          font-weight: 500;
-        }
-
-        .movers-loading,
-        .movers-error,
-        .movers-empty {
-          text-align: center;
-          padding: 40px 20px;
-          color: #6b7280;
-        }
-
-        /* Loading states */
-        .macro-content.loading {
-          opacity: 0.6;
-        }
-
-        .skeleton {
+        .cache-hit-rate,
+        .avg-response {
+          font-size: 11px;
+          color: #64748b;
           background: #f1f5f9;
-          border: 1px solid #e2e8f0;
-          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-weight: 500;
         }
 
-        .skeleton-line {
+        .last-updated {
+          font-size: 12px;
+          color: #64748b;
+          font-style: italic;
+        }
+
+        .loading-indicator,
+        .error-indicator {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 14px;
+          color: #64748b;
+        }
+
+        .loading-spinner {
+          width: 16px;
           height: 16px;
-          background: #e2e8f0;
-          border-radius: 4px;
-          margin-bottom: 8px;
+          border: 2px solid #e2e8f0;
+          border-top: 2px solid #00bce5;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
         }
 
-        .skeleton-line.short {
-          width: 60%;
-        }
-
-        @keyframes pulse {
-          0%, 100% {
-            opacity: 1;
-          }
-          50% {
-            opacity: .5;
-          }
-        }
-
-        /* Error state */
-        .macro-dashboard.error {
-          border-color: #fecaca;
-        }
-
-        .error-content {
-          text-align: center;
-          padding: 20px;
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
 
         .error-icon {
-          font-size: 48px;
-          margin-bottom: 12px;
-        }
-
-        .error-content h4 {
           font-size: 16px;
-          color: #dc2626;
-          margin-bottom: 8px;
         }
 
-        .error-content p {
-          color: #6b7280;
-          margin-bottom: 4px;
+        .error-message {
+          background: #fef2f2;
+          border: 1px solid #fecaca;
+          border-radius: 12px;
+          padding: 20px;
+          margin: 20px 0;
+          text-align: center;
+        }
+
+        .error-message p {
+          margin: 8px 0;
+          color: #991b1b;
           font-size: 14px;
         }
 
-        .error-details {
-          font-size: 12px;
-          color: #9ca3af;
-          font-family: monospace;
-          background: #f9fafb;
-          padding: 8px;
-          border-radius: 4px;
-          margin: 8px 0;
+        .dashboard-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 24px;
         }
 
-        .retry-button {
-          background: #3b82f6;
-          color: white;
-          border: none;
-          padding: 8px 16px;
-          border-radius: 6px;
-          cursor: pointer;
-          font-size: 12px;
-          font-weight: 500;
-          margin-top: 8px;
+        .grid-section {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
         }
 
-        .retry-button:hover {
-          background: #2563eb;
+        .left-column {
+          /* Fear & Greed Index and Economic Indicators */
         }
 
-        /* Empty state */
-        .empty-content {
-          text-align: center;
-          padding: 40px 20px;
+        .right-column {
+          /* S&P 500 Sparkline and Sector Performance */
         }
 
-        .empty-icon {
-          font-size: 48px;
-          margin-bottom: 12px;
-        }
+        /* Mobile responsiveness */
+        @media (max-width: 1024px) {
+          .enhanced-macro-dashboard {
+            padding: 16px;
+          }
 
-        /* Responsive design */
-        @media (max-width: 768px) {
-          .macro-header {
+          .dashboard-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+          }
+
+          .header-content {
             flex-direction: column;
             align-items: flex-start;
-            gap: 12px;
+            gap: 8px;
           }
 
-          .header-right {
-            align-self: stretch;
-            justify-content: space-between;
+          .cache-performance {
+            align-self: flex-end;
           }
 
-          .indices-grid {
-            grid-template-columns: 1fr;
+          .dashboard-header h2 {
+            font-size: 20px;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .enhanced-macro-dashboard {
+            padding: 12px;
           }
 
-          .sectors-grid {
-            grid-template-columns: repeat(2, 1fr);
+          .dashboard-grid {
+            gap: 16px;
           }
 
-          .metrics-section {
+          .grid-section {
+            gap: 16px;
+          }
+
+          .cache-performance {
             flex-direction: column;
-            gap: 12px;
+            gap: 4px;
+            align-self: stretch;
           }
 
-          .movers-grid {
-            grid-template-columns: 1fr;
+          .dashboard-header h2 {
+            font-size: 18px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .enhanced-macro-dashboard {
+            padding: 8px;
           }
 
-          .tabs {
-            flex-wrap: wrap;
+          .dashboard-header {
+            margin-bottom: 16px;
+          }
+
+          .header-content {
+            align-items: stretch;
+          }
+
+          .cache-performance {
+            align-self: stretch;
           }
         }
       `}</style>
     </div>
   );
-}
+};
+
+export default EnhancedMacroIndicatorsDashboard;
