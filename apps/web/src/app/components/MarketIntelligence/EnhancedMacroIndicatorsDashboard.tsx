@@ -97,7 +97,7 @@ interface EnhancedMarketSummary {
   }> | null;
   
   lastUpdated: string;
-  cacheInfo: {
+  cacheInfo?: {
     hitRate: number;
     totalRequests: number;
     averageResponseTime: number;
@@ -207,14 +207,16 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
       <div className="dashboard-header">
         <div className="header-content">
           <h2>Enhanced Market Intelligence</h2>
-          <div className="cache-performance">
-            <span className="cache-hit-rate">
-              Cache Hit: {(data.cacheInfo.hitRate * 100).toFixed(1)}%
-            </span>
-            <span className="avg-response">
-              Avg Response: {data.cacheInfo.averageResponseTime}ms
-            </span>
-          </div>
+          {data.cacheInfo && (
+            <div className="cache-performance">
+              <span className="cache-hit-rate">
+                Cache Hit: {(data.cacheInfo.hitRate * 100).toFixed(1)}%
+              </span>
+              <span className="avg-response">
+                Avg Response: {data.cacheInfo.averageResponseTime}ms
+              </span>
+            </div>
+          )}
         </div>
         <div className="last-updated">
           Last updated: {new Date(data.lastUpdated).toLocaleString()}
