@@ -104,7 +104,7 @@ interface EnhancedMarketSummary {
   };
 }
 
-const fetcher = async (url: string) => {
+const fetcher = async (url: string): Promise<EnhancedMarketSummary> => {
   if (!url || url === 'undefined/api/v1/market/enhanced-summary') {
     throw new Error('Invalid API URL: NEXT_PUBLIC_API_URL environment variable not set');
   }
@@ -114,7 +114,21 @@ const fetcher = async (url: string) => {
     throw new Error(`API request failed: ${response.status} ${response.statusText}`);
   }
   
-  return response.json();
+  const apiResponse = await response.json();
+  
+  // Debug logging for development
+  if (process.env.NODE_ENV === 'development') {
+    console.log('📊 Enhanced Market API Response:', apiResponse);
+    console.log('📦 API Response Structure:', Object.keys(apiResponse));
+    console.log('✅ Extracting data field:', !!apiResponse.data);
+  }
+  
+  // Extract the actual market data from the API response wrapper
+  if (apiResponse.success && apiResponse.data) {
+    return apiResponse.data;
+  }
+  
+  throw new Error('Invalid API response structure: missing success or data field');
 };
 
 const EnhancedMacroIndicatorsDashboard: React.FC = () => {
@@ -219,7 +233,7 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
           )}
         </div>
         <div className="last-updated">
-          Last updated: {new Date(data.lastUpdated).toLocaleString()}
+          Last updated: {data.lastUpdated ? new Date(data.lastUpdated).toLocaleString() : 'Unknown'}
         </div>
       </div>
 
