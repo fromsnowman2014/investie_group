@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import MacroIndicatorsDashboard from './MacroIndicatorsDashboard';
+import EnhancedMacroIndicatorsDashboard from './EnhancedMacroIndicatorsDashboard';
 import AINewsAnalysisReport from './AINewsAnalysisReport';
 
 interface MarketIntelligenceProps {
@@ -11,13 +11,10 @@ interface MarketIntelligenceProps {
 export default function MarketIntelligence({ symbol }: MarketIntelligenceProps) {
   return (
     <div className="market-intelligence-container">
-      {/* Macro Indicators Section */}
+      {/* Enhanced Macro Indicators Section */}
       <div className="market-intelligence-subsection">
-        <div className="subsection-header">
-          <h3>📊 Macro Indicators</h3>
-        </div>
         <div className="subsection-content">
-          <MacroIndicatorsDashboard symbol={symbol} />
+          <EnhancedMacroIndicatorsDashboard />
         </div>
       </div>
 
@@ -34,4 +31,5 @@ export default function MarketIntelligence({ symbol }: MarketIntelligenceProps) 
   );
 }
 
-export { MacroIndicatorsDashboard, AINewsAnalysisReport };
+// Export the enhanced component as the main MacroIndicatorsDashboard
+export { EnhancedMacroIndicatorsDashboard as MacroIndicatorsDashboard, AINewsAnalysisReport };

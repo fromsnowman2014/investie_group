@@ -104,11 +104,26 @@ interface EnhancedMarketSummary {
   };
 }
 
-const fetcher = (url: string) => fetch(url).then(res => res.json());
+const fetcher = async (url: string) => {
+  if (!url || url === 'undefined/api/v1/market/enhanced-summary') {
+    throw new Error('Invalid API URL: NEXT_PUBLIC_API_URL environment variable not set');
+  }
+  
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+  }
+  
+  return response.json();
+};
 
 const EnhancedMacroIndicatorsDashboard: React.FC = () => {
+  // Check if API URL is properly configured
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const fullApiUrl = apiUrl ? `${apiUrl}/api/v1/market/enhanced-summary` : null;
+  
   const { data, error, isLoading } = useSWR<EnhancedMarketSummary>(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/market/enhanced-summary`,
+    fullApiUrl, // This will be null if API URL is not configured, preventing the request
     fetcher,
     {
       refreshInterval: 60000, // Refresh every minute
@@ -118,6 +133,25 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
       errorRetryInterval: 5000,
     }
   );
+
+  // Configuration error state
+  if (!apiUrl) {
+    return (
+      <div className="enhanced-macro-dashboard error">
+        <div className="dashboard-header">
+          <h2>Enhanced Market Intelligence</h2>
+          <div className="error-indicator">
+            <span className="error-icon">⚠️</span>
+            <span>Configuration Error</span>
+          </div>
+        </div>
+        
+        <div className="error-message">
+          <p>API URL not configured. Please set NEXT_PUBLIC_API_URL environment variable.</p>
+        </div>
+      </div>
+    );
+  }
 
   // Loading state
   if (isLoading || !data) {
