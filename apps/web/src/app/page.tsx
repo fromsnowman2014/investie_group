@@ -27,7 +27,7 @@ export default function Home() {
         header={<Header />}
         aiInvestmentOpinion={<AIInvestmentOpinion symbol={currentSymbol} />}
         stockProfile={<StockProfile symbol={currentSymbol} />}
-        macroIndicatorsDashboard={<MacroIndicatorsDashboard />}
+        macroIndicatorsDashboard={<MacroIndicatorsDashboard symbol={currentSymbol} />}
         aiNewsAnalysisReport={<AINewsAnalysisReport symbol={currentSymbol} />}
         advancedChart={<AdvancedChart />}
         technicalAnalysis={<TechnicalAnalysis />}
