@@ -8,6 +8,7 @@ import { FearGreedIndexService } from './services/fear-greed-index.service';
 import { AlphaVantageService } from './services/alpha-vantage.service';
 import { MarketCacheService } from './services/market-cache.service';
 import { ScheduledMarketUpdatesService } from './services/scheduled-market-updates.service';
+import { YahooFinanceService } from './services/yahoo-finance.service';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { ScheduledMarketUpdatesService } from './services/scheduled-market-updat
     FearGreedIndexService,
     AlphaVantageService,
     MarketCacheService,
-    ScheduledMarketUpdatesService
+    ScheduledMarketUpdatesService,
+    YahooFinanceService
   ],
   exports: [
     MarketService,
@@ -29,7 +31,8 @@ import { ScheduledMarketUpdatesService } from './services/scheduled-market-updat
     FearGreedIndexService,
     AlphaVantageService,
     MarketCacheService,
-    ScheduledMarketUpdatesService
+    ScheduledMarketUpdatesService,
+    YahooFinanceService
   ],
 })
 export class MarketModule {}
