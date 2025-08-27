@@ -135,16 +135,46 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
   // Check if API URL is properly configured
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const fullApiUrl = apiUrl ? `${apiUrl}/api/v1/market/enhanced-summary` : null;
+
+  // Dynamic refresh interval based on market hours
+  const getRefreshInterval = () => {
+    const now = new Date();
+    const easternTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+    const dayOfWeek = easternTime.getDay(); // 0 = Sunday, 6 = Saturday
+    const hour = easternTime.getHours();
+    const minute = easternTime.getMinutes();
+    
+    // Market is open Monday-Friday (1-5), 9:30 AM - 4:00 PM EST
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      return 300000; // Weekend: 5 minutes
+    }
+    
+    const timeInMinutes = hour * 60 + minute;
+    const marketOpenMinutes = 9 * 60 + 30; // 9:30 AM
+    const marketCloseMinutes = 16 * 60;     // 4:00 PM
+    
+    const isMarketHours = timeInMinutes >= marketOpenMinutes && timeInMinutes <= marketCloseMinutes;
+    
+    if (isMarketHours) {
+      return 30000; // Market hours: 30 seconds
+    } else if (timeInMinutes > marketCloseMinutes - 60 && timeInMinutes < marketCloseMinutes + 60) {
+      return 60000; // Around market close: 1 minute
+    } else {
+      return 180000; // After hours: 3 minutes
+    }
+  };
   
   const { data, error, isLoading } = useSWR<EnhancedMarketSummary>(
     fullApiUrl, // This will be null if API URL is not configured, preventing the request
     fetcher,
     {
-      refreshInterval: 60000, // Refresh every minute
+      refreshInterval: getRefreshInterval(),
       revalidateOnFocus: true,
       revalidateOnReconnect: true,
       errorRetryCount: 3,
       errorRetryInterval: 5000,
+      // Add dedupe interval to prevent too many requests
+      dedupingInterval: 10000,
     }
   );
 

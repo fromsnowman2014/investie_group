@@ -6,6 +6,7 @@ import { FearGreedIndexService } from './services/fear-greed-index.service';
 import { AlphaVantageService } from './services/alpha-vantage.service';
 import { MarketCacheService } from './services/market-cache.service';
 import { ScheduledMarketUpdatesService } from './services/scheduled-market-updates.service';
+import { YahooFinanceService } from './services/yahoo-finance.service';
 
 @Injectable()
 export class MarketService {
@@ -19,7 +20,8 @@ export class MarketService {
     private readonly fearGreedService: FearGreedIndexService,
     private readonly alphaVantageService: AlphaVantageService,
     private readonly marketCacheService: MarketCacheService,
-    private readonly scheduledUpdatesService: ScheduledMarketUpdatesService
+    private readonly scheduledUpdatesService: ScheduledMarketUpdatesService,
+    private readonly yahooFinanceService: YahooFinanceService
   ) {}
 
   async getMarketOverview(): Promise<any> {
@@ -33,7 +35,7 @@ export class MarketService {
 
       // Try to load from Supabase cache first
       const cachedData = await this.loadMarketDataFromSupabase();
-      if (cachedData && this.isDataFresh(cachedData.updated_at)) {
+      if (cachedData && this.isDataFresh(cachedData.updated_at, 'market_data')) {
         this.logger.log('Using cached market overview data');
         return {
           indices: cachedData.indices,
@@ -78,6 +80,56 @@ export class MarketService {
   }
 
   /**
+   * Validate SPY price against real-time data sources
+   */
+  async validateSPYPrice(price: number): Promise<{
+    isValid: boolean;
+    actualPrice?: number;
+    deviation?: number;
+    source: string;
+    timestamp: string;
+  }> {
+    try {
+      // Get current price from Yahoo Finance
+      const yahooQuote = await this.yahooFinanceService.getQuote('SPY');
+      
+      if (!yahooQuote) {
+        return {
+          isValid: true, // Don't block if validation fails
+          source: 'validation_failed',
+          timestamp: new Date().toISOString()
+        };
+      }
+
+      const actualPrice = yahooQuote.regularMarketPrice;
+      const deviation = Math.abs(price - actualPrice);
+      const percentDeviation = (deviation / actualPrice) * 100;
+
+      // Consider valid if within 2% of actual price
+      const isValid = percentDeviation <= 2;
+
+      if (!isValid) {
+        this.logger.warn(`⚠️ SPY price validation failed: Provided=${price}, Actual=${actualPrice}, Deviation=${percentDeviation.toFixed(2)}%`);
+      }
+
+      return {
+        isValid,
+        actualPrice,
+        deviation: percentDeviation,
+        source: 'yahoo_finance',
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      this.logger.error('SPY price validation error:', error.message);
+      return {
+        isValid: true, // Don't block on validation errors
+        source: 'validation_error',
+        timestamp: new Date().toISOString()
+      };
+    }
+  }
+
+  /**
    * Enhanced Market Summary with all new features
    */
   async getEnhancedMarketSummary(): Promise<any> {
@@ -104,22 +156,48 @@ export class MarketService {
         this.getCachedOrFetchVixData()
       ]);
 
+      // Get SP500 data and validate price
+      const sp500Data = sp500SparklineData.status === 'fulfilled' ? sp500SparklineData.value : null;
+      let priceValidation: Awaited<ReturnType<typeof this.validateSPYPrice>> | null = null;
+      
+      if (sp500Data?.currentPrice) {
+        priceValidation = await this.validateSPYPrice(sp500Data.currentPrice);
+        
+        // If price is invalid and we have a better price from validation, update it
+        if (priceValidation && !priceValidation.isValid && priceValidation.actualPrice) {
+          this.logger.log(`🔄 Updating SPY price from ${sp500Data.currentPrice} to ${priceValidation.actualPrice} based on validation`);
+          sp500Data.currentPrice = priceValidation.actualPrice;
+          
+          // Recalculate weekly change with correct current price
+          if (sp500Data.data && sp500Data.data.length > 0) {
+            const weekAgoPrice = sp500Data.data[0].price;
+            sp500Data.weeklyChange = ((priceValidation.actualPrice - weekAgoPrice) / weekAgoPrice) * 100;
+          }
+        }
+      }
+
       const enhancedSummary = {
         fearGreedIndex: fearGreedData.status === 'fulfilled' ? fearGreedData.value : null,
         economicIndicators: economicData.status === 'fulfilled' ? economicData.value : null,
-        sp500Sparkline: sp500SparklineData.status === 'fulfilled' ? sp500SparklineData.value : null,
+        sp500Sparkline: sp500Data,
         sectors: sectorData.status === 'fulfilled' ? sectorData.value : [],
         vix: vixData.status === 'fulfilled' ? vixData.value : null,
         // Legacy data for backward compatibility
         indices: {
-          sp500: { value: sp500SparklineData.status === 'fulfilled' ? sp500SparklineData.value.currentPrice : 4200, change: 0, changePercent: 0 },
+          sp500: { 
+            value: sp500Data?.currentPrice || 4200, 
+            change: sp500Data?.weeklyChange || 0, 
+            changePercent: sp500Data?.weeklyChange || 0 
+          },
           nasdaq: { value: 13000, change: 0, changePercent: 0 },
           dow: { value: 34000, change: 0, changePercent: 0 }
         },
-        marketSentiment: sp500SparklineData.status === 'fulfilled' ? sp500SparklineData.value.marketSentiment : 'neutral',
+        marketSentiment: sp500Data?.marketSentiment || 'neutral',
         volatilityIndex: vixData.status === 'fulfilled' ? vixData.value.value : 20,
         source: 'enhanced_cache',
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
+        // Add validation info for debugging
+        priceValidation: priceValidation
       };
 
       return enhancedSummary;
@@ -472,13 +550,43 @@ export class MarketService {
     }
   }
 
-  private isDataFresh(updatedAt: string): boolean {
+  private isDataFresh(updatedAt: string, dataType?: string): boolean {
     const now = new Date();
     const dataTime = new Date(updatedAt);
     const diffMinutes = (now.getTime() - dataTime.getTime()) / (1000 * 60);
 
-    // Consider data fresh if it's less than 30 minutes old (market data changes slower)
-    return diffMinutes < 30;
+    // Dynamic freshness based on data type and market hours
+    const isMarketHours = this.isMarketHours();
+    
+    // Different freshness thresholds based on data type
+    let freshnessThreshold = 30; // Default 30 minutes
+    
+    if (dataType === 'sp500' || dataType === 'market_data') {
+      freshnessThreshold = isMarketHours ? 5 : 15; // 5 minutes during market hours, 15 minutes after hours
+    } else if (dataType === 'sector_data') {
+      freshnessThreshold = isMarketHours ? 15 : 30; // 15 minutes during market hours, 30 minutes after hours
+    }
+
+    return diffMinutes < freshnessThreshold;
+  }
+
+  private isMarketHours(): boolean {
+    const now = new Date();
+    const easternTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+    const dayOfWeek = easternTime.getDay(); // 0 = Sunday, 6 = Saturday
+    const hour = easternTime.getHours();
+    const minute = easternTime.getMinutes();
+    
+    // Market is open Monday-Friday (1-5), 9:30 AM - 4:00 PM EST
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      return false; // Weekend
+    }
+    
+    const timeInMinutes = hour * 60 + minute;
+    const marketOpenMinutes = 9 * 60 + 30; // 9:30 AM
+    const marketCloseMinutes = 16 * 60;     // 4:00 PM
+    
+    return timeInMinutes >= marketOpenMinutes && timeInMinutes <= marketCloseMinutes;
   }
 
   // Mock data methods (fallbacks)

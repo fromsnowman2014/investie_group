@@ -31,9 +31,9 @@ export class ScheduledMarketUpdatesService {
   private readonly CACHE_TTL = {
     fearGreedIndex: 12 * 60 * 60,      // 12 hours
     economicIndicators: 12 * 60 * 60,   // 12 hours (FRED data updated daily)
-    sp500Sparkline: 12 * 60 * 60,      // 12 hours
-    sectorPerformance: 12 * 60 * 60,   // 12 hours
-    vixData: 12 * 60 * 60              // 12 hours
+    sp500Sparkline: 15 * 60,           // 15 minutes - real-time market data
+    sectorPerformance: 30 * 60,        // 30 minutes - sector data
+    vixData: 15 * 60                   // 15 minutes - volatility data
   };
 
   constructor(
@@ -82,6 +82,37 @@ export class ScheduledMarketUpdatesService {
       this.logger.error('❌ Market close update failed:', error.message);
       await this.notifyUpdateFailure('market_close', error);
       throw error;
+    }
+  }
+
+  /**
+   * Intraday updates every 15 minutes during market hours (9:30 AM - 4:00 PM EST)
+   */
+  @Cron('*/15 9-15 * * 1-5', {
+    name: 'intraday-market-update',
+    timeZone: 'America/New_York'
+  })
+  async intradayMarketUpdate(): Promise<void> {
+    // Only run during market hours
+    if (!this.isMarketHours()) {
+      return;
+    }
+
+    this.logger.log('⚡ Starting intraday market update (15-minute interval)');
+    
+    try {
+      // Only update critical real-time data during market hours
+      const updates = [
+        this.updateSP500SparklineOnly(),
+        this.updateVixDataOnly()
+      ];
+
+      const results = await Promise.allSettled(updates);
+      const successful = results.filter(r => r.status === 'fulfilled').length;
+      
+      this.logger.log(`⚡ Intraday update completed: ${successful}/${results.length} successful`);
+    } catch (error) {
+      this.logger.error('❌ Intraday market update failed:', error.message);
     }
   }
 
@@ -376,5 +407,73 @@ export class ScheduledMarketUpdatesService {
   async forceUpdateAll(): Promise<UpdateSummary> {
     this.logger.warn('🔧 Manual force update triggered');
     return await this.executeScheduledUpdate('market_close');
+  }
+
+  /**
+   * Check if market is currently open (9:30 AM - 4:00 PM EST, Monday-Friday)
+   */
+  private isMarketHours(): boolean {
+    const now = new Date();
+    const easternTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+    const dayOfWeek = easternTime.getDay(); // 0 = Sunday, 6 = Saturday
+    const hour = easternTime.getHours();
+    const minute = easternTime.getMinutes();
+    
+    // Market is open Monday-Friday (1-5), 9:30 AM - 4:00 PM EST
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      return false; // Weekend
+    }
+    
+    const timeInMinutes = hour * 60 + minute;
+    const marketOpenMinutes = 9 * 60 + 30; // 9:30 AM
+    const marketCloseMinutes = 16 * 60;     // 4:00 PM
+    
+    return timeInMinutes >= marketOpenMinutes && timeInMinutes <= marketCloseMinutes;
+  }
+
+  /**
+   * Update only S&P 500 sparkline data (for intraday updates)
+   */
+  private async updateSP500SparklineOnly(): Promise<SP500SparklineData> {
+    try {
+      const sp500Data = await this.alphaVantageService.getSP500SparklineData();
+      
+      await this.marketCacheService.cacheMarketData({
+        dataType: 'sp500_sparkline',
+        dataPayload: sp500Data,
+        marketSession: 'intraday',
+        apiSource: 'yahoo_finance_backup',
+        expiryTimestamp: new Date(Date.now() + this.CACHE_TTL.sp500Sparkline * 1000)
+      });
+
+      this.logger.log(`⚡ SP500 intraday update: $${sp500Data.currentPrice} (${sp500Data.weeklyChange.toFixed(2)}%)`);
+      return sp500Data;
+    } catch (error) {
+      this.logger.error('SP500 intraday update failed:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Update only VIX data (for intraday updates)
+   */
+  private async updateVixDataOnly(): Promise<VixData> {
+    try {
+      const vixData = await this.alphaVantageService.getEnhancedVixData();
+      
+      await this.marketCacheService.cacheMarketData({
+        dataType: 'vix_data',
+        dataPayload: vixData,
+        marketSession: 'intraday',
+        apiSource: 'alpha_vantage',
+        expiryTimestamp: new Date(Date.now() + this.CACHE_TTL.vixData * 1000)
+      });
+
+      this.logger.log(`⚡ VIX intraday update: ${vixData.value} (${vixData.status})`);
+      return vixData;
+    } catch (error) {
+      this.logger.error('VIX intraday update failed:', error.message);
+      throw error;
+    }
   }
 }

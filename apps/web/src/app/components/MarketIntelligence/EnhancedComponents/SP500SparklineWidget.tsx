@@ -15,6 +15,8 @@ interface SP500SparklineData {
   weeklyTrend: 'up' | 'down' | 'flat';
   volatility: 'low' | 'moderate' | 'high';
   marketSentiment: 'bullish' | 'neutral' | 'bearish';
+  lastUpdated?: string;
+  source?: string;
 }
 
 interface SP500SparklineWidgetProps {
@@ -80,7 +82,65 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
     return `${sign}${change.toFixed(2)}%`;
   };
 
+  const getDataFreshness = (lastUpdated?: string): {
+    text: string;
+    color: string;
+    icon: string;
+  } => {
+    if (!lastUpdated) {
+      return { text: 'Unknown', color: '#9CA3AF', icon: '❓' };
+    }
+
+    const now = new Date();
+    const updated = new Date(lastUpdated);
+    const diffMinutes = Math.floor((now.getTime() - updated.getTime()) / (1000 * 60));
+
+    if (diffMinutes < 1) {
+      return { text: 'Just now', color: '#10B981', icon: '🟢' };
+    } else if (diffMinutes < 5) {
+      return { text: `${diffMinutes}m ago`, color: '#10B981', icon: '🟢' };
+    } else if (diffMinutes < 15) {
+      return { text: `${diffMinutes}m ago`, color: '#F59E0B', icon: '🟡' };
+    } else if (diffMinutes < 60) {
+      return { text: `${diffMinutes}m ago`, color: '#EF4444', icon: '🔴' };
+    } else {
+      const hours = Math.floor(diffMinutes / 60);
+      return { text: `${hours}h ago`, color: '#EF4444', icon: '🔴' };
+    }
+  };
+
+  const isMarketHours = (): boolean => {
+    const now = new Date();
+    const easternTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+    const dayOfWeek = easternTime.getDay();
+    const hour = easternTime.getHours();
+    const minute = easternTime.getMinutes();
+    
+    if (dayOfWeek === 0 || dayOfWeek === 6) return false;
+    
+    const timeInMinutes = hour * 60 + minute;
+    return timeInMinutes >= 9 * 60 + 30 && timeInMinutes <= 16 * 60;
+  };
+
+  const getDataSourceBadge = (source?: string): { text: string; color: string } => {
+    if (!source) return { text: 'Unknown', color: '#9CA3AF' };
+    
+    switch (source) {
+      case 'yahoo_finance':
+        return { text: 'Yahoo', color: '#8B5CF6' };
+      case 'alpha_vantage':
+        return { text: 'Alpha Vantage', color: '#3B82F6' };
+      case 'cache':
+        return { text: 'Cached', color: '#6B7280' };
+      default:
+        return { text: source, color: '#9CA3AF' };
+    }
+  };
+
   const trendColor = getTrendColor(data.weeklyTrend);
+  const freshness = getDataFreshness(data.lastUpdated);
+  const dataSource = getDataSourceBadge(data.source);
+  const marketOpen = isMarketHours();
 
   return (
     <div className="sp500-sparkline-widget">
@@ -121,6 +181,34 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
             {getVolatilityIcon(data.volatility)}
             <span>{data.volatility.toUpperCase()}</span>
           </div>
+        </div>
+      </div>
+
+      {/* Data Freshness and Market Status */}
+      <div className="data-status-section">
+        <div className="data-freshness">
+          <span className="freshness-icon">{freshness.icon}</span>
+          <span 
+            className="freshness-text" 
+            style={{ color: freshness.color }}
+          >
+            {freshness.text}
+          </span>
+        </div>
+        
+        <div className="market-status">
+          <span className="market-indicator">
+            {marketOpen ? '🟢 Market Open' : '🔴 Market Closed'}
+          </span>
+        </div>
+
+        <div className="data-source">
+          <span 
+            className="source-badge"
+            style={{ backgroundColor: dataSource.color }}
+          >
+            {dataSource.text}
+          </span>
         </div>
       </div>
 
@@ -247,6 +335,58 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
           font-size: 10px;
         }
 
+        /* Data Status Section */
+        .data-status-section {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-top: 12px;
+          margin-top: 12px;
+          border-top: 1px solid #f1f5f9;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+
+        .data-freshness {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .freshness-icon {
+          font-size: 10px;
+        }
+
+        .freshness-text {
+          font-size: 10px;
+          font-weight: 500;
+        }
+
+        .market-status {
+          flex-grow: 1;
+          text-align: center;
+        }
+
+        .market-indicator {
+          font-size: 10px;
+          font-weight: 500;
+          color: #374151;
+        }
+
+        .data-source {
+          display: flex;
+          align-items: center;
+        }
+
+        .source-badge {
+          font-size: 9px;
+          color: white;
+          padding: 2px 6px;
+          border-radius: 8px;
+          font-weight: 500;
+          opacity: 0.8;
+        }
+
         /* Loading states */
         .sp500-sparkline-widget.loading {
           opacity: 0.7;
@@ -320,6 +460,20 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
 
           .metric-label {
             margin-bottom: 0;
+          }
+
+          .data-status-section {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+          }
+
+          .market-status {
+            text-align: left;
+          }
+
+          .data-source {
+            align-self: flex-end;
           }
         }
 
