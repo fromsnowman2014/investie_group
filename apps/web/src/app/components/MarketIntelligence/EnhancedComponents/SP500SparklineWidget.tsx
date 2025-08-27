@@ -80,29 +80,6 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
     return `${sign}${change.toFixed(2)}%`;
   };
 
-  // Create sparkline SVG path
-  const createSparklinePath = (data: SparklineDataPoint[]): string => {
-    if (data.length === 0) return '';
-    
-    const width = 200;
-    const height = 60;
-    const padding = 4;
-    
-    const prices = data.map(d => d.price);
-    const minPrice = Math.min(...prices);
-    const maxPrice = Math.max(...prices);
-    const priceRange = maxPrice - minPrice || 1;
-    
-    const points = data.map((point, index) => {
-      const x = (index / (data.length - 1)) * (width - 2 * padding) + padding;
-      const y = height - padding - ((point.price - minPrice) / priceRange) * (height - 2 * padding);
-      return `${x},${y}`;
-    });
-    
-    return `M ${points.join(' L ')}`;
-  };
-
-  const sparklinePath = createSparklinePath(data.data);
   const trendColor = getTrendColor(data.weeklyTrend);
 
   return (
@@ -136,71 +113,6 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
         </div>
       </div>
 
-      <div className="sparkline-section">
-        <div className="chart-container">
-          <svg width="200" height="60" className="sparkline-chart">
-            {/* Background grid lines */}
-            <defs>
-              <pattern id="grid" width="20" height="15" patternUnits="userSpaceOnUse">
-                <path d="M 20 0 L 0 0 0 15" fill="none" stroke="#f1f5f9" strokeWidth="0.5"/>
-              </pattern>
-            </defs>
-            <rect width="200" height="60" fill="url(#grid)" />
-            
-            {/* Sparkline path */}
-            <path
-              d={sparklinePath}
-              fill="none"
-              stroke={trendColor}
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            
-            {/* Data points */}
-            {data.data.map((point, index) => {
-              const width = 200;
-              const height = 60;
-              const padding = 4;
-              const prices = data.data.map(d => d.price);
-              const minPrice = Math.min(...prices);
-              const maxPrice = Math.max(...prices);
-              const priceRange = maxPrice - minPrice || 1;
-              
-              const x = (index / (data.data.length - 1)) * (width - 2 * padding) + padding;
-              const y = height - padding - ((point.price - minPrice) / priceRange) * (height - 2 * padding);
-              
-              return (
-                <circle
-                  key={index}
-                  cx={x}
-                  cy={y}
-                  r="2"
-                  fill={trendColor}
-                  className="data-point"
-                />
-              );
-            })}
-            
-            {/* Current price indicator */}
-            <line
-              x1="196"
-              y1="0"
-              x2="196"
-              y2="60"
-              stroke={trendColor}
-              strokeWidth="1"
-              strokeDasharray="3,3"
-              opacity="0.5"
-            />
-          </svg>
-          
-          <div className="chart-labels">
-            <div className="label-left">{data.data[0]?.timestamp.split('-')[1]}/{data.data[0]?.timestamp.split('-')[2]}</div>
-            <div className="label-right">{data.data[data.data.length - 1]?.timestamp.split('-')[1]}/{data.data[data.data.length - 1]?.timestamp.split('-')[2]}</div>
-          </div>
-        </div>
-      </div>
 
       <div className="metrics-section">
         <div className="metric-item">
@@ -208,21 +120,6 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
           <div className="metric-value">
             {getVolatilityIcon(data.volatility)}
             <span>{data.volatility.toUpperCase()}</span>
-          </div>
-        </div>
-        
-        <div className="metric-item">
-          <div className="metric-label">7-Day Trend</div>
-          <div className="metric-value" style={{ color: trendColor }}>
-            {data.weeklyTrend === 'up' ? '📈' : data.weeklyTrend === 'down' ? '📉' : '➡️'}
-            <span>{data.weeklyTrend.toUpperCase()}</span>
-          </div>
-        </div>
-
-        <div className="metric-item">
-          <div className="metric-label">Data Points</div>
-          <div className="metric-value">
-            📊 <span>{data.data.length}D</span>
           </div>
         </div>
       </div>
@@ -295,7 +192,7 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
         }
 
         .current-price {
-          font-size: 28px;
+          font-size: 16px;
           font-weight: 700;
           color: #1e293b;
           line-height: 1;
@@ -318,51 +215,15 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
           font-weight: 500;
         }
 
-        .sparkline-section {
-          margin-bottom: 16px;
-        }
-
-        .chart-container {
-          position: relative;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-        }
-
-        .sparkline-chart {
-          border-radius: 8px;
-          background: #fafbfc;
-          border: 1px solid #e2e8f0;
-        }
-
-        .data-point {
-          transition: r 0.2s ease;
-        }
-
-        .data-point:hover {
-          r: 3;
-          fill: #1e293b;
-        }
-
-        .chart-labels {
-          display: flex;
-          justify-content: space-between;
-          width: 200px;
-          margin-top: 8px;
-          font-size: 10px;
-          color: #64748b;
-        }
 
         .metrics-section {
           display: flex;
-          justify-content: space-between;
-          gap: 16px;
+          justify-content: center;
           padding-top: 12px;
           border-top: 1px solid #f1f5f9;
         }
 
         .metric-item {
-          flex: 1;
           text-align: center;
         }
 
@@ -446,19 +307,15 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
           }
 
           .current-price {
-            font-size: 24px;
+            font-size: 16px;
           }
 
           .metrics-section {
-            flex-direction: column;
-            gap: 8px;
+            justify-content: center;
           }
 
           .metric-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            text-align: left;
+            text-align: center;
           }
 
           .metric-label {
@@ -466,17 +323,6 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
           }
         }
 
-        @media (max-width: 480px) {
-          .sparkline-chart {
-            width: 100%;
-            max-width: 200px;
-          }
-
-          .chart-labels {
-            width: 100%;
-            max-width: 200px;
-          }
-        }
       `}</style>
     </div>
   );
