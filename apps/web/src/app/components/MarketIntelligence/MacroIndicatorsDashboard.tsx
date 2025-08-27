@@ -74,10 +74,9 @@ export default function MacroIndicatorsDashboard({ }: MacroIndicatorsDashboardPr
             ))}
           </div>
           <div className="sectors-section">
-            <div className="skeleton-line"></div>
-            <div className="sectors-grid">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="sector-item skeleton">
+            <div className="sectors-compact skeleton">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="sector-chip skeleton">
                   <div className="skeleton-line short"></div>
                 </div>
               ))}
@@ -255,32 +254,43 @@ export default function MacroIndicatorsDashboard({ }: MacroIndicatorsDashboardPr
           </div>
         </div>
 
-        {/* Sector Performance */}
+        {/* Sector Performance - Ultra Compact */}
         <div className="sectors-section">
-          <div className="section-title">Sector Performance</div>
-          <div className="sectors-grid">
-            {data.sectors.map((sector, index) => (
-              <div key={index} className="sector-item">
-                <div className="sector-name">{sector.name}</div>
-                <div 
+          <div className="sectors-compact">
+            {data.sectors.slice(0, 8).map((sector, index) => (
+              <div key={index} className="sector-chip">
+                <span className="sector-name">{sector.name.split(' ')[0]}</span>
+                <span 
                   className="sector-change"
                   style={{ color: getChangeColor(sector.change) }}
                 >
-                  {sector.change >= 0 ? '+' : ''}{sector.change.toFixed(2)}%
-                </div>
-                <div className="sector-indicator">
-                  {sector.performance === 'positive' ? '⬆️' : '⬇️'}
-                </div>
+                  {sector.change >= 0 ? '+' : ''}{sector.change.toFixed(1)}%
+                </span>
+                <span className="sector-indicator">
+                  {sector.performance === 'positive' ? '↗' : '↘'}
+                </span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Market Metrics */}
+        {/* Market Metrics - Extended */}
         <div className="metrics-section">
-          <div className="metric-item">
-            <div className="metric-label">VIX (Volatility)</div>
-            <div className="metric-value">{data.volatilityIndex.toFixed(2)}</div>
+          <div className="metric-chip">
+            <span className="metric-label">VIX</span>
+            <span className="metric-value">{data.volatilityIndex.toFixed(1)}</span>
+          </div>
+          <div className="metric-chip">
+            <span className="metric-label">Fear & Greed</span>
+            <span className="metric-value">-</span>
+          </div>
+          <div className="metric-chip">
+            <span className="metric-label">10Y Treasury</span>
+            <span className="metric-value">-</span>
+          </div>
+          <div className="metric-chip">
+            <span className="metric-label">CPI</span>
+            <span className="metric-value">-</span>
           </div>
         </div>
       </div>
@@ -429,63 +439,71 @@ export default function MacroIndicatorsDashboard({ }: MacroIndicatorsDashboardPr
           font-weight: 500;
         }
 
-        .sectors-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-          gap: 12px;
-        }
-
-        .sector-item {
+        .sectors-compact {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          padding: 12px;
           background: #f8fafc;
           border-radius: 8px;
-          padding: 12px;
           border: 1px solid #e2e8f0;
+        }
+
+        .sector-chip {
           display: flex;
-          flex-direction: column;
           align-items: center;
-          text-align: center;
+          gap: 4px;
+          padding: 4px 8px;
+          background: white;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          font-size: 11px;
+          white-space: nowrap;
         }
 
         .sector-name {
-          font-size: 12px;
           font-weight: 600;
           color: #374151;
-          margin-bottom: 4px;
         }
 
         .sector-change {
-          font-size: 14px;
-          font-weight: 700;
-          margin-bottom: 4px;
+          font-weight: 600;
         }
 
         .sector-indicator {
-          font-size: 16px;
+          font-size: 10px;
+          opacity: 0.8;
         }
 
         .metrics-section {
           display: flex;
+          flex-wrap: wrap;
           justify-content: center;
-          gap: 40px;
-          padding: 16px;
+          gap: 8px;
+          padding: 12px;
           background: #f8fafc;
           border-radius: 8px;
           border: 1px solid #e2e8f0;
         }
 
-        .metric-item {
-          flex: 1;
-          text-align: center;
+        .metric-chip {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 12px;
+          background: white;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          font-size: 12px;
+          white-space: nowrap;
         }
 
         .metric-label {
-          font-size: 12px;
+          font-weight: 500;
           color: #6b7280;
-          margin-bottom: 4px;
         }
 
         .metric-value {
-          font-size: 16px;
           font-weight: 600;
           color: #1e293b;
         }
@@ -641,13 +659,24 @@ export default function MacroIndicatorsDashboard({ }: MacroIndicatorsDashboardPr
             gap: 8px;
           }
 
-          .sectors-grid {
-            grid-template-columns: repeat(2, 1fr);
+          .sectors-compact {
+            padding: 8px;
+            gap: 4px;
+          }
+
+          .sector-chip {
+            font-size: 10px;
+            padding: 3px 6px;
           }
 
           .metrics-section {
-            flex-direction: column;
-            gap: 12px;
+            gap: 6px;
+            padding: 8px;
+          }
+
+          .metric-chip {
+            font-size: 11px;
+            padding: 5px 8px;
           }
         }
       `}</style>
