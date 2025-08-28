@@ -147,12 +147,6 @@ const EconomicIndicatorsGrid: React.FC<EconomicIndicatorsGridProps> = ({ data, i
                 </div>
               </div>
               
-              {data.interestRate.aiOutlook && (
-                <div className="ai-insight">
-                  <div className="insight-icon">🤖</div>
-                  <div className="insight-text">{data.interestRate.aiOutlook}</div>
-                </div>
-              )}
             </div>
 
             <div className="card-footer">
@@ -199,15 +193,6 @@ const EconomicIndicatorsGrid: React.FC<EconomicIndicatorsGridProps> = ({ data, i
                 </div>
               </div>
               
-              <div className="pressure-indicator">
-                <span className="pressure-label">Inflation Pressure:</span>
-                <span 
-                  className="pressure-value"
-                  style={{ color: getPressureColor(data.cpi.inflationPressure) }}
-                >
-                  {data.cpi.inflationPressure.toUpperCase()}
-                </span>
-              </div>
             </div>
 
             <div className="card-footer">
@@ -242,15 +227,6 @@ const EconomicIndicatorsGrid: React.FC<EconomicIndicatorsGridProps> = ({ data, i
                 </div>
               </div>
               
-              <div className="health-indicator">
-                <span className="health-label">Employment Health:</span>
-                <span 
-                  className="health-value"
-                  style={{ color: getHealthColor(data.unemployment.employmentHealth) }}
-                >
-                  {data.unemployment.employmentHealth.toUpperCase()}
-                </span>
-              </div>
             </div>
 
             <div className="card-footer">
@@ -344,7 +320,7 @@ const EconomicIndicatorsGrid: React.FC<EconomicIndicatorsGridProps> = ({ data, i
         }
 
         .primary-value {
-          font-size: 32px;
+          font-size: 18px;
           font-weight: 700;
           color: #1e293b;
           line-height: 1;
@@ -379,49 +355,6 @@ const EconomicIndicatorsGrid: React.FC<EconomicIndicatorsGridProps> = ({ data, i
           font-weight: 500;
         }
 
-        .pressure-indicator,
-        .health-indicator {
-          background: rgba(248, 250, 252, 0.8);
-          padding: 8px 12px;
-          border-radius: 8px;
-          border: 1px solid #e2e8f0;
-        }
-
-        .pressure-label,
-        .health-label {
-          font-size: 11px;
-          color: #64748b;
-          display: block;
-          margin-bottom: 4px;
-        }
-
-        .pressure-value,
-        .health-value {
-          font-size: 12px;
-          font-weight: 600;
-        }
-
-        .ai-insight {
-          background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-          border: 1px solid #bae6fd;
-          border-radius: 8px;
-          padding: 12px;
-          margin-top: 12px;
-          display: flex;
-          align-items: flex-start;
-          gap: 8px;
-        }
-
-        .insight-icon {
-          font-size: 14px;
-          margin-top: 2px;
-        }
-
-        .insight-text {
-          font-size: 12px;
-          color: #0369a1;
-          line-height: 1.4;
-        }
 
         .card-footer {
           display: flex;
@@ -497,7 +430,7 @@ const EconomicIndicatorsGrid: React.FC<EconomicIndicatorsGridProps> = ({ data, i
           }
 
           .primary-value {
-            font-size: 28px;
+            font-size: 16px;
           }
 
           .grid-header {
@@ -509,16 +442,9 @@ const EconomicIndicatorsGrid: React.FC<EconomicIndicatorsGridProps> = ({ data, i
 
         @media (max-width: 480px) {
           .primary-value {
-            font-size: 24px;
+            font-size: 16px;
           }
 
-          .ai-insight {
-            padding: 10px;
-          }
-
-          .insight-text {
-            font-size: 11px;
-          }
         }
       `}</style>
     </div>

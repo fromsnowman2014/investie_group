@@ -135,16 +135,46 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
   // Check if API URL is properly configured
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const fullApiUrl = apiUrl ? `${apiUrl}/api/v1/market/enhanced-summary` : null;
+
+  // Dynamic refresh interval based on market hours
+  const getRefreshInterval = () => {
+    const now = new Date();
+    const easternTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+    const dayOfWeek = easternTime.getDay(); // 0 = Sunday, 6 = Saturday
+    const hour = easternTime.getHours();
+    const minute = easternTime.getMinutes();
+    
+    // Market is open Monday-Friday (1-5), 9:30 AM - 4:00 PM EST
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      return 300000; // Weekend: 5 minutes
+    }
+    
+    const timeInMinutes = hour * 60 + minute;
+    const marketOpenMinutes = 9 * 60 + 30; // 9:30 AM
+    const marketCloseMinutes = 16 * 60;     // 4:00 PM
+    
+    const isMarketHours = timeInMinutes >= marketOpenMinutes && timeInMinutes <= marketCloseMinutes;
+    
+    if (isMarketHours) {
+      return 30000; // Market hours: 30 seconds
+    } else if (timeInMinutes > marketCloseMinutes - 60 && timeInMinutes < marketCloseMinutes + 60) {
+      return 60000; // Around market close: 1 minute
+    } else {
+      return 180000; // After hours: 3 minutes
+    }
+  };
   
   const { data, error, isLoading } = useSWR<EnhancedMarketSummary>(
     fullApiUrl, // This will be null if API URL is not configured, preventing the request
     fetcher,
     {
-      refreshInterval: 60000, // Refresh every minute
+      refreshInterval: getRefreshInterval(),
       revalidateOnFocus: true,
       revalidateOnReconnect: true,
       errorRetryCount: 3,
       errorRetryInterval: 5000,
+      // Add dedupe interval to prevent too many requests
+      dedupingInterval: 10000,
     }
   );
 
@@ -152,15 +182,11 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
   if (!apiUrl) {
     return (
       <div className="enhanced-macro-dashboard error">
-        <div className="dashboard-header">
-          <h2>Enhanced Market Intelligence</h2>
+        <div className="error-message">
           <div className="error-indicator">
             <span className="error-icon">⚠️</span>
             <span>Configuration Error</span>
           </div>
-        </div>
-        
-        <div className="error-message">
           <p>API URL not configured. Please set NEXT_PUBLIC_API_URL environment variable.</p>
         </div>
       </div>
@@ -171,12 +197,9 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
   if (isLoading || !data) {
     return (
       <div className="enhanced-macro-dashboard loading">
-        <div className="dashboard-header">
-          <h2>Enhanced Market Intelligence</h2>
-          <div className="loading-indicator">
-            <div className="loading-spinner"></div>
-            <span>Loading market data...</span>
-          </div>
+        <div className="loading-indicator">
+          <div className="loading-spinner"></div>
+          <span>Loading market data...</span>
         </div>
         
         <div className="dashboard-grid">
@@ -198,15 +221,11 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
   if (error) {
     return (
       <div className="enhanced-macro-dashboard error">
-        <div className="dashboard-header">
-          <h2>Enhanced Market Intelligence</h2>
+        <div className="error-message">
           <div className="error-indicator">
             <span className="error-icon">⚠️</span>
             <span>Unable to load market data. Retrying...</span>
           </div>
-        </div>
-        
-        <div className="error-message">
           <p>We&apos;re experiencing issues connecting to market data services.</p>
           <p>Please check your connection and try again.</p>
         </div>
@@ -218,24 +237,6 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
 
   return (
     <div className="enhanced-macro-dashboard">
-      <div className="dashboard-header">
-        <div className="header-content">
-          <h2>Enhanced Market Intelligence</h2>
-          {data.cacheInfo && (
-            <div className="cache-performance">
-              <span className="cache-hit-rate">
-                Cache Hit: {(data.cacheInfo.hitRate * 100).toFixed(1)}%
-              </span>
-              <span className="avg-response">
-                Avg Response: {data.cacheInfo.averageResponseTime}ms
-              </span>
-            </div>
-          )}
-        </div>
-        <div className="last-updated">
-          Last updated: {data.lastUpdated ? new Date(data.lastUpdated).toLocaleString() : 'Unknown'}
-        </div>
-      </div>
 
       <div className="dashboard-grid">
         <div className="grid-section left-column">
@@ -276,51 +277,6 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
           opacity: 0.9;
         }
 
-        .dashboard-header {
-          margin-bottom: 24px;
-          padding-bottom: 16px;
-          border-bottom: 2px solid #e2e8f0;
-        }
-
-        .header-content {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 8px;
-        }
-
-        .dashboard-header h2 {
-          font-size: 24px;
-          font-weight: 700;
-          color: #1e293b;
-          margin: 0;
-          background: linear-gradient(135deg, #00bce5 0%, #2962ff 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        .cache-performance {
-          display: flex;
-          gap: 16px;
-          align-items: center;
-        }
-
-        .cache-hit-rate,
-        .avg-response {
-          font-size: 11px;
-          color: #64748b;
-          background: #f1f5f9;
-          padding: 4px 8px;
-          border-radius: 12px;
-          font-weight: 500;
-        }
-
-        .last-updated {
-          font-size: 12px;
-          color: #64748b;
-          font-style: italic;
-        }
 
         .loading-indicator,
         .error-indicator {
@@ -395,19 +351,6 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
             gap: 20px;
           }
 
-          .header-content {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 8px;
-          }
-
-          .cache-performance {
-            align-self: flex-end;
-          }
-
-          .dashboard-header h2 {
-            font-size: 20px;
-          }
         }
 
         @media (max-width: 768px) {
@@ -423,15 +366,6 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
             gap: 16px;
           }
 
-          .cache-performance {
-            flex-direction: column;
-            gap: 4px;
-            align-self: stretch;
-          }
-
-          .dashboard-header h2 {
-            font-size: 18px;
-          }
         }
 
         @media (max-width: 480px) {
@@ -439,17 +373,6 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
             padding: 8px;
           }
 
-          .dashboard-header {
-            margin-bottom: 16px;
-          }
-
-          .header-content {
-            align-items: stretch;
-          }
-
-          .cache-performance {
-            align-self: stretch;
-          }
         }
       `}</style>
     </div>
