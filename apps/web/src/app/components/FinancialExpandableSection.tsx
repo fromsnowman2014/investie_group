@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 
 interface FinancialExpandableSectionProps {
   children: React.ReactNode;
@@ -42,6 +42,15 @@ export default function FinancialExpandableSection({
   const [shouldShowButton, setShouldShowButton] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
+  const getCurrentInitialHeight = useCallback(() => {
+    if (typeof window === 'undefined') return initialHeight.desktop;
+    
+    const width = window.innerWidth;
+    if (width <= 767) return initialHeight.mobile;
+    if (width <= 1023) return initialHeight.tablet;
+    return initialHeight.desktop;
+  }, [initialHeight]);
+
   // Calculate if content exceeds initial height
   useEffect(() => {
     if (contentRef.current) {
@@ -52,16 +61,7 @@ export default function FinancialExpandableSection({
       const currentInitialHeight = getCurrentInitialHeight();
       setShouldShowButton(fullHeight > currentInitialHeight);
     }
-  }, [children, initialHeight]);
-
-  const getCurrentInitialHeight = () => {
-    if (typeof window === 'undefined') return initialHeight.desktop;
-    
-    const width = window.innerWidth;
-    if (width <= 767) return initialHeight.mobile;
-    if (width <= 1023) return initialHeight.tablet;
-    return initialHeight.desktop;
-  };
+  }, [children, initialHeight, getCurrentInitialHeight]);
 
   const getPriorityClasses = () => {
     switch (priority) {

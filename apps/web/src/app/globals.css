@@ -851,7 +851,7 @@ body {
   
   /* 5-Row Layout for Desktop (1024px+) - Symmetric 50:50 Design */
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 250px 300px 300px 400px 300px 300px;
+  grid-template-rows: 250px 400px 400px 400px 400px 400px;
   grid-template-areas: 
     "ai-opinion ai-opinion"                      /* Row 1: Full width */
     "stock-profile macro-indicators"             /* Row 2: 50% + 50% = Perfect symmetry ✅ */

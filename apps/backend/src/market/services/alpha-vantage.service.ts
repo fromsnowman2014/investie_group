@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
+import { YahooFinanceService } from './yahoo-finance.service';
 
 export interface SP500SparklineData {
   data: Array<{
@@ -54,7 +55,7 @@ export class AlphaVantageService {
     'Communication Services': 'XLC'
   };
 
-  constructor() {
+  constructor(private readonly yahooFinanceService: YahooFinanceService) {
     if (!this.alphaVantageApiKey) {
       this.logger.warn('Alpha Vantage API key not configured');
     }
@@ -62,57 +63,83 @@ export class AlphaVantageService {
 
   /**
    * Get S&P 500 sparkline data with 7-day mini chart
+   * Uses Yahoo Finance as backup when Alpha Vantage fails
    */
   async getSP500SparklineData(): Promise<SP500SparklineData> {
     try {
-      if (!this.alphaVantageApiKey) {
-        return this.getMockSP500SparklineData();
+      // Try Alpha Vantage first if API key is available and not demo
+      if (this.alphaVantageApiKey && this.alphaVantageApiKey !== 'demo') {
+        try {
+          const alphaVantageData = await this.fetchSP500FromAlphaVantage();
+          this.logger.log('✅ SPY data fetched from Alpha Vantage');
+          return alphaVantageData;
+        } catch (alphaVantageError) {
+          this.logger.warn('Alpha Vantage failed, falling back to Yahoo Finance:', alphaVantageError.message);
+        }
       }
 
-      // Fetch daily time series for SPY
-      const response = await axios.get(this.alphaVantageBaseUrl, {
-        params: {
-          function: 'TIME_SERIES_DAILY',
-          symbol: 'SPY',
-          apikey: this.alphaVantageApiKey,
-          outputsize: 'compact' // Last 100 data points
-        },
-        timeout: 15000
-      });
-
-      const timeSeries = response.data['Time Series (Daily)'];
-      if (!timeSeries) {
-        throw new Error('No time series data received');
+      // Fallback to Yahoo Finance (free, no API key required)
+      try {
+        const yahooData = await this.yahooFinanceService.getSPYSparklineData();
+        this.logger.log('✅ SPY data fetched from Yahoo Finance (backup)');
+        return yahooData;
+      } catch (yahooError) {
+        this.logger.error('Yahoo Finance backup failed:', yahooError.message);
       }
 
-      // Extract last 7 days of data
-      const dates = Object.keys(timeSeries).sort().reverse().slice(0, 7);
-      const sparklineData = dates.map(date => ({
-        timestamp: date,
-        price: parseFloat(timeSeries[date]['4. close']),
-        volume: parseInt(timeSeries[date]['5. volume'])
-      })).reverse(); // Reverse to chronological order
-
-      // Calculate metrics
-      const currentPrice = sparklineData[sparklineData.length - 1].price;
-      const weekAgoPrice = sparklineData[0].price;
-      const weeklyChange = ((currentPrice - weekAgoPrice) / weekAgoPrice) * 100;
-      const weeklyTrend = this.determineTrend(weeklyChange);
-      const volatility = this.calculateVolatility(sparklineData);
-      const marketSentiment = this.determineSentiment(weeklyChange, volatility);
-
-      return {
-        data: sparklineData,
-        currentPrice,
-        weeklyChange,
-        weeklyTrend,
-        volatility,
-        marketSentiment
-      };
+      // Final fallback to mock data with warning
+      this.logger.warn('⚠️ All real-time data sources failed, using mock data');
+      return this.getMockSP500SparklineData();
     } catch (error) {
-      this.logger.error('Error fetching S&P 500 sparkline data:', error.message);
+      this.logger.error('Error in getSP500SparklineData:', error.message);
       return this.getMockSP500SparklineData();
     }
+  }
+
+  /**
+   * Fetch S&P 500 data from Alpha Vantage
+   */
+  private async fetchSP500FromAlphaVantage(): Promise<SP500SparklineData> {
+    // Fetch daily time series for SPY
+    const response = await axios.get(this.alphaVantageBaseUrl, {
+      params: {
+        function: 'TIME_SERIES_DAILY',
+        symbol: 'SPY',
+        apikey: this.alphaVantageApiKey,
+        outputsize: 'compact' // Last 100 data points
+      },
+      timeout: 15000
+    });
+
+    const timeSeries = response.data['Time Series (Daily)'];
+    if (!timeSeries) {
+      throw new Error('No time series data received from Alpha Vantage');
+    }
+
+    // Extract last 7 days of data
+    const dates = Object.keys(timeSeries).sort().reverse().slice(0, 7);
+    const sparklineData = dates.map(date => ({
+      timestamp: date,
+      price: parseFloat(timeSeries[date]['4. close']),
+      volume: parseInt(timeSeries[date]['5. volume'])
+    })).reverse(); // Reverse to chronological order
+
+    // Calculate metrics
+    const currentPrice = sparklineData[sparklineData.length - 1].price;
+    const weekAgoPrice = sparklineData[0].price;
+    const weeklyChange = ((currentPrice - weekAgoPrice) / weekAgoPrice) * 100;
+    const weeklyTrend = this.determineTrend(weeklyChange);
+    const volatility = this.calculateVolatility(sparklineData);
+    const marketSentiment = this.determineSentiment(weeklyChange, volatility);
+
+    return {
+      data: sparklineData,
+      currentPrice,
+      weeklyChange,
+      weeklyTrend,
+      volatility,
+      marketSentiment
+    };
   }
 
   /**
