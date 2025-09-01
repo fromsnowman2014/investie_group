@@ -35,9 +35,10 @@ CREATE TABLE IF NOT EXISTS stock_news (
   symbol stock_symbol NOT NULL,
   headline TEXT NOT NULL,
   articles JSONB DEFAULT '[]',
-  sentiment VARCHAR(10) CHECK (sentiment IN ('positive', 'neutral', 'negative')),
+  sentiment VARCHAR(20) DEFAULT 'neutral' CHECK (sentiment IN ('positive', 'neutral', 'negative')),
   source VARCHAR(50) DEFAULT 'serpapi',
   query_used TEXT,
+  total_articles INTEGER DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

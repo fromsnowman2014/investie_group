@@ -124,6 +124,50 @@ export class DashboardController {
   }
 
   /**
+   * AI analysis data for frontend
+   * GET /api/v1/dashboard/:symbol/ai-analysis
+   */
+  // @Get(':symbol/ai-analysis')
+  // async getAIAnalysis(@Param('symbol') symbol: string) {
+  //   try {
+  //     const aiAnalysis = await this.dashboardService.getAIAnalysis(symbol);
+  //     return aiAnalysis;
+  //   } catch (error) {
+  //     throw new HttpException(
+  //       {
+  //         success: false,
+  //         error: 'Failed to fetch AI analysis',
+  //         details: error.message,
+  //         timestamp: new Date().toISOString(),
+  //       },
+  //       HttpStatus.INTERNAL_SERVER_ERROR,
+  //     );
+  //   }
+  // }
+
+  /**
+   * News analysis data for frontend
+   * GET /api/v1/dashboard/:symbol/news-analysis
+   */
+  // @Get(':symbol/news-analysis')
+  // async getNewsAnalysis(@Param('symbol') symbol: string) {
+  //   try {
+  //     const newsAnalysis = await this.dashboardService.getNewsAnalysis(symbol);
+  //     return newsAnalysis;
+  //   } catch (error) {
+  //     throw new HttpException(
+  //       {
+  //         success: false,
+  //         error: 'Failed to fetch news analysis',
+  //         details: error.message,
+  //         timestamp: new Date().toISOString(),
+  //       },
+  //       HttpStatus.INTERNAL_SERVER_ERROR,
+  //     );
+  //   }
+  // }
+
+  /**
    * 통합 대시보드 데이터 조회
    * GET /api/v1/dashboard/:symbol
    */
