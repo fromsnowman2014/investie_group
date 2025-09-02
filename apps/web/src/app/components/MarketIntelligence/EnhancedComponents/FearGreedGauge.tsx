@@ -63,9 +63,6 @@ const FearGreedGauge: React.FC<FearGreedGaugeProps> = ({ data, isLoading }) => {
     return icons[status as keyof typeof icons] || '😐';
   };
 
-  const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleString();
-  };
 
 
   return (

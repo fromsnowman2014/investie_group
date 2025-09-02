@@ -5,7 +5,7 @@ interface SectionProps {
   icon?: string
   children: React.ReactNode
   className?: string
-  as?: keyof JSX.IntrinsicElements
+  as?: keyof React.JSX.IntrinsicElements
 }
 
 export function Section({ 
