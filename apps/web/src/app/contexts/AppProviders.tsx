@@ -1,7 +1,7 @@
 'use client'
 
 import React, { ReactNode } from 'react'
-import { AppStateProvider } from './AppStateContext'
+import { AppStateProvider, useCurrentStock } from './AppStateContext'
 import { UIProvider } from './UIContext'
 import { SWRConfigProvider } from './SWRConfigProvider'
 
