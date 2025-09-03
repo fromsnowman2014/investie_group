@@ -85,23 +85,6 @@ const EconomicIndicatorsGrid: React.FC<EconomicIndicatorsGridProps> = ({ data, i
     }
   };
 
-  const getHealthColor = (health: string): string => {
-    switch (health) {
-      case 'strong': return '#10B981';
-      case 'moderate': return '#F59E0B';
-      case 'weak': return '#EF4444';
-      default: return '#64748b';
-    }
-  };
-
-  const getPressureColor = (pressure: string): string => {
-    switch (pressure) {
-      case 'low': return '#10B981';
-      case 'moderate': return '#F59E0B';
-      case 'high': return '#EF4444';
-      default: return '#64748b';
-    }
-  };
 
   const formatChange = (change: number): string => {
     const sign = change >= 0 ? '+' : '';
