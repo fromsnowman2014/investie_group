@@ -17,10 +17,8 @@ interface APIDataState<T> {
 }
 
 const defaultFetcher = async (url: string) => {
-  console.log(`🔍 API Data Fetcher Starting: ${url}`)
   const response = await debugFetch(url)
   const data = await response.json()
-  console.log(`📊 API Data Received: ${url}`, data)
   return data
 }
 
