@@ -63,8 +63,6 @@ const FearGreedGauge: React.FC<FearGreedGaugeProps> = ({ data, isLoading }) => {
     return icons[status as keyof typeof icons] || '😐';
   };
 
-
-
   return (
     <div className="fear-greed-gauge">
       <div className="gauge-header">
