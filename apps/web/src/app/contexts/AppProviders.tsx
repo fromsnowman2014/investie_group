@@ -36,7 +36,6 @@ export function AppProviders({ children }: AppProvidersProps) {
 
 // Legacy compatibility - maintain StockProvider API for backward compatibility
 export function StockProvider({ children }: { children: ReactNode }) {
-  console.warn('StockProvider is deprecated. Use AppProviders with useCurrentStock hook instead.')
   return <AppProviders>{children}</AppProviders>
 }
 
@@ -59,7 +58,6 @@ export {
 
 // Legacy compatibility hook
 export function useStock() {
-  console.warn('useStock is deprecated. Use useCurrentStock instead.')
   const { currentSymbol, setCurrentStock } = useCurrentStock()
   return {
     currentSymbol,

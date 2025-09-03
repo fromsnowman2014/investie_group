@@ -69,16 +69,18 @@ export async function debugFetch(url: string, options?: RequestInit): Promise<Re
     timestamp: new Date().toISOString()
   };
 
-  // Log request details
-  console.group('🌐 API Request Debug');
-  console.log('📍 Original URL:', debugInfo.originalUrl);
-  console.log('🌍 NEXT_PUBLIC_API_URL:', debugInfo.envApiUrl || 'UNDEFINED');
-  console.log('🏗️ NODE_ENV:', debugInfo.nodeEnv);
-  console.log('🖥️ Is Client:', debugInfo.isClient);
-  console.log('🌐 Current Origin:', debugInfo.currentOrigin);
-  console.log('🎯 Base URL:', debugInfo.baseUrl);
-  console.log('🔗 Full URL:', debugInfo.fullUrl);
-  console.log('⏰ Timestamp:', debugInfo.timestamp);
+  // Log request details (development only)
+  if (process.env.NODE_ENV === 'development') {
+    console.group('🌐 API Request Debug');
+    console.log('📍 Original URL:', debugInfo.originalUrl);
+    console.log('🌍 NEXT_PUBLIC_API_URL:', debugInfo.envApiUrl || 'UNDEFINED');
+    console.log('🏗️ NODE_ENV:', debugInfo.nodeEnv);
+    console.log('🖥️ Is Client:', debugInfo.isClient);
+    console.log('🌐 Current Origin:', debugInfo.currentOrigin);
+    console.log('🎯 Base URL:', debugInfo.baseUrl);
+    console.log('🔗 Full URL:', debugInfo.fullUrl);
+    console.log('⏰ Timestamp:', debugInfo.timestamp);
+  }
 
   // Critical production check
   if (debugInfo.nodeEnv === 'production' && debugInfo.fullUrl.includes('localhost')) {
@@ -108,27 +110,35 @@ export async function debugFetch(url: string, options?: RequestInit): Promise<Re
       headers: Object.fromEntries(response.headers.entries())
     };
 
-    console.group('📡 API Response Debug');
-    console.log('✅ Status:', responseDebug.status, responseDebug.statusText);
-    console.log('🔗 Response URL:', responseDebug.responseUrl);
-    console.log('🔗 Requested URL:', responseDebug.requestedUrl);
-    console.log('📦 Headers:', responseDebug.headers);
+    if (process.env.NODE_ENV === 'development') {
+      console.group('📡 API Response Debug');
+      console.log('✅ Status:', responseDebug.status, responseDebug.statusText);
+      console.log('🔗 Response URL:', responseDebug.responseUrl);
+      console.log('🔗 Requested URL:', responseDebug.requestedUrl);
+      console.log('📦 Headers:', responseDebug.headers);
+    }
 
     if (!response.ok) {
-      console.error('❌ HTTP Error Details:', responseDebug);
-      console.groupEnd();
+      if (process.env.NODE_ENV === 'development') {
+        console.error('❌ HTTP Error Details:', responseDebug);
+        console.groupEnd();
+      }
       throw new Error(`API Error: ${response.status} - ${response.statusText} (${debugInfo.fullUrl})`);
     }
 
-    console.groupEnd();
+    if (process.env.NODE_ENV === 'development') {
+      console.groupEnd();
+    }
     return response;
   } catch (error) {
-    console.group('❌ API Request Error');
-    console.error('💥 Fetch Error:', error);
-    console.error('🔗 Failed URL:', debugInfo.fullUrl);
-    console.error('🎯 Base URL:', debugInfo.baseUrl);
-    console.error('🌍 Debug Info:', debugInfo);
-    console.groupEnd();
+    if (process.env.NODE_ENV === 'development') {
+      console.group('❌ API Request Error');
+      console.error('💥 Fetch Error:', error);
+      console.error('🔗 Failed URL:', debugInfo.fullUrl);
+      console.error('🎯 Base URL:', debugInfo.baseUrl);
+      console.error('🌍 Debug Info:', debugInfo);
+      console.groupEnd();
+    }
     throw error;
   }
 }
@@ -145,14 +155,16 @@ export async function apiFetcher<T = unknown>(url: string): Promise<T> {
  * Log environment status for debugging
  */
 export function logEnvironmentStatus(): void {
-  console.group('🌍 Environment Status');
-  console.log('NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL || 'UNDEFINED');
-  console.log('NODE_ENV:', process.env.NODE_ENV);
-  console.log('Calculated Base URL:', getApiBaseUrl());
-  console.log('Is Client:', typeof window !== 'undefined');
-  if (typeof window !== 'undefined') {
-    console.log('Current Origin:', window.location.origin);
-    console.log('Current Href:', window.location.href);
+  if (process.env.NODE_ENV === 'development') {
+    console.group('🌍 Environment Status');
+    console.log('NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL || 'UNDEFINED');
+    console.log('NODE_ENV:', process.env.NODE_ENV);
+    console.log('Calculated Base URL:', getApiBaseUrl());
+    console.log('Is Client:', typeof window !== 'undefined');
+    if (typeof window !== 'undefined') {
+      console.log('Current Origin:', window.location.origin);
+      console.log('Current Href:', window.location.href);
+    }
+    console.groupEnd();
   }
-  console.groupEnd();
 }

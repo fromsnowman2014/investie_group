@@ -36,7 +36,9 @@ class ApiClient {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error(`API request failed for ${endpoint}:`, error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error(`API request failed for ${endpoint}:`, error);
+      }
       throw error;
     }
   }

@@ -30,7 +30,6 @@ export function ModularHeader() {
       }))
       setStockData(formattedData)
     }).catch(error => {
-      console.error('Failed to load stock data:', error)
       // Fallback to symbol list
       setStockData(STOCK_SYMBOLS.map(symbol => ({ symbol, name: symbol })))
     })

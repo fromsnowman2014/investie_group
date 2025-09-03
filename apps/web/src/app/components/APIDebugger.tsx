@@ -6,8 +6,6 @@ export default function APIDebugger() {
   useEffect(() => {
     // Dynamic import to avoid SSR issues
     import('@/lib/api-debug').then(() => {
-      console.log('🔍 API Debugger initialized');
-      
       // Use the new utility function for environment logging
       import('@/lib/api-utils').then(({ logEnvironmentStatus }) => {
         logEnvironmentStatus();

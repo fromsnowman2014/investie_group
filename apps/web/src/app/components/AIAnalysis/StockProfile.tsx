@@ -26,10 +26,8 @@ interface StockProfileProps {
 }
 
 const fetcher = async (url: string) => {
-  console.log('📊 Stock Profile Fetcher Starting:', url);
   const response = await debugFetch(url);
   const data = await response.json();
-  console.log('📊 Stock Profile Data:', data);
   return data;
 };
 

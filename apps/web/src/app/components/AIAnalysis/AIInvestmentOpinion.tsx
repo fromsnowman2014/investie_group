@@ -26,10 +26,8 @@ interface AIInvestmentOpinionProps {
 }
 
 const fetcher = async (url: string) => {
-  console.log('🤖 AI Analysis Fetcher Starting:', url);
   const response = await debugFetch(url);
   const data = await response.json();
-  console.log('🤖 AI Analysis Data:', data);
   return data;
 };
 

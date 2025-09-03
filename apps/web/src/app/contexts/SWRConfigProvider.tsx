@@ -16,13 +16,10 @@ export function SWRConfigProvider({ children }: SWRConfigProviderProps) {
     // Global fetcher with error handling
     fetcher: async (url: string) => {
       try {
-        console.log(`🌐 SWR Fetching: ${url}`)
         const response = await debugFetch(url)
         const data = await response.json()
-        console.log(`✅ SWR Success: ${url}`)
         return data
       } catch (error) {
-        console.error(`❌ SWR Error: ${url}`, error)
         throw error
       }
     },
@@ -47,8 +44,6 @@ export function SWRConfigProvider({ children }: SWRConfigProviderProps) {
 
     // Global error handler
     onError: (error: Error, key: string) => {
-      console.error('SWR Global Error:', { error, key })
-      
       // Add user-friendly notification
       let message = 'Failed to load data. Please try again.'
       
@@ -68,14 +63,9 @@ export function SWRConfigProvider({ children }: SWRConfigProviderProps) {
       })
     },
 
-    // Success handler for debugging
-    onSuccess: (data: unknown, key: string) => {
-      console.log(`✅ SWR Data loaded successfully: ${key}`, data)
-    },
 
     // Loading state change handler
     onLoadingSlow: (key: string) => {
-      console.warn(`⏳ SWR Loading slowly: ${key}`)
       addNotification({
         type: 'info',
         message: 'Loading data is taking longer than expected...',
@@ -86,7 +76,6 @@ export function SWRConfigProvider({ children }: SWRConfigProviderProps) {
 
     // Connection recovery handler
     onErrorRetry: (error: Error, key: string, config: unknown, revalidate: unknown, { retryCount }: { retryCount: number }) => {
-      console.log(`🔄 SWR Retry attempt ${retryCount} for ${key}`)
       
       // Don't retry on 404
       if (error.message.includes('404')) return
