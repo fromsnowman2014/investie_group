@@ -202,14 +202,17 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
           <span>Loading market data...</span>
         </div>
         
-        <div className="dashboard-grid">
-          <div className="grid-section left-column">
+        <div className="dashboard-grid-3tier">
+          <div className="top-tier">
             <FearGreedGauge data={null} isLoading={true} />
+            <SP500SparklineWidget data={null} isLoading={true} />
+          </div>
+          
+          <div className="middle-tier">
             <EconomicIndicatorsGrid data={null} isLoading={true} />
           </div>
           
-          <div className="grid-section right-column">
-            <SP500SparklineWidget data={null} isLoading={true} />
+          <div className="bottom-tier">
             <EnhancedSectorGrid sectors={null} isLoading={true} />
           </div>
         </div>
@@ -238,23 +241,26 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
   return (
     <div className="enhanced-macro-dashboard">
 
-      <div className="dashboard-grid">
-        <div className="grid-section left-column">
+      <div className="dashboard-grid-3tier">
+        <div className="top-tier">
           <FearGreedGauge 
             data={data.fearGreedIndex} 
             isLoading={false}
           />
+          <SP500SparklineWidget 
+            data={data.sp500Sparkline} 
+            isLoading={false}
+          />
+        </div>
+        
+        <div className="middle-tier">
           <EconomicIndicatorsGrid 
             data={data.economicIndicators} 
             isLoading={false}
           />
         </div>
         
-        <div className="grid-section right-column">
-          <SP500SparklineWidget 
-            data={data.sp500Sparkline} 
-            isLoading={false}
-          />
+        <div className="bottom-tier">
           <EnhancedSectorGrid 
             sectors={data.sectorPerformance} 
             isLoading={false}
@@ -320,24 +326,28 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
           font-size: 14px;
         }
 
-        .dashboard-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 24px;
-        }
-
-        .grid-section {
+        .dashboard-grid-3tier {
           display: flex;
           flex-direction: column;
           gap: 20px;
+          max-height: 100vh;
+          overflow: visible;
         }
 
-        .left-column {
-          /* Fear & Greed Index and Economic Indicators */
+        .top-tier {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
+          align-items: start;
         }
 
-        .right-column {
-          /* S&P 500 Sparkline and Sector Performance */
+        .middle-tier {
+          width: 100%;
+        }
+
+        .bottom-tier {
+          width: 100%;
+          flex-grow: 1;
         }
 
         /* Mobile responsiveness */
@@ -346,9 +356,13 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
             padding: 16px;
           }
 
-          .dashboard-grid {
+          .dashboard-grid-3tier {
+            gap: 18px;
+          }
+
+          .top-tier {
             grid-template-columns: 1fr;
-            gap: 20px;
+            gap: 16px;
           }
 
         }
@@ -358,12 +372,27 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
             padding: 12px;
           }
 
-          .dashboard-grid {
+          .dashboard-grid-3tier {
             gap: 16px;
           }
 
-          .grid-section {
-            gap: 16px;
+          .top-tier {
+            gap: 12px;
+          }
+
+        }
+
+        @media (max-width: 480px) {
+          .enhanced-macro-dashboard {
+            padding: 10px;
+          }
+
+          .dashboard-grid-3tier {
+            gap: 12px;
+          }
+
+          .top-tier {
+            gap: 10px;
           }
 
         }
