@@ -25,7 +25,8 @@ interface SP500SparklineWidgetProps {
 }
 
 const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoading }) => {
-  if (isLoading || !data) {
+  // Handle loading state
+  if (isLoading) {
     return (
       <div className="sp500-sparkline-widget loading">
         <div className="widget-header">
@@ -35,6 +36,26 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
         <div className="sparkline-skeleton">
           <div className="price-skeleton"></div>
           <div className="chart-skeleton"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle no data state
+  if (!data) {
+    return (
+      <div className="sp500-sparkline-widget no-data">
+        <div className="widget-header">
+          <div className="title-section">
+            <h4>S&P 500</h4>
+            <div className="symbol-badge">SPY</div>
+          </div>
+          <div className="no-data-badge">No Data</div>
+        </div>
+        <div className="no-data-content">
+          <div className="no-data-icon">📈</div>
+          <p>S&P 500 data unavailable</p>
+          <p>Please try again later</p>
         </div>
       </div>
     );
@@ -149,44 +170,90 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
           <h4>S&P 500</h4>
           <div className="symbol-badge">SPY</div>
         </div>
-        <div className="sentiment-section">
-          <div 
-            className="sentiment-badge"
-            style={{ backgroundColor: getSentimentColor(data.marketSentiment) }}
+        <div className="data-source-section">
+          <span 
+            className="source-badge-header"
+            style={{ backgroundColor: dataSource.color }}
           >
-            <span className="sentiment-icon">{getSentimentIcon(data.marketSentiment)}</span>
-            <span className="sentiment-text">{data.marketSentiment.toUpperCase()}</span>
+            {dataSource.text}
+          </span>
+        </div>
+      </div>
+
+      <div className="main-content">
+        <div className="price-section">
+          <div className="current-price">
+            ${formatPrice(data.currentPrice)}
+          </div>
+          <div 
+            className="price-change"
+            style={{ color: trendColor }}
+          >
+            {formatChange(data.weeklyChange)}
+            <span className="change-period">7D</span>
+          </div>
+        </div>
+
+        {/* Sparkline Chart */}
+        <div className="sparkline-chart">
+          <svg width="100%" height="60" viewBox="0 0 200 60">
+            <defs>
+              <linearGradient id="sparklineGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style={{ stopColor: trendColor, stopOpacity: 0.3 }} />
+                <stop offset="100%" style={{ stopColor: trendColor, stopOpacity: 0.1 }} />
+              </linearGradient>
+            </defs>
+            {data.data && data.data.length > 0 && (() => {
+              const prices = data.data.map(d => d.price);
+              const minPrice = Math.min(...prices);
+              const maxPrice = Math.max(...prices);
+              const priceRange = maxPrice - minPrice || 1;
+              
+              const points = data.data.map((point, index) => {
+                const x = (index / (data.data.length - 1)) * 200;
+                const y = 50 - ((point.price - minPrice) / priceRange) * 40;
+                return `${x},${y}`;
+              }).join(' ');
+              
+              return (
+                <>
+                  <polyline
+                    fill="none"
+                    stroke={trendColor}
+                    strokeWidth="2"
+                    points={points}
+                  />
+                  <polygon
+                    fill="url(#sparklineGradient)"
+                    points={`0,50 ${points} 200,50`}
+                  />
+                </>
+              );
+            })()}
+          </svg>
+        </div>
+
+        <div className="metrics-row">
+          <div className="metric-item">
+            <div className="metric-label">Volatility</div>
+            <div className="metric-value">
+              {getVolatilityIcon(data.volatility)}
+              <span>{data.volatility}</span>
+            </div>
+          </div>
+          <div className="metric-item">
+            <div className="metric-label">Sentiment</div>
+            <div className="metric-value sentiment-compact">
+              {getSentimentIcon(data.marketSentiment)}
+              <span>{data.marketSentiment}</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="price-section">
-        <div className="current-price">
-          ${formatPrice(data.currentPrice)}
-        </div>
-        <div 
-          className="price-change"
-          style={{ color: trendColor }}
-        >
-          {formatChange(data.weeklyChange)}
-          <span className="change-period">7D</span>
-        </div>
-      </div>
-
-
-      <div className="metrics-section">
-        <div className="metric-item">
-          <div className="metric-label">Volatility</div>
-          <div className="metric-value">
-            {getVolatilityIcon(data.volatility)}
-            <span>{data.volatility.toUpperCase()}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Data Freshness and Market Status */}
-      <div className="data-status-section">
-        <div className="data-freshness">
+      {/* Compact Status Footer */}
+      <div className="status-footer">
+        <div className="status-item">
           <span className="freshness-icon">{freshness.icon}</span>
           <span 
             className="freshness-text" 
@@ -196,18 +263,9 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
           </span>
         </div>
         
-        <div className="market-status">
+        <div className="status-item">
           <span className="market-indicator">
-            {marketOpen ? '🟢 Market Open' : '🔴 Market Closed'}
-          </span>
-        </div>
-
-        <div className="data-source">
-          <span 
-            className="source-badge"
-            style={{ backgroundColor: dataSource.color }}
-          >
-            {dataSource.text}
+            {marketOpen ? '🟢 Open' : '🔴 Closed'}
           </span>
         </div>
       </div>
@@ -215,19 +273,30 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
       <style jsx>{`
         .sp500-sparkline-widget {
           background: white;
-          border-radius: 12px;
+          border-radius: 10px;
           border: 1px solid #e2e8f0;
-          padding: 20px;
+          padding: 14px;
           margin-bottom: 16px;
+          height: 220px;
+          display: flex;
+          flex-direction: column;
         }
 
         .widget-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 16px;
-          padding-bottom: 12px;
+          margin-bottom: 10px;
+          padding-bottom: 8px;
           border-bottom: 1px solid #f1f5f9;
+          flex-shrink: 0;
+        }
+
+        .main-content {
+          flex-grow: 1;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
         }
 
         .title-section {
@@ -250,6 +319,147 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
           padding: 4px 8px;
           border-radius: 12px;
           font-weight: 500;
+        }
+
+        .price-section {
+          text-align: center;
+          margin-bottom: 8px;
+        }
+
+        .current-price {
+          font-size: 24px;
+          font-weight: 700;
+          color: #1e293b;
+          line-height: 1.2;
+        }
+
+        .price-change {
+          font-size: 14px;
+          font-weight: 600;
+          margin-top: 4px;
+        }
+
+        .change-period {
+          font-size: 11px;
+          opacity: 0.7;
+          margin-left: 4px;
+        }
+
+        .sparkline-chart {
+          margin: 8px 0;
+          padding: 8px;
+          background: #f8fafc;
+          border-radius: 8px;
+          border: 1px solid #e2e8f0;
+        }
+
+        .metrics-row {
+          display: flex;
+          justify-content: space-around;
+          gap: 12px;
+          margin-top: 8px;
+        }
+
+        .metric-item {
+          text-align: center;
+          flex: 1;
+        }
+
+        .metric-label {
+          font-size: 10px;
+          color: #64748b;
+          margin-bottom: 4px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .metric-value {
+          font-size: 12px;
+          font-weight: 600;
+          color: #374151;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 4px;
+        }
+
+        .sentiment-compact {
+          text-transform: capitalize;
+        }
+
+        .data-source-section {
+          display: flex;
+          align-items: center;
+        }
+
+        .source-badge-header {
+          font-size: 9px;
+          color: white;
+          padding: 3px 6px;
+          border-radius: 8px;
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.3px;
+        }
+
+        .status-footer {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-top: auto;
+          padding-top: 8px;
+          border-top: 1px solid #f1f5f9;
+        }
+
+        .status-item {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 10px;
+        }
+
+        .freshness-icon {
+          font-size: 10px;
+        }
+
+        .freshness-text {
+          font-weight: 500;
+        }
+
+        .market-indicator {
+          font-weight: 500;
+          color: #374151;
+        }
+
+        .no-data-badge {
+          background: #fecaca;
+          color: #991b1b;
+          font-size: 10px;
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-weight: 500;
+        }
+
+        .no-data-content {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          flex-grow: 1;
+          text-align: center;
+          color: #64748b;
+          padding: 20px;
+        }
+
+        .no-data-icon {
+          font-size: 32px;
+          margin-bottom: 12px;
+        }
+
+        .no-data-content p {
+          margin: 2px 0;
+          font-size: 13px;
+          color: #64748b;
         }
 
         .sentiment-section {
@@ -431,7 +641,9 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
         /* Mobile responsiveness */
         @media (max-width: 768px) {
           .sp500-sparkline-widget {
-            padding: 16px;
+            height: auto;
+            min-height: 180px;
+            padding: 12px;
           }
 
           .widget-header {
@@ -447,7 +659,7 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
           }
 
           .current-price {
-            font-size: 16px;
+            font-size: 20px;
           }
 
           .metrics-section {
