@@ -2,6 +2,7 @@
 
 import React from 'react';
 import useSWR from 'swr';
+import ErrorBoundary from '../ErrorBoundary';
 import FearGreedGauge from './EnhancedComponents/FearGreedGauge';
 import EconomicIndicatorsGrid from './EnhancedComponents/EconomicIndicatorsGrid';
 import SP500SparklineWidget from './EnhancedComponents/SP500SparklineWidget';
@@ -204,16 +205,24 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
         
         <div className="dashboard-grid-3tier">
           <div className="top-tier">
-            <FearGreedGauge data={null} isLoading={true} />
-            <SP500SparklineWidget data={null} isLoading={true} />
+            <ErrorBoundary componentName="Fear & Greed Index">
+              <FearGreedGauge data={null} isLoading={true} />
+            </ErrorBoundary>
+            <ErrorBoundary componentName="S&P 500 Sparkline">
+              <SP500SparklineWidget data={null} isLoading={true} />
+            </ErrorBoundary>
           </div>
           
           <div className="middle-tier">
-            <EconomicIndicatorsGrid data={null} isLoading={true} />
+            <ErrorBoundary componentName="Economic Indicators">
+              <EconomicIndicatorsGrid data={null} isLoading={true} />
+            </ErrorBoundary>
           </div>
           
           <div className="bottom-tier">
-            <EnhancedSectorGrid sectors={null} isLoading={true} />
+            <ErrorBoundary componentName="Sector Performance">
+              <EnhancedSectorGrid sectors={null} isLoading={true} />
+            </ErrorBoundary>
           </div>
         </div>
       </div>
@@ -243,28 +252,36 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
 
       <div className="dashboard-grid-3tier">
         <div className="top-tier">
-          <FearGreedGauge 
-            data={data.fearGreedIndex} 
-            isLoading={false}
-          />
-          <SP500SparklineWidget 
-            data={data.sp500Sparkline} 
-            isLoading={false}
-          />
+          <ErrorBoundary componentName="Fear & Greed Index">
+            <FearGreedGauge 
+              data={data.fearGreedIndex} 
+              isLoading={false}
+            />
+          </ErrorBoundary>
+          <ErrorBoundary componentName="S&P 500 Sparkline">
+            <SP500SparklineWidget 
+              data={data.sp500Sparkline} 
+              isLoading={false}
+            />
+          </ErrorBoundary>
         </div>
         
         <div className="middle-tier">
-          <EconomicIndicatorsGrid 
-            data={data.economicIndicators} 
-            isLoading={false}
-          />
+          <ErrorBoundary componentName="Economic Indicators">
+            <EconomicIndicatorsGrid 
+              data={data.economicIndicators} 
+              isLoading={false}
+            />
+          </ErrorBoundary>
         </div>
         
         <div className="bottom-tier">
-          <EnhancedSectorGrid 
-            sectors={data.sectorPerformance} 
-            isLoading={false}
-          />
+          <ErrorBoundary componentName="Sector Performance">
+            <EnhancedSectorGrid 
+              sectors={data.sectorPerformance} 
+              isLoading={false}
+            />
+          </ErrorBoundary>
         </div>
       </div>
 
@@ -397,12 +414,6 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
 
         }
 
-        @media (max-width: 480px) {
-          .enhanced-macro-dashboard {
-            padding: 8px;
-          }
-
-        }
       `}</style>
     </div>
   );
