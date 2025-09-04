@@ -69,13 +69,6 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
     }
   };
 
-  const getSentimentColor = (sentiment: string): string => {
-    switch (sentiment) {
-      case 'bullish': return '#10B981';
-      case 'bearish': return '#EF4444';
-      default: return '#F59E0B';
-    }
-  };
 
   const getSentimentIcon = (sentiment: string): string => {
     switch (sentiment) {
@@ -198,37 +191,94 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
         <div className="sparkline-chart">
           <svg width="100%" height="60" viewBox="0 0 200 60">
             <defs>
-              <linearGradient id="sparklineGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <linearGradient id={`sparklineGradient-${Math.random().toString(36).substr(2, 9)}`} x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" style={{ stopColor: trendColor, stopOpacity: 0.3 }} />
                 <stop offset="100%" style={{ stopColor: trendColor, stopOpacity: 0.1 }} />
               </linearGradient>
             </defs>
-            {data.data && data.data.length > 0 && (() => {
-              const prices = data.data.map(d => d.price);
-              const minPrice = Math.min(...prices);
-              const maxPrice = Math.max(...prices);
-              const priceRange = maxPrice - minPrice || 1;
-              
-              const points = data.data.map((point, index) => {
-                const x = (index / (data.data.length - 1)) * 200;
-                const y = 50 - ((point.price - minPrice) / priceRange) * 40;
-                return `${x},${y}`;
-              }).join(' ');
-              
-              return (
-                <>
+            {(() => {
+              try {
+                if (!data?.data || !Array.isArray(data.data) || data.data.length === 0) {
+                  // Fallback: simple placeholder line
+                  return (
+                    <polyline
+                      fill="none"
+                      stroke={trendColor}
+                      strokeWidth="2"
+                      points="0,30 50,25 100,35 150,20 200,30"
+                    />
+                  );
+                }
+
+                const validPrices = data.data
+                  .map(d => typeof d?.price === 'number' && !isNaN(d.price) ? d.price : null)
+                  .filter(price => price !== null) as number[];
+
+                if (validPrices.length === 0) {
+                  // Fallback: simple placeholder line
+                  return (
+                    <polyline
+                      fill="none"
+                      stroke={trendColor}
+                      strokeWidth="2"
+                      points="0,30 50,25 100,35 150,20 200,30"
+                    />
+                  );
+                }
+
+                const minPrice = Math.min(...validPrices);
+                const maxPrice = Math.max(...validPrices);
+                const priceRange = maxPrice - minPrice || 1;
+                
+                let validDataPoints = 0;
+                const points = data.data
+                  .map((point) => {
+                    if (typeof point?.price !== 'number' || isNaN(point.price)) return null;
+                    const x = (validDataPoints / Math.max(validPrices.length - 1, 1)) * 200;
+                    const y = Math.max(5, Math.min(55, 50 - ((point.price - minPrice) / priceRange) * 40));
+                    validDataPoints++;
+                    return `${x.toFixed(1)},${y.toFixed(1)}`;
+                  })
+                  .filter(point => point !== null)
+                  .join(' ');
+                
+                if (!points) {
+                  return (
+                    <polyline
+                      fill="none"
+                      stroke={trendColor}
+                      strokeWidth="2"
+                      points="0,30 50,25 100,35 150,20 200,30"
+                    />
+                  );
+                }
+                
+                return (
+                  <>
+                    <polyline
+                      fill="none"
+                      stroke={trendColor}
+                      strokeWidth="2"
+                      points={points}
+                    />
+                    <polygon
+                      fill={`url(#sparklineGradient-${Math.random().toString(36).substr(2, 9)})`}
+                      points={`0,50 ${points} 200,50`}
+                    />
+                  </>
+                );
+              } catch (error) {
+                console.warn('Error rendering sparkline chart:', error);
+                // Fallback: simple placeholder line
+                return (
                   <polyline
                     fill="none"
                     stroke={trendColor}
                     strokeWidth="2"
-                    points={points}
+                    points="0,30 50,25 100,35 150,20 200,30"
                   />
-                  <polygon
-                    fill="url(#sparklineGradient)"
-                    points={`0,50 ${points} 200,50`}
-                  />
-                </>
-              );
+                );
+              }
             })()}
           </svg>
         </div>
@@ -462,140 +512,6 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
           color: #64748b;
         }
 
-        .sentiment-section {
-          display: flex;
-          align-items: center;
-        }
-
-        .sentiment-badge {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          padding: 4px 10px;
-          border-radius: 16px;
-          color: white;
-          font-size: 10px;
-          font-weight: 600;
-        }
-
-        .sentiment-icon {
-          font-size: 12px;
-        }
-
-        .price-section {
-          display: flex;
-          align-items: baseline;
-          gap: 12px;
-          margin-bottom: 20px;
-        }
-
-        .current-price {
-          font-size: 16px;
-          font-weight: 700;
-          color: #1e293b;
-          line-height: 1;
-        }
-
-        .price-change {
-          font-size: 16px;
-          font-weight: 600;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-        }
-
-        .change-period {
-          font-size: 10px;
-          color: #64748b;
-          background: #f1f5f9;
-          padding: 2px 6px;
-          border-radius: 8px;
-          font-weight: 500;
-        }
-
-
-        .metrics-section {
-          display: flex;
-          justify-content: center;
-          padding-top: 12px;
-          border-top: 1px solid #f1f5f9;
-        }
-
-        .metric-item {
-          text-align: center;
-        }
-
-        .metric-label {
-          font-size: 10px;
-          color: #64748b;
-          margin-bottom: 4px;
-        }
-
-        .metric-value {
-          font-size: 11px;
-          font-weight: 500;
-          color: #374151;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 4px;
-        }
-
-        .metric-value span {
-          font-size: 10px;
-        }
-
-        /* Data Status Section */
-        .data-status-section {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding-top: 12px;
-          margin-top: 12px;
-          border-top: 1px solid #f1f5f9;
-          flex-wrap: wrap;
-          gap: 8px;
-        }
-
-        .data-freshness {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-        }
-
-        .freshness-icon {
-          font-size: 10px;
-        }
-
-        .freshness-text {
-          font-size: 10px;
-          font-weight: 500;
-        }
-
-        .market-status {
-          flex-grow: 1;
-          text-align: center;
-        }
-
-        .market-indicator {
-          font-size: 10px;
-          font-weight: 500;
-          color: #374151;
-        }
-
-        .data-source {
-          display: flex;
-          align-items: center;
-        }
-
-        .source-badge {
-          font-size: 9px;
-          color: white;
-          padding: 2px 6px;
-          border-radius: 8px;
-          font-weight: 500;
-          opacity: 0.8;
-        }
 
         /* Loading states */
         .sp500-sparkline-widget.loading {
@@ -652,40 +568,13 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
             gap: 8px;
           }
 
-          .price-section {
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 16px;
-          }
-
           .current-price {
             font-size: 20px;
           }
-
-          .metrics-section {
-            justify-content: center;
-          }
-
-          .metric-item {
-            text-align: center;
-          }
-
-          .metric-label {
-            margin-bottom: 0;
-          }
-
-          .data-status-section {
+          
+          .metrics-row {
             flex-direction: column;
-            align-items: flex-start;
-            gap: 6px;
-          }
-
-          .market-status {
-            text-align: left;
-          }
-
-          .data-source {
-            align-self: flex-end;
+            gap: 8px;
           }
         }
 
