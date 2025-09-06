@@ -6,7 +6,7 @@ import ErrorBoundary from '../ErrorBoundary';
 import FearGreedGauge from './EnhancedComponents/FearGreedGauge';
 import EconomicIndicatorsGrid from './EnhancedComponents/EconomicIndicatorsGrid';
 import SP500SparklineWidget from './EnhancedComponents/SP500SparklineWidget';
-import EnhancedSectorGrid from './EnhancedComponents/EnhancedSectorGrid';
+import EnhancedSectorGrid, { type EnhancedSectorPerformance } from './EnhancedComponents/EnhancedSectorGrid';
 
 interface EnhancedMarketSummary {
   fearGreedIndex: {
@@ -106,33 +106,45 @@ interface EnhancedMarketSummary {
 }
 
 // Transform API sectors data to match frontend expectations
-const transformSectorsData = (apiSectors: any[]): any[] => {
+const transformSectorsData = (apiSectors: unknown[]): EnhancedSectorPerformance[] => {
   if (!apiSectors || !Array.isArray(apiSectors)) {
     return [];
   }
 
-  return apiSectors.map((sector) => ({
-    sector: sector.name || 'Unknown Sector',
-    ticker: sector.symbol || 'N/A',
-    name: `${sector.name} Select Sector SPDR Fund` || 'N/A',
-    price: 0, // Not provided by API, using default
-    change: (sector.weeklyChange || 0) * (Math.random() * 100 + 50), // Approximate absolute change
-    changePercent: sector.weeklyChange || 0,
-    volume: sector.volume || 5000000,
-    marketCap: sector.marketCap || 20000000000,
-    weeklyPerformance: sector.weeklyChange || 0,
-    monthlyPerformance: (sector.weeklyChange || 0) * 4, // Approximate monthly from weekly
-    momentum: transformMomentum(sector.momentum, sector.weeklyChange),
-    leadership: transformLeadership(sector.performance, sector.weeklyChange),
-    rotationSignal: transformRotationSignal(sector.rotationSignal, sector.weeklyChange),
-    relativeStrength: Math.max(0, Math.min(100, 50 + (sector.weeklyChange || 0) * 10)),
-    correlation: Math.random() * 0.4 + 0.5, // Mock correlation between 0.5-0.9
-    lastUpdated: new Date().toISOString(),
-  }));
+  return apiSectors.map((sectorUnknown) => {
+    const sector = sectorUnknown as Record<string, unknown>;
+    const name = String(sector.name || 'Unknown Sector');
+    const symbol = String(sector.symbol || 'N/A');
+    const weeklyChange = Number(sector.weeklyChange || 0);
+    const volume = Number(sector.volume || 5000000);
+    const marketCap = Number(sector.marketCap || 20000000000);
+    const momentum = String(sector.momentum || 'stable');
+    const performance = String(sector.performance || 'neutral');
+    const rotationSignal = String(sector.rotationSignal || 'stable');
+
+    return {
+      sector: name,
+      ticker: symbol,
+      name: `${name} Select Sector SPDR Fund`,
+      price: 0, // Not provided by API, using default
+      change: weeklyChange * (Math.random() * 100 + 50), // Approximate absolute change
+      changePercent: weeklyChange,
+      volume,
+      marketCap,
+      weeklyPerformance: weeklyChange,
+      monthlyPerformance: weeklyChange * 4, // Approximate monthly from weekly
+      momentum: transformMomentum(momentum, weeklyChange),
+      leadership: transformLeadership(performance, weeklyChange),
+      rotationSignal: transformRotationSignal(rotationSignal, weeklyChange),
+      relativeStrength: Math.max(0, Math.min(100, 50 + weeklyChange * 10)),
+      correlation: Math.random() * 0.4 + 0.5, // Mock correlation between 0.5-0.9
+      lastUpdated: new Date().toISOString(),
+    };
+  });
 };
 
 // Transform API momentum to frontend expected values
-const transformMomentum = (apiMomentum: string, weeklyChange: number): string => {
+const transformMomentum = (apiMomentum: string, weeklyChange: number): EnhancedSectorPerformance['momentum'] => {
   if (weeklyChange > 2) return 'strong-buy';
   if (weeklyChange > 1) return 'buy';
   if (weeklyChange < -2) return 'strong-sell';
@@ -141,14 +153,14 @@ const transformMomentum = (apiMomentum: string, weeklyChange: number): string =>
 };
 
 // Transform API performance to leadership status
-const transformLeadership = (apiPerformance: string, weeklyChange: number): string => {
+const transformLeadership = (apiPerformance: string, weeklyChange: number): EnhancedSectorPerformance['leadership'] => {
   if (weeklyChange > 1) return 'leader';
   if (weeklyChange < -1) return 'laggard';
   return 'neutral';
 };
 
 // Transform API rotation signal to frontend expected values
-const transformRotationSignal = (apiRotation: string, weeklyChange: number): string => {
+const transformRotationSignal = (apiRotation: string, weeklyChange: number): EnhancedSectorPerformance['rotationSignal'] => {
   if (weeklyChange > 0.5) return 'inflow';
   if (weeklyChange < -0.5) return 'outflow';
   return 'neutral';

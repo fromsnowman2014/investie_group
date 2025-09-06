@@ -26,6 +26,8 @@ interface EnhancedSectorGridProps {
   isLoading?: boolean;
 }
 
+export type { EnhancedSectorPerformance };
+
 const EnhancedSectorGrid: React.FC<EnhancedSectorGridProps> = ({ sectors, isLoading }) => {
   const [sortBy, setSortBy] = useState<'changePercent' | 'momentum' | 'leadership' | 'rotation'>('changePercent');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
