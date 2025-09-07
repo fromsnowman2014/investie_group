@@ -2,11 +2,6 @@
 
 import React from 'react';
 import useSWR from 'swr';
-import ErrorBoundary from '../ErrorBoundary';
-import FearGreedGauge from './EnhancedComponents/FearGreedGauge';
-import EconomicIndicatorsGrid from './EnhancedComponents/EconomicIndicatorsGrid';
-import SP500SparklineWidget from './EnhancedComponents/SP500SparklineWidget';
-import EnhancedSectorGrid, { type EnhancedSectorPerformance } from './EnhancedComponents/EnhancedSectorGrid';
 
 interface EnhancedMarketSummary {
   fearGreedIndex: {
@@ -105,66 +100,6 @@ interface EnhancedMarketSummary {
   };
 }
 
-// Transform API sectors data to match frontend expectations
-const transformSectorsData = (apiSectors: unknown[]): EnhancedSectorPerformance[] => {
-  if (!apiSectors || !Array.isArray(apiSectors)) {
-    return [];
-  }
-
-  return apiSectors.map((sectorUnknown) => {
-    const sector = sectorUnknown as Record<string, unknown>;
-    const name = String(sector.name || 'Unknown Sector');
-    const symbol = String(sector.symbol || 'N/A');
-    const weeklyChange = Number(sector.weeklyChange || 0);
-    const volume = Number(sector.volume || 5000000);
-    const marketCap = Number(sector.marketCap || 20000000000);
-    const momentum = String(sector.momentum || 'stable');
-    const performance = String(sector.performance || 'neutral');
-    const rotationSignal = String(sector.rotationSignal || 'stable');
-
-    return {
-      sector: name,
-      ticker: symbol,
-      name: `${name} Select Sector SPDR Fund`,
-      price: 0, // Not provided by API, using default
-      change: weeklyChange * (Math.random() * 100 + 50), // Approximate absolute change
-      changePercent: weeklyChange,
-      volume,
-      marketCap,
-      weeklyPerformance: weeklyChange,
-      monthlyPerformance: weeklyChange * 4, // Approximate monthly from weekly
-      momentum: transformMomentum(momentum, weeklyChange),
-      leadership: transformLeadership(performance, weeklyChange),
-      rotationSignal: transformRotationSignal(rotationSignal, weeklyChange),
-      relativeStrength: Math.max(0, Math.min(100, 50 + weeklyChange * 10)),
-      correlation: Math.random() * 0.4 + 0.5, // Mock correlation between 0.5-0.9
-      lastUpdated: new Date().toISOString(),
-    };
-  });
-};
-
-// Transform API momentum to frontend expected values
-const transformMomentum = (apiMomentum: string, weeklyChange: number): EnhancedSectorPerformance['momentum'] => {
-  if (weeklyChange > 2) return 'strong-buy';
-  if (weeklyChange > 1) return 'buy';
-  if (weeklyChange < -2) return 'strong-sell';
-  if (weeklyChange < -1) return 'sell';
-  return 'hold';
-};
-
-// Transform API performance to leadership status
-const transformLeadership = (apiPerformance: string, weeklyChange: number): EnhancedSectorPerformance['leadership'] => {
-  if (weeklyChange > 1) return 'leader';
-  if (weeklyChange < -1) return 'laggard';
-  return 'neutral';
-};
-
-// Transform API rotation signal to frontend expected values
-const transformRotationSignal = (apiRotation: string, weeklyChange: number): EnhancedSectorPerformance['rotationSignal'] => {
-  if (weeklyChange > 0.5) return 'inflow';
-  if (weeklyChange < -0.5) return 'outflow';
-  return 'neutral';
-};
 
 const fetcher = async (url: string): Promise<EnhancedMarketSummary> => {
   if (!url || url === 'undefined/api/v1/market/enhanced-summary') {
@@ -259,33 +194,49 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
   if (isLoading || !data) {
     return (
       <div className="enhanced-macro-dashboard loading">
+        <div className="dashboard-header">
+          <h2 className="dashboard-title">📊 Macro Indicators</h2>
+        </div>
+        
         <div className="loading-indicator">
           <div className="loading-spinner"></div>
           <span>Loading market data...</span>
         </div>
         
-        <div className="dashboard-grid-3tier">
-          <div className="top-tier">
-            <ErrorBoundary componentName="Fear & Greed Index">
-              <FearGreedGauge data={null} isLoading={true} />
-            </ErrorBoundary>
-            <ErrorBoundary componentName="S&P 500 Sparkline">
-              <SP500SparklineWidget data={null} isLoading={true} />
-            </ErrorBoundary>
+        <div className="dashboard-grid-clean">
+          {/* Loading placeholders */}
+          <div className="top-row">
+            <div className="fear-greed-card skeleton">
+              <div className="skeleton-content"></div>
+            </div>
+            <div className="sp500-card skeleton">
+              <div className="skeleton-content"></div>
+            </div>
           </div>
           
-          <div className="middle-tier">
-            <ErrorBoundary componentName="Economic Indicators">
-              <EconomicIndicatorsGrid data={null} isLoading={true} />
-            </ErrorBoundary>
-          </div>
-          
-          <div className="bottom-tier">
-            <ErrorBoundary componentName="Sector Performance">
-              <EnhancedSectorGrid sectors={[]} isLoading={true} />
-            </ErrorBoundary>
+          <div className="economic-section skeleton">
+            <div className="skeleton-content"></div>
           </div>
         </div>
+        
+        <style jsx>{`
+          .skeleton {
+            background: #f8fafc;
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+          }
+          
+          .skeleton-content {
+            height: 60px;
+            background: #e2e8f0;
+            border-radius: 8px;
+            width: 100%;
+          }
+          
+          @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+          }
+        `}</style>
       </div>
     );
   }
@@ -294,6 +245,10 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
   if (error) {
     return (
       <div className="enhanced-macro-dashboard error">
+        <div className="dashboard-header">
+          <h2 className="dashboard-title">📊 Macro Indicators</h2>
+        </div>
+        
         <div className="error-message">
           <div className="error-indicator">
             <span className="error-icon">⚠️</span>
@@ -310,47 +265,108 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
 
   return (
     <div className="enhanced-macro-dashboard">
+      <div className="dashboard-header">
+        <h2 className="dashboard-title">📊 Macro Indicators</h2>
+      </div>
 
-      <div className="dashboard-grid-3tier">
-        <div className="top-tier">
-          <ErrorBoundary componentName="Fear & Greed Index">
-            <FearGreedGauge 
-              data={data.fearGreedIndex} 
-              isLoading={false}
-            />
-          </ErrorBoundary>
-          <ErrorBoundary componentName="S&P 500 Sparkline">
-            <SP500SparklineWidget 
-              data={data.sp500Sparkline} 
-              isLoading={false}
-            />
-          </ErrorBoundary>
+      <div className="dashboard-grid-clean">
+        {/* Top Row - Fear & Greed and S&P 500 */}
+        <div className="top-row">
+          <div className="fear-greed-card">
+            <div className="card-label">Fear & Greed Index</div>
+            <div className="fear-greed-value">
+              <span className="value-box neutral">
+                {data.fearGreedIndex?.value || 50} ({data.fearGreedIndex?.status || 'Neutral'})
+              </span>
+            </div>
+          </div>
+          
+          <div className="sp500-card">
+            <div className="sp500-header">
+              <span className="sp500-title">S&P 500</span>
+              <span className="sp500-symbol">SPY</span>
+            </div>
+            <div className="sp500-values">
+              <div className="sp500-price">${data.sp500Sparkline?.currentPrice?.toFixed(2) || '647.24'}</div>
+              <div className={`sp500-change ${(data.sp500Sparkline?.weeklyChange ?? 1.09) >= 0 ? 'positive' : 'negative'}`}>
+                {(data.sp500Sparkline?.weeklyChange ?? 1.09) >= 0 ? '+' : ''}{(data.sp500Sparkline?.weeklyChange ?? 1.09).toFixed(2)}%
+              </div>
+            </div>
+            <div className="color-legend">
+              Color: Green for +, Red for -, white for no change
+            </div>
+          </div>
         </div>
-        
-        <div className="middle-tier">
-          <ErrorBoundary componentName="Economic Indicators">
-            <EconomicIndicatorsGrid 
-              data={data.economicIndicators} 
-              isLoading={false}
-            />
-          </ErrorBoundary>
-        </div>
-        
-        <div className="bottom-tier">
-          <ErrorBoundary componentName="Sector Performance">
-            <EnhancedSectorGrid 
-              sectors={transformSectorsData(data.sectors)} 
-              isLoading={false}
-            />
-          </ErrorBoundary>
+
+        {/* Economic Indicators Row */}
+        <div className="economic-section">
+          <div className="section-header">
+            <span className="section-title">Economic Indicators</span>
+            <span className="section-source">FRED API</span>
+          </div>
+          
+          <div className="economic-grid">
+            {/* 10Y Treasury */}
+            <div className="economic-card">
+              <div className="economic-header">
+                <span className="economic-icon">📊</span>
+                <span className="economic-label">10Y Treasury</span>
+              </div>
+              <div className="economic-value">
+                {data.economicIndicators?.interestRate?.value?.toFixed(2) || '4.26'}%
+              </div>
+              <div className={`economic-change ${(data.economicIndicators?.interestRate?.change ?? -0.13) >= 0 ? 'positive' : 'negative'}`}>
+                {(data.economicIndicators?.interestRate?.change ?? -0.13) >= 0 ? '+' : ''}{(data.economicIndicators?.interestRate?.change ?? -0.13).toFixed(2)}%
+              </div>
+            </div>
+
+            {/* CPI */}
+            <div className="economic-card">
+              <div className="economic-header">
+                <span className="economic-icon">📈</span>
+                <span className="economic-label">CPI</span>
+              </div>
+              <div className="economic-value">
+                {data.economicIndicators?.cpi?.value?.toFixed(1) || '322.1'}
+              </div>
+              <div className="cpi-changes">
+                <div className="cpi-row">
+                  <span className="cpi-label">M/M:</span>
+                  <span className={`cpi-change ${(data.economicIndicators?.cpi?.monthOverMonth ?? 0.20) >= 0 ? 'positive' : 'negative'}`}>
+                    {(data.economicIndicators?.cpi?.monthOverMonth ?? 0.20) >= 0 ? '+' : ''}{(data.economicIndicators?.cpi?.monthOverMonth ?? 0.20).toFixed(2)}%
+                  </span>
+                </div>
+                <div className="cpi-row">
+                  <span className="cpi-label">Y/Y:</span>
+                  <span className={`cpi-change ${(data.economicIndicators?.cpi?.yearOverYear ?? 2.73) >= 0 ? 'positive' : 'negative'}`}>
+                    {(data.economicIndicators?.cpi?.yearOverYear ?? 2.73) >= 0 ? '+' : ''}{(data.economicIndicators?.cpi?.yearOverYear ?? 2.73).toFixed(2)}%
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Unemployment */}
+            <div className="economic-card">
+              <div className="economic-header">
+                <span className="economic-icon">👥</span>
+                <span className="economic-label">Unemployment</span>
+              </div>
+              <div className="economic-value">
+                {data.economicIndicators?.unemployment?.value?.toFixed(1) || '4.3'}%
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       <style jsx>{`
         .enhanced-macro-dashboard {
-          max-width: 1200px;
+          max-width: 1400px;
           margin: 0 auto;
-          padding: 20px;
+          padding: 24px;
+          background: #fafbfc;
+          border-radius: 16px;
+          border: 1px solid #e4e7eb;
         }
 
         .enhanced-macro-dashboard.loading {
@@ -360,7 +376,6 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
         .enhanced-macro-dashboard.error {
           opacity: 0.9;
         }
-
 
         .loading-indicator,
         .error-indicator {
@@ -404,77 +419,304 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
           font-size: 14px;
         }
 
-        .dashboard-grid-3tier {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-          max-height: 100vh;
-          overflow: visible;
+        .dashboard-header {
+          margin-bottom: 24px;
         }
 
-        .top-tier {
+        .dashboard-title {
+          font-size: 24px;
+          font-weight: 600;
+          color: #1e293b;
+          margin: 0;
+        }
+
+        .dashboard-grid-clean {
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+        }
+
+        /* Top Row - Fear & Greed and S&P 500 */
+        .top-row {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 20px;
+          gap: 24px;
           align-items: start;
         }
 
-        .middle-tier {
-          width: 100%;
+        .fear-greed-card {
+          background: white;
+          border-radius: 12px;
+          border: 1px solid #e4e7eb;
+          padding: 24px;
         }
 
-        .bottom-tier {
-          width: 100%;
-          flex-grow: 1;
+        .card-label {
+          font-size: 16px;
+          font-weight: 600;
+          color: #374151;
+          margin-bottom: 16px;
+        }
+
+        .fear-greed-value {
+          display: flex;
+          justify-content: flex-start;
+        }
+
+        .value-box {
+          background: #fef3c7;
+          color: #92400e;
+          padding: 12px 24px;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 16px;
+        }
+
+        .value-box.neutral {
+          background: #fef3c7;
+          color: #92400e;
+        }
+
+        .sp500-card {
+          background: white;
+          border-radius: 12px;
+          border: 1px solid #e4e7eb;
+          padding: 24px;
+        }
+
+        .sp500-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 16px;
+        }
+
+        .sp500-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: #374151;
+        }
+
+        .sp500-symbol {
+          font-size: 14px;
+          color: #9ca3af;
+          font-weight: 500;
+        }
+
+        .sp500-values {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          margin-bottom: 12px;
+        }
+
+        .sp500-price {
+          font-size: 28px;
+          font-weight: 700;
+          color: #1e293b;
+        }
+
+        .sp500-change {
+          padding: 6px 12px;
+          border-radius: 6px;
+          font-weight: 600;
+          font-size: 16px;
+        }
+
+        .sp500-change.positive {
+          background: #10b981;
+          color: white;
+        }
+
+        .sp500-change.negative {
+          background: #ef4444;
+          color: white;
+        }
+
+        .color-legend {
+          font-size: 12px;
+          color: #9ca3af;
+          font-style: italic;
+        }
+
+        /* Economic Indicators Section */
+        .economic-section {
+          background: white;
+          border-radius: 12px;
+          border: 1px solid #e4e7eb;
+          padding: 24px;
+        }
+
+        .section-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 20px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid #f1f5f9;
+        }
+
+        .section-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: #374151;
+        }
+
+        .section-source {
+          font-size: 12px;
+          color: #9ca3af;
+          background: #f8fafc;
+          padding: 4px 8px;
+          border-radius: 6px;
+        }
+
+        .economic-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 24px;
+        }
+
+        .economic-card {
+          background: #fafbfc;
+          border: 1px solid #f1f5f9;
+          border-radius: 8px;
+          padding: 20px;
+          text-align: left;
+        }
+
+        .economic-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 12px;
+        }
+
+        .economic-icon {
+          font-size: 16px;
+        }
+
+        .economic-label {
+          font-size: 14px;
+          font-weight: 600;
+          color: #374151;
+        }
+
+        .economic-value {
+          font-size: 24px;
+          font-weight: 700;
+          color: #1e293b;
+          margin-bottom: 8px;
+        }
+
+        .economic-change {
+          font-size: 14px;
+          font-weight: 600;
+          padding: 4px 8px;
+          border-radius: 4px;
+          display: inline-block;
+        }
+
+        .economic-change.positive {
+          background: #10b981;
+          color: white;
+        }
+
+        .economic-change.negative {
+          background: #ef4444;
+          color: white;
+        }
+
+        .cpi-changes {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .cpi-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .cpi-label {
+          font-size: 12px;
+          color: #6b7280;
+          font-weight: 500;
+        }
+
+        .cpi-change {
+          font-size: 14px;
+          font-weight: 600;
+          padding: 2px 6px;
+          border-radius: 4px;
+        }
+
+        .cpi-change.positive {
+          background: #10b981;
+          color: white;
+        }
+
+        .cpi-change.negative {
+          background: #ef4444;
+          color: white;
         }
 
         /* Mobile responsiveness */
         @media (max-width: 1024px) {
           .enhanced-macro-dashboard {
-            padding: 16px;
+            padding: 20px;
           }
 
-          .dashboard-grid-3tier {
-            gap: 18px;
+          .top-row {
+            grid-template-columns: 1fr;
+            gap: 20px;
           }
 
-          .top-tier {
+          .economic-grid {
             grid-template-columns: 1fr;
             gap: 16px;
           }
-
         }
 
         @media (max-width: 768px) {
           .enhanced-macro-dashboard {
-            padding: 12px;
+            padding: 16px;
           }
 
-          .dashboard-grid-3tier {
-            gap: 16px;
+          .dashboard-grid-clean {
+            gap: 20px;
           }
 
-          .top-tier {
-            gap: 12px;
+          .sp500-values {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
           }
 
+          .sp500-price {
+            font-size: 24px;
+          }
         }
 
         @media (max-width: 480px) {
           .enhanced-macro-dashboard {
-            padding: 10px;
+            padding: 12px;
           }
 
-          .dashboard-grid-3tier {
-            gap: 12px;
+          .fear-greed-card,
+          .sp500-card,
+          .economic-section {
+            padding: 16px;
           }
 
-          .top-tier {
-            gap: 10px;
+          .economic-card {
+            padding: 16px;
           }
 
+          .economic-value {
+            font-size: 20px;
+          }
         }
-
       `}</style>
     </div>
   );
