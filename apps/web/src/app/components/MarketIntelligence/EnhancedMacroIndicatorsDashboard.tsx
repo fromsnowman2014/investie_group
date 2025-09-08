@@ -7,97 +7,29 @@ interface EnhancedMarketSummary {
   fearGreedIndex: {
     value: number;
     status: 'extreme-fear' | 'fear' | 'neutral' | 'greed' | 'extreme-greed';
-    confidence: number;
-    components: {
-      marketVolatility: number;
-      marketVolume: number;
-      marketMomentum: number;
-      stockPriceBreadth: number;
-      safehavenDemand: number;
-      junkBondDemand: number;
-      putCallRatio: number;
-    };
-    methodology: string;
-    lastUpdated: string;
-    source: string;
   } | null;
   
   economicIndicators: {
     interestRate: {
       value: number;
-      previousValue: number;
       change: number;
-      percentChange: number;
-      basisPointsChange: number;
-      date: string;
-      trend: 'rising' | 'falling' | 'stable';
-      source: string;
-      aiOutlook?: string;
     } | null;
     cpi: {
       value: number;
-      previousValue: number;
-      change: number;
-      percentChange: number;
       monthOverMonth: number;
       yearOverYear: number;
-      date: string;
-      trend: 'rising' | 'falling' | 'stable';
-      direction: 'up' | 'down' | 'stable';
-      inflationPressure: 'low' | 'moderate' | 'high';
-      source: string;
     } | null;
     unemployment: {
       value: number;
-      previousValue: number;
-      change: number;
-      percentChange: number;
-      monthOverMonth: number;
-      date: string;
-      trend: 'rising' | 'falling' | 'stable';
-      employmentHealth: 'strong' | 'moderate' | 'weak';
-      source: string;
     } | null;
   } | null;
   
   sp500Sparkline: {
-    data: Array<{
-      timestamp: string;
-      price: number;
-      volume?: number;
-    }>;
     currentPrice: number;
     weeklyChange: number;
-    weeklyTrend: 'up' | 'down' | 'flat';
-    volatility: 'low' | 'moderate' | 'high';
-    marketSentiment: 'bullish' | 'neutral' | 'bearish';
   } | null;
   
-  sectorPerformance: Array<{
-    sector: string;
-    ticker: string;
-    name: string;
-    price: number;
-    change: number;
-    changePercent: number;
-    volume: number;
-    marketCap?: number;
-    weeklyPerformance: number;
-    monthlyPerformance: number;
-    momentum: 'strong-buy' | 'buy' | 'hold' | 'sell' | 'strong-sell';
-    leadership: 'leader' | 'laggard' | 'neutral';
-    rotationSignal: 'inflow' | 'outflow' | 'neutral';
-    relativeStrength: number;
-    correlation: number;
-    lastUpdated: string;
-  }> | null;
-  
   lastUpdated: string;
-  cacheInfo?: {
-    hitRate: number;
-    totalRequests: number;
-    averageResponseTime: number;
-  };
 }
 
 
@@ -113,12 +45,6 @@ const fetcher = async (url: string): Promise<EnhancedMarketSummary> => {
   
   const apiResponse = await response.json();
   
-  // Debug logging for development
-  if (process.env.NODE_ENV === 'development') {
-    console.log('📊 Enhanced Market API Response:', apiResponse);
-    console.log('📦 API Response Structure:', Object.keys(apiResponse));
-    console.log('✅ Extracting data field:', !!apiResponse.data);
-  }
   
   // Extract the actual market data from the API response wrapper
   if (apiResponse.success && apiResponse.data) {
@@ -133,32 +59,19 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const fullApiUrl = apiUrl ? `${apiUrl}/api/v1/market/enhanced-summary` : null;
 
-  // Dynamic refresh interval based on market hours
+  // Simplified refresh interval
   const getRefreshInterval = () => {
     const now = new Date();
     const easternTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
-    const dayOfWeek = easternTime.getDay(); // 0 = Sunday, 6 = Saturday
+    const dayOfWeek = easternTime.getDay();
     const hour = easternTime.getHours();
-    const minute = easternTime.getMinutes();
     
-    // Market is open Monday-Friday (1-5), 9:30 AM - 4:00 PM EST
-    if (dayOfWeek === 0 || dayOfWeek === 6) {
-      return 300000; // Weekend: 5 minutes
-    }
-    
-    const timeInMinutes = hour * 60 + minute;
-    const marketOpenMinutes = 9 * 60 + 30; // 9:30 AM
-    const marketCloseMinutes = 16 * 60;     // 4:00 PM
-    
-    const isMarketHours = timeInMinutes >= marketOpenMinutes && timeInMinutes <= marketCloseMinutes;
-    
-    if (isMarketHours) {
-      return 30000; // Market hours: 30 seconds
-    } else if (timeInMinutes > marketCloseMinutes - 60 && timeInMinutes < marketCloseMinutes + 60) {
-      return 60000; // Around market close: 1 minute
-    } else {
-      return 180000; // After hours: 3 minutes
-    }
+    // Weekend
+    if (dayOfWeek === 0 || dayOfWeek === 6) return 300000;
+    // Market hours (9-16)
+    if (hour >= 9 && hour <= 16) return 60000;
+    // Off hours
+    return 180000;
   };
   
   const { data, error, isLoading } = useSWR<EnhancedMarketSummary>(
@@ -168,10 +81,9 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
       refreshInterval: getRefreshInterval(),
       revalidateOnFocus: true,
       revalidateOnReconnect: true,
-      errorRetryCount: 3,
-      errorRetryInterval: 5000,
-      // Add dedupe interval to prevent too many requests
-      dedupingInterval: 10000,
+      errorRetryCount: 2,
+      errorRetryInterval: 3000,
+      dedupingInterval: 5000,
     }
   );
 
@@ -194,10 +106,6 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
   if (isLoading || !data) {
     return (
       <div className="enhanced-macro-dashboard loading">
-        <div className="dashboard-header">
-          <h2 className="dashboard-title">📊 Macro Indicators</h2>
-        </div>
-        
         <div className="loading-indicator">
           <div className="loading-spinner"></div>
           <span>Loading market data...</span>
@@ -251,10 +159,6 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
   if (error) {
     return (
       <div className="enhanced-macro-dashboard error">
-        <div className="dashboard-header">
-          <h2 className="dashboard-title">📊 Macro Indicators</h2>
-        </div>
-        
         <div className="error-message">
           <div className="error-indicator">
             <span className="error-icon">⚠️</span>
@@ -271,10 +175,6 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
 
   return (
     <div className="enhanced-macro-dashboard">
-      <div className="dashboard-header">
-        <h2 className="dashboard-title">📊 Macro Indicators</h2>
-      </div>
-
       <div className="dashboard-grid-compact">
         {/* Fear & Greed Index */}
         <div className="indicator-row">
@@ -344,18 +244,15 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
         .enhanced-macro-dashboard {
           max-width: 1400px;
           margin: 0 auto;
-          padding: 24px;
+          padding: 16px;
           background: #fafbfc;
-          border-radius: 16px;
+          border-radius: 12px;
           border: 1px solid #e4e7eb;
         }
 
-        .enhanced-macro-dashboard.loading {
-          opacity: 0.8;
-        }
-
+        .enhanced-macro-dashboard.loading,
         .enhanced-macro-dashboard.error {
-          opacity: 0.9;
+          opacity: 0.8;
         }
 
         .loading-indicator,
@@ -388,9 +285,9 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
         .error-message {
           background: #fef2f2;
           border: 1px solid #fecaca;
-          border-radius: 12px;
-          padding: 20px;
-          margin: 20px 0;
+          border-radius: 8px;
+          padding: 16px;
+          margin: 16px 0;
           text-align: center;
         }
 
@@ -400,40 +297,30 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
           font-size: 14px;
         }
 
-        .dashboard-header {
-          margin-bottom: 24px;
-        }
-
-        .dashboard-title {
-          font-size: 24px;
-          font-weight: 600;
-          color: #1e293b;
-          margin: 0;
-        }
 
         .dashboard-grid-compact {
           background: white;
-          border-radius: 12px;
+          border-radius: 8px;
           border: 1px solid #e4e7eb;
-          padding: 20px;
+          padding: 16px;
           display: flex;
           flex-direction: column;
-          gap: 16px;
+          gap: 12px;
         }
 
         .indicator-row {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 12px 16px;
+          padding: 10px 12px;
           background: #fafbfc;
           border: 1px solid #f1f5f9;
-          border-radius: 8px;
-          min-height: 48px;
+          border-radius: 6px;
+          min-height: 40px;
         }
 
         .indicator-label {
-          font-size: 16px;
+          font-size: 14px;
           font-weight: 600;
           color: #374151;
           display: flex;
@@ -468,13 +355,13 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
         }
 
         .price-text {
-          font-size: 20px;
+          font-size: 18px;
           font-weight: 700;
           color: #1e293b;
         }
 
         .main-value {
-          font-size: 18px;
+          font-size: 16px;
           font-weight: 700;
           color: #1e293b;
         }
@@ -525,15 +412,15 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 16px 16px 12px 16px;
-          border-bottom: 2px solid #f1f5f9;
+          padding: 12px 12px 8px 12px;
+          border-bottom: 1px solid #f1f5f9;
           background: #f8fafc;
-          border-radius: 8px 8px 0 0;
-          margin-top: 8px;
+          border-radius: 6px 6px 0 0;
+          margin-top: 6px;
         }
 
         .section-title {
-          font-size: 16px;
+          font-size: 14px;
           font-weight: 600;
           color: #374151;
         }
@@ -547,57 +434,9 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
           border: 1px solid #e5e7eb;
         }
 
-        .color-note {
-          font-size: 12px;
-          color: #9ca3af;
-          font-style: italic;
-          text-align: center;
-          padding: 8px;
-          background: #f8fafc;
-          border-radius: 6px;
-          margin-top: 8px;
-        }
 
         /* Mobile responsiveness */
         @media (max-width: 768px) {
-          .enhanced-macro-dashboard {
-            padding: 16px;
-          }
-
-          .dashboard-grid-compact {
-            padding: 16px;
-            gap: 12px;
-          }
-
-          .indicator-row {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 8px;
-            padding: 12px;
-            min-height: auto;
-          }
-
-          .indicator-value {
-            align-self: flex-end;
-            gap: 8px;
-          }
-
-          .sub-values {
-            flex-direction: column;
-            gap: 6px;
-            align-items: flex-end;
-          }
-
-          .price-text {
-            font-size: 18px;
-          }
-
-          .main-value {
-            font-size: 16px;
-          }
-        }
-
-        @media (max-width: 480px) {
           .enhanced-macro-dashboard {
             padding: 12px;
           }
@@ -608,28 +447,36 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
           }
 
           .indicator-row {
-            padding: 10px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+            padding: 8px 10px;
+            min-height: auto;
           }
 
-          .indicator-label {
-            font-size: 14px;
-          }
-
-          .price-text {
-            font-size: 16px;
-          }
-
-          .main-value {
-            font-size: 14px;
-          }
-
-          .change-badge {
-            font-size: 12px;
-            padding: 3px 6px;
+          .indicator-value {
+            align-self: flex-end;
+            gap: 6px;
           }
 
           .sub-values {
+            flex-direction: column;
+            gap: 4px;
+            align-items: flex-end;
             font-size: 12px;
+          }
+
+          .price-text, .main-value {
+            font-size: 14px;
+          }
+
+          .indicator-label {
+            font-size: 12px;
+          }
+
+          .change-badge {
+            font-size: 11px;
+            padding: 2px 4px;
           }
         }
       `}</style>
