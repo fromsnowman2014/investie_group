@@ -203,18 +203,24 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
           <span>Loading market data...</span>
         </div>
         
-        <div className="dashboard-grid-clean">
+        <div className="dashboard-grid-compact">
           {/* Loading placeholders */}
-          <div className="top-row">
-            <div className="fear-greed-card skeleton">
-              <div className="skeleton-content"></div>
-            </div>
-            <div className="sp500-card skeleton">
-              <div className="skeleton-content"></div>
-            </div>
+          <div className="indicator-row skeleton">
+            <div className="skeleton-content"></div>
           </div>
-          
-          <div className="economic-section skeleton">
+          <div className="indicator-row skeleton">
+            <div className="skeleton-content"></div>
+          </div>
+          <div className="section-divider skeleton">
+            <div className="skeleton-content"></div>
+          </div>
+          <div className="indicator-row skeleton">
+            <div className="skeleton-content"></div>
+          </div>
+          <div className="indicator-row skeleton">
+            <div className="skeleton-content"></div>
+          </div>
+          <div className="indicator-row skeleton">
             <div className="skeleton-content"></div>
           </div>
         </div>
@@ -269,94 +275,69 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
         <h2 className="dashboard-title">📊 Macro Indicators</h2>
       </div>
 
-      <div className="dashboard-grid-clean">
-        {/* Top Row - Fear & Greed and S&P 500 */}
-        <div className="top-row">
-          <div className="fear-greed-card">
-            <div className="card-label">Fear & Greed Index</div>
-            <div className="fear-greed-value">
-              <span className="value-box neutral">
-                {data.fearGreedIndex?.value || 50} ({data.fearGreedIndex?.status || 'Neutral'})
+      <div className="dashboard-grid-compact">
+        {/* Fear & Greed Index */}
+        <div className="indicator-row">
+          <span className="indicator-label">Fear & Greed Index</span>
+          <span className="indicator-value">
+            <span className={`value-badge neutral`}>
+              {data.fearGreedIndex?.value || 50} ({data.fearGreedIndex?.status || 'Neutral'})
+            </span>
+          </span>
+        </div>
+        
+        {/* S&P 500 */}
+        <div className="indicator-row">
+          <span className="indicator-label">S&P 500 <span className="symbol-text">SPY</span></span>
+          <span className="indicator-value">
+            <span className="price-text">${data.sp500Sparkline?.currentPrice?.toFixed(2) || '647.24'}</span>
+            <span className={`change-badge ${(data.sp500Sparkline?.weeklyChange ?? 1.09) >= 0 ? 'positive' : 'negative'}`}>
+              {(data.sp500Sparkline?.weeklyChange ?? 1.09) >= 0 ? '+' : ''}{(data.sp500Sparkline?.weeklyChange ?? 1.09).toFixed(2)}%
+            </span>
+          </span>
+        </div>
+
+        {/* Economic Indicators Header */}
+        <div className="section-divider">
+          <span className="section-title">Economic Indicators</span>
+          <span className="section-source">FRED API</span>
+        </div>
+
+        {/* 10Y Treasury */}
+        <div className="indicator-row">
+          <span className="indicator-label">📊 10Y Treasury</span>
+          <span className="indicator-value">
+            <span className="main-value">{data.economicIndicators?.interestRate?.value?.toFixed(2) || '4.26'}%</span>
+            <span className={`change-badge ${(data.economicIndicators?.interestRate?.change ?? -0.13) >= 0 ? 'positive' : 'negative'}`}>
+              {(data.economicIndicators?.interestRate?.change ?? -0.13) >= 0 ? '+' : ''}{(data.economicIndicators?.interestRate?.change ?? -0.13).toFixed(2)}%
+            </span>
+          </span>
+        </div>
+
+        {/* CPI */}
+        <div className="indicator-row">
+          <span className="indicator-label">📈 CPI</span>
+          <span className="indicator-value">
+            <span className="main-value">{data.economicIndicators?.cpi?.value?.toFixed(1) || '322.1'}</span>
+            <span className="sub-values">
+              M/M: <span className={`change-mini ${(data.economicIndicators?.cpi?.monthOverMonth ?? 0.20) >= 0 ? 'positive' : 'negative'}`}>
+                {(data.economicIndicators?.cpi?.monthOverMonth ?? 0.20) >= 0 ? '+' : ''}{(data.economicIndicators?.cpi?.monthOverMonth ?? 0.20).toFixed(2)}%
               </span>
-            </div>
-          </div>
-          
-          <div className="sp500-card">
-            <div className="sp500-header">
-              <span className="sp500-title">S&P 500</span>
-              <span className="sp500-symbol">SPY</span>
-            </div>
-            <div className="sp500-values">
-              <div className="sp500-price">${data.sp500Sparkline?.currentPrice?.toFixed(2) || '647.24'}</div>
-              <div className={`sp500-change ${(data.sp500Sparkline?.weeklyChange ?? 1.09) >= 0 ? 'positive' : 'negative'}`}>
-                {(data.sp500Sparkline?.weeklyChange ?? 1.09) >= 0 ? '+' : ''}{(data.sp500Sparkline?.weeklyChange ?? 1.09).toFixed(2)}%
-              </div>
-            </div>
-            <div className="color-legend">
-              Color: Green for +, Red for -, white for no change
-            </div>
-          </div>
+              Y/Y: <span className={`change-mini ${(data.economicIndicators?.cpi?.yearOverYear ?? 2.73) >= 0 ? 'positive' : 'negative'}`}>
+                {(data.economicIndicators?.cpi?.yearOverYear ?? 2.73) >= 0 ? '+' : ''}{(data.economicIndicators?.cpi?.yearOverYear ?? 2.73).toFixed(2)}%
+              </span>
+            </span>
+          </span>
         </div>
 
-        {/* Economic Indicators Row */}
-        <div className="economic-section">
-          <div className="section-header">
-            <span className="section-title">Economic Indicators</span>
-            <span className="section-source">FRED API</span>
-          </div>
-          
-          <div className="economic-grid">
-            {/* 10Y Treasury */}
-            <div className="economic-card">
-              <div className="economic-header">
-                <span className="economic-icon">📊</span>
-                <span className="economic-label">10Y Treasury</span>
-              </div>
-              <div className="economic-value">
-                {data.economicIndicators?.interestRate?.value?.toFixed(2) || '4.26'}%
-              </div>
-              <div className={`economic-change ${(data.economicIndicators?.interestRate?.change ?? -0.13) >= 0 ? 'positive' : 'negative'}`}>
-                {(data.economicIndicators?.interestRate?.change ?? -0.13) >= 0 ? '+' : ''}{(data.economicIndicators?.interestRate?.change ?? -0.13).toFixed(2)}%
-              </div>
-            </div>
-
-            {/* CPI */}
-            <div className="economic-card">
-              <div className="economic-header">
-                <span className="economic-icon">📈</span>
-                <span className="economic-label">CPI</span>
-              </div>
-              <div className="economic-value">
-                {data.economicIndicators?.cpi?.value?.toFixed(1) || '322.1'}
-              </div>
-              <div className="cpi-changes">
-                <div className="cpi-row">
-                  <span className="cpi-label">M/M:</span>
-                  <span className={`cpi-change ${(data.economicIndicators?.cpi?.monthOverMonth ?? 0.20) >= 0 ? 'positive' : 'negative'}`}>
-                    {(data.economicIndicators?.cpi?.monthOverMonth ?? 0.20) >= 0 ? '+' : ''}{(data.economicIndicators?.cpi?.monthOverMonth ?? 0.20).toFixed(2)}%
-                  </span>
-                </div>
-                <div className="cpi-row">
-                  <span className="cpi-label">Y/Y:</span>
-                  <span className={`cpi-change ${(data.economicIndicators?.cpi?.yearOverYear ?? 2.73) >= 0 ? 'positive' : 'negative'}`}>
-                    {(data.economicIndicators?.cpi?.yearOverYear ?? 2.73) >= 0 ? '+' : ''}{(data.economicIndicators?.cpi?.yearOverYear ?? 2.73).toFixed(2)}%
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Unemployment */}
-            <div className="economic-card">
-              <div className="economic-header">
-                <span className="economic-icon">👥</span>
-                <span className="economic-label">Unemployment</span>
-              </div>
-              <div className="economic-value">
-                {data.economicIndicators?.unemployment?.value?.toFixed(1) || '4.3'}%
-              </div>
-            </div>
-          </div>
+        {/* Unemployment */}
+        <div className="indicator-row">
+          <span className="indicator-label">👥 Unemployment</span>
+          <span className="indicator-value">
+            <span className="main-value">{data.economicIndicators?.unemployment?.value?.toFixed(1) || '4.3'}%</span>
+          </span>
         </div>
+
       </div>
 
       <style jsx>{`
@@ -430,130 +411,125 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
           margin: 0;
         }
 
-        .dashboard-grid-clean {
+        .dashboard-grid-compact {
+          background: white;
+          border-radius: 12px;
+          border: 1px solid #e4e7eb;
+          padding: 20px;
           display: flex;
           flex-direction: column;
-          gap: 24px;
+          gap: 16px;
         }
 
-        /* Top Row - Fear & Greed and S&P 500 */
-        .top-row {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 24px;
-          align-items: start;
-        }
-
-        .fear-greed-card {
-          background: white;
-          border-radius: 12px;
-          border: 1px solid #e4e7eb;
-          padding: 24px;
-        }
-
-        .card-label {
-          font-size: 16px;
-          font-weight: 600;
-          color: #374151;
-          margin-bottom: 16px;
-        }
-
-        .fear-greed-value {
-          display: flex;
-          justify-content: flex-start;
-        }
-
-        .value-box {
-          background: #fef3c7;
-          color: #92400e;
-          padding: 12px 24px;
-          border-radius: 8px;
-          font-weight: 600;
-          font-size: 16px;
-        }
-
-        .value-box.neutral {
-          background: #fef3c7;
-          color: #92400e;
-        }
-
-        .sp500-card {
-          background: white;
-          border-radius: 12px;
-          border: 1px solid #e4e7eb;
-          padding: 24px;
-        }
-
-        .sp500-header {
+        .indicator-row {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 16px;
+          padding: 12px 16px;
+          background: #fafbfc;
+          border: 1px solid #f1f5f9;
+          border-radius: 8px;
+          min-height: 48px;
         }
 
-        .sp500-title {
+        .indicator-label {
           font-size: 16px;
           font-weight: 600;
           color: #374151;
+          display: flex;
+          align-items: center;
+          gap: 8px;
         }
 
-        .sp500-symbol {
+        .symbol-text {
           font-size: 14px;
           color: #9ca3af;
           font-weight: 500;
         }
 
-        .sp500-values {
+        .indicator-value {
           display: flex;
           align-items: center;
-          gap: 16px;
-          margin-bottom: 12px;
+          gap: 12px;
         }
 
-        .sp500-price {
-          font-size: 28px;
+        .value-badge {
+          background: #fef3c7;
+          color: #92400e;
+          padding: 6px 12px;
+          border-radius: 6px;
+          font-weight: 600;
+          font-size: 14px;
+        }
+
+        .value-badge.neutral {
+          background: #fef3c7;
+          color: #92400e;
+        }
+
+        .price-text {
+          font-size: 20px;
           font-weight: 700;
           color: #1e293b;
         }
 
-        .sp500-change {
-          padding: 6px 12px;
-          border-radius: 6px;
-          font-weight: 600;
-          font-size: 16px;
+        .main-value {
+          font-size: 18px;
+          font-weight: 700;
+          color: #1e293b;
         }
 
-        .sp500-change.positive {
+        .change-badge {
+          padding: 4px 8px;
+          border-radius: 4px;
+          font-weight: 600;
+          font-size: 14px;
+        }
+
+        .change-badge.positive {
           background: #10b981;
           color: white;
         }
 
-        .sp500-change.negative {
+        .change-badge.negative {
           background: #ef4444;
           color: white;
         }
 
-        .color-legend {
+        .sub-values {
+          font-size: 14px;
+          color: #6b7280;
+          display: flex;
+          gap: 12px;
+          align-items: center;
+        }
+
+        .change-mini {
+          font-weight: 600;
+          padding: 2px 6px;
+          border-radius: 3px;
           font-size: 12px;
-          color: #9ca3af;
-          font-style: italic;
         }
 
-        /* Economic Indicators Section */
-        .economic-section {
-          background: white;
-          border-radius: 12px;
-          border: 1px solid #e4e7eb;
-          padding: 24px;
+        .change-mini.positive {
+          background: #10b981;
+          color: white;
         }
 
-        .section-header {
+        .change-mini.negative {
+          background: #ef4444;
+          color: white;
+        }
+
+        .section-divider {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 20px;
-          padding-bottom: 12px;
-          border-bottom: 1px solid #f1f5f9;
+          padding: 16px 16px 12px 16px;
+          border-bottom: 2px solid #f1f5f9;
+          background: #f8fafc;
+          border-radius: 8px 8px 0 0;
+          margin-top: 8px;
         }
 
         .section-title {
@@ -565,136 +541,59 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
         .section-source {
           font-size: 12px;
           color: #9ca3af;
-          background: #f8fafc;
+          background: white;
           padding: 4px 8px;
           border-radius: 6px;
+          border: 1px solid #e5e7eb;
         }
 
-        .economic-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
-          gap: 24px;
-        }
-
-        .economic-card {
-          background: #fafbfc;
-          border: 1px solid #f1f5f9;
-          border-radius: 8px;
-          padding: 20px;
-          text-align: left;
-        }
-
-        .economic-header {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          margin-bottom: 12px;
-        }
-
-        .economic-icon {
-          font-size: 16px;
-        }
-
-        .economic-label {
-          font-size: 14px;
-          font-weight: 600;
-          color: #374151;
-        }
-
-        .economic-value {
-          font-size: 24px;
-          font-weight: 700;
-          color: #1e293b;
-          margin-bottom: 8px;
-        }
-
-        .economic-change {
-          font-size: 14px;
-          font-weight: 600;
-          padding: 4px 8px;
-          border-radius: 4px;
-          display: inline-block;
-        }
-
-        .economic-change.positive {
-          background: #10b981;
-          color: white;
-        }
-
-        .economic-change.negative {
-          background: #ef4444;
-          color: white;
-        }
-
-        .cpi-changes {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-
-        .cpi-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .cpi-label {
+        .color-note {
           font-size: 12px;
-          color: #6b7280;
-          font-weight: 500;
-        }
-
-        .cpi-change {
-          font-size: 14px;
-          font-weight: 600;
-          padding: 2px 6px;
-          border-radius: 4px;
-        }
-
-        .cpi-change.positive {
-          background: #10b981;
-          color: white;
-        }
-
-        .cpi-change.negative {
-          background: #ef4444;
-          color: white;
+          color: #9ca3af;
+          font-style: italic;
+          text-align: center;
+          padding: 8px;
+          background: #f8fafc;
+          border-radius: 6px;
+          margin-top: 8px;
         }
 
         /* Mobile responsiveness */
-        @media (max-width: 1024px) {
-          .enhanced-macro-dashboard {
-            padding: 20px;
-          }
-
-          .top-row {
-            grid-template-columns: 1fr;
-            gap: 20px;
-          }
-
-          .economic-grid {
-            grid-template-columns: 1fr;
-            gap: 16px;
-          }
-        }
-
         @media (max-width: 768px) {
           .enhanced-macro-dashboard {
             padding: 16px;
           }
 
-          .dashboard-grid-clean {
-            gap: 20px;
+          .dashboard-grid-compact {
+            padding: 16px;
+            gap: 12px;
           }
 
-          .sp500-values {
+          .indicator-row {
             flex-direction: column;
             align-items: flex-start;
             gap: 8px;
+            padding: 12px;
+            min-height: auto;
           }
 
-          .sp500-price {
-            font-size: 24px;
+          .indicator-value {
+            align-self: flex-end;
+            gap: 8px;
+          }
+
+          .sub-values {
+            flex-direction: column;
+            gap: 6px;
+            align-items: flex-end;
+          }
+
+          .price-text {
+            font-size: 18px;
+          }
+
+          .main-value {
+            font-size: 16px;
           }
         }
 
@@ -703,18 +602,34 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
             padding: 12px;
           }
 
-          .fear-greed-card,
-          .sp500-card,
-          .economic-section {
-            padding: 16px;
+          .dashboard-grid-compact {
+            padding: 12px;
+            gap: 10px;
           }
 
-          .economic-card {
-            padding: 16px;
+          .indicator-row {
+            padding: 10px;
           }
 
-          .economic-value {
-            font-size: 20px;
+          .indicator-label {
+            font-size: 14px;
+          }
+
+          .price-text {
+            font-size: 16px;
+          }
+
+          .main-value {
+            font-size: 14px;
+          }
+
+          .change-badge {
+            font-size: 12px;
+            padding: 3px 6px;
+          }
+
+          .sub-values {
+            font-size: 12px;
           }
         }
       `}</style>
