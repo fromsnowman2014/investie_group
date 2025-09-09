@@ -56,8 +56,8 @@ const fetcher = async (url: string): Promise<EnhancedMarketSummary> => {
 
 const EnhancedMacroIndicatorsDashboard: React.FC = () => {
   // Check if API URL is properly configured
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  const fullApiUrl = apiUrl ? `${apiUrl}/api/v1/market/enhanced-summary` : null;
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+  const fullApiUrl = `${apiUrl}/api/v1/market/enhanced-summary`;
 
   // Simplified refresh interval
   const getRefreshInterval = () => {
@@ -87,20 +87,7 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
     }
   );
 
-  // Configuration error state
-  if (!apiUrl) {
-    return (
-      <div className="enhanced-macro-dashboard error">
-        <div className="error-message">
-          <div className="error-indicator">
-            <span className="error-icon">⚠️</span>
-            <span>Configuration Error</span>
-          </div>
-          <p>API URL not configured. Please set NEXT_PUBLIC_API_URL environment variable.</p>
-        </div>
-      </div>
-    );
-  }
+  // Note: API URL configuration error handling removed as we now auto-detect the URL
 
   // Loading state
   if (isLoading || !data) {
