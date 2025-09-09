@@ -26,7 +26,8 @@ interface FearGreedGaugeProps {
 }
 
 const FearGreedGauge: React.FC<FearGreedGaugeProps> = ({ data, isLoading }) => {
-  if (isLoading || !data) {
+  // Handle loading state
+  if (isLoading) {
     return (
       <div className="fear-greed-gauge loading">
         <div className="gauge-header">
@@ -36,6 +37,23 @@ const FearGreedGauge: React.FC<FearGreedGaugeProps> = ({ data, isLoading }) => {
         <div className="gauge-skeleton">
           <div className="circular-skeleton"></div>
           <div className="text-skeleton"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle no data state
+  if (!data) {
+    return (
+      <div className="fear-greed-gauge no-data">
+        <div className="gauge-header">
+          <h4>Fear & Greed Index</h4>
+          <div className="no-data-badge">No Data</div>
+        </div>
+        <div className="no-data-message">
+          <div className="no-data-icon">😐</div>
+          <p>Fear & Greed data unavailable</p>
+          <p>Please try again later</p>
         </div>
       </div>
     );
@@ -93,18 +111,22 @@ const FearGreedGauge: React.FC<FearGreedGaugeProps> = ({ data, isLoading }) => {
       <style jsx>{`
         .fear-greed-gauge {
           background: white;
-          border-radius: 12px;
+          border-radius: 10px;
           border: 1px solid #e2e8f0;
-          padding: 20px;
+          padding: 14px;
           margin-bottom: 16px;
+          height: 220px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
         }
 
         .gauge-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 20px;
-          padding-bottom: 12px;
+          margin-bottom: 12px;
+          padding-bottom: 8px;
           border-bottom: 1px solid #f1f5f9;
         }
 
@@ -128,15 +150,17 @@ const FearGreedGauge: React.FC<FearGreedGaugeProps> = ({ data, isLoading }) => {
           display: flex;
           flex-direction: column;
           align-items: center;
-          margin-bottom: 20px;
-          padding: 16px;
+          margin-bottom: 0;
+          padding: 12px;
           background: #f8fafc;
-          border-radius: 12px;
+          border-radius: 8px;
           border: 1px solid #e2e8f0;
+          flex-grow: 1;
+          justify-content: center;
         }
 
         .gauge-value {
-          font-size: 16px;
+          font-size: 28px;
           font-weight: 700;
           color: #1e293b;
           line-height: 1;
@@ -188,18 +212,52 @@ const FearGreedGauge: React.FC<FearGreedGaugeProps> = ({ data, isLoading }) => {
           font-weight: 500;
         }
 
+        .no-data-badge {
+          background: #fecaca;
+          color: #991b1b;
+          font-size: 10px;
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-weight: 500;
+        }
+
+        .no-data-message {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          flex-grow: 1;
+          text-align: center;
+          color: #64748b;
+          padding: 20px;
+        }
+
+        .no-data-icon {
+          font-size: 32px;
+          margin-bottom: 12px;
+        }
+
+        .no-data-message p {
+          margin: 2px 0;
+          font-size: 13px;
+          color: #64748b;
+        }
+
         .gauge-skeleton {
           display: flex;
           flex-direction: column;
           align-items: center;
+          justify-content: center;
+          flex-grow: 1;
+          padding: 20px;
         }
 
         .circular-skeleton {
-          width: 120px;
-          height: 120px;
-          border: 8px solid #e5e7eb;
+          width: 80px;
+          height: 80px;
+          border: 6px solid #e5e7eb;
           border-radius: 50%;
-          margin-bottom: 16px;
+          margin-bottom: 12px;
           animation: pulse 2s ease-in-out infinite;
         }
 
@@ -219,9 +277,29 @@ const FearGreedGauge: React.FC<FearGreedGaugeProps> = ({ data, isLoading }) => {
         /* Mobile responsiveness */
         @media (max-width: 768px) {
           .fear-greed-gauge {
-            padding: 16px;
+            height: auto;
+            min-height: 180px;
+            padding: 12px;
+          }
+          
+          .gauge-value {
+            font-size: 24px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .fear-greed-gauge {
+            min-height: 160px;
+            padding: 10px;
+          }
+          
+          .gauge-value {
+            font-size: 22px;
           }
 
+          .simple-gauge {
+            padding: 10px;
+          }
         }
       `}</style>
     </div>

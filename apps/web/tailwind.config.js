@@ -32,7 +32,7 @@ module.exports = {
       },
     },
   },
-  // Disable dark mode completely
-  darkMode: false,
+  // Use media query for dark mode detection 
+  darkMode: 'media',
   plugins: [],
 }

@@ -115,10 +115,11 @@ export function useTradingViewWidget({
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!containerRef.current) return
+    const container = containerRef.current;
+    if (!container) return
 
     // Clear any existing content
-    containerRef.current.innerHTML = ''
+    container.innerHTML = ''
 
     const widgetConfig = widgetConfigs[widgetType](symbol, config)
 
@@ -131,23 +132,23 @@ export function useTradingViewWidget({
     // Add widget configuration
     script.innerHTML = JSON.stringify({
       ...widgetConfig,
-      container_id: containerRef.current.id || `tradingview-${widgetType}-${Date.now()}`
+      container_id: container.id || `tradingview-${widgetType}-${Date.now()}`
     })
 
     // Assign unique ID if not present
-    if (!containerRef.current.id) {
-      containerRef.current.id = `tradingview-${widgetType}-${Date.now()}`
+    if (!container.id) {
+      container.id = `tradingview-${widgetType}-${Date.now()}`
     }
 
-    containerRef.current.appendChild(script)
+    container.appendChild(script)
 
     // Cleanup function
     return () => {
-      if (containerRef.current) {
-        containerRef.current.innerHTML = ''
+      if (container) {
+        container.innerHTML = ''
       }
     }
-  }, [widgetType, symbol, ...dependencies])
+  }, [widgetType, symbol, config, ...dependencies])
 
   return containerRef
 }
