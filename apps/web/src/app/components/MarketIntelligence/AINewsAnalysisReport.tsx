@@ -45,16 +45,41 @@ interface AINewsAnalysisReportProps {
 
 const fetcher = async (url: string): Promise<NewsAnalysisData> => {
   console.log('📰 News Analysis Fetcher Starting:', url);
-  const response = await debugFetch(url);
-  const result = await response.json();
-  console.log('📰 News Analysis Response:', result);
   
-  // Handle both wrapper format {success: true, data: ...} and direct data
-  if (result.success && result.data) {
-    return result.data;
+  try {
+    const response = await debugFetch(url);
+    const result = await response.json();
+    console.log('📰 News Analysis Response:', result);
+    
+    // Handle both wrapper format {success: true, data: ...} and direct data
+    let data = result.success && result.data ? result.data : result;
+    
+    // Ensure required fields have default values to prevent undefined errors
+    data = {
+      symbol: data.symbol || 'UNKNOWN',
+      sentiment: data.sentiment || 'neutral',
+      sentimentScore: data.sentimentScore || 0,
+      confidence: data.confidence || 0,
+      newsCount: data.newsCount || 0,
+      timeframe: data.timeframe || '24h',
+      keyTopics: Array.isArray(data.keyTopics) ? data.keyTopics : [],
+      headlines: Array.isArray(data.headlines) ? data.headlines : [],
+      aiSummary: data.aiSummary || {
+        mainTheme: 'No analysis available',
+        keyInsights: [],
+        investmentImplication: 'HOLD',
+        riskFactors: [],
+        catalysts: []
+      },
+      lastUpdated: data.lastUpdated || new Date().toISOString(),
+      analysisVersion: data.analysisVersion || 'v1.0.0'
+    };
+    
+    return data;
+  } catch (error) {
+    console.error('News Analysis Fetcher Error:', error);
+    throw error;
   }
-  
-  return result;
 };
 
 export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportProps) {
@@ -120,15 +145,28 @@ export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportPro
   };
 
   const formatTimeAgo = (dateString: string) => {
-    const now = new Date();
-    const published = new Date(dateString);
-    const diffMs = now.getTime() - published.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    if (!dateString) return 'Unknown';
     
-    if (diffHours < 1) return 'Just now';
-    if (diffHours < 24) return `${diffHours}h ago`;
-    const diffDays = Math.floor(diffHours / 24);
-    return `${diffDays}d ago`;
+    try {
+      const now = new Date();
+      const published = new Date(dateString);
+      
+      // Check if the date is valid
+      if (isNaN(published.getTime())) {
+        return 'Invalid date';
+      }
+      
+      const diffMs = now.getTime() - published.getTime();
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      
+      if (diffHours < 1) return 'Just now';
+      if (diffHours < 24) return `${diffHours}h ago`;
+      const diffDays = Math.floor(diffHours / 24);
+      return `${diffDays}d ago`;
+    } catch (error) {
+      console.error('Date formatting error:', error);
+      return 'Unknown';
+    }
   };
 
   const truncateText = (text: string, maxLength: number) => {
@@ -271,8 +309,13 @@ export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportPro
 
       {/* Last Updated */}
       <div className="news-footer">
-        <small>Last updated: {new Date(data.lastUpdated).toLocaleString()}</small>
-        <small>Analysis version: {data.analysisVersion}</small>
+        <small>
+          Last updated: {data.lastUpdated 
+            ? new Date(data.lastUpdated).toLocaleString() 
+            : 'N/A'
+          }
+        </small>
+        <small>Analysis version: {data.analysisVersion || 'N/A'}</small>
       </div>
 
       <style jsx>{`

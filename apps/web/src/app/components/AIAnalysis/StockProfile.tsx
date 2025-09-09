@@ -75,14 +75,16 @@ export default function StockProfile({ symbol }: StockProfileProps) {
     );
   }
 
-  const formatMarketCap = (value: number) => {
+  const formatMarketCap = (value: number | undefined | null) => {
+    if (typeof value !== 'number' || isNaN(value)) return 'N/A';
     if (value >= 1e12) return `$${(value / 1e12).toFixed(2)}T`;
     if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`;
     if (value >= 1e6) return `$${(value / 1e6).toFixed(2)}M`;
     return `$${value.toLocaleString()}`;
   };
 
-  const formatNumber = (value: number) => {
+  const formatNumber = (value: number | undefined | null) => {
+    if (typeof value !== 'number' || isNaN(value)) return 'N/A';
     if (value >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
     if (value >= 1e3) return `${(value / 1e3).toFixed(1)}K`;
     return value.toLocaleString();
