@@ -1,14 +1,38 @@
-import { NextRequest, NextResponse } from 'next/server';
-
-interface RouteParams {
-  params: {
-    symbol: string;
-  };
-}
+import { NextResponse } from 'next/server';
 
 // Mock news analysis data
 const generateNewsAnalysis = (symbol: string) => {
-  const newsAnalyses: Record<string, any> = {
+  interface NewsAnalysisData {
+    symbol: string;
+    sentiment: string;
+    sentimentScore: number;
+    confidence: number;
+    newsCount: number;
+    timeframe: string;
+    keyTopics: Array<{
+      topic: string;
+      sentiment: number;
+      mentions: number;
+    }>;
+    headlines: Array<{
+      title: string;
+      source: string;
+      sentiment: number;
+      timestamp: string;
+      summary: string;
+    }>;
+    aiSummary: {
+      mainTheme: string;
+      keyInsights: string[];
+      investmentImplication: string;
+      riskFactors: string[];
+      catalysts: string[];
+    };
+    lastUpdated: string;
+    analysisVersion: string;
+  }
+
+  const newsAnalyses: Record<string, NewsAnalysisData> = {
     AAPL: {
       symbol: 'AAPL',
       sentiment: 'bullish',
@@ -156,7 +180,10 @@ const generateNewsAnalysis = (symbol: string) => {
   };
 };
 
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ symbol: string }> }
+) {
   try {
     const { symbol } = await params;
     
@@ -195,7 +222,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-export async function OPTIONS(request: NextRequest) {
+export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {

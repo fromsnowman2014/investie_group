@@ -1,14 +1,38 @@
-import { NextRequest, NextResponse } from 'next/server';
-
-interface RouteParams {
-  params: {
-    symbol: string;
-  };
-}
+import { NextResponse } from 'next/server';
 
 // Mock stock profile data
 const generateStockProfile = (symbol: string) => {
-  const profiles: Record<string, any> = {
+  interface StockProfileData {
+    symbol: string;
+    name: string;
+    sector: string;
+    industry: string;
+    description: string;
+    marketCap: number;
+    employees: number;
+    founded: number;
+    headquarters: string;
+    website: string;
+    ceo: string;
+    exchange: string;
+    currency: string;
+    country: string;
+    price: number;
+    change: number;
+    changePercent: number;
+    volume: number;
+    avgVolume: number;
+    pe: number;
+    eps: number;
+    dividend: number;
+    dividendYield: number;
+    beta: number;
+    high52Week: number;
+    low52Week: number;
+    lastUpdated: string;
+  }
+
+  const profiles: Record<string, StockProfileData> = {
     AAPL: {
       symbol: 'AAPL',
       name: 'Apple Inc.',
@@ -79,7 +103,10 @@ const generateStockProfile = (symbol: string) => {
   };
 };
 
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ symbol: string }> }
+) {
   try {
     const { symbol } = await params;
     
@@ -118,7 +145,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-export async function OPTIONS(request: NextRequest) {
+export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {

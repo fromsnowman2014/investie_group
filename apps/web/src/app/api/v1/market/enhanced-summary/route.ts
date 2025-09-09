@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 // Mock data that matches the EnhancedMarketSummary interface
 const generateEnhancedMarketSummary = () => {
@@ -173,7 +173,7 @@ function generateSparklineData() {
   return data;
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Add CORS headers
     const response = NextResponse.json({
@@ -201,7 +201,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function OPTIONS(request: NextRequest) {
+export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {

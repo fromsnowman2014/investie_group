@@ -1,14 +1,46 @@
-import { NextRequest, NextResponse } from 'next/server';
-
-interface RouteParams {
-  params: {
-    symbol: string;
-  };
-}
+import { NextResponse } from 'next/server';
 
 // Mock AI analysis data
 const generateAIAnalysis = (symbol: string) => {
-  const analyses: Record<string, any> = {
+  interface AIAnalysisData {
+    symbol: string;
+    recommendation: string;
+    confidence: number;
+    targetPrice: number;
+    currentPrice: number;
+    upside: number;
+    reasoning: {
+      bullishPoints: string[];
+      bearishPoints: string[];
+      keyRisks: string[];
+    };
+    technicalAnalysis: {
+      trend: string;
+      support: number;
+      resistance: number;
+      rsi: number;
+      macd: string;
+      movingAverages: {
+        sma20: number;
+        sma50: number;
+        sma200: number;
+      };
+    };
+    fundamentals: {
+      pe: number;
+      peg: number;
+      priceToBook: number;
+      debtToEquity: number;
+      roe: number;
+      grossMargin: number;
+      operatingMargin: number;
+    };
+    aiInsights: string[];
+    lastUpdated: string;
+    analysisVersion: string;
+  }
+
+  const analyses: Record<string, AIAnalysisData> = {
     AAPL: {
       symbol: 'AAPL',
       recommendation: 'BUY',
@@ -162,7 +194,10 @@ const generateAIAnalysis = (symbol: string) => {
   };
 };
 
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ symbol: string }> }
+) {
   try {
     const { symbol } = await params;
     
@@ -201,7 +236,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-export async function OPTIONS(request: NextRequest) {
+export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {
