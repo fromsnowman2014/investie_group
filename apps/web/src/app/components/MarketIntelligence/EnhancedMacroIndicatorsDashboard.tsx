@@ -197,12 +197,6 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
           </span>
         </div>
 
-        {/* Economic Indicators Header */}
-        <div className="section-divider">
-          <span className="section-title">Economic Indicators</span>
-          <span className="section-source">FRED API</span>
-        </div>
-
         {/* 10Y Treasury */}
         <div className="indicator-row">
           <span className="indicator-label">📊 10Y Treasury</span>
