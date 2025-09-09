@@ -158,7 +158,7 @@ const generateNewsAnalysis = (symbol: string) => {
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const { symbol } = params;
+    const { symbol } = await params;
     
     if (!symbol) {
       return NextResponse.json({
