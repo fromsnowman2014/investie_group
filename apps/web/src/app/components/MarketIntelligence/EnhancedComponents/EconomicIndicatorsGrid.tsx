@@ -52,10 +52,14 @@ interface EconomicIndicatorsGridProps {
 }
 
 const EconomicIndicatorsGrid: React.FC<EconomicIndicatorsGridProps> = ({ data, isLoading }) => {
-  if (isLoading || !data) {
+  // Handle loading state
+  if (isLoading) {
     return (
       <div className="economic-indicators-grid loading">
-        <h4>Economic Indicators</h4>
+        <div className="grid-header">
+          <h4>Economic Indicators</h4>
+          <div className="loading-badge">Loading...</div>
+        </div>
         <div className="indicators-grid">
           {[1, 2, 3].map((i) => (
             <div key={i} className="indicator-card skeleton">
@@ -64,6 +68,23 @@ const EconomicIndicatorsGrid: React.FC<EconomicIndicatorsGridProps> = ({ data, i
               <div className="skeleton-change"></div>
             </div>
           ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Handle no data state with fallback
+  if (!data) {
+    return (
+      <div className="economic-indicators-grid no-data">
+        <div className="grid-header">
+          <h4>Economic Indicators</h4>
+          <div className="no-data-badge">No Data</div>
+        </div>
+        <div className="no-data-message">
+          <div className="no-data-icon">📊</div>
+          <p>Economic data is temporarily unavailable.</p>
+          <p>Please try again later.</p>
         </div>
       </div>
     );
@@ -247,6 +268,45 @@ const EconomicIndicatorsGrid: React.FC<EconomicIndicatorsGridProps> = ({ data, i
           margin: 0;
         }
 
+        .loading-badge {
+          background: #fef3c7;
+          color: #92400e;
+          font-size: 10px;
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-weight: 500;
+        }
+
+        .no-data-badge {
+          background: #fecaca;
+          color: #991b1b;
+          font-size: 10px;
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-weight: 500;
+        }
+
+        .no-data-message {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 40px 20px;
+          text-align: center;
+          color: #64748b;
+        }
+
+        .no-data-icon {
+          font-size: 32px;
+          margin-bottom: 16px;
+        }
+
+        .no-data-message p {
+          margin: 4px 0;
+          font-size: 14px;
+          color: #64748b;
+        }
+
         .data-source {
           font-size: 10px;
           background: #f1f5f9;
@@ -258,16 +318,20 @@ const EconomicIndicatorsGrid: React.FC<EconomicIndicatorsGridProps> = ({ data, i
 
         .indicators-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-          gap: 16px;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 12px;
         }
 
         .indicator-card {
           background: #f8fafc;
           border: 1px solid #e2e8f0;
-          border-radius: 12px;
-          padding: 16px;
+          border-radius: 8px;
+          padding: 12px;
           transition: transform 0.2s, box-shadow 0.2s;
+          min-height: 120px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
         }
 
         .indicator-card:hover {
@@ -279,39 +343,43 @@ const EconomicIndicatorsGrid: React.FC<EconomicIndicatorsGridProps> = ({ data, i
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin-bottom: 16px;
+          margin-bottom: 8px;
         }
 
         .indicator-icon {
-          font-size: 20px;
-        }
-
-        .indicator-title {
-          font-size: 14px;
-          font-weight: 600;
-          color: #374151;
-          flex: 1;
-          margin-left: 8px;
-        }
-
-        .trend-icon {
           font-size: 16px;
         }
 
+        .indicator-title {
+          font-size: 12px;
+          font-weight: 600;
+          color: #374151;
+          flex: 1;
+          margin-left: 6px;
+        }
+
+        .trend-icon {
+          font-size: 14px;
+        }
+
         .card-body {
-          margin-bottom: 12px;
+          margin-bottom: 8px;
+          flex-grow: 1;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
         }
 
         .primary-value {
-          font-size: 18px;
+          font-size: 16px;
           font-weight: 700;
           color: #1e293b;
-          line-height: 1;
-          margin-bottom: 12px;
+          line-height: 1.1;
+          margin-bottom: 6px;
         }
 
         .change-info {
-          margin-bottom: 12px;
+          margin-bottom: 6px;
         }
 
         .change-value {
@@ -343,18 +411,19 @@ const EconomicIndicatorsGrid: React.FC<EconomicIndicatorsGridProps> = ({ data, i
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding-top: 12px;
+          padding-top: 6px;
           border-top: 1px solid #f1f5f9;
+          margin-top: auto;
         }
 
         .trend-label {
-          font-size: 10px;
+          font-size: 9px;
           font-weight: 600;
-          letter-spacing: 0.5px;
+          letter-spacing: 0.3px;
         }
 
         .update-date {
-          font-size: 10px;
+          font-size: 9px;
           color: #9ca3af;
         }
 
@@ -409,7 +478,8 @@ const EconomicIndicatorsGrid: React.FC<EconomicIndicatorsGridProps> = ({ data, i
           }
 
           .indicator-card {
-            padding: 14px;
+            padding: 12px;
+            min-height: 100px;
           }
 
           .primary-value {
@@ -420,6 +490,17 @@ const EconomicIndicatorsGrid: React.FC<EconomicIndicatorsGridProps> = ({ data, i
             flex-direction: column;
             align-items: flex-start;
             gap: 8px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .indicators-grid {
+            gap: 10px;
+          }
+
+          .indicator-card {
+            padding: 10px;
+            min-height: 90px;
           }
         }
 

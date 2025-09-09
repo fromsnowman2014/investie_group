@@ -25,7 +25,8 @@ interface SP500SparklineWidgetProps {
 }
 
 const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoading }) => {
-  if (isLoading || !data) {
+  // Handle loading state
+  if (isLoading) {
     return (
       <div className="sp500-sparkline-widget loading">
         <div className="widget-header">
@@ -40,6 +41,26 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
     );
   }
 
+  // Handle no data state
+  if (!data) {
+    return (
+      <div className="sp500-sparkline-widget no-data">
+        <div className="widget-header">
+          <div className="title-section">
+            <h4>S&P 500</h4>
+            <div className="symbol-badge">SPY</div>
+          </div>
+          <div className="no-data-badge">No Data</div>
+        </div>
+        <div className="no-data-content">
+          <div className="no-data-icon">📈</div>
+          <p>S&P 500 data unavailable</p>
+          <p>Please try again later</p>
+        </div>
+      </div>
+    );
+  }
+
   const getTrendColor = (trend: string): string => {
     switch (trend) {
       case 'up': return '#10B981';
@@ -48,13 +69,6 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
     }
   };
 
-  const getSentimentColor = (sentiment: string): string => {
-    switch (sentiment) {
-      case 'bullish': return '#10B981';
-      case 'bearish': return '#EF4444';
-      default: return '#F59E0B';
-    }
-  };
 
   const getSentimentIcon = (sentiment: string): string => {
     switch (sentiment) {
@@ -149,44 +163,147 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
           <h4>S&P 500</h4>
           <div className="symbol-badge">SPY</div>
         </div>
-        <div className="sentiment-section">
-          <div 
-            className="sentiment-badge"
-            style={{ backgroundColor: getSentimentColor(data.marketSentiment) }}
+        <div className="data-source-section">
+          <span 
+            className="source-badge-header"
+            style={{ backgroundColor: dataSource.color }}
           >
-            <span className="sentiment-icon">{getSentimentIcon(data.marketSentiment)}</span>
-            <span className="sentiment-text">{data.marketSentiment.toUpperCase()}</span>
+            {dataSource.text}
+          </span>
+        </div>
+      </div>
+
+      <div className="main-content">
+        <div className="price-section">
+          <div className="current-price">
+            ${formatPrice(data.currentPrice)}
+          </div>
+          <div 
+            className="price-change"
+            style={{ color: trendColor }}
+          >
+            {formatChange(data.weeklyChange)}
+            <span className="change-period">7D</span>
+          </div>
+        </div>
+
+        {/* Sparkline Chart */}
+        <div className="sparkline-chart">
+          <svg width="100%" height="60" viewBox="0 0 200 60">
+            <defs>
+              <linearGradient id={`sparklineGradient-${Math.random().toString(36).substr(2, 9)}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style={{ stopColor: trendColor, stopOpacity: 0.3 }} />
+                <stop offset="100%" style={{ stopColor: trendColor, stopOpacity: 0.1 }} />
+              </linearGradient>
+            </defs>
+            {(() => {
+              try {
+                if (!data?.data || !Array.isArray(data.data) || data.data.length === 0) {
+                  // Fallback: simple placeholder line
+                  return (
+                    <polyline
+                      fill="none"
+                      stroke={trendColor}
+                      strokeWidth="2"
+                      points="0,30 50,25 100,35 150,20 200,30"
+                    />
+                  );
+                }
+
+                const validPrices = data.data
+                  .map(d => typeof d?.price === 'number' && !isNaN(d.price) ? d.price : null)
+                  .filter(price => price !== null) as number[];
+
+                if (validPrices.length === 0) {
+                  // Fallback: simple placeholder line
+                  return (
+                    <polyline
+                      fill="none"
+                      stroke={trendColor}
+                      strokeWidth="2"
+                      points="0,30 50,25 100,35 150,20 200,30"
+                    />
+                  );
+                }
+
+                const minPrice = Math.min(...validPrices);
+                const maxPrice = Math.max(...validPrices);
+                const priceRange = maxPrice - minPrice || 1;
+                
+                let validDataPoints = 0;
+                const points = data.data
+                  .map((point) => {
+                    if (typeof point?.price !== 'number' || isNaN(point.price)) return null;
+                    const x = (validDataPoints / Math.max(validPrices.length - 1, 1)) * 200;
+                    const y = Math.max(5, Math.min(55, 50 - ((point.price - minPrice) / priceRange) * 40));
+                    validDataPoints++;
+                    return `${x.toFixed(1)},${y.toFixed(1)}`;
+                  })
+                  .filter(point => point !== null)
+                  .join(' ');
+                
+                if (!points) {
+                  return (
+                    <polyline
+                      fill="none"
+                      stroke={trendColor}
+                      strokeWidth="2"
+                      points="0,30 50,25 100,35 150,20 200,30"
+                    />
+                  );
+                }
+                
+                return (
+                  <>
+                    <polyline
+                      fill="none"
+                      stroke={trendColor}
+                      strokeWidth="2"
+                      points={points}
+                    />
+                    <polygon
+                      fill={`url(#sparklineGradient-${Math.random().toString(36).substr(2, 9)})`}
+                      points={`0,50 ${points} 200,50`}
+                    />
+                  </>
+                );
+              } catch (error) {
+                console.warn('Error rendering sparkline chart:', error);
+                // Fallback: simple placeholder line
+                return (
+                  <polyline
+                    fill="none"
+                    stroke={trendColor}
+                    strokeWidth="2"
+                    points="0,30 50,25 100,35 150,20 200,30"
+                  />
+                );
+              }
+            })()}
+          </svg>
+        </div>
+
+        <div className="metrics-row">
+          <div className="metric-item">
+            <div className="metric-label">Volatility</div>
+            <div className="metric-value">
+              {getVolatilityIcon(data.volatility)}
+              <span>{data.volatility}</span>
+            </div>
+          </div>
+          <div className="metric-item">
+            <div className="metric-label">Sentiment</div>
+            <div className="metric-value sentiment-compact">
+              {getSentimentIcon(data.marketSentiment)}
+              <span>{data.marketSentiment}</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="price-section">
-        <div className="current-price">
-          ${formatPrice(data.currentPrice)}
-        </div>
-        <div 
-          className="price-change"
-          style={{ color: trendColor }}
-        >
-          {formatChange(data.weeklyChange)}
-          <span className="change-period">7D</span>
-        </div>
-      </div>
-
-
-      <div className="metrics-section">
-        <div className="metric-item">
-          <div className="metric-label">Volatility</div>
-          <div className="metric-value">
-            {getVolatilityIcon(data.volatility)}
-            <span>{data.volatility.toUpperCase()}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Data Freshness and Market Status */}
-      <div className="data-status-section">
-        <div className="data-freshness">
+      {/* Compact Status Footer */}
+      <div className="status-footer">
+        <div className="status-item">
           <span className="freshness-icon">{freshness.icon}</span>
           <span 
             className="freshness-text" 
@@ -196,18 +313,9 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
           </span>
         </div>
         
-        <div className="market-status">
+        <div className="status-item">
           <span className="market-indicator">
-            {marketOpen ? '🟢 Market Open' : '🔴 Market Closed'}
-          </span>
-        </div>
-
-        <div className="data-source">
-          <span 
-            className="source-badge"
-            style={{ backgroundColor: dataSource.color }}
-          >
-            {dataSource.text}
+            {marketOpen ? '🟢 Open' : '🔴 Closed'}
           </span>
         </div>
       </div>
@@ -215,19 +323,30 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
       <style jsx>{`
         .sp500-sparkline-widget {
           background: white;
-          border-radius: 12px;
+          border-radius: 10px;
           border: 1px solid #e2e8f0;
-          padding: 20px;
+          padding: 14px;
           margin-bottom: 16px;
+          height: 220px;
+          display: flex;
+          flex-direction: column;
         }
 
         .widget-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 16px;
-          padding-bottom: 12px;
+          margin-bottom: 10px;
+          padding-bottom: 8px;
           border-bottom: 1px solid #f1f5f9;
+          flex-shrink: 0;
+        }
+
+        .main-content {
+          flex-grow: 1;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
         }
 
         .title-section {
@@ -252,78 +371,61 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
           font-weight: 500;
         }
 
-        .sentiment-section {
-          display: flex;
-          align-items: center;
-        }
-
-        .sentiment-badge {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          padding: 4px 10px;
-          border-radius: 16px;
-          color: white;
-          font-size: 10px;
-          font-weight: 600;
-        }
-
-        .sentiment-icon {
-          font-size: 12px;
-        }
-
         .price-section {
-          display: flex;
-          align-items: baseline;
-          gap: 12px;
-          margin-bottom: 20px;
+          text-align: center;
+          margin-bottom: 8px;
         }
 
         .current-price {
-          font-size: 16px;
+          font-size: 24px;
           font-weight: 700;
           color: #1e293b;
-          line-height: 1;
+          line-height: 1.2;
         }
 
         .price-change {
-          font-size: 16px;
+          font-size: 14px;
           font-weight: 600;
-          display: flex;
-          align-items: center;
-          gap: 6px;
+          margin-top: 4px;
         }
 
         .change-period {
-          font-size: 10px;
-          color: #64748b;
-          background: #f1f5f9;
-          padding: 2px 6px;
-          border-radius: 8px;
-          font-weight: 500;
+          font-size: 11px;
+          opacity: 0.7;
+          margin-left: 4px;
         }
 
+        .sparkline-chart {
+          margin: 8px 0;
+          padding: 8px;
+          background: #f8fafc;
+          border-radius: 8px;
+          border: 1px solid #e2e8f0;
+        }
 
-        .metrics-section {
+        .metrics-row {
           display: flex;
-          justify-content: center;
-          padding-top: 12px;
-          border-top: 1px solid #f1f5f9;
+          justify-content: space-around;
+          gap: 12px;
+          margin-top: 8px;
         }
 
         .metric-item {
           text-align: center;
+          flex: 1;
         }
 
         .metric-label {
           font-size: 10px;
           color: #64748b;
           margin-bottom: 4px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
         }
 
         .metric-value {
-          font-size: 11px;
-          font-weight: 500;
+          font-size: 12px;
+          font-weight: 600;
           color: #374151;
           display: flex;
           align-items: center;
@@ -331,26 +433,39 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
           gap: 4px;
         }
 
-        .metric-value span {
-          font-size: 10px;
+        .sentiment-compact {
+          text-transform: capitalize;
         }
 
-        /* Data Status Section */
-        .data-status-section {
+        .data-source-section {
+          display: flex;
+          align-items: center;
+        }
+
+        .source-badge-header {
+          font-size: 9px;
+          color: white;
+          padding: 3px 6px;
+          border-radius: 8px;
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.3px;
+        }
+
+        .status-footer {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding-top: 12px;
-          margin-top: 12px;
+          margin-top: auto;
+          padding-top: 8px;
           border-top: 1px solid #f1f5f9;
-          flex-wrap: wrap;
-          gap: 8px;
         }
 
-        .data-freshness {
+        .status-item {
           display: flex;
           align-items: center;
           gap: 4px;
+          font-size: 10px;
         }
 
         .freshness-icon {
@@ -358,34 +473,45 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
         }
 
         .freshness-text {
-          font-size: 10px;
           font-weight: 500;
         }
 
-        .market-status {
-          flex-grow: 1;
-          text-align: center;
-        }
-
         .market-indicator {
-          font-size: 10px;
           font-weight: 500;
           color: #374151;
         }
 
-        .data-source {
-          display: flex;
-          align-items: center;
+        .no-data-badge {
+          background: #fecaca;
+          color: #991b1b;
+          font-size: 10px;
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-weight: 500;
         }
 
-        .source-badge {
-          font-size: 9px;
-          color: white;
-          padding: 2px 6px;
-          border-radius: 8px;
-          font-weight: 500;
-          opacity: 0.8;
+        .no-data-content {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          flex-grow: 1;
+          text-align: center;
+          color: #64748b;
+          padding: 20px;
         }
+
+        .no-data-icon {
+          font-size: 32px;
+          margin-bottom: 12px;
+        }
+
+        .no-data-content p {
+          margin: 2px 0;
+          font-size: 13px;
+          color: #64748b;
+        }
+
 
         /* Loading states */
         .sp500-sparkline-widget.loading {
@@ -431,7 +557,9 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
         /* Mobile responsiveness */
         @media (max-width: 768px) {
           .sp500-sparkline-widget {
-            padding: 16px;
+            height: auto;
+            min-height: 180px;
+            padding: 12px;
           }
 
           .widget-header {
@@ -440,40 +568,13 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
             gap: 8px;
           }
 
-          .price-section {
+          .current-price {
+            font-size: 20px;
+          }
+          
+          .metrics-row {
             flex-direction: column;
             gap: 8px;
-            margin-bottom: 16px;
-          }
-
-          .current-price {
-            font-size: 16px;
-          }
-
-          .metrics-section {
-            justify-content: center;
-          }
-
-          .metric-item {
-            text-align: center;
-          }
-
-          .metric-label {
-            margin-bottom: 0;
-          }
-
-          .data-status-section {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 6px;
-          }
-
-          .market-status {
-            text-align: left;
-          }
-
-          .data-source {
-            align-self: flex-end;
           }
         }
 
