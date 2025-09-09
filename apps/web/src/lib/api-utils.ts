@@ -28,22 +28,25 @@ export function getApiBaseUrl(): string {
   const nodeEnv = process.env.NODE_ENV;
   const isClient = typeof window !== 'undefined';
   
-  // If environment variable is set, use it
+  // Development: prefer localhost backend if available, otherwise use localhost frontend
+  if (nodeEnv === 'development') {
+    return envApiUrl || 'http://localhost:3001';
+  }
+  
+  // Production: use Vercel Functions (same domain)
+  if (isClient) {
+    return window.location.origin;
+  }
+  
+  // SSR fallback: use environment variable or Vercel domain
   if (envApiUrl) {
     return envApiUrl;
   }
   
-  // Fallback logic for missing environment variables
-  if (nodeEnv === 'production' && isClient) {
-    console.error('🚨 CRITICAL: NEXT_PUBLIC_API_URL not set in production!');
-    console.error('🔧 Please set the Railway backend URL in Vercel environment variables');
-    console.error('🔧 Expected URL: https://investiegroup-production.up.railway.app');
-    // Use the Railway URL as fallback based on the provided domain info
-    return 'https://investiegroup-production.up.railway.app';
-  }
-  
-  // Development fallback
-  return 'http://localhost:3001';
+  // Final fallback for Vercel deployment
+  return process.env.VERCEL_URL 
+    ? `https://${process.env.VERCEL_URL}` 
+    : 'https://investie-group-web.vercel.app';
 }
 
 /**
@@ -84,14 +87,14 @@ export async function debugFetch(url: string, options?: RequestInit): Promise<Re
   if (debugInfo.nodeEnv === 'production' && debugInfo.fullUrl.includes('localhost')) {
     console.error('🚨 CRITICAL: Using localhost in production!');
     console.error('🔧 Check Vercel environment variables');
-    console.error('🔧 Expected: Railway URL, Got: localhost');
+    console.error('🔧 Expected: Vercel Functions, Got: localhost');
     console.error('🔧 Current Full URL:', debugInfo.fullUrl);
   }
 
   // Check for missing environment variable (using fallback)
   if (!debugInfo.envApiUrl && debugInfo.nodeEnv === 'production') {
-    console.warn('⚠️ Using Railway URL fallback (NEXT_PUBLIC_API_URL not set)');
-    console.warn('🔧 For better performance, set NEXT_PUBLIC_API_URL in Vercel to: https://investiegroup-production.up.railway.app');
+    console.warn('⚠️ Using Vercel domain fallback (NEXT_PUBLIC_API_URL not set)');
+    console.warn('🔧 Using Vercel Functions on same domain:', debugInfo.fullUrl);
   }
 
   console.groupEnd();

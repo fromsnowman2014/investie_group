@@ -7,8 +7,25 @@ import {
   HealthCheck 
 } from '@/types/api';
 
-// API base URL - will use environment variable in production
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+// Dynamic API URL detection for different environments
+const getApiUrl = (): string => {
+  // Development: use localhost backend
+  if (process.env.NODE_ENV === 'development') {
+    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  }
+  
+  // Production: use current domain (Vercel Functions)
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  
+  // SSR fallback: use environment variable or default to Vercel domain
+  return process.env.NEXT_PUBLIC_API_URL || process.env.VERCEL_URL 
+    ? `https://${process.env.VERCEL_URL}` 
+    : 'https://investie-group-web.vercel.app';
+};
+
+const API_BASE_URL = getApiUrl();
 
 class ApiClient {
   private baseUrl: string;

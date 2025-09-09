@@ -55,8 +55,25 @@ const fetcher = async (url: string): Promise<EnhancedMarketSummary> => {
 };
 
 const EnhancedMacroIndicatorsDashboard: React.FC = () => {
-  // Check if API URL is properly configured
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+  // Dynamic API URL detection for different environments
+  const getApiUrl = () => {
+    // Development: use localhost
+    if (process.env.NODE_ENV === 'development') {
+      return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    }
+    
+    // Production: use current domain (Vercel Functions)
+    if (typeof window !== 'undefined') {
+      return window.location.origin;
+    }
+    
+    // SSR fallback: use environment variable or default to Vercel domain
+    return process.env.NEXT_PUBLIC_API_URL || process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}` 
+      : 'https://investie-group-web.vercel.app';
+  };
+
+  const apiUrl = getApiUrl();
   const fullApiUrl = `${apiUrl}/api/v1/market/enhanced-summary`;
 
   // Simplified refresh interval
