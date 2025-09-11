@@ -1,0 +1,24 @@
+{
+  "name": "investie-data-collector",
+  "version": "1.0.0",
+  "description": "Data collection script for Investie stock analysis platform",
+  "main": "data-collector.js",
+  "scripts": {
+    "collect": "node data-collector.js collect",
+    "health": "node data-collector.js health",
+    "test": "node data-collector.js collect"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "node-fetch": "^2.7.0"
+  },
+  "keywords": [
+    "stock",
+    "data",
+    "supabase",
+    "api",
+    "finance"
+  ],
+  "author": "Investie Team",
+  "license": "MIT"
+}

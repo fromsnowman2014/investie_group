@@ -1,5 +1,5 @@
 import useSWR from 'swr'
-import { debugFetch } from '@/lib/api-utils'
+import { edgeFunctionFetcher } from '@/lib/api-utils'
 
 interface UseAPIDataOptions {
   refreshInterval?: number
@@ -16,11 +16,10 @@ interface APIDataState<T> {
   mutate: (data?: T, shouldRevalidate?: boolean) => Promise<T | undefined>
 }
 
-const defaultFetcher = async (url: string) => {
-  console.log(`🔍 API Data Fetcher Starting: ${url}`)
-  const response = await debugFetch(url)
-  const data = await response.json()
-  console.log(`📊 API Data Received: ${url}`, data)
+const defaultFetcher = async <T = unknown>(endpoint: string): Promise<T> => {
+  console.log(`🔍 Edge Function Fetcher Starting: ${endpoint}`)
+  const data = await edgeFunctionFetcher<T>(endpoint)
+  console.log(`📊 Edge Function Data Received: ${endpoint}`, data)
   return data
 }
 
@@ -37,7 +36,7 @@ export function useAPIData<T = unknown>(
 
   const { data, error, isLoading, isValidating, mutate } = useSWR<T>(
     url,
-    defaultFetcher,
+    (endpoint: string) => defaultFetcher<T>(endpoint),
     {
       refreshInterval,
       revalidateOnFocus,

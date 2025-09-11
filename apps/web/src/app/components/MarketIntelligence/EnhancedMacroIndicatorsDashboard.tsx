@@ -2,6 +2,7 @@
 
 import React from 'react';
 import useSWR from 'swr';
+import { edgeFunctionFetcher } from '@/lib/api-utils';
 
 interface EnhancedMarketSummary {
   fearGreedIndex: {
@@ -33,17 +34,8 @@ interface EnhancedMarketSummary {
 }
 
 
-const fetcher = async (url: string): Promise<EnhancedMarketSummary> => {
-  if (!url || url === 'undefined/api/v1/market/enhanced-summary') {
-    throw new Error('Invalid API URL: NEXT_PUBLIC_API_URL environment variable not set');
-  }
-  
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`API request failed: ${response.status} ${response.statusText}`);
-  }
-  
-  const apiResponse = await response.json();
+const fetcher = async (): Promise<EnhancedMarketSummary> => {
+  const apiResponse = await edgeFunctionFetcher<any>('market-overview');
   
   
   // Extract the actual market data from the API response wrapper
@@ -55,26 +47,7 @@ const fetcher = async (url: string): Promise<EnhancedMarketSummary> => {
 };
 
 const EnhancedMacroIndicatorsDashboard: React.FC = () => {
-  // Dynamic API URL detection for different environments
-  const getApiUrl = () => {
-    // Development: use localhost
-    if (process.env.NODE_ENV === 'development') {
-      return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    }
-    
-    // Production: use current domain (Vercel Functions)
-    if (typeof window !== 'undefined') {
-      return window.location.origin;
-    }
-    
-    // SSR fallback: use environment variable or default to Vercel domain
-    return process.env.NEXT_PUBLIC_API_URL || process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}` 
-      : 'https://investie-group-web.vercel.app';
-  };
 
-  const apiUrl = getApiUrl();
-  const fullApiUrl = `${apiUrl}/api/v1/market/enhanced-summary`;
 
   // Simplified refresh interval
   const getRefreshInterval = () => {
@@ -92,7 +65,7 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
   };
   
   const { data, error, isLoading } = useSWR<EnhancedMarketSummary>(
-    fullApiUrl, // This will be null if API URL is not configured, preventing the request
+    'market-overview',
     fetcher,
     {
       refreshInterval: getRefreshInterval(),

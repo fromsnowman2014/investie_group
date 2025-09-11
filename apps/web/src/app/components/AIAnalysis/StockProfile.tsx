@@ -2,7 +2,7 @@
 
 import React from 'react';
 import useSWR from 'swr';
-import { debugFetch } from '@/lib/api-utils';
+import { edgeFunctionFetcher } from '@/lib/api-utils';
 import FinancialExpandableSection from '../FinancialExpandableSection';
 
 interface StockProfileData {
@@ -25,18 +25,17 @@ interface StockProfileProps {
   symbol: string;
 }
 
-const fetcher = async (url: string) => {
-  console.log('📊 Stock Profile Fetcher Starting:', url);
-  const response = await debugFetch(url);
-  const data = await response.json();
+const fetcher = async (symbol: string): Promise<StockProfileData> => {
+  console.log('📊 Stock Profile Fetcher Starting:', symbol);
+  const data = await edgeFunctionFetcher<StockProfileData>('stock-data', { symbol });
   console.log('📊 Stock Profile Data:', data);
   return data;
 };
 
 export default function StockProfile({ symbol }: StockProfileProps) {
   const { data, error, isLoading } = useSWR<StockProfileData>(
-    symbol ? `/api/v1/dashboard/${symbol}/profile` : null,
-    fetcher,
+    symbol ? `stock-profile-${symbol}` : null,
+    () => fetcher(symbol),
     { refreshInterval: 300000 } // 5 minutes
   );
 

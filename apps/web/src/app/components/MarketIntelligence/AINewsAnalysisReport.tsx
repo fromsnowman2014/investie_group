@@ -2,7 +2,7 @@
 
 import React from 'react';
 import useSWR from 'swr';
-import { debugFetch } from '@/lib/api-utils';
+import { edgeFunctionFetcher } from '@/lib/api-utils';
 
 // Updated interfaces to match our actual API structure
 interface HeadlineItem {
@@ -43,12 +43,11 @@ interface AINewsAnalysisReportProps {
   symbol: string;
 }
 
-const fetcher = async (url: string): Promise<NewsAnalysisData> => {
-  console.log('📰 News Analysis Fetcher Starting:', url);
+const fetcher = async (symbol: string): Promise<NewsAnalysisData> => {
+  console.log('📰 News Analysis Fetcher Starting:', symbol);
   
   try {
-    const response = await debugFetch(url);
-    const result = await response.json();
+    const result = await edgeFunctionFetcher<any>('news-analysis', { symbol });
     console.log('📰 News Analysis Response:', result);
     
     // Handle both wrapper format {success: true, data: ...} and direct data
@@ -84,8 +83,8 @@ const fetcher = async (url: string): Promise<NewsAnalysisData> => {
 
 export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportProps) {
   const { data, error, isLoading } = useSWR<NewsAnalysisData>(
-    symbol ? `/api/v1/dashboard/${symbol}/news-analysis` : null,
-    fetcher,
+    symbol ? `news-analysis-${symbol}` : null,
+    () => fetcher(symbol),
     { refreshInterval: 600000 } // 10 minutes
   );
 
