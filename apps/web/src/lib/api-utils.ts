@@ -24,29 +24,24 @@ export interface ApiResponseDebugInfo {
  * Get the correct API base URL based on environment
  */
 export function getApiBaseUrl(): string {
-  const envApiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const supabaseFunctionsUrl = process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL;
   const nodeEnv = process.env.NODE_ENV;
-  const isClient = typeof window !== 'undefined';
   
-  // Development: prefer localhost backend if available, otherwise use localhost frontend
+  // Use Supabase Edge Functions if configured
+  if (supabaseFunctionsUrl) {
+    return supabaseFunctionsUrl;
+  }
+  
+  // Development fallback: local Supabase if configured, otherwise localhost backend
   if (nodeEnv === 'development') {
-    return envApiUrl || 'http://localhost:3001';
+    const localSupabase = process.env.NEXT_PUBLIC_SUPABASE_LOCAL_FUNCTIONS_URL;
+    const legacyApiUrl = process.env.NEXT_PUBLIC_API_URL;
+    return localSupabase || legacyApiUrl || 'http://localhost:54321/functions/v1';
   }
   
-  // Production: use Vercel Functions (same domain)
-  if (isClient) {
-    return window.location.origin;
-  }
-  
-  // SSR fallback: use environment variable or Vercel domain
-  if (envApiUrl) {
-    return envApiUrl;
-  }
-  
-  // Final fallback for Vercel deployment
-  return process.env.VERCEL_URL 
-    ? `https://${process.env.VERCEL_URL}` 
-    : 'https://investie-group-web.vercel.app';
+  // Production fallback - should not reach here if properly configured
+  console.warn('⚠️ Supabase Functions URL not configured, using fallback');
+  return 'https://your-project-id.supabase.co/functions/v1';
 }
 
 /**
@@ -141,6 +136,38 @@ export async function debugFetch(url: string, options?: RequestInit): Promise<Re
  */
 export async function apiFetcher<T = unknown>(url: string): Promise<T> {
   const response = await debugFetch(url);
+  return response.json();
+}
+
+/**
+ * Supabase Edge Function fetcher with proper authentication
+ */
+export async function edgeFunctionFetcher<T = unknown>(
+  functionName: string, 
+  payload?: unknown
+): Promise<T> {
+  const baseUrl = getApiBaseUrl();
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  const url = `${baseUrl}/${functionName}`;
+  const options: RequestInit = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${anonKey}`,
+    },
+    body: payload ? JSON.stringify(payload) : undefined,
+  };
+  
+  console.group('🚀 Supabase Edge Function Call');
+  console.log('📍 Function:', functionName);
+  console.log('🌍 Base URL:', baseUrl);
+  console.log('🔗 Full URL:', url);
+  console.log('📦 Payload:', payload);
+  console.log('🔑 Has Auth Key:', !!anonKey);
+  console.groupEnd();
+  
+  const response = await debugFetch(url, options);
   return response.json();
 }
 

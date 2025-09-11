@@ -2,7 +2,7 @@
 
 import React from 'react';
 import useSWR from 'swr';
-import { debugFetch } from '@/lib/api-utils';
+import { edgeFunctionFetcher } from '@/lib/api-utils';
 import FinancialExpandableSection from '../FinancialExpandableSection';
 
 interface AIAnalysisData {
@@ -33,52 +33,39 @@ interface AIInvestmentOpinionProps {
   symbol: string;
 }
 
-const fetcher = async (url: string) => {
-  console.log('🤖 AI Analysis Fetcher Starting:', url);
-  const response = await debugFetch(url);
-  const rawData = await response.json();
+const fetcher = async (symbol: string) => {
+  console.log('🤖 AI Analysis Fetcher Starting for symbol:', symbol);
+  const rawData = await edgeFunctionFetcher('ai-analysis', { symbol });
   console.log('🤖 AI Analysis Raw Response:', rawData);
   
-  // Extract data from the nested structure
-  const apiData = rawData.success ? rawData.data : rawData;
-  console.log('🤖 AI Analysis Extracted Data:', apiData);
-  console.log('🔍 Checking if data has expected properties:', {
-    hasCurrentPrice: 'currentPrice' in apiData,
-    hasTargetPrice: 'targetPrice' in apiData,
-    hasPriceChange: 'priceChange' in apiData,
-    hasPriceChangePercent: 'priceChangePercent' in apiData,
-    actualProperties: Object.keys(apiData)
-  });
-  
-  // Transform the API data to match component expectations
+  // Transform Edge Function response to match component expectations
+  const rawDataTyped = rawData as Record<string, unknown>; // Type assertion for Edge Function response
   const transformedData: AIAnalysisData = {
-    ...apiData,
-    // Fill in missing properties with safe defaults or calculated values
-    priceChange: apiData.priceChange ?? 0,
-    priceChangePercent: apiData.priceChangePercent ?? 0,
-    analysisDate: apiData.analysisDate || apiData.lastUpdated || new Date().toISOString(),
-    keyPoints: apiData.keyPoints || apiData.reasoning?.bullishPoints || [],
-    risks: apiData.risks || apiData.reasoning?.keyRisks || [],
-    opportunities: apiData.opportunities || apiData.reasoning?.bullishPoints || [],
-    timeHorizon: apiData.timeHorizon || 'Medium-term',
-    investmentRating: apiData.investmentRating ?? Math.round(apiData.confidence * 10) ?? 7,
+    symbol: (rawDataTyped.symbol as string) || symbol,
+    recommendation: (rawDataTyped.recommendation as 'BUY' | 'HOLD' | 'SELL') || 'HOLD',
+    confidence: (rawDataTyped.confidence as number) || 50,
+    targetPrice: (rawDataTyped.targetPrice as number) || 0,
+    currentPrice: (rawDataTyped.currentPrice as number) || 0,
+    priceChange: (rawDataTyped.priceChange as number) ?? 0,
+    priceChangePercent: (rawDataTyped.priceChangePercent as number) ?? 0,
+    analysisDate: (rawDataTyped.analysisDate as string) || (rawDataTyped.timestamp as string) || new Date().toISOString(),
+    keyPoints: (rawDataTyped.keyFactors as string[]) || [],
+    risks: (rawDataTyped.risks as string[]) || [],
+    opportunities: (rawDataTyped.opportunities as string[]) || [],
+    timeHorizon: (rawDataTyped.timeHorizon as string) || 'Medium-term',
+    investmentRating: Math.round(((rawDataTyped.confidence as number) || 50) / 10),
+    upside: rawDataTyped.upside as number,
+    lastUpdated: (rawDataTyped.timestamp as string) || new Date().toISOString(),
   };
   
   console.log('🔧 Transformed Data:', transformedData);
-  console.log('🔍 Final data validation:', {
-    currentPrice: { value: transformedData.currentPrice, type: typeof transformedData.currentPrice },
-    targetPrice: { value: transformedData.targetPrice, type: typeof transformedData.targetPrice },
-    priceChange: { value: transformedData.priceChange, type: typeof transformedData.priceChange },
-    priceChangePercent: { value: transformedData.priceChangePercent, type: typeof transformedData.priceChangePercent }
-  });
-  
   return transformedData;
 };
 
 export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps) {
   const { data, error, isLoading } = useSWR<AIAnalysisData>(
-    symbol ? `/api/v1/dashboard/${symbol}/ai-analysis` : null,
-    fetcher,
+    symbol ? `ai-analysis-${symbol}` : null,
+    () => fetcher(symbol),
     { refreshInterval: 600000 } // 10 minutes
   );
 
