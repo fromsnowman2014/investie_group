@@ -32,7 +32,7 @@ CLAUDE_API_KEY=xxxxx
 FRED_API_KEY=xxxx
 GEMINI_API_KEY=xxxx
 SERPAPI_API_KEY=xxxxx
-```
+
 
 **마이그레이션 불필요 변수:**
 - `NODE_ENV=production` (Edge Functions에서 자동 설정)
@@ -184,12 +184,12 @@ export default async function handler(req: Request) {
 
 | Variable Name | Value | 사용 목적 |
 |---------------|-------|----------|
-| `ALPHA_VANTAGE_API_KEY` | `***REMOVED***` | 주식 데이터 수집 |
-| `CLAUDE_API_KEY` | `***REMOVED***` | AI 투자 분석 |
-| `FRED_API_KEY` | `***REMOVED***` | 경제 지표 데이터 |
-| `GEMINI_API_KEY` | `***REMOVED***` | Google Gemini AI (백업용) |
-| `GOOGLE_API_KEY` | `***REMOVED***` | Google 서비스 |
-| `SERPAPI_API_KEY` | `***REMOVED***` | 뉴스 검색 |
+| `ALPHA_VANTAGE_API_KEY` | `xxxx` | 주식 데이터 수집 |
+| `CLAUDE_API_KEY` | `xxxx` | AI 투자 분석 |
+| `FRED_API_KEY` | `xxxx` | 경제 지표 데이터 |
+| `GEMINI_API_KEY` | `xxxx` | Google Gemini AI (백업용) |
+| `GOOGLE_API_KEY` | `xxxx` | Google 서비스 |
+| `SERPAPI_API_KEY` | `xxxx` | 뉴스 검색 |
 
 **⚠️ 보안 주의사항:**
 - API 키들을 하나씩 복사하여 정확히 입력
@@ -199,21 +199,21 @@ export default async function handler(req: Request) {
 ### **4.2 로컬 개발용 환경변수**
 ```bash
 # supabase/.env 파일 생성 (Railway 키 값 사용)
-echo "ALPHA_VANTAGE_API_KEY=***REMOVED***" >> supabase/.env
-echo "CLAUDE_API_KEY=***REMOVED***" >> supabase/.env
-echo "FRED_API_KEY=***REMOVED***" >> supabase/.env
-echo "GEMINI_API_KEY=***REMOVED***" >> supabase/.env
-echo "GOOGLE_API_KEY=***REMOVED***" >> supabase/.env
-echo "SERPAPI_API_KEY=***REMOVED***" >> supabase/.env
+echo "ALPHA_VANTAGE_API_KEY=xxxxx" >> supabase/.env
+echo "CLAUDE_API_KEY=xxxx" >> supabase/.env
+echo "FRED_API_KEY=xxxx" >> supabase/.env
+echo "GEMINI_API_KEY=xxxx" >> supabase/.env
+echo "GOOGLE_API_KEY=xxxx" >> supabase/.env
+echo "SERPAPI_API_KEY=xxxx" >> supabase/.env
 
 # 또는 직접 파일 편집
 cat > supabase/.env << EOF
-ALPHA_VANTAGE_API_KEY=***REMOVED***
-CLAUDE_API_KEY=***REMOVED***
-FRED_API_KEY=***REMOVED***
-GEMINI_API_KEY=***REMOVED***
-GOOGLE_API_KEY=***REMOVED***
-SERPAPI_API_KEY=***REMOVED***
+ALPHA_VANTAGE_API_KEY=xxxx
+CLAUDE_API_KEY=xxxx
+FRED_API_KEY=xxxx
+GEMINI_API_KEY=xxxx
+GOOGLE_API_KEY=xxxx
+SERPAPI_API_KEY=xxxx
 EOF
 ```
 
