@@ -194,7 +194,7 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
         <div className="indicator-row">
           <span className="indicator-label">S&P 500 <span className="symbol-text">SPY</span></span>
           <span className="indicator-value">
-            <span className="price-text">${data.sp500Sparkline?.currentPrice?.toFixed(2) || '647.24'}</span>
+            <span className="price-text">${data.sp500Sparkline?.currentPrice ? data.sp500Sparkline.currentPrice.toFixed(2) : '647.24'}</span>
             <span className={`change-badge ${(data.sp500Sparkline?.weeklyChange ?? 1.09) >= 0 ? 'positive' : 'negative'}`}>
               {(data.sp500Sparkline?.weeklyChange ?? 1.09) >= 0 ? '+' : ''}{(data.sp500Sparkline?.weeklyChange ?? 1.09).toFixed(2)}%
             </span>
@@ -205,7 +205,7 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
         <div className="indicator-row">
           <span className="indicator-label">📊 10Y Treasury</span>
           <span className="indicator-value">
-            <span className="main-value">{data.economicIndicators?.interestRate?.value?.toFixed(2) || '4.26'}%</span>
+            <span className="main-value">{data.economicIndicators?.interestRate?.value ? data.economicIndicators.interestRate.value.toFixed(2) : '4.26'}%</span>
             <span className={`change-badge ${(data.economicIndicators?.interestRate?.change ?? -0.13) >= 0 ? 'positive' : 'negative'}`}>
               {(data.economicIndicators?.interestRate?.change ?? -0.13) >= 0 ? '+' : ''}{(data.economicIndicators?.interestRate?.change ?? -0.13).toFixed(2)}%
             </span>
@@ -216,7 +216,7 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
         <div className="indicator-row">
           <span className="indicator-label">📈 CPI</span>
           <span className="indicator-value">
-            <span className="main-value">{data.economicIndicators?.cpi?.value?.toFixed(1) || '322.1'}</span>
+            <span className="main-value">{data.economicIndicators?.cpi?.value ? data.economicIndicators.cpi.value.toFixed(1) : '322.1'}</span>
             <span className="sub-values">
               M/M: <span className={`change-mini ${(data.economicIndicators?.cpi?.monthOverMonth ?? 0.20) >= 0 ? 'positive' : 'negative'}`}>
                 {(data.economicIndicators?.cpi?.monthOverMonth ?? 0.20) >= 0 ? '+' : ''}{(data.economicIndicators?.cpi?.monthOverMonth ?? 0.20).toFixed(2)}%
@@ -232,7 +232,7 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
         <div className="indicator-row">
           <span className="indicator-label">👥 Unemployment</span>
           <span className="indicator-value">
-            <span className="main-value">{data.economicIndicators?.unemployment?.value?.toFixed(1) || '4.3'}%</span>
+            <span className="main-value">{data.economicIndicators?.unemployment?.value ? data.economicIndicators.unemployment.value.toFixed(1) : '4.3'}%</span>
           </span>
         </div>
 

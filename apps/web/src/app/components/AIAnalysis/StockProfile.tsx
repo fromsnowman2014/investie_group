@@ -113,11 +113,11 @@ export default function StockProfile({ symbol }: StockProfileProps) {
         </div>
         <div className="data-row">
           <span className="data-label">P/E Ratio</span>
-          <span className="data-value financial-data">{data.peRatio?.toFixed(2) || 'N/A'}</span>
+          <span className="data-value financial-data">{typeof data.peRatio === 'number' ? data.peRatio.toFixed(2) : 'N/A'}</span>
         </div>
         <div className="data-row">
           <span className="data-label">Dividend Yield</span>
-          <span className="data-value financial-data">{data.dividendYield ? `${(data.dividendYield * 100).toFixed(2)}%` : 'N/A'}</span>
+          <span className="data-value financial-data">{typeof data.dividendYield === 'number' && data.dividendYield > 0 ? `${(data.dividendYield * 100).toFixed(2)}%` : 'N/A'}</span>
         </div>
       </div>
 

@@ -187,10 +187,10 @@ export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportPro
               {data.sentiment.toUpperCase()}
             </span>
             <span className="sentiment-score">
-              Score: {data.sentimentScore.toFixed(2)}
+              Score: {typeof data.sentimentScore === 'number' ? data.sentimentScore.toFixed(2) : '0.00'}
             </span>
             <span className="confidence-score">
-              Confidence: {(data.confidence * 100).toFixed(0)}%
+              Confidence: {typeof data.confidence === 'number' ? (data.confidence * 100).toFixed(0) : '0'}%
             </span>
           </div>
           <div className="news-stats">
@@ -258,7 +258,7 @@ export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportPro
                 >
                   {getSentimentIcon(sentimentType)}
                   <span className="sentiment-score">
-                    {(headline.sentiment * 100).toFixed(0)}
+                    {typeof headline.sentiment === 'number' ? (headline.sentiment * 100).toFixed(0) : '0'}
                   </span>
                 </div>
               </div>
