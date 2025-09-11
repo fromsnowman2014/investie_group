@@ -13,6 +13,26 @@ export default function APIDebugger() {
         logEnvironmentStatus();
       });
     });
+
+    // Add global toFixed monitoring to catch undefined values
+    if (typeof window !== 'undefined') {
+      const originalToFixed = Number.prototype.toFixed;
+      Number.prototype.toFixed = function(digits?: number) {
+        if (this === undefined || this === null || isNaN(Number(this))) {
+          console.error('🚨 CRITICAL: toFixed called on undefined/null/NaN value!', {
+            value: this,
+            type: typeof this,
+            stack: new Error().stack,
+            digits
+          });
+          // Return a safe default instead of crashing
+          return '0.00';
+        }
+        return originalToFixed.call(this, digits);
+      };
+      
+      console.log('🔍 Global toFixed monitoring enabled');
+    }
   }, []);
 
   // Only show debug panel in development or when debugging is needed

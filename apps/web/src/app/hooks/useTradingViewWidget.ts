@@ -148,7 +148,8 @@ export function useTradingViewWidget({
         container.innerHTML = ''
       }
     }
-  }, [widgetType, symbol, config, ...dependencies])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [widgetType, symbol, JSON.stringify(config), JSON.stringify(dependencies)])
 
   return containerRef
 }

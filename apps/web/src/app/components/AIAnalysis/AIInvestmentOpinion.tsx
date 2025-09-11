@@ -275,7 +275,7 @@ export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps
         }}
         metrics={{
           confidence: data.confidence,
-          lastUpdated: new Date(data.analysisDate)
+          lastUpdated: new Date(data.analysisDate || new Date().toISOString())
         }}
         className="mb-4"
       >

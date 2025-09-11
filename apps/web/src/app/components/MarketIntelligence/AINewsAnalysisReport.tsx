@@ -136,13 +136,6 @@ export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportPro
     }
   };
 
-  const getImpactBadge = (impact: string) => {
-    switch (impact) {
-      case 'high': return { color: 'var(--color-error)', text: 'HIGH' };
-      case 'medium': return { color: 'var(--color-warning)', text: 'MED' };
-      default: return { color: 'var(--color-text-tertiary)', text: 'LOW' };
-    }
-  };
 
   const formatTimeAgo = (dateString: string) => {
     if (!dateString) return 'Unknown';
