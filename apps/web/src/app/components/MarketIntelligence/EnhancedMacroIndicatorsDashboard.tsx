@@ -37,14 +37,57 @@ interface EnhancedMarketSummary {
 const fetcher = async (): Promise<EnhancedMarketSummary> => {
   const apiResponse = await edgeFunctionFetcher<unknown>('market-overview');
   
+  console.log('🔍 Raw API Response:', apiResponse);
   
-  // Extract the actual market data from the API response wrapper
+  // The API returns data directly, not wrapped in success/data structure
   const responseObj = apiResponse as Record<string, unknown>;
+  
+  // Check if this is wrapped response (legacy format)
   if (responseObj.success && responseObj.data) {
+    console.log('✅ Using wrapped response format');
     return responseObj.data as EnhancedMarketSummary;
   }
   
-  throw new Error('Invalid API response structure: missing success or data field');
+  // Check if this is direct response format (current production format)
+  if (responseObj.economicIndicators || responseObj.indices || responseObj.fearGreedIndex) {
+    console.log('✅ Using direct response format');
+    
+    // Transform the API response to match our expected interface
+    const transformedData: EnhancedMarketSummary = {
+      fearGreedIndex: responseObj.fearGreedIndex ? {
+        value: Number(responseObj.fearGreedIndex.value) || 50,
+        status: (responseObj.fearGreedIndex.status as any) || 'neutral'
+      } : null,
+      
+      economicIndicators: responseObj.economicIndicators ? {
+        interestRate: responseObj.economicIndicators.interestRate ? {
+          value: Number(responseObj.economicIndicators.interestRate.value) || 0,
+          change: Number(responseObj.economicIndicators.interestRate.change) || 0
+        } : null,
+        cpi: responseObj.economicIndicators.cpi ? {
+          value: Number(responseObj.economicIndicators.cpi.value) || 0,
+          monthOverMonth: Number(responseObj.economicIndicators.cpi.percentChange) || 0,
+          yearOverYear: Number(responseObj.economicIndicators.cpi.percentChange) || 0
+        } : null,
+        unemployment: responseObj.economicIndicators.unemployment ? {
+          value: Number(responseObj.economicIndicators.unemployment.value) || 0
+        } : null
+      } : null,
+      
+      sp500Sparkline: responseObj.indices?.sp500 ? {
+        currentPrice: Number(responseObj.indices.sp500.value) || 0,
+        weeklyChange: Number(responseObj.indices.sp500.changePercent) || 0
+      } : null,
+      
+      lastUpdated: (responseObj.lastUpdated as string) || new Date().toISOString()
+    };
+    
+    console.log('🔄 Transformed Data:', transformedData);
+    return transformedData;
+  }
+  
+  console.error('❌ Unexpected API response structure:', responseObj);
+  throw new Error('Invalid API response structure: missing expected fields');
 };
 
 const EnhancedMacroIndicatorsDashboard: React.FC = () => {
