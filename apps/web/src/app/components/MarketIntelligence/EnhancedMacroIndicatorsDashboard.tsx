@@ -55,28 +55,28 @@ const fetcher = async (): Promise<EnhancedMarketSummary> => {
     // Transform the API response to match our expected interface
     const transformedData: EnhancedMarketSummary = {
       fearGreedIndex: responseObj.fearGreedIndex ? {
-        value: Number(responseObj.fearGreedIndex.value) || 50,
-        status: (responseObj.fearGreedIndex.status as any) || 'neutral'
+        value: Number((responseObj.fearGreedIndex as Record<string, unknown>).value) || 50,
+        status: ((responseObj.fearGreedIndex as Record<string, unknown>).status as 'extreme-fear' | 'fear' | 'neutral' | 'greed' | 'extreme-greed') || 'neutral'
       } : null,
       
       economicIndicators: responseObj.economicIndicators ? {
-        interestRate: responseObj.economicIndicators.interestRate ? {
-          value: Number(responseObj.economicIndicators.interestRate.value) || 0,
-          change: Number(responseObj.economicIndicators.interestRate.change) || 0
+        interestRate: (responseObj.economicIndicators as Record<string, unknown>).interestRate ? {
+          value: Number(((responseObj.economicIndicators as Record<string, unknown>).interestRate as Record<string, unknown>).value) || 0,
+          change: Number(((responseObj.economicIndicators as Record<string, unknown>).interestRate as Record<string, unknown>).change) || 0
         } : null,
-        cpi: responseObj.economicIndicators.cpi ? {
-          value: Number(responseObj.economicIndicators.cpi.value) || 0,
-          monthOverMonth: Number(responseObj.economicIndicators.cpi.percentChange) || 0,
-          yearOverYear: Number(responseObj.economicIndicators.cpi.percentChange) || 0
+        cpi: (responseObj.economicIndicators as Record<string, unknown>).cpi ? {
+          value: Number(((responseObj.economicIndicators as Record<string, unknown>).cpi as Record<string, unknown>).value) || 0,
+          monthOverMonth: Number(((responseObj.economicIndicators as Record<string, unknown>).cpi as Record<string, unknown>).percentChange) || 0,
+          yearOverYear: Number(((responseObj.economicIndicators as Record<string, unknown>).cpi as Record<string, unknown>).percentChange) || 0
         } : null,
-        unemployment: responseObj.economicIndicators.unemployment ? {
-          value: Number(responseObj.economicIndicators.unemployment.value) || 0
+        unemployment: (responseObj.economicIndicators as Record<string, unknown>).unemployment ? {
+          value: Number(((responseObj.economicIndicators as Record<string, unknown>).unemployment as Record<string, unknown>).value) || 0
         } : null
       } : null,
       
-      sp500Sparkline: responseObj.indices?.sp500 ? {
-        currentPrice: Number(responseObj.indices.sp500.value) || 0,
-        weeklyChange: Number(responseObj.indices.sp500.changePercent) || 0
+      sp500Sparkline: (responseObj.indices as Record<string, unknown>)?.sp500 ? {
+        currentPrice: Number(((responseObj.indices as Record<string, unknown>).sp500 as Record<string, unknown>).value) || 0,
+        weeklyChange: Number(((responseObj.indices as Record<string, unknown>).sp500 as Record<string, unknown>).changePercent) || 0
       } : null,
       
       lastUpdated: (responseObj.lastUpdated as string) || new Date().toISOString()
