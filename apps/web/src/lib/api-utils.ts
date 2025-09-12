@@ -41,7 +41,7 @@ export function getApiBaseUrl(): string {
   
   // Production fallback - should not reach here if properly configured
   console.warn('⚠️ Supabase Functions URL not configured, using fallback');
-  return 'https://your-project-id.supabase.co/functions/v1';
+  return 'https://fwnmnjwtbggasmunsfyk.supabase.co/functions/v1';
 }
 
 /**

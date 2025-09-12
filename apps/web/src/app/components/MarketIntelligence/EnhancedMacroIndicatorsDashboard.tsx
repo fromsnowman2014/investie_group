@@ -80,6 +80,16 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
 
   // Note: API URL configuration error handling removed as we now auto-detect the URL
 
+  // Debug logging
+  console.group('🔍 Enhanced Macro Indicators Debug');
+  console.log('Environment Variables:', {
+    NODE_ENV: process.env.NODE_ENV,
+    NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL: process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'SET' : 'MISSING'
+  });
+  console.log('SWR State:', { isLoading, error: error?.message, hasData: !!data });
+  console.groupEnd();
+
   // Loading state
   if (isLoading || !data) {
     return (
