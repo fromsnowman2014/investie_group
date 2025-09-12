@@ -33,7 +33,7 @@ const fetcher = async (): Promise<MarketOverviewData> => {
     
     if (result.data?.source === 'mock_data') {
       console.warn('⚠️ Still receiving mock data from backend');
-      console.warn('🔧 Check Railway Alpha Vantage API key configuration');
+      console.warn('🔧 Check Supabase Edge Functions Alpha Vantage API key configuration');
     } else if (result.data?.source === 'alpha_vantage') {
       console.log('✅ Real Alpha Vantage data confirmed!');
     }

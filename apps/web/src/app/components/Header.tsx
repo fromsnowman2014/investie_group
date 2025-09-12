@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useStock } from './StockProvider';
 import { StockSymbol } from '@/types/api';
-import { getAllStocks } from '@/lib/api';
+import { getAllStocks } from '@/lib/stock-data';
 
 const STOCK_SYMBOLS: StockSymbol[] = [
   'AAPL', 'TSLA', 'MSFT', 'GOOGL', 'AMZN', 

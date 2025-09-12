@@ -35,12 +35,13 @@ interface EnhancedMarketSummary {
 
 
 const fetcher = async (): Promise<EnhancedMarketSummary> => {
-  const apiResponse = await edgeFunctionFetcher<any>('market-overview');
+  const apiResponse = await edgeFunctionFetcher<unknown>('market-overview');
   
   
   // Extract the actual market data from the API response wrapper
-  if (apiResponse.success && apiResponse.data) {
-    return apiResponse.data;
+  const responseObj = apiResponse as Record<string, unknown>;
+  if (responseObj.success && responseObj.data) {
+    return responseObj.data as EnhancedMarketSummary;
   }
   
   throw new Error('Invalid API response structure: missing success or data field');

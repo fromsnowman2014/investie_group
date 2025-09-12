@@ -1,7 +1,8 @@
-// Stock symbol type
+// Stock symbol type - matches Supabase Edge Functions VALID_SYMBOLS
 export type StockSymbol = 
   | 'AAPL' | 'TSLA' | 'MSFT' | 'GOOGL' | 'AMZN' 
-  | 'NVDA' | 'META' | 'NFLX' | 'AVGO' | 'AMD';
+  | 'NVDA' | 'META' | 'NFLX' | 'AVGO' | 'AMD'
+  | 'JPM' | 'BAC' | 'JNJ' | 'PFE' | 'SPY' | 'QQQ' | 'VTI';
 
 // AI Evaluation interface
 export interface AIEvaluation {

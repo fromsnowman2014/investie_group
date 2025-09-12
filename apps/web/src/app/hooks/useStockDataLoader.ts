@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getAllStocks } from '@/lib/api'
+import { getAllStocks } from '@/lib/stock-data'
 import { StockSymbol } from '@/types/api'
 
 interface StockData {
@@ -32,10 +32,8 @@ export function useStockDataLoader(): UseStockDataLoaderState {
       console.log('🔄 Loading stock data from API...')
       const data = await getAllStocks()
       
-      const formattedData = data.map(stock => ({
-        symbol: stock.symbol,
-        name: stock.name
-      }))
+      // Data is already in the correct format
+      const formattedData = data
       
       console.log('✅ Stock data loaded successfully:', formattedData.length, 'stocks')
       setStockData(formattedData)

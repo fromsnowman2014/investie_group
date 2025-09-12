@@ -4,14 +4,13 @@ import { useEffect } from 'react';
 
 export default function APIDebugger() {
   useEffect(() => {
-    // Dynamic import to avoid SSR issues
-    import('@/lib/api-debug').then(() => {
-      console.log('🔍 API Debugger initialized');
-      
-      // Use the new utility function for environment logging
-      import('@/lib/api-utils').then(({ logEnvironmentStatus }) => {
-        logEnvironmentStatus();
-      });
+    console.log('🔍 API Debugger initialized');
+    
+    // Use the utility function for environment logging
+    import('@/lib/api-utils').then(({ logEnvironmentStatus }) => {
+      logEnvironmentStatus();
+    }).catch(error => {
+      console.error('Failed to load environment status logger:', error);
     });
 
     // Add global toFixed monitoring to catch undefined values
@@ -57,10 +56,10 @@ export default function APIDebugger() {
       zIndex: 9999,
       boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
       maxWidth: '350px',
-      border: process.env.NEXT_PUBLIC_API_URL ? '2px solid #10b981' : '2px solid #ef4444'
+      border: process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL ? '2px solid #10b981' : '2px solid #ef4444'
     }}>
       <div style={{ fontWeight: 'bold', marginBottom: '6px', display: 'flex', alignItems: 'center' }}>
-        {process.env.NEXT_PUBLIC_API_URL ? '✅' : '⚠️'} API Debug Panel
+        {process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL ? '✅' : '⚠️'} API Debug Panel
       </div>
       
       <div style={{ marginBottom: '3px' }}>
@@ -68,20 +67,20 @@ export default function APIDebugger() {
       </div>
       
       <div style={{ marginBottom: '3px' }}>
-        <strong>API URL:</strong> 
+        <strong>Supabase Functions:</strong> 
         <div style={{ 
           wordBreak: 'break-all', 
-          color: process.env.NEXT_PUBLIC_API_URL ? '#10b981' : '#f59e0b',
+          color: process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL ? '#10b981' : '#f59e0b',
           fontWeight: 'bold'
         }}>
-          {process.env.NEXT_PUBLIC_API_URL || 
+          {process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL || 
            (process.env.NODE_ENV === 'production' 
-            ? 'Using Railway fallback' 
+            ? 'Using production fallback' 
             : 'Using localhost fallback')}
         </div>
       </div>
 
-      {!process.env.NEXT_PUBLIC_API_URL && (
+      {!process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL && (
         <div style={{ 
           marginTop: '6px', 
           padding: '4px 6px',
@@ -89,9 +88,9 @@ export default function APIDebugger() {
           borderRadius: '4px',
           fontSize: '10px'
         }}>
-          ⚠️ Using Railway fallback URL
+          ⚠️ Using fallback URL
           <div style={{ marginTop: '2px', fontSize: '9px', opacity: 0.9 }}>
-            Set NEXT_PUBLIC_API_URL=https://investiegroup-production.up.railway.app
+            Set NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL
           </div>
         </div>
       )}

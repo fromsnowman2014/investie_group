@@ -47,34 +47,36 @@ const fetcher = async (symbol: string): Promise<NewsAnalysisData> => {
   console.log('📰 News Analysis Fetcher Starting:', symbol);
   
   try {
-    const result = await edgeFunctionFetcher<any>('news-analysis', { symbol });
+    const result = await edgeFunctionFetcher<unknown>('news-analysis', { symbol });
     console.log('📰 News Analysis Response:', result);
     
-    // Handle both wrapper format {success: true, data: ...} and direct data
-    let data = result.success && result.data ? result.data : result;
+    // Handle both wrapper format {success: true, data: ...} and direct data  
+    const resultObj = result as Record<string, unknown>;
+    let data = resultObj.success && resultObj.data ? resultObj.data : result;
     
     // Ensure required fields have default values to prevent undefined errors
+    const dataObj = data as Record<string, unknown>;
     data = {
-      symbol: data.symbol || 'UNKNOWN',
-      sentiment: data.sentiment || 'neutral',
-      sentimentScore: data.sentimentScore || 0,
-      confidence: data.confidence || 0,
-      newsCount: data.newsCount || 0,
-      timeframe: data.timeframe || '24h',
-      keyTopics: Array.isArray(data.keyTopics) ? data.keyTopics : [],
-      headlines: Array.isArray(data.headlines) ? data.headlines : [],
-      aiSummary: data.aiSummary || {
+      symbol: (dataObj.symbol as string) || 'UNKNOWN',
+      sentiment: (dataObj.sentiment as string) || 'neutral',
+      sentimentScore: (dataObj.sentimentScore as number) || 0,
+      confidence: (dataObj.confidence as number) || 0,
+      newsCount: (dataObj.newsCount as number) || 0,
+      timeframe: (dataObj.timeframe as string) || '24h',
+      keyTopics: Array.isArray(dataObj.keyTopics) ? dataObj.keyTopics : [],
+      headlines: Array.isArray(dataObj.headlines) ? dataObj.headlines : [],
+      aiSummary: (dataObj.aiSummary as Record<string, unknown>) || {
         mainTheme: 'No analysis available',
         keyInsights: [],
         investmentImplication: 'HOLD',
         riskFactors: [],
         catalysts: []
       },
-      lastUpdated: data.lastUpdated || new Date().toISOString(),
-      analysisVersion: data.analysisVersion || 'v1.0.0'
+      lastUpdated: (dataObj.lastUpdated as string) || new Date().toISOString(),
+      analysisVersion: (dataObj.analysisVersion as string) || 'v1.0.0'
     };
     
-    return data;
+    return data as NewsAnalysisData;
   } catch (error) {
     console.error('News Analysis Fetcher Error:', error);
     throw error;
