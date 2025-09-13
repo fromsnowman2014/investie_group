@@ -34,9 +34,8 @@ export default function APIDebugger() {
     }
   }, []);
 
-  // Only show debug panel in development or when debugging is needed
-  const shouldShowDebugPanel = process.env.NODE_ENV === 'development' || 
-    (typeof window !== 'undefined' && window.location.search.includes('debug=true'));
+  // Always show debug panel for now (for debugging purposes)
+  const shouldShowDebugPanel = true;
 
   if (!shouldShowDebugPanel) {
     return null;
