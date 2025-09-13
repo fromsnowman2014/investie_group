@@ -43,7 +43,7 @@ export function getApiBaseUrl(): string {
   
   // Use Supabase Edge Functions if configured
   if (supabaseFunctionsUrl) {
-    return supabaseFunctionsUrl;
+    return supabaseFunctionsUrl as string; // Type assertion for temporary hardcode
   }
   
   // Development fallback: local Supabase functions
