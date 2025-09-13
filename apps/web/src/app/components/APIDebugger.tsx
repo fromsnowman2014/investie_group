@@ -123,6 +123,13 @@ export default function APIDebugger() {
             <div>Process Available: {typeof process !== 'undefined' ? '✅' : '❌'}</div>
             <div>Env Object: {typeof process !== 'undefined' && process.env ? '✅' : '❌'}</div>
             <div>Runtime NEXT_PUBLIC_ Count: {typeof process !== 'undefined' && process.env ? Object.keys(process.env).filter(k => k.startsWith('NEXT_PUBLIC_')).length : 0}</div>
+            {typeof process !== 'undefined' && process.env && (
+              <div style={{ fontSize: '8px', color: '#fbbf24', marginTop: '2px' }}>
+                Specific vars: SUPABASE_URL={process.env.NEXT_PUBLIC_SUPABASE_URL ? '✅' : '❌'}, 
+                ANON_KEY={process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✅' : '❌'}, 
+                FUNCTIONS_URL={process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL ? '✅' : '❌'}
+              </div>
+            )}
           </div>
         </div>
 
