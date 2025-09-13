@@ -19,8 +19,8 @@ export default function Home() {
 
   return (
     <>
-      {/* Ticker Tape - Global Market Overview */}
-      <TickerTape />
+      {/* TEMPORARY: Disable TradingView components to isolate React Error #418 */}
+      {/* <TickerTape /> */}
       
       {/* Main Application Layout - Phase 2 Optimized with Individual Components */}
       <MainLayout
@@ -29,11 +29,11 @@ export default function Home() {
         stockProfile={<StockProfile symbol={currentSymbol} />}
         macroIndicatorsDashboard={<MacroIndicatorsDashboard />}
         aiNewsAnalysisReport={<AINewsAnalysisReport symbol={currentSymbol} />}
-        advancedChart={<AdvancedChart />}
-        technicalAnalysis={<TechnicalAnalysis />}
-        companyProfile={<CompanyProfile />}
-        fundamentalData={<FundamentalData />}
-        topStories={<TopStories />}
+        advancedChart={<div style={{padding: '20px', background: '#f0f0f0', textAlign: 'center'}}>📊 Chart temporarily disabled for debugging</div>}
+        technicalAnalysis={<div style={{padding: '20px', background: '#f0f0f0', textAlign: 'center'}}>📈 Technical Analysis temporarily disabled for debugging</div>}
+        companyProfile={<div style={{padding: '20px', background: '#f0f0f0', textAlign: 'center'}}>🏢 Company Profile temporarily disabled for debugging</div>}
+        fundamentalData={<div style={{padding: '20px', background: '#f0f0f0', textAlign: 'center'}}>📋 Fundamental Data temporarily disabled for debugging</div>}
+        topStories={<div style={{padding: '20px', background: '#f0f0f0', textAlign: 'center'}}>📰 Top Stories temporarily disabled for debugging</div>}
       />
       
       {/* Footer */}

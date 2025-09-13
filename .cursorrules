@@ -1,0 +1,50 @@
+# Cursor Rules for Investie Project
+
+## Pre-commit Requirements
+
+### Build Verification
+- ALWAYS run build checks before committing code if possible
+- For frontend changes: `cd apps/web && npm run build`
+- For backend changes: `cd apps/backend && npm run build`
+- Fix all TypeScript errors before proceeding
+- Ensure no compilation errors in production build
+
+### Code Quality
+- Run linting: `npm run lint` from root
+- Fix all ESLint warnings and errors
+- Maintain TypeScript strict mode compliance
+
+## Development Guidelines
+
+### Environment Variables
+- Never hardcode API keys or sensitive data
+- Use proper TypeScript types for environment variables
+- Handle undefined environment variables gracefully
+- Document required environment variables in .env.example
+
+### API Integration
+- Always use the centralized api-utils.ts for API calls
+- Implement proper error handling and fallbacks
+- Log API requests in development for debugging
+- Use TypeScript interfaces for API responses
+
+### Testing
+- Test API endpoints using test-api-debug.html
+- Verify environment variable configuration
+- Check both development and production builds
+
+## Monorepo Specific
+- Use workspace commands: `npm run <command> --workspace=<app>`
+- Test both apps independently before committing
+- Maintain consistent dependencies across workspaces
+
+## Deployment
+- Verify Vercel environment variables are set
+- Test Supabase Edge Functions deployment
+- Confirm all APIs work in production environment
+
+## Error Prevention
+- Check TypeScript compilation: `npx tsc --noEmit`
+- Verify imports and exports are correct
+- Test environment variable access patterns
+- Validate API response types match interfaces
