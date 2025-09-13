@@ -16,6 +16,7 @@ describe('AppController', () => {
     appService = app.get<AppService>(AppService);
   });
 
+  
   describe('getApiInfo', () => {
     it('should return API information object with Supabase integration', () => {
       const result = appController.getApiInfo();
