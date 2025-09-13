@@ -10,14 +10,15 @@ Investie is an AI-powered investment analysis platform that combines real-time s
 
 ### Monorepo Structure
 - **Root**: Main workspace with Turbo configuration and shared scripts
-- **apps/backend**: NestJS API server with Supabase integration and AI services
+- **apps/backend**: Legacy NestJS API server (deprecated - migrated to Supabase Edge Functions)
 - **apps/web**: Next.js 15 frontend with TradingView widgets and SWR for data fetching
+- **supabase/functions/**: Supabase Edge Functions (current backend implementation)
 
 ### Key Technologies
-- **Backend**: NestJS, TypeScript, Supabase, Anthropic Claude API, SerpAPI for news
+- **Backend**: Supabase Edge Functions (Deno), Alpha Vantage API for stock data
 - **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS, TradingView widgets, SWR
 - **Build System**: Turbo monorepo, npm workspaces
-- **Deployment**: Railway (backend), Vercel (frontend)
+- **Deployment**: Supabase Edge Functions (backend), Vercel (frontend)
 
 ## Development Commands
 
@@ -39,42 +40,33 @@ npm run lint
 npm run format
 ```
 
-### Backend (apps/backend)
+### Supabase Edge Functions (Current Backend)
 ```bash
-# Development server with hot reload
+# Serve functions locally (requires Supabase CLI)
+supabase functions serve
+
+# Deploy all functions
+supabase functions deploy
+
+# Deploy specific function
+supabase functions deploy stock-data
+
+# View function logs
+supabase functions logs stock-data
+
+# Test functions locally
+curl -X POST 'http://localhost:54321/functions/v1/stock-data' \
+  -H 'Content-Type: application/json' \
+  -d '{"symbol":"AAPL"}'
+```
+
+### Legacy Backend (apps/backend) - Deprecated
+```bash
+# These commands are maintained for reference but backend is migrated to Supabase Edge Functions
 npm run backend:dev
-# or from apps/backend directory:
-npm run start:dev
-
-# Build the backend
-npm run backend:build
-# or from apps/backend directory:
-npm run build
-
-# Production server
-npm run backend:start
-# or from apps/backend directory:
-npm run start:prod
-
-# Run all tests
+npm run backend:build  
 npm run test:all
-
-# Run tests with coverage
-npm run test:cov
-
-# Run end-to-end tests
-npm run test:e2e
-
-# Pre-deployment test suite
 npm run test:pre-deploy
-
-# Database migrations
-npm run migrate
-npm run migrate:status
-npm run migrate:rollback
-
-# Verify Supabase connection
-npm run verify:supabase
 ```
 
 ### Frontend (apps/web)
@@ -98,38 +90,32 @@ npm run start
 npm run lint
 ```
 
-## Backend Architecture
+## Backend Architecture (Supabase Edge Functions)
 
-### Core Modules
-- **StocksModule**: Stock data management and API endpoints
-- **NewsModule**: News fetching, AI analysis, and investment recommendations using Claude API
-- **MarketModule**: Market overview and macro indicators
-- **AIModule**: AI-powered analysis services (Claude, OpenAI fallback)
-- **DatabaseModule**: Supabase integration and schema management
-- **DashboardModule**: Dashboard data aggregation
+### Current Implementation
+- **supabase/functions/stock-data/**: Real-time stock price data using Alpha Vantage API
+- **supabase/functions/news-analysis/**: News analysis and AI-powered insights
+- **supabase/functions/market-overview/**: Market overview and macro indicators
 
 ### API Structure
-All backend endpoints use the `/api/v1/` prefix:
-- **GET /api/v1/stocks**: List all stocks
-- **GET /api/v1/stocks/:symbol**: Individual stock data
-- **GET /api/v1/news/:symbol**: AI-powered stock news analysis
-- **GET /api/v1/news/macro/today**: Daily macro market news
-- **POST /api/v1/news/process**: Process news for specific stock
-- **GET /api/v1/market/overview**: Market summary
-- **GET /api/v1/ai/analysis/:symbol**: AI investment analysis
+All endpoints are Supabase Edge Functions with POST requests:
+- **POST /functions/v1/stock-data**: Get stock price data
+  - Body: `{"symbol": "AAPL"}`
+  - Returns: Real-time stock data or mock data if API key missing
+- **POST /functions/v1/news-analysis**: AI-powered stock news analysis
+- **POST /functions/v1/market-overview**: Market summary and macro indicators
 
-### Database Integration
-The backend uses Supabase for data persistence with:
-- Automated schema setup via `schema-setup.service.ts`
-- Migration system with TypeScript scripts
-- Connection verification utilities
+### Data Sources
+- **Alpha Vantage API**: Primary source for real-time stock data (GLOBAL_QUOTE, OVERVIEW)
+- **Mock Data**: Fallback when API keys are not configured
+- **Supported Symbols**: AAPL, TSLA, MSFT, GOOGL, AMZN, NVDA, META, NFLX, AVGO, AMD, JPM, BAC, JNJ, PFE, SPY, QQQ, VTI
 
-### News Processing Workflow
-1. Stock symbol validation using known symbols list
-2. Fetch real-time news via SerpAPI (Google News)
-3. AI analysis using Claude API (primary) or OpenAI (fallback)
-4. Generate investment recommendations (BUY/HOLD/SELL) with confidence scores
-5. Cache results in local JSON files (`data/news/` directory)
+### Stock Data Processing
+1. Symbol validation against supported symbols list
+2. Alpha Vantage API calls (quote + overview data)
+3. Data transformation and error handling
+4. Fallback to mock data if API fails
+5. CORS-enabled JSON response
 
 ## Frontend Architecture
 
@@ -144,6 +130,14 @@ The backend uses Supabase for data persistence with:
 ### State Management
 - **StockProvider**: React Context for current stock symbol
 - **SWRProvider**: Global SWR configuration for API data fetching
+- **APIDebugger**: Debug panel for environment variable monitoring (forced active for debugging)
+
+### API Integration Pattern
+- **api-utils.ts**: Centralized API utility functions
+  - `getApiBaseUrl()`: Determines correct API base URL (Supabase Functions vs fallbacks)
+  - `debugFetch()`: Enhanced fetch wrapper with comprehensive logging
+  - `edgeFunctionFetcher()`: Supabase Edge Function specific fetcher with auth
+- **Environment Priority**: NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL → local fallbacks → hardcoded fallback
 
 ### Styling System
 - Tailwind CSS with custom CSS variables
@@ -152,75 +146,109 @@ The backend uses Supabase for data persistence with:
 
 ## Environment Configuration
 
-### Backend (.env or .env.local in apps/backend)
+### Supabase Edge Functions Environment Variables
+Set in Supabase Dashboard → Project Settings → Edge Functions:
 ```bash
-PORT=3001
-NODE_ENV=development
-SUPABASE_URL=your-supabase-url
-SUPABASE_ANON_KEY=your-supabase-key
-CLAUDE_API_KEY=your-claude-api-key
-SERPAPI_API_KEY=your-serpapi-key
-OPENAI_API_KEY=your-openai-key  # Optional fallback
+ALPHA_VANTAGE_API_KEY=your-alpha-vantage-key  # Required for real stock data
 ```
 
 ### Frontend (.env.local in apps/web)
 ```bash
-NEXT_PUBLIC_API_URL=http://localhost:3001  # Backend URL
+# Primary API configuration (Supabase Edge Functions)
+NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL=https://your-project.supabase.co/functions/v1
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+
+# Legacy configuration (deprecated)
+# NEXT_PUBLIC_API_URL=http://localhost:3001
 ```
+
+### Vercel Deployment Environment Variables
+Required for production deployment:
+- `NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
 ## Testing Strategy
 
-### Backend Testing
-- **Unit Tests**: Jest with individual service/controller testing
-- **E2E Tests**: Supertest for API endpoint validation
-- **Coverage**: Generate reports with `npm run test:cov`
-- **Pre-deployment**: Comprehensive test suite with `npm run test:pre-deploy`
+### API Testing Tools
+- **test-api-debug.html**: Comprehensive API testing interface accessible at `/test-api-debug.html`
+  - Tests all Supabase Edge Functions with proper authentication
+  - Real-time environment variable validation
+  - Console logging for debugging
+- **APIDebugger Component**: Always-visible debug panel showing:
+  - Environment variable status
+  - API configuration validation
+  - Real-time API health monitoring
 
-### Supported Stock Symbols
-Major tech stocks: AAPL, MSFT, GOOGL, TSLA, NVDA, META, AMZN, NFLX, AVGO, AMD
-Traditional stocks: JPM, BAC, JNJ, PFE
-ETFs: SPY, QQQ, VTI
+### Manual Testing Commands
+```bash
+# Test stock-data function locally
+curl -X POST 'http://localhost:54321/functions/v1/stock-data' \
+  -H 'Authorization: Bearer YOUR_ANON_KEY' \
+  -H 'Content-Type: application/json' \
+  -d '{"symbol":"AAPL"}'
+
+# Test production function
+curl -X POST 'https://your-project.supabase.co/functions/v1/stock-data' \
+  -H 'Authorization: Bearer YOUR_ANON_KEY' \
+  -H 'Content-Type: application/json' \
+  -d '{"symbol":"AAPL"}'
+```
+
+### Legacy Backend Testing (Deprecated)
+```bash
+npm run test:all        # Unit + E2E tests
+npm run test:pre-deploy # Full test suite
+```
 
 ## Deployment
 
-### Backend (Railway)
-- Dockerfile-based deployment
-- Health check endpoint: `/health`
-- Environment variables configured via Railway dashboard
-- Automatic deployments from main branch
+### Current Deployment (Supabase + Vercel)
+- **Backend**: Supabase Edge Functions (auto-deploy from main branch)
+- **Frontend**: Vercel (auto-deploy from main branch)
+- **Root directory**: `apps/web`
+- **Build command**: `npm run frontend:build`
 
-### Frontend (Vercel)
-- Automatic deployments from main branch
-- Build command: `npm run frontend:build`
-- Root directory: `apps/web`
-- Environment variable: `NEXT_PUBLIC_API_URL` pointing to Railway backend
+### Environment Variables Setup
+1. **Supabase Dashboard**: Configure `ALPHA_VANTAGE_API_KEY`
+2. **Vercel Dashboard**: Configure frontend environment variables
 
-## Data Storage
+## Debugging and Development
 
-### Local Cache Structure
-```
-data/news/
-├── macro_news/{date}/          # Daily market news cache
-└── stock_news/{symbol}/{date}/ # Stock-specific news cache
-```
+### Debug Tools Available
+- **APIDebugger Component**: Always-visible debug panel in top-right corner
+  - Shows environment variable status
+  - API URL configuration validation
+  - Real-time connection status
+- **test-api-debug.html**: Standalone testing page at `/test-api-debug.html`
+  - Test all Edge Functions individually
+  - Environment variable introspection
+  - Real-time API response logging
 
-### Database Tables (Supabase)
-Tables are auto-created via `schema-setup.service.ts` based on business requirements.
-
-## Common Patterns
-
-### Error Handling
-- Backend: NestJS exception filters with standardized error responses
-- Frontend: SWR error handling with user-friendly fallbacks
+### Common Development Patterns
 
 ### API Integration
-- SWR for frontend data fetching with automatic revalidation
-- Backend services use axios with proper error handling
-- Rate limiting and caching implemented via NestJS cache manager
+- **Frontend**: Uses `api-utils.ts` for consistent API calls
+  - `debugFetch()`: Enhanced fetch with logging
+  - `edgeFunctionFetcher()`: Supabase-specific wrapper with auth
+  - Automatic fallback URL handling
+- **Backend**: Supabase Edge Functions with standardized error responses
+  - CORS enabled for all functions
+  - Consistent JSON response format
+  - Environment variable validation with fallbacks
 
-### AI Integration
-- Primary: Anthropic Claude API for sophisticated analysis
-- Fallback: OpenAI API for reliability
-- Last resort: Keyword-based sentiment analysis
+### Error Handling Strategy
+- **Edge Functions**: Return structured JSON errors with proper HTTP status codes
+- **Frontend**: SWR error handling with user-friendly fallbacks
+- **Mock Data**: Automatic fallback when API keys are missing or API calls fail
 
-When working with this codebase, always check existing patterns in similar modules before implementing new features. The project emphasizes modular architecture, proper error handling, and comprehensive testing.
+### Supported Stock Symbols
+Major tech stocks: AAPL, TSLA, MSFT, GOOGL, AMZN, NVDA, META, NFLX, AVGO, AMD
+Traditional stocks: JPM, BAC, JNJ, PFE
+ETFs: SPY, QQQ, VTI
+
+### Migration Notes
+- **Legacy Backend**: NestJS backend in `apps/backend` is deprecated but maintained for reference
+- **Current Backend**: All production traffic uses Supabase Edge Functions
+- **API URLs**: Frontend automatically determines correct API base URL via environment variables
+
+When working with this codebase, always use the current Supabase Edge Functions architecture. The legacy NestJS backend is kept for reference but should not be extended. All new backend features should be implemented as Supabase Edge Functions.

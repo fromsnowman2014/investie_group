@@ -17,32 +17,41 @@ describe('AppController', () => {
   });
 
   describe('getApiInfo', () => {
-    it('should return API information object', () => {
+    it('should return API information object with Supabase integration', () => {
       const result = appController.getApiInfo();
 
       expect(result).toBeDefined();
       expect(result.name).toBe('Investie API');
       expect(result.version).toBe('1.0.0');
       expect(result.status).toBe('operational');
+      expect(result.platform).toBe('supabase');
       expect(result.endpoints).toBeDefined();
       expect(result.endpoints.stocks).toBe('/api/v1/stocks');
       expect(result.endpoints.news).toBe('/api/v1/news');
       expect(result.endpoints.market).toBe('/api/v1/market');
       expect(result.endpoints.ai).toBe('/api/v1/ai');
+      expect(result.edgeFunctions).toBeDefined();
+      expect(result.edgeFunctions.marketOverview).toContain('supabase.co');
+      expect(result.edgeFunctions.stockData).toContain('supabase.co');
     });
   });
 
   describe('getHealth', () => {
-    it('should return health status', () => {
+    it('should return health status with Supabase configuration', () => {
       const result = appController.getHealth();
 
       expect(result).toBeDefined();
       expect(result.status).toBe('healthy');
       expect(result.version).toBe('1.0.0');
+      expect(result.platform).toBe('supabase');
       expect(typeof result.uptime).toBe('number');
       expect(result.memory).toBeDefined();
       expect(result.memory.used).toBeDefined();
       expect(result.memory.total).toBeDefined();
+      expect(result.apiKeys).toBeDefined();
+      expect(result.configuration).toBeDefined();
+      expect(result.edgeFunctions).toBeDefined();
+      expect(result.edgeFunctions.marketOverview).toContain('supabase.co');
     });
   });
 });

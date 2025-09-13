@@ -32,11 +32,10 @@ export function getApiBaseUrl(): string {
     return supabaseFunctionsUrl;
   }
   
-  // Development fallback: local Supabase if configured, otherwise localhost backend
+  // Development fallback: local Supabase functions
   if (nodeEnv === 'development') {
     const localSupabase = process.env.NEXT_PUBLIC_SUPABASE_LOCAL_FUNCTIONS_URL;
-    const legacyApiUrl = process.env.NEXT_PUBLIC_API_URL;
-    return localSupabase || legacyApiUrl || 'http://localhost:54321/functions/v1';
+    return localSupabase || 'http://localhost:54321/functions/v1';
   }
   
   // Production fallback - should not reach here if properly configured
@@ -70,7 +69,8 @@ export async function debugFetch(url: string, options?: RequestInit): Promise<Re
   // Log request details
   console.group('🌐 API Request Debug');
   console.log('📍 Original URL:', debugInfo.originalUrl);
-  console.log('🌍 NEXT_PUBLIC_API_URL:', debugInfo.envApiUrl || 'UNDEFINED');
+  console.log('🌍 NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL:', process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL || 'UNDEFINED');
+  console.log('🔑 NEXT_PUBLIC_SUPABASE_ANON_KEY:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'SET' : 'MISSING');
   console.log('🏗️ NODE_ENV:', debugInfo.nodeEnv);
   console.log('🖥️ Is Client:', debugInfo.isClient);
   console.log('🌐 Current Origin:', debugInfo.currentOrigin);
