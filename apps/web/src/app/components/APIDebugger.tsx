@@ -81,20 +81,20 @@ export default function APIDebugger() {
         <strong>Supabase Functions:</strong> 
         <div style={{ 
           wordBreak: 'break-all', 
-          color: process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL ? '#10b981' : '#f59e0b',
+          color: '#10b981', // Always green since we're using hardcoded values
           fontWeight: 'bold'
         }}>
-          {process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL || 'UNDEFINED'}
+          {process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL || 'HARDCODED (env missing)'}
         </div>
       </div>
 
       <div style={{ marginBottom: '3px' }}>
         <strong>Supabase Anon Key:</strong> 
         <div style={{ 
-          color: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '#10b981' : '#ef4444',
+          color: '#10b981', // Always green since we're using hardcoded values
           fontWeight: 'bold'
         }}>
-          {process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'SET' : 'MISSING'}
+          {process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'SET' : 'HARDCODED (env missing)'}
         </div>
       </div>
 
@@ -102,13 +102,13 @@ export default function APIDebugger() {
         <div style={{ 
           marginTop: '6px', 
           padding: '4px 6px',
-          backgroundColor: '#92400e',
+          backgroundColor: '#059669',
           borderRadius: '4px',
           fontSize: '10px'
         }}>
-          ⚠️ Using fallback URL
+          🔧 Using HARDCODED values for testing
           <div style={{ marginTop: '2px', fontSize: '9px', opacity: 0.9 }}>
-            Set NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL
+            APIs should work despite missing env vars
           </div>
         </div>
       )}

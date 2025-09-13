@@ -27,6 +27,20 @@ export function getApiBaseUrl(): string {
   const supabaseFunctionsUrl = process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL;
   const nodeEnv = process.env.NODE_ENV;
   
+  // TEMPORARY HARDCODE for debugging - will remove after fixing Vercel environment variables
+  console.log('🔧 DEBUG: Environment variables check');
+  console.log('🔧 SUPABASE_FUNCTIONS_URL from env:', supabaseFunctionsUrl);
+  console.log('🔧 NODE_ENV from env:', nodeEnv);
+  console.log('🔧 Total env keys starting with NEXT_PUBLIC_:', 
+    typeof process !== 'undefined' && process.env ? 
+    Object.keys(process.env).filter(k => k.startsWith('NEXT_PUBLIC_')).length : 0
+  );
+  
+  // TEMPORARY: Force Supabase URL regardless of environment variables
+  const hardcodedUrl = 'https://fwnmnjwtbggasmunsfyk.supabase.co/functions/v1';
+  console.log('🔧 Using hardcoded Supabase URL:', hardcodedUrl);
+  return hardcodedUrl;
+  
   // Use Supabase Edge Functions if configured
   if (supabaseFunctionsUrl) {
     return supabaseFunctionsUrl;
@@ -149,12 +163,16 @@ export async function edgeFunctionFetcher<T = unknown>(
   const baseUrl = getApiBaseUrl();
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   
+  // TEMPORARY HARDCODE for debugging - will remove after fixing Vercel environment variables
+  const hardcodedAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3bm1uand0YmdnYXNtdW5zZnlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjQxMTQ0OTcsImV4cCI6MjAzOTY5MDQ5N30.p5f3VIWgz6b2kKgQ4OydRhqf7oEfWvTiP6KSUmhQBT8';
+  const finalAnonKey = anonKey || hardcodedAnonKey;
+  
   const url = `${baseUrl}/${functionName}`;
   const options: RequestInit = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${anonKey}`,
+      'Authorization': `Bearer ${finalAnonKey}`,
     },
     body: payload ? JSON.stringify(payload) : undefined,
   };
@@ -164,7 +182,9 @@ export async function edgeFunctionFetcher<T = unknown>(
   console.log('🌍 Base URL:', baseUrl);
   console.log('🔗 Full URL:', url);
   console.log('📦 Payload:', payload);
-  console.log('🔑 Has Auth Key:', !!anonKey);
+  console.log('🔑 Anon Key from env:', anonKey ? 'SET' : 'MISSING');
+  console.log('🔑 Using hardcoded key:', !anonKey ? 'YES' : 'NO');
+  console.log('🔑 Final Auth Key:', !!finalAnonKey);
   console.groupEnd();
   
   const response = await debugFetch(url, options);
