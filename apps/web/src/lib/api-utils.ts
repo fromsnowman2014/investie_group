@@ -158,7 +158,17 @@ export async function edgeFunctionFetcher<T = unknown>(
 ): Promise<T> {
   const baseUrl = getApiBaseUrl();
   
-  // Direct fallback for anon key
+  // Use emergency fix for missing specific variables
+  try {
+    const { getSupabaseAnonKey } = await import('./emergency-env-fix');
+    const finalAnonKey = getSupabaseAnonKey();
+    
+    console.log('🔧 Using emergency environment fix for anon key');
+  } catch (error) {
+    console.log('🔧 Emergency fix not available, using direct fallback');
+  }
+  
+  // Direct fallback for anon key (backup)
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3bm1uand0YmdnYXNtdW5zZnlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjQxMTQ0OTcsImV4cCI6MjAzOTY5MDQ5N30.p5f3VIWgz6b2kKgQ4OydRhqf7oEfWvTiP6KSUmhQBT8';
   const finalAnonKey = anonKey;
   

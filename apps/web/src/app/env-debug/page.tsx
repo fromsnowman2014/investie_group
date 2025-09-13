@@ -215,14 +215,67 @@ export default function EnvDebugPage() {
           )}
         </div>
 
+        {/* Specific Missing Variables Analysis */}
+        {debugInfo.nextPublicKeys.length > 0 && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+            <h2 className="text-xl font-semibold mb-4 text-blue-800">🔍 Selective Variable Analysis</h2>
+            <div className="text-sm text-blue-700">
+              <div className="mb-4">
+                <strong>Pattern Detected:</strong> Some NEXT_PUBLIC_ variables are present while others are missing.
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div className="bg-white p-3 rounded border">
+                  <h4 className="font-medium text-green-700 mb-2">✅ Working Variables</h4>
+                  <ul className="text-xs space-y-1">
+                    {debugInfo.nextPublicKeys.filter(key => {
+                      const value = typeof process !== 'undefined' ? process.env[key] : undefined;
+                      return !!value;
+                    }).map((key, idx) => (
+                      <li key={idx} className="text-green-600">• {key}</li>
+                    ))}
+                  </ul>
+                </div>
+                
+                <div className="bg-white p-3 rounded border">
+                  <h4 className="font-medium text-red-700 mb-2">❌ Expected but Missing</h4>
+                  <ul className="text-xs space-y-1 text-red-600">
+                    {!debugInfo.specificVars.supabaseUrl && <li>• NEXT_PUBLIC_SUPABASE_URL</li>}
+                    {!debugInfo.specificVars.supabaseAnonKey && <li>• NEXT_PUBLIC_SUPABASE_ANON_KEY</li>}
+                    {debugInfo.specificVars.supabaseFunctionsUrl && debugInfo.nextPublicKeys.length === 0 && <li>• Runtime loading issue detected</li>}
+                  </ul>
+                </div>
+              </div>
+
+              {debugInfo.specificVars.supabaseFunctionsUrl && !debugInfo.specificVars.supabaseUrl && (
+                <div className="bg-amber-100 border border-amber-300 p-3 rounded mb-4">
+                  <strong className="text-amber-800">🎯 Specific Issue Identified:</strong>
+                  <p className="text-amber-700 mt-1">
+                    NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL is working, but NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are missing.
+                    This indicates these specific variables were not added to Vercel environment configuration.
+                  </p>
+                </div>
+              )}
+
+              <div className="bg-green-100 border border-green-300 p-3 rounded">
+                <strong className="text-green-800">💡 Recommended Action:</strong>
+                <p className="text-green-700 mt-1">
+                  Add the missing variables to Vercel Dashboard → Environment Variables using the same settings as the working FUNCTIONS_URL variable.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Debug Instructions */}
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-4 text-yellow-800">🔧 Debug Instructions</h2>
           <div className="text-sm text-yellow-700 space-y-2">
             <p>1. Check browser console for detailed environment variable logs</p>
-            <p>2. If NEXT_PUBLIC_ count is 0, there&apos;s a Vercel environment variable scoping issue</p>
-            <p>3. Verify environment variables are set for the correct branch and environment</p>
-            <p>4. Try forcing a complete rebuild to clear caches</p>
+            <p>2. If specific variables are missing, add them individually to Vercel Dashboard</p>
+            <p>3. Use working variables as a reference for correct scoping settings</p>
+            <p>4. Ensure variable names are exactly correct (case-sensitive)</p>
+            <p>5. Try forcing a complete rebuild after adding variables</p>
           </div>
         </div>
       </div>
