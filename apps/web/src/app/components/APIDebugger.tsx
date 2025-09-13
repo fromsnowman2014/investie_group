@@ -114,10 +114,57 @@ export default function APIDebugger() {
       )}
       
       <div style={{ marginTop: '8px', fontSize: '10px', backgroundColor: '#1f2937', padding: '8px', borderRadius: '4px' }}>
-        <div style={{ fontWeight: 'bold', marginBottom: '4px', color: '#fbbf24' }}>🔍 Debug Info:</div>
-        <div>Build Time: {new Date().toISOString()}</div>
-        <div>Env Check: {typeof process !== 'undefined' ? 'Available' : 'Missing'}</div>
-        <div>All Env Keys: {typeof process !== 'undefined' && process.env ? Object.keys(process.env).filter(k => k.startsWith('NEXT_PUBLIC_')).length : 0}</div>
+        <div style={{ fontWeight: 'bold', marginBottom: '4px', color: '#fbbf24' }}>🔍 Environment Debug:</div>
+        
+        {/* Runtime Environment Variables */}
+        <div style={{ marginBottom: '4px' }}>
+          <strong>Runtime:</strong>
+          <div style={{ marginLeft: '8px', fontSize: '9px' }}>
+            <div>Process Available: {typeof process !== 'undefined' ? '✅' : '❌'}</div>
+            <div>Env Object: {typeof process !== 'undefined' && process.env ? '✅' : '❌'}</div>
+            <div>Runtime NEXT_PUBLIC_ Count: {typeof process !== 'undefined' && process.env ? Object.keys(process.env).filter(k => k.startsWith('NEXT_PUBLIC_')).length : 0}</div>
+          </div>
+        </div>
+
+        {/* Build-time Environment Variables */}
+        <div style={{ marginBottom: '4px' }}>
+          <strong>Build Time:</strong>
+          <div style={{ marginLeft: '8px', fontSize: '9px' }}>
+            <div>Build Env Count: {process.env.BUILD_TIME_ENV_COUNT || 'Unknown'}</div>
+            <div>Build Node Env: {process.env.BUILD_TIME_NODE_ENV || 'Unknown'}</div>
+            <div>Build Timestamp: {process.env.BUILD_TIME_TIMESTAMP || 'Unknown'}</div>
+          </div>
+        </div>
+
+        {/* Build-time Variable Status */}
+        <div style={{ marginBottom: '4px' }}>
+          <strong>Build-time Variables:</strong>
+          <div style={{ marginLeft: '8px', fontSize: '9px' }}>
+            <div>Supabase URL: <span style={{ color: process.env.BUILD_TIME_SUPABASE_URL !== 'MISSING' ? '#10b981' : '#ef4444' }}>
+              {process.env.BUILD_TIME_SUPABASE_URL}
+            </span></div>
+            <div>Functions URL: <span style={{ color: process.env.BUILD_TIME_SUPABASE_FUNCTIONS_URL !== 'MISSING' ? '#10b981' : '#ef4444' }}>
+              {process.env.BUILD_TIME_SUPABASE_FUNCTIONS_URL}
+            </span></div>
+            <div>Anon Key: <span style={{ color: process.env.BUILD_TIME_SUPABASE_ANON_KEY_STATUS === 'SET' ? '#10b981' : '#ef4444' }}>
+              {process.env.BUILD_TIME_SUPABASE_ANON_KEY_STATUS}
+            </span></div>
+          </div>
+        </div>
+
+        {/* Variable List Comparison */}
+        {process.env.BUILD_TIME_NEXT_PUBLIC_VARS && (
+          <div style={{ marginTop: '4px', fontSize: '8px', backgroundColor: '#374151', padding: '4px', borderRadius: '2px' }}>
+            <div style={{ color: '#fbbf24', marginBottom: '2px' }}>Build-time NEXT_PUBLIC_ vars:</div>
+            <div style={{ maxHeight: '60px', overflow: 'auto' }}>
+              {JSON.parse(process.env.BUILD_TIME_NEXT_PUBLIC_VARS).map((item: { key: string, hasValue: boolean }, idx: number) => (
+                <div key={idx} style={{ color: item.hasValue ? '#10b981' : '#ef4444' }}>
+                  {item.key}: {item.hasValue ? '✅' : '❌'}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       
       <div style={{ marginTop: '6px', fontSize: '10px', opacity: 0.8 }}>

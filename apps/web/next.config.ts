@@ -41,7 +41,26 @@ const nextConfig: NextConfig = {
   
   // Compiler optimizations
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+    // Temporarily disable console removal to debug environment variables in production
+    removeConsole: false,
+  },
+  
+  // Build-time environment variable debugging
+  env: {
+    // Capture build-time environment state
+    BUILD_TIME_ENV_COUNT: Object.keys(process.env).filter(k => k.startsWith('NEXT_PUBLIC_')).length.toString(),
+    BUILD_TIME_NODE_ENV: process.env.NODE_ENV || 'undefined',
+    BUILD_TIME_TIMESTAMP: new Date().toISOString(),
+    BUILD_TIME_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || 'MISSING',
+    BUILD_TIME_SUPABASE_FUNCTIONS_URL: process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL || 'MISSING',
+    BUILD_TIME_SUPABASE_ANON_KEY_STATUS: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'SET' : 'MISSING',
+    BUILD_TIME_API_URL: process.env.NEXT_PUBLIC_API_URL || 'MISSING',
+    // Available environment variables list (for debugging)
+    BUILD_TIME_NEXT_PUBLIC_VARS: JSON.stringify(
+      Object.keys(process.env)
+        .filter(k => k.startsWith('NEXT_PUBLIC_'))
+        .map(k => ({ key: k, hasValue: !!process.env[k] }))
+    ),
   },
   
   // Output configuration - let Vercel handle this automatically
