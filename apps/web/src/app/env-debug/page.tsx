@@ -89,6 +89,14 @@ export default function EnvDebugPage() {
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-6 text-gray-800">🔍 Environment Variables Debug Page</h1>
         
+        {/* Page Working Confirmation */}
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+          <div className="text-green-800 font-medium">✅ env-debug page is working!</div>
+          <div className="text-green-700 text-sm mt-1">
+            Page loaded successfully at: {new Date().toISOString()}
+          </div>
+        </div>
+
         {/* Basic Environment Check */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4 text-gray-700">📊 Basic Environment Check</h2>
@@ -137,34 +145,9 @@ export default function EnvDebugPage() {
           </div>
         </div>
 
-        {/* NEXT_PUBLIC_ Variables List */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">📋 NEXT_PUBLIC_ Variables</h2>
-          {debugInfo.nextPublicKeys.length > 0 ? (
-            <div className="space-y-2">
-              {debugInfo.nextPublicKeys.map((key, index) => {
-                const value = typeof process !== 'undefined' ? process.env[key] : undefined;
-                const hasValue = !!value;
-                return (
-                  <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                    <span className="font-mono text-sm">{key}</span>
-                    <span className={`px-2 py-1 rounded text-xs ${hasValue ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                      {hasValue ? '✅ SET' : '❌ MISSING'}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="text-center text-red-600 bg-red-50 p-4 rounded">
-              ❌ No NEXT_PUBLIC_ variables found at runtime!
-            </div>
-          )}
-        </div>
-
         {/* Specific Supabase Variables */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">🔑 Specific Supabase Variables</h2>
+          <h2 className="text-xl font-semibold mb-4 text-gray-700">🔑 Specific Supabase Variables Status</h2>
           <div className="space-y-3">
             {Object.entries(debugInfo.specificVars).map(([key, value]) => (
               <div key={key} className="flex items-start justify-between p-3 bg-gray-50 rounded">
@@ -182,100 +165,47 @@ export default function EnvDebugPage() {
           </div>
         </div>
 
-        {/* Build-time vs Runtime Comparison */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">⚖️ Build-time vs Runtime Comparison</h2>
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-medium mb-2">Build-time</h3>
-              <div className="space-y-2 text-sm">
-                <div>Env Count: <span className="font-mono">{debugInfo.buildTimeVars.envCount || 'Unknown'}</span></div>
-                <div>Node Env: <span className="font-mono">{debugInfo.buildTimeVars.nodeEnv || 'Unknown'}</span></div>
-                <div>Timestamp: <span className="font-mono">{debugInfo.buildTimeVars.timestamp || 'Unknown'}</span></div>
-              </div>
-            </div>
-            <div>
-              <h3 className="font-medium mb-2">Runtime</h3>
-              <div className="space-y-2 text-sm">
-                <div>Env Count: <span className="font-mono">{debugInfo.nextPublicKeys.length}</span></div>
-                <div>Node Env: <span className="font-mono">{debugInfo.nodeEnv}</span></div>
-                <div>Timestamp: <span className="font-mono">{new Date().toISOString()}</span></div>
-              </div>
-            </div>
-          </div>
-          
-          {debugInfo.buildTimeVars.envCount && debugInfo.nextPublicKeys.length === 0 && (
-            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded">
-              <div className="text-red-800 font-medium">🚨 Critical Issue Detected</div>
-              <div className="text-red-700 text-sm mt-1">
-                Build-time detected {debugInfo.buildTimeVars.envCount} variables, but runtime shows 0. 
-                This indicates a Next.js bundling or Vercel configuration issue.
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Specific Missing Variables Analysis */}
-        {debugInfo.nextPublicKeys.length > 0 && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-            <h2 className="text-xl font-semibold mb-4 text-blue-800">🔍 Selective Variable Analysis</h2>
-            <div className="text-sm text-blue-700">
-              <div className="mb-4">
-                <strong>Pattern Detected:</strong> Some NEXT_PUBLIC_ variables are present while others are missing.
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div className="bg-white p-3 rounded border">
-                  <h4 className="font-medium text-green-700 mb-2">✅ Working Variables</h4>
-                  <ul className="text-xs space-y-1">
-                    {debugInfo.nextPublicKeys.filter(key => {
-                      const value = typeof process !== 'undefined' ? process.env[key] : undefined;
-                      return !!value;
-                    }).map((key, idx) => (
-                      <li key={idx} className="text-green-600">• {key}</li>
-                    ))}
-                  </ul>
-                </div>
-                
-                <div className="bg-white p-3 rounded border">
-                  <h4 className="font-medium text-red-700 mb-2">❌ Expected but Missing</h4>
-                  <ul className="text-xs space-y-1 text-red-600">
-                    {!debugInfo.specificVars.supabaseUrl && <li>• NEXT_PUBLIC_SUPABASE_URL</li>}
-                    {!debugInfo.specificVars.supabaseAnonKey && <li>• NEXT_PUBLIC_SUPABASE_ANON_KEY</li>}
-                    {debugInfo.specificVars.supabaseFunctionsUrl && debugInfo.nextPublicKeys.length === 0 && <li>• Runtime loading issue detected</li>}
-                  </ul>
-                </div>
-              </div>
-
-              {debugInfo.specificVars.supabaseFunctionsUrl && !debugInfo.specificVars.supabaseUrl && (
-                <div className="bg-amber-100 border border-amber-300 p-3 rounded mb-4">
-                  <strong className="text-amber-800">🎯 Specific Issue Identified:</strong>
-                  <p className="text-amber-700 mt-1">
-                    NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL is working, but NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are missing.
-                    This indicates these specific variables were not added to Vercel environment configuration.
-                  </p>
-                </div>
-              )}
-
+        {/* Vercel API Keys Status Check */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+          <h2 className="text-xl font-semibold mb-4 text-blue-800">🚀 Vercel API Keys Status</h2>
+          <div className="text-sm text-blue-700">
+            <p className="mb-2">
+              <strong>Based on your report:</strong> API keys have been added to Vercel Dashboard
+            </p>
+            
+            {debugInfo.specificVars.supabaseUrl && debugInfo.specificVars.supabaseAnonKey ? (
               <div className="bg-green-100 border border-green-300 p-3 rounded">
-                <strong className="text-green-800">💡 Recommended Action:</strong>
+                <strong className="text-green-800">✅ Success!</strong>
                 <p className="text-green-700 mt-1">
-                  Add the missing variables to Vercel Dashboard → Environment Variables using the same settings as the working FUNCTIONS_URL variable.
+                  All Supabase environment variables are now properly loaded from Vercel.
                 </p>
               </div>
-            </div>
+            ) : (
+              <div className="bg-amber-100 border border-amber-300 p-3 rounded">
+                <strong className="text-amber-800">⚠️ Still Missing Some Variables</strong>
+                <p className="text-amber-700 mt-1">
+                  Even though you added them to Vercel Dashboard, some variables are still not loading.
+                  This might be due to:
+                </p>
+                <ul className="list-disc list-inside mt-2 text-amber-700">
+                  <li>Variables not applied to all environments (Production/Preview/Development)</li>
+                  <li>Branch scoping restrictions</li>
+                  <li>Need to trigger a new deployment</li>
+                  <li>Caching issues</li>
+                </ul>
+              </div>
+            )}
           </div>
-        )}
+        </div>
 
         {/* Debug Instructions */}
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4 text-yellow-800">🔧 Debug Instructions</h2>
+          <h2 className="text-xl font-semibold mb-4 text-yellow-800">🔧 Next Steps</h2>
           <div className="text-sm text-yellow-700 space-y-2">
-            <p>1. Check browser console for detailed environment variable logs</p>
-            <p>2. If specific variables are missing, add them individually to Vercel Dashboard</p>
-            <p>3. Use working variables as a reference for correct scoping settings</p>
-            <p>4. Ensure variable names are exactly correct (case-sensitive)</p>
-            <p>5. Try forcing a complete rebuild after adding variables</p>
+            <p>1. Check main page console logs for detailed environment variable analysis</p>
+            <p>2. If variables are still missing after adding to Vercel, try forcing a redeploy</p>
+            <p>3. Verify all environment scopes are checked (Production/Preview/Development)</p>
+            <p>4. Ensure no branch restrictions are applied to the variables</p>
           </div>
         </div>
       </div>
