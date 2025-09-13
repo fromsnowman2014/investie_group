@@ -25,25 +25,30 @@ export interface ApiResponseDebugInfo {
  */
 export function getApiBaseUrl(): string {
   // Import the new environment config system
-  const { getSupabaseFunctionsUrl, getEnvironmentDebugInfo } = require('./env-fallback');
+  import('./env-fallback').then(({ getSupabaseFunctionsUrl, getEnvironmentDebugInfo }) => {
+    const debugInfo = getEnvironmentDebugInfo();
+    
+    console.log('🔧 DEBUG: Environment variables check (Enhanced)');
+    console.log('🔧 Process available:', debugInfo.processAvailable);
+    console.log('🔧 Env available:', debugInfo.envAvailable);
+    console.log('🔧 NEXT_PUBLIC_ count:', debugInfo.nextPublicCount);
+    console.log('🔧 Missing vars:', debugInfo.missingVars);
+    console.log('🔧 Source:', debugInfo.source);
+    console.log('🔧 Using fallbacks:', debugInfo.usingFallbacks);
+    
+    if (debugInfo.usingFallbacks) {
+      console.warn('⚠️ Using fallback configuration due to Vercel env var scoping issue');
+      console.warn('💡 This may indicate that environment variables are not properly scoped to this branch/environment');
+    }
+  }).catch(() => {
+    console.log('🔧 Fallback system not available, using direct env access');
+  });
   
-  const debugInfo = getEnvironmentDebugInfo();
+  // Direct fallback implementation for immediate use
+  const supabaseFunctionsUrl = process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL;
+  const functionsUrl = supabaseFunctionsUrl || 'https://fwnmnjwtbggasmunsfyk.supabase.co/functions/v1';
   
-  console.log('🔧 DEBUG: Environment variables check (Enhanced)');
-  console.log('🔧 Process available:', debugInfo.processAvailable);
-  console.log('🔧 Env available:', debugInfo.envAvailable);
-  console.log('🔧 NEXT_PUBLIC_ count:', debugInfo.nextPublicCount);
-  console.log('🔧 Missing vars:', debugInfo.missingVars);
-  console.log('🔧 Source:', debugInfo.source);
-  console.log('🔧 Using fallbacks:', debugInfo.usingFallbacks);
-  
-  const functionsUrl = getSupabaseFunctionsUrl();
   console.log('🔧 Final Supabase Functions URL:', functionsUrl);
-  
-  if (debugInfo.usingFallbacks) {
-    console.warn('⚠️ Using fallback configuration due to Vercel env var scoping issue');
-    console.warn('💡 This may indicate that environment variables are not properly scoped to this branch/environment');
-  }
   
   return functionsUrl;
 }
@@ -151,11 +156,10 @@ export async function edgeFunctionFetcher<T = unknown>(
   functionName: string, 
   payload?: unknown
 ): Promise<T> {
-  // Use the new environment config system
-  const { getSupabaseConfig } = require('./env-fallback');
-  
   const baseUrl = getApiBaseUrl();
-  const { anonKey } = getSupabaseConfig();
+  
+  // Direct fallback for anon key
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3bm1uand0YmdnYXNtdW5zZnlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjQxMTQ0OTcsImV4cCI6MjAzOTY5MDQ5N30.p5f3VIWgz6b2kKgQ4OydRhqf7oEfWvTiP6KSUmhQBT8';
   const finalAnonKey = anonKey;
   
   const url = `${baseUrl}/${functionName}`;

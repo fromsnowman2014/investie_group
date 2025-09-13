@@ -29,7 +29,8 @@ export default function EnvDebugPage() {
   const [clientSideLoaded, setClientSideLoaded] = useState(false);
 
   useEffect(() => {
-    setClientSideLoaded(true);
+    const newClientSideLoaded = true;
+    setClientSideLoaded(newClientSideLoaded);
     
     // Comprehensive environment variable analysis
     const info: EnvDebugInfo = {
@@ -59,7 +60,7 @@ export default function EnvDebugPage() {
 
     // Enhanced console logging
     console.group('🔍 DEDICATED ENVIRONMENT VARIABLE DEBUG PAGE');
-    console.log('Client-side loaded:', clientSideLoaded);
+    console.log('Client-side loaded:', newClientSideLoaded);
     console.log('Full debug info:', info);
     
     if (info.envAvailable) {
@@ -219,7 +220,7 @@ export default function EnvDebugPage() {
           <h2 className="text-xl font-semibold mb-4 text-yellow-800">🔧 Debug Instructions</h2>
           <div className="text-sm text-yellow-700 space-y-2">
             <p>1. Check browser console for detailed environment variable logs</p>
-            <p>2. If NEXT_PUBLIC_ count is 0, there's a Vercel environment variable scoping issue</p>
+            <p>2. If NEXT_PUBLIC_ count is 0, there&apos;s a Vercel environment variable scoping issue</p>
             <p>3. Verify environment variables are set for the correct branch and environment</p>
             <p>4. Try forcing a complete rebuild to clear caches</p>
           </div>
