@@ -66,13 +66,14 @@ export default function APIDebugger() {
       </div>
       
       <div style={{ marginBottom: '3px' }}>
-        <strong>API URL:</strong> 
+        <strong>Legacy API URL:</strong> 
         <div style={{ 
           wordBreak: 'break-all', 
-          color: process.env.NEXT_PUBLIC_API_URL ? '#10b981' : '#f59e0b',
-          fontWeight: 'bold'
+          color: process.env.NEXT_PUBLIC_API_URL ? '#10b981' : '#666',
+          fontWeight: 'bold',
+          textDecoration: 'line-through'
         }}>
-          {process.env.NEXT_PUBLIC_API_URL || 'UNDEFINED'}
+          {process.env.NEXT_PUBLIC_API_URL || 'DEPRECATED'}
         </div>
       </div>
 
@@ -111,6 +112,13 @@ export default function APIDebugger() {
           </div>
         </div>
       )}
+      
+      <div style={{ marginTop: '8px', fontSize: '10px', backgroundColor: '#1f2937', padding: '8px', borderRadius: '4px' }}>
+        <div style={{ fontWeight: 'bold', marginBottom: '4px', color: '#fbbf24' }}>🔍 Debug Info:</div>
+        <div>Build Time: {new Date().toISOString()}</div>
+        <div>Env Check: {typeof process !== 'undefined' ? 'Available' : 'Missing'}</div>
+        <div>All Env Keys: {typeof process !== 'undefined' && process.env ? Object.keys(process.env).filter(k => k.startsWith('NEXT_PUBLIC_')).length : 0}</div>
+      </div>
       
       <div style={{ marginTop: '6px', fontSize: '10px', opacity: 0.8 }}>
         📊 Check console for API request logs
