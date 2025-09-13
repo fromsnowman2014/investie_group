@@ -177,6 +177,8 @@ export async function edgeFunctionFetcher<T = unknown>(
 export function logEnvironmentStatus(): void {
   console.group('🌍 Environment Status');
   console.log('NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL || 'UNDEFINED');
+  console.log('NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL:', process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL || 'UNDEFINED');
+  console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'SET' : 'MISSING');
   console.log('NODE_ENV:', process.env.NODE_ENV);
   console.log('Calculated Base URL:', getApiBaseUrl());
   console.log('Is Client:', typeof window !== 'undefined');
@@ -184,5 +186,17 @@ export function logEnvironmentStatus(): void {
     console.log('Current Origin:', window.location.origin);
     console.log('Current Href:', window.location.href);
   }
+  console.groupEnd();
+  
+  // Additional Vercel-specific debugging
+  console.group('🚀 Vercel Environment Debug');
+  console.log('All environment variables starting with NEXT_PUBLIC_:');
+  Object.keys(process.env)
+    .filter(key => key.startsWith('NEXT_PUBLIC_'))
+    .forEach(key => {
+      const value = process.env[key];
+      const isKey = key.toLowerCase().includes('key');
+      console.log(`${key}:`, isKey && value ? 'SET' : (value || 'UNDEFINED'));
+    });
   console.groupEnd();
 }

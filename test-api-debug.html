@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Debug Test</title>
+    <style>
+        body {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: #1a1a1a;
+            color: #f0f0f0;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section {
+            background: #2d2d2d;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #00d4ff;
+        }
+        .section h2 {
+            margin-top: 0;
+            color: #00d4ff;
+        }
+        .test-button {
+            background: #00d4ff;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: bold;
+        }
+        .test-button:hover {
+            background: #0099cc;
+        }
+        .log-output {
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            height: 300px;
+            overflow-y: auto;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+        .success { color: #00ff00; }
+        .error { color: #ff4444; }
+        .warning { color: #ffaa00; }
+        .info { color: #00d4ff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Investie API Debug Test</h1>
+        
+        <div class="section">
+            <h2>Environment Information</h2>
+            <div id="env-info">Loading...</div>
+        </div>
+
+        <div class="section">
+            <h2>Backend Health Check</h2>
+            <button class="test-button" onclick="testBackendHealth()">Test Backend Health</button>
+            <button class="test-button" onclick="testBackendStocks()">Test Stocks API</button>
+            <button class="test-button" onclick="testBackendNews()">Test News API</button>
+        </div>
+
+        <div class="section">
+            <h2>Frontend Environment Variables</h2>
+            <button class="test-button" onclick="logFrontendEnv()">Log Frontend Environment</button>
+        </div>
+
+        <div class="section">
+            <h2>Console Output</h2>
+            <div class="log-output" id="log-output"></div>
+            <button class="test-button" onclick="clearLogs()">Clear Logs</button>
+        </div>
+    </div>
+
+    <script>
+        // Global logging function
+        function addLog(message, type = 'info') {
+            const logOutput = document.getElementById('log-output');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = type;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logOutput.appendChild(logEntry);
+            logOutput.scrollTop = logOutput.scrollHeight;
+            
+            // Also log to browser console
+            console.log(message);
+        }
+
+        function clearLogs() {
+            document.getElementById('log-output').innerHTML = '';
+        }
+
+        // Test backend health endpoint
+        async function testBackendHealth() {
+            addLog('🏥 Testing backend health endpoint...', 'info');
+            
+            const urls = [
+                'http://localhost:3001/health',
+                'https://investie-backend.railway.app/health',
+                'https://investie-group-production.up.railway.app/health'
+            ];
+
+            for (const url of urls) {
+                try {
+                    addLog(`Testing: ${url}`, 'info');
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        addLog(`✅ SUCCESS: ${url}`, 'success');
+                        addLog(`Response: ${JSON.stringify(data, null, 2)}`, 'success');
+                    } else {
+                        addLog(`❌ HTTP ${response.status}: ${url}`, 'error');
+                    }
+                } catch (error) {
+                    addLog(`💥 ERROR: ${url} - ${error.message}`, 'error');
+                }
+            }
+        }
+
+        // Test backend stocks API
+        async function testBackendStocks() {
+            addLog('📈 Testing stocks API...', 'info');
+            
+            const urls = [
+                'http://localhost:3001/api/v1/stocks',
+                'https://investie-backend.railway.app/api/v1/stocks',
+                'https://investie-group-production.up.railway.app/api/v1/stocks'
+            ];
+
+            for (const url of urls) {
+                try {
+                    addLog(`Testing: ${url}`, 'info');
+                    const response = await fetch(url);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        addLog(`✅ SUCCESS: ${url}`, 'success');
+                        addLog(`Stocks count: ${data.data ? data.data.length : 'N/A'}`, 'success');
+                        if (data.data && data.data[0]) {
+                            addLog(`Sample stock: ${JSON.stringify(data.data[0], null, 2)}`, 'info');
+                        }
+                    } else {
+                        addLog(`❌ HTTP ${response.status}: ${url}`, 'error');
+                    }
+                } catch (error) {
+                    addLog(`💥 ERROR: ${url} - ${error.message}`, 'error');
+                }
+            }
+        }
+
+        // Test backend news API
+        async function testBackendNews() {
+            addLog('📰 Testing news API...', 'info');
+            
+            const urls = [
+                'http://localhost:3001/api/v1/news/macro/today',
+                'https://investie-backend.railway.app/api/v1/news/macro/today',
+                'https://investie-group-production.up.railway.app/api/v1/news/macro/today'
+            ];
+
+            for (const url of urls) {
+                try {
+                    addLog(`Testing: ${url}`, 'info');
+                    const response = await fetch(url);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        addLog(`✅ SUCCESS: ${url}`, 'success');
+                        addLog(`Response: ${JSON.stringify(data, null, 2)}`, 'success');
+                    } else {
+                        addLog(`❌ HTTP ${response.status}: ${url}`, 'error');
+                    }
+                } catch (error) {
+                    addLog(`💥 ERROR: ${url} - ${error.message}`, 'error');
+                }
+            }
+        }
+
+        // Log frontend environment variables (simulated)
+        function logFrontendEnv() {
+            addLog('🌍 Frontend Environment Variables:', 'info');
+            addLog('NODE_ENV: production (simulated)', 'info');
+            addLog('NEXT_PUBLIC_API_URL: UNDEFINED (simulated)', 'warning');
+            addLog('NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL: UNDEFINED (simulated)', 'warning');
+            addLog('NEXT_PUBLIC_SUPABASE_ANON_KEY: MISSING (simulated)', 'error');
+            addLog('Current Origin: ' + window.location.origin, 'info');
+        }
+
+        // Initialize page
+        function init() {
+            const envInfo = document.getElementById('env-info');
+            envInfo.innerHTML = `
+                <strong>Current URL:</strong> ${window.location.href}<br>
+                <strong>User Agent:</strong> ${navigator.userAgent}<br>
+                <strong>Timestamp:</strong> ${new Date().toISOString()}
+            `;
+            
+            addLog('🔍 API Debug Test initialized', 'info');
+            addLog('Click buttons to test different endpoints', 'info');
+        }
+
+        // Run initialization when page loads
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

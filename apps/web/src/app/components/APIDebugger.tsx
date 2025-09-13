@@ -67,16 +67,34 @@ export default function APIDebugger() {
       </div>
       
       <div style={{ marginBottom: '3px' }}>
+        <strong>API URL:</strong> 
+        <div style={{ 
+          wordBreak: 'break-all', 
+          color: process.env.NEXT_PUBLIC_API_URL ? '#10b981' : '#f59e0b',
+          fontWeight: 'bold'
+        }}>
+          {process.env.NEXT_PUBLIC_API_URL || 'UNDEFINED'}
+        </div>
+      </div>
+
+      <div style={{ marginBottom: '3px' }}>
         <strong>Supabase Functions:</strong> 
         <div style={{ 
           wordBreak: 'break-all', 
           color: process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL ? '#10b981' : '#f59e0b',
           fontWeight: 'bold'
         }}>
-          {process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL || 
-           (process.env.NODE_ENV === 'production' 
-            ? 'Using production fallback' 
-            : 'Using localhost fallback')}
+          {process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL || 'UNDEFINED'}
+        </div>
+      </div>
+
+      <div style={{ marginBottom: '3px' }}>
+        <strong>Supabase Anon Key:</strong> 
+        <div style={{ 
+          color: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '#10b981' : '#ef4444',
+          fontWeight: 'bold'
+        }}>
+          {process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'SET' : 'MISSING'}
         </div>
       </div>
 

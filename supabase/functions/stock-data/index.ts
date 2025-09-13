@@ -205,9 +205,9 @@ Deno.serve(async (req) => {
       });
     }
 
-    // TEMPORARY: Test with hardcoded key
-    const alphaVantageApiKey = "***REMOVED***";
-    console.log('🔑 Alpha Vantage API Key status: HARDCODED FOR TESTING');
+    // Get API key from environment variables
+    const alphaVantageApiKey = Deno.env.get('ALPHA_VANTAGE_API_KEY');
+    console.log('🔑 Alpha Vantage API Key status:', alphaVantageApiKey ? 'CONFIGURED' : 'MISSING');
     
     if (!alphaVantageApiKey) {
       console.warn('Alpha Vantage API key not configured, using mock data');
