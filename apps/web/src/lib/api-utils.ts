@@ -1,4 +1,5 @@
 // Centralized API utilities for consistent URL handling across all components
+import { getApiUrl, getSupabaseFunctionsUrl, getSupabaseAnonKey, isInEmergencyMode, diagnoseEnvironmentIssue } from './emergency-env-recovery';
 
 export interface ApiRequestDebugInfo {
   originalUrl: string;

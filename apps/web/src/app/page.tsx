@@ -18,6 +18,16 @@ export default function Home() {
   const { currentSymbol } = useStock();
 
   // Add comprehensive environment variable debugging
+  // Emergency Environment Diagnostics
+  useEffect(() => {
+    import('../lib/api-utils-emergency').then(({ logEmergencyEnvironmentStatus }) => {
+      console.log('🚨 EMERGENCY DIAGNOSTIC ACTIVATED');
+      logEmergencyEnvironmentStatus();
+    }).catch(err => {
+      console.error('❌ Emergency diagnostic failed:', err);
+    });
+  }, []);
+
   useEffect(() => {
     console.group('🔍 MAIN PAGE ENVIRONMENT DEBUGGING');
     console.log('='.repeat(50));

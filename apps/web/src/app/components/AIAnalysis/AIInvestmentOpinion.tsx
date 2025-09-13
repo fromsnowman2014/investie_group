@@ -135,18 +135,14 @@ export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps
   };
 
   const formatPrice = (price: number) => {
-    console.log('🔍 formatPrice called with:', { price, type: typeof price, isUndefined: price === undefined, isNull: price === null, isNaN: isNaN(price) });
     if (price === undefined || price === null || isNaN(price)) {
-      console.error('❌ formatPrice: Invalid price value received:', price);
       return '$0.00';
     }
     return `$${price.toFixed(2)}`;
   };
   
   const formatPercent = (percent: number) => {
-    console.log('🔍 formatPercent called with:', { percent, type: typeof percent, isUndefined: percent === undefined, isNull: percent === null, isNaN: isNaN(percent) });
     if (percent === undefined || percent === null || isNaN(percent)) {
-      console.error('❌ formatPercent: Invalid percent value received:', percent);
       return '0.00%';
     }
     return `${percent >= 0 ? '+' : ''}${percent.toFixed(2)}%`;
