@@ -21,40 +21,31 @@ export interface ApiResponseDebugInfo {
 }
 
 /**
- * Get the correct API base URL based on environment
+ * Get the correct API base URL based on environment with intelligent fallback
  */
 export function getApiBaseUrl(): string {
-  const supabaseFunctionsUrl = process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL;
-  const nodeEnv = process.env.NODE_ENV;
+  // Import the new environment config system
+  const { getSupabaseFunctionsUrl, getEnvironmentDebugInfo } = require('./env-fallback');
   
-  // TEMPORARY HARDCODE for debugging - will remove after fixing Vercel environment variables
-  console.log('🔧 DEBUG: Environment variables check');
-  console.log('🔧 SUPABASE_FUNCTIONS_URL from env:', supabaseFunctionsUrl);
-  console.log('🔧 NODE_ENV from env:', nodeEnv);
-  console.log('🔧 Total env keys starting with NEXT_PUBLIC_:', 
-    typeof process !== 'undefined' && process.env ? 
-    Object.keys(process.env).filter(k => k.startsWith('NEXT_PUBLIC_')).length : 0
-  );
+  const debugInfo = getEnvironmentDebugInfo();
   
-  // TEMPORARY: Force Supabase URL regardless of environment variables
-  const hardcodedUrl = 'https://fwnmnjwtbggasmunsfyk.supabase.co/functions/v1';
-  console.log('🔧 Using hardcoded Supabase URL:', hardcodedUrl);
-  return hardcodedUrl;
+  console.log('🔧 DEBUG: Environment variables check (Enhanced)');
+  console.log('🔧 Process available:', debugInfo.processAvailable);
+  console.log('🔧 Env available:', debugInfo.envAvailable);
+  console.log('🔧 NEXT_PUBLIC_ count:', debugInfo.nextPublicCount);
+  console.log('🔧 Missing vars:', debugInfo.missingVars);
+  console.log('🔧 Source:', debugInfo.source);
+  console.log('🔧 Using fallbacks:', debugInfo.usingFallbacks);
   
-  // Use Supabase Edge Functions if configured
-  if (supabaseFunctionsUrl) {
-    return supabaseFunctionsUrl as string; // Type assertion for temporary hardcode
+  const functionsUrl = getSupabaseFunctionsUrl();
+  console.log('🔧 Final Supabase Functions URL:', functionsUrl);
+  
+  if (debugInfo.usingFallbacks) {
+    console.warn('⚠️ Using fallback configuration due to Vercel env var scoping issue');
+    console.warn('💡 This may indicate that environment variables are not properly scoped to this branch/environment');
   }
   
-  // Development fallback: local Supabase functions
-  if (nodeEnv === 'development') {
-    const localSupabase = process.env.NEXT_PUBLIC_SUPABASE_LOCAL_FUNCTIONS_URL;
-    return localSupabase || 'http://localhost:54321/functions/v1';
-  }
-  
-  // Production fallback - should not reach here if properly configured
-  console.warn('⚠️ Supabase Functions URL not configured, using fallback');
-  return 'https://fwnmnjwtbggasmunsfyk.supabase.co/functions/v1';
+  return functionsUrl;
 }
 
 /**
@@ -160,12 +151,12 @@ export async function edgeFunctionFetcher<T = unknown>(
   functionName: string, 
   payload?: unknown
 ): Promise<T> {
-  const baseUrl = getApiBaseUrl();
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  // Use the new environment config system
+  const { getSupabaseConfig } = require('./env-fallback');
   
-  // TEMPORARY HARDCODE for debugging - will remove after fixing Vercel environment variables
-  const hardcodedAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3bm1uand0YmdnYXNtdW5zZnlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjQxMTQ0OTcsImV4cCI6MjAzOTY5MDQ5N30.p5f3VIWgz6b2kKgQ4OydRhqf7oEfWvTiP6KSUmhQBT8';
-  const finalAnonKey = anonKey || hardcodedAnonKey;
+  const baseUrl = getApiBaseUrl();
+  const { anonKey } = getSupabaseConfig();
+  const finalAnonKey = anonKey;
   
   const url = `${baseUrl}/${functionName}`;
   const options: RequestInit = {
