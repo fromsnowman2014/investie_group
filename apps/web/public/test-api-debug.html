@@ -106,99 +106,152 @@
 
         // Test backend health endpoint
         async function testBackendHealth() {
-            addLog('🏥 Testing backend health endpoint...', 'info');
+            addLog('🏥 Testing Supabase Edge Functions health...', 'info');
             
-            const urls = [
-                'http://localhost:3001/health',
-                'https://investie-backend.railway.app/health',
-                'https://investie-group-production.up.railway.app/health'
+            const supabaseUrl = 'https://fwnmnjwtbggasmunsfyk.supabase.co/functions/v1';
+            const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3bm1uand0YmdnYXNtdW5zZnlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjQxMTQ0OTcsImV4cCI6MjAzOTY5MDQ5N30.p5f3VIWgz6b2kKgQ4OydRhqf7oEfWvTiP6KSUmhQBT8';
+            
+            const endpoints = [
+                'stock-data',
+                'market-overview', 
+                'news-analysis'
             ];
 
-            for (const url of urls) {
+            for (const endpoint of endpoints) {
                 try {
+                    const url = `${supabaseUrl}/${endpoint}`;
                     addLog(`Testing: ${url}`, 'info');
-                    const response = await fetch(url);
-                    const data = await response.json();
+                    
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${anonKey}`,
+                        },
+                        body: JSON.stringify({ symbol: 'AAPL' }) // Test data
+                    });
                     
                     if (response.ok) {
-                        addLog(`✅ SUCCESS: ${url}`, 'success');
+                        const data = await response.json();
+                        addLog(`✅ SUCCESS: ${endpoint}`, 'success');
                         addLog(`Response: ${JSON.stringify(data, null, 2)}`, 'success');
                     } else {
-                        addLog(`❌ HTTP ${response.status}: ${url}`, 'error');
+                        const errorText = await response.text();
+                        addLog(`❌ HTTP ${response.status}: ${endpoint}`, 'error');
+                        addLog(`Error: ${errorText}`, 'error');
                     }
                 } catch (error) {
-                    addLog(`💥 ERROR: ${url} - ${error.message}`, 'error');
+                    addLog(`💥 ERROR: ${endpoint} - ${error.message}`, 'error');
                 }
             }
         }
 
-        // Test backend stocks API
+        // Test stock data API specifically
         async function testBackendStocks() {
-            addLog('📈 Testing stocks API...', 'info');
+            addLog('📈 Testing Supabase stock-data function...', 'info');
             
-            const urls = [
-                'http://localhost:3001/api/v1/stocks',
-                'https://investie-backend.railway.app/api/v1/stocks',
-                'https://investie-group-production.up.railway.app/api/v1/stocks'
-            ];
-
-            for (const url of urls) {
+            const supabaseUrl = 'https://fwnmnjwtbggasmunsfyk.supabase.co/functions/v1';
+            const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3bm1uand0YmdnYXNtdW5zZnlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjQxMTQ0OTcsImV4cCI6MjAzOTY5MDQ5N30.p5f3VIWgz6b2kKgQ4OydRhqf7oEfWvTiP6KSUmhQBT8';
+            
+            const symbols = ['AAPL', 'TSLA', 'MSFT'];
+            
+            for (const symbol of symbols) {
                 try {
-                    addLog(`Testing: ${url}`, 'info');
-                    const response = await fetch(url);
+                    const url = `${supabaseUrl}/stock-data`;
+                    addLog(`Testing stock-data for ${symbol}...`, 'info');
+                    
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${anonKey}`,
+                        },
+                        body: JSON.stringify({ symbol })
+                    });
                     
                     if (response.ok) {
                         const data = await response.json();
-                        addLog(`✅ SUCCESS: ${url}`, 'success');
-                        addLog(`Stocks count: ${data.data ? data.data.length : 'N/A'}`, 'success');
-                        if (data.data && data.data[0]) {
-                            addLog(`Sample stock: ${JSON.stringify(data.data[0], null, 2)}`, 'info');
-                        }
+                        addLog(`✅ SUCCESS: ${symbol}`, 'success');
+                        addLog(`Stock data: ${JSON.stringify(data, null, 2)}`, 'success');
                     } else {
-                        addLog(`❌ HTTP ${response.status}: ${url}`, 'error');
+                        const errorText = await response.text();
+                        addLog(`❌ HTTP ${response.status}: ${symbol}`, 'error');
+                        addLog(`Error: ${errorText}`, 'error');
                     }
                 } catch (error) {
-                    addLog(`💥 ERROR: ${url} - ${error.message}`, 'error');
+                    addLog(`💥 ERROR: ${symbol} - ${error.message}`, 'error');
                 }
             }
         }
 
-        // Test backend news API
+        // Test news analysis API
         async function testBackendNews() {
-            addLog('📰 Testing news API...', 'info');
+            addLog('📰 Testing Supabase news-analysis function...', 'info');
             
-            const urls = [
-                'http://localhost:3001/api/v1/news/macro/today',
-                'https://investie-backend.railway.app/api/v1/news/macro/today',
-                'https://investie-group-production.up.railway.app/api/v1/news/macro/today'
-            ];
-
-            for (const url of urls) {
-                try {
-                    addLog(`Testing: ${url}`, 'info');
-                    const response = await fetch(url);
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        addLog(`✅ SUCCESS: ${url}`, 'success');
-                        addLog(`Response: ${JSON.stringify(data, null, 2)}`, 'success');
-                    } else {
-                        addLog(`❌ HTTP ${response.status}: ${url}`, 'error');
-                    }
-                } catch (error) {
-                    addLog(`💥 ERROR: ${url} - ${error.message}`, 'error');
+            const supabaseUrl = 'https://fwnmnjwtbggasmunsfyk.supabase.co/functions/v1';
+            const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3bm1uand0YmdnYXNtdW5zZnlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjQxMTQ0OTcsImV4cCI6MjAzOTY5MDQ5N30.p5f3VIWgz6b2kKgQ4OydRhqf7oEfWvTiP6KSUmhQBT8';
+            
+            try {
+                const url = `${supabaseUrl}/news-analysis`;
+                addLog(`Testing: ${url}`, 'info');
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${anonKey}`,
+                    },
+                    body: JSON.stringify({ symbol: 'AAPL', type: 'stock' })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addLog(`✅ SUCCESS: news-analysis`, 'success');
+                    addLog(`Response: ${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    const errorText = await response.text();
+                    addLog(`❌ HTTP ${response.status}: news-analysis`, 'error');
+                    addLog(`Error: ${errorText}`, 'error');
                 }
+            } catch (error) {
+                addLog(`💥 ERROR: news-analysis - ${error.message}`, 'error');
             }
         }
 
-        // Log frontend environment variables (simulated)
+        // Log actual frontend environment variables
         function logFrontendEnv() {
-            addLog('🌍 Frontend Environment Variables:', 'info');
-            addLog('NODE_ENV: production (simulated)', 'info');
-            addLog('NEXT_PUBLIC_API_URL: UNDEFINED (simulated)', 'warning');
-            addLog('NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL: UNDEFINED (simulated)', 'warning');
-            addLog('NEXT_PUBLIC_SUPABASE_ANON_KEY: MISSING (simulated)', 'error');
+            addLog('🌍 Frontend Environment Variables (REAL):', 'info');
+            
+            // Try to access Next.js environment variables
+            const envVars = {
+                'NODE_ENV': process?.env?.NODE_ENV || 'undefined',
+                'NEXT_PUBLIC_API_URL': process?.env?.NEXT_PUBLIC_API_URL || 'undefined',
+                'NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL': process?.env?.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL || 'undefined',
+                'NEXT_PUBLIC_SUPABASE_ANON_KEY': process?.env?.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'SET' : 'MISSING'
+            };
+            
+            Object.entries(envVars).forEach(([key, value]) => {
+                const logType = value === 'undefined' ? 'error' : value === 'MISSING' ? 'warning' : 'success';
+                addLog(`${key}: ${value}`, logType);
+            });
+            
             addLog('Current Origin: ' + window.location.origin, 'info');
+            addLog('Current Href: ' + window.location.href, 'info');
+            
+            // Check if we can access process.env at all
+            addLog('Process env available: ' + (typeof process !== 'undefined' && process.env ? 'YES' : 'NO'), 'info');
+            
+            // Try to list all NEXT_PUBLIC_ variables
+            if (typeof process !== 'undefined' && process.env) {
+                addLog('All NEXT_PUBLIC_ variables:', 'info');
+                Object.keys(process.env)
+                    .filter(key => key.startsWith('NEXT_PUBLIC_'))
+                    .forEach(key => {
+                        const value = process.env[key];
+                        const isKey = key.toLowerCase().includes('key');
+                        addLog(`  ${key}: ${isKey && value ? 'SET' : (value || 'UNDEFINED')}`, 'info');
+                    });
+            }
         }
 
         // Initialize page
