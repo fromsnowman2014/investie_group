@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Frontend API Test</title>
+</head>
+<body>
+    <h1>Investie Frontend API Test</h1>
+    <div id="results"></div>
+
+    <script>
+        // Simulate the frontend environment variables
+        const SUPABASE_FUNCTIONS_URL = 'https://fwnmnjwtbggasmunsfyk.supabase.co/functions/v1';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3bm1uand0YmdnYXNtdW5zZnlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjQxMTQ0OTcsImV4cCI6MjAzOTY5MDQ5N30.p5f3VIWgz6b2kKgQ4OydRhqf7oEfWvTiP6KSUmhQBT8';
+
+        // Simulate the edgeFunctionFetcher function
+        async function edgeFunctionFetcher(functionName, payload) {
+            const url = `${SUPABASE_FUNCTIONS_URL}/${functionName}`;
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                },
+                body: payload ? JSON.stringify(payload) : undefined,
+            };
+
+            console.group(`🚀 Edge Function Call: ${functionName}`);
+            console.log('📍 Function:', functionName);
+            console.log('🌍 URL:', url);
+            console.log('📦 Payload:', payload);
+            console.log('🔑 Has Auth Key:', !!SUPABASE_ANON_KEY);
+
+            const response = await fetch(url, options);
+            const data = await response.json();
+            
+            console.log('📡 Response Status:', response.status);
+            console.log('📦 Response Data:', data);
+            console.log('🏷️ Data Source:', data.source);
+            console.groupEnd();
+
+            return data;
+        }
+
+        // Test function
+        async function testAPIs() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<p>Testing APIs...</p>';
+
+            try {
+                // Test market-overview
+                console.log('=== Testing market-overview ===');
+                const marketData = await edgeFunctionFetcher('market-overview');
+                
+                // Test news-analysis
+                console.log('=== Testing news-analysis ===');
+                const newsData = await edgeFunctionFetcher('news-analysis', { symbol: 'AAPL' });
+                
+                // Test ai-analysis
+                console.log('=== Testing ai-analysis ===');
+                const aiData = await edgeFunctionFetcher('ai-analysis', { symbol: 'AAPL' });
+
+                // Test stock-data
+                console.log('=== Testing stock-data ===');
+                const stockData = await edgeFunctionFetcher('stock-data', { symbol: 'AAPL' });
+
+                // Display results
+                resultsDiv.innerHTML = `
+                    <h2>API Test Results</h2>
+                    <h3>Market Overview</h3>
+                    <p><strong>Source:</strong> ${marketData.source}</p>
+                    <p><strong>S&P 500:</strong> ${marketData.indices?.sp500?.value || 'N/A'}</p>
+                    
+                    <h3>News Analysis</h3>
+                    <p><strong>Source:</strong> ${newsData.source}</p>
+                    <p><strong>Headlines Count:</strong> ${newsData.headlines?.length || 0}</p>
+                    
+                    <h3>AI Analysis</h3>
+                    <p><strong>Rating:</strong> ${aiData.rating}</p>
+                    <p><strong>Confidence:</strong> ${aiData.confidence}</p>
+                    
+                    <h3>Stock Data</h3>
+                    <p><strong>Source:</strong> ${stockData.source}</p>
+                    <p><strong>Price:</strong> ${stockData.currentPrice || 'N/A'}</p>
+                `;
+                
+            } catch (error) {
+                console.error('Test failed:', error);
+                resultsDiv.innerHTML = `<p style="color: red;">Test failed: ${error.message}</p>`;
+            }
+        }
+
+        // Run test when page loads
+        window.onload = testAPIs;
+    </script>
+</body>
+</html>

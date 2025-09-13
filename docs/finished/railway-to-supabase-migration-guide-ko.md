@@ -282,15 +282,15 @@ curl -X POST "https://your-project-id.supabase.co/functions/v1/stock-data" \
 
 ## 🔄 7단계: 프론트엔드 API URL 업데이트
 
-### **7.1 프론트엔드 환경변수 업데이트**
+### **7.1 프론트엔드 환경변수 **
 ```bash
 # apps/web/.env.local (기존 Railway 설정 교체)
 # 기존 제거: NEXT_PUBLIC_API_URL=https://investiegroup-production.up.railway.app
 
-# 새로 추가:
-NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL=https://your-project-id.supabase.co/functions/v1
-NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+# 이 경로 및 key는 이미 vercel variable에 저장되어있어, 업데이트 불필요.
+NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL=https://fwnmnjwtbggasmunsfyk.supabase.co/functions/v1
+NEXT_PUBLIC_SUPABASE_URL=https://fwnmnjwtbggasmunsfyk.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3bm1uand0YmdnYXNtdW5zZnlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2NTUyOTcsImV4cCI6MjA3MTIzMTI5N30.Q1MfP91L5h86CDkeISBR2Na3GletKN4bA1BZafTiIVM
 ```
 
 **⚠️ 주의사항:**
