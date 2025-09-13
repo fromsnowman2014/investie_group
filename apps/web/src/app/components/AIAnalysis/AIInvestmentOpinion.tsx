@@ -192,20 +192,13 @@ export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps
           <div className="data-row">
             <span className="data-label">Current Price</span>
             <span className="data-value financial-data-large">
-              {(() => {
-                console.log('🎯 About to call formatPrice with currentPrice:', data.currentPrice);
-                return formatPrice(data.currentPrice);
-              })()}
+              {formatPrice(data.currentPrice)}
             </span>
           </div>
           <div className="data-row">
             <span className="data-label">Change</span>
             <span className={`data-value financial-data ${(data.priceChange ?? 0) >= 0 ? 'price-positive' : 'price-negative'}`}>
-              {(() => {
-                console.log('🎯 About to call formatPrice with priceChange:', data.priceChange);
-                console.log('🎯 About to call formatPercent with priceChangePercent:', data.priceChangePercent);
-                return `${formatPrice(data.priceChange ?? 0)} (${formatPercent(data.priceChangePercent ?? 0)})`;
-              })()}
+              {`${formatPrice(data.priceChange ?? 0)} (${formatPercent(data.priceChangePercent ?? 0)})`}
             </span>
           </div>
         </div>
@@ -213,10 +206,7 @@ export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps
           <div className="data-row">
             <span className="data-label">Target Price</span>
             <span className="data-value financial-data-large">
-              {(() => {
-                console.log('🎯 About to call formatPrice with targetPrice:', data.targetPrice);
-                return formatPrice(data.targetPrice);
-              })()}
+              {formatPrice(data.targetPrice)}
             </span>
           </div>
           <div className="data-row">
@@ -226,8 +216,6 @@ export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps
                 const targetPrice = data.targetPrice ?? 0;
                 const currentPrice = data.currentPrice ?? 0;
                 const upside = currentPrice > 0 ? ((targetPrice - currentPrice) / currentPrice) * 100 : 0;
-                console.log('🎯 About to call formatPercent with calculated upside:', upside);
-                console.log('🎯 Upside calculation values - targetPrice:', targetPrice, 'currentPrice:', currentPrice);
                 return formatPercent(upside);
               })()}
             </span>
