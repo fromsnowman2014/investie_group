@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useId } from 'react';
 
 interface SparklineDataPoint {
   timestamp: string;
@@ -25,6 +25,8 @@ interface SP500SparklineWidgetProps {
 }
 
 const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoading }) => {
+  const gradientId = useId();
+  
   // Handle loading state
   if (isLoading) {
     return (
@@ -191,7 +193,7 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
         <div className="sparkline-chart">
           <svg width="100%" height="60" viewBox="0 0 200 60">
             <defs>
-              <linearGradient id={`sparklineGradient-${Math.random().toString(36).substr(2, 9)}`} x1="0%" y1="0%" x2="0%" y2="100%">
+              <linearGradient id={`sparklineGradient-${gradientId}`} x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" style={{ stopColor: trendColor, stopOpacity: 0.3 }} />
                 <stop offset="100%" style={{ stopColor: trendColor, stopOpacity: 0.1 }} />
               </linearGradient>
@@ -262,7 +264,7 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
                       points={points}
                     />
                     <polygon
-                      fill={`url(#sparklineGradient-${Math.random().toString(36).substr(2, 9)})`}
+                      fill={`url(#sparklineGradient-${gradientId})`}
                       points={`0,50 ${points} 200,50`}
                     />
                   </>
