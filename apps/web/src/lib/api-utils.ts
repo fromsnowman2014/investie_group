@@ -47,7 +47,7 @@ export function getApiBaseUrl(): string {
   
   // Direct fallback implementation for immediate use
   const supabaseFunctionsUrl = process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL;
-  const functionsUrl = supabaseFunctionsUrl || 'https://fwnmnjwtbggasmunsfyk.supabase.co/functions/v1';
+  const functionsUrl = supabaseFunctionsUrl || 'https://your-project.supabase.co/functions/v1';
   
   console.log('🔧 Final Supabase Functions URL:', functionsUrl);
   
@@ -170,7 +170,7 @@ export async function edgeFunctionFetcher<T = unknown>(
   }
   
   // Direct fallback for anon key (backup)
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3bm1uand0YmdnYXNtdW5zZnlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjQxMTQ0OTcsImV4cCI6MjAzOTY5MDQ5N30.p5f3VIWgz6b2kKgQ4OydRhqf7oEfWvTiP6KSUmhQBT8';
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'fallback-anon-key';
   const finalAnonKey = anonKey;
   
   const url = `${baseUrl}/${functionName}`;

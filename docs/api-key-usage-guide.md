@@ -27,8 +27,8 @@
 **로컬 개발 시에만**: 필요한 경우 `.env.local` 파일 생성:
 ```bash
 # 로컬 테스트용 (선택사항)
-NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL=https://fwnmnjwtbggasmunsfyk.supabase.co/functions/v1
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL=https://your-project.supabase.co/functions/v1
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
 ```
 
 **자동 Fallback**: 환경 변수가 없어도 코드에서 자동으로 프로덕션 URL 사용
@@ -36,7 +36,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ### 🖥️ 현재 서버 구성
 
 **프로덕션 Supabase Functions URL**: 
-- `https://fwnmnjwtbggasmunsfyk.supabase.co/functions/v1`
+- `https://[project-id].supabase.co/functions/v1` (프로덕션 환경에서 자동 설정)
 
 **사용 가능한 Edge Functions**:
 - `market-overview`: 시장 지수, 경제 지표, Fear & Greed Index
