@@ -1,5 +1,12 @@
 // Setup type definitions for built-in Supabase Runtime APIs
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
+import { 
+  MultiProviderManager, 
+  AlphaVantageProvider, 
+  YahooFinanceProvider, 
+  TwelveDataProvider,
+  type StockQuoteData 
+} from './api-providers.ts'
 
 interface MarketOverviewResponse {
   indices: {
@@ -58,90 +65,54 @@ interface EconomicIndicator {
   source: string;
 }
 
-async function fetchAlphaVantageQuote(symbol: string, apiKey: string): Promise<{ data: any; isRateLimited: boolean; rateLimitMessage?: string }> {
-  try {
-    const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`;
-    console.log(`🔍 Fetching Alpha Vantage data for ${symbol}...`);
-    console.log(`🔗 URL: ${url.replace(apiKey, 'HIDDEN_KEY')}`);
-    
-    const response = await fetch(url, {
-      method: 'GET',
-      signal: AbortSignal.timeout(10000)
-    });
-
-    console.log(`📡 Alpha Vantage response for ${symbol}: ${response.status} ${response.statusText}`);
-
-    if (!response.ok) {
-      console.warn(`Alpha Vantage API error for ${symbol}: ${response.status}`);
-      return { data: null, isRateLimited: false };
-    }
-
-    const data = await response.json();
-    console.log(`📦 Alpha Vantage raw data for ${symbol}:`, JSON.stringify(data));
-    
-    // Enhanced rate limit detection
-    if (data.Information) {
-      console.log(`ℹ️ Alpha Vantage Information field: ${data.Information}`);
-      
-      // Check for various rate limit messages
-      const rateLimitPatterns = [
-        'rate limit',
-        'API call frequency',
-        'calls per day',
-        'calls per minute',
-        'upgrade your API key',
-        'Thank you for using Alpha Vantage'
-      ];
-      
-      const isRateLimited = rateLimitPatterns.some(pattern => 
-        data.Information.toLowerCase().includes(pattern.toLowerCase())
-      );
-      
-      if (isRateLimited) {
-        console.warn(`⚠️ API Rate limit detected for ${symbol}: ${data.Information}`);
-        return { 
-          data: null, 
-          isRateLimited: true, 
-          rateLimitMessage: 'Daily API rate limit reached. Stock market data temporarily unavailable.'
-        };
-      }
-    }
-    
-    // Check for Note field (another common rate limit indicator)
-    if (data.Note && data.Note.toLowerCase().includes('rate limit')) {
-      console.warn(`⚠️ API Rate limit detected in Note field for ${symbol}: ${data.Note}`);
-      return { 
-        data: null, 
-        isRateLimited: true, 
-        rateLimitMessage: 'Daily API rate limit reached. Stock market data temporarily unavailable.'
-      };
-    }
-    
-    const globalQuote = data['Global Quote'];
-    if (!globalQuote || Object.keys(globalQuote).length === 0) {
-      console.warn(`❌ No Global Quote data found for ${symbol}. Response keys:`, Object.keys(data));
-      console.warn(`🚨 This might indicate rate limiting or API issues`);
-      
-      // If we get empty response or no data, assume it's rate limited
-      if (Object.keys(data).length === 0 || (!data['Global Quote'] && !data.Information && !data.Note)) {
-        console.warn(`⚠️ Empty response detected for ${symbol}, assuming rate limit`);
-        return { 
-          data: null, 
-          isRateLimited: true, 
-          rateLimitMessage: "Daily API rate limit reached. Stock market data temporarily unavailable."
-        };
-      }
-      
-      return { data: null, isRateLimited: false };
-    } else {
-      console.log(`✅ Successfully parsed Global Quote for ${symbol}`);
-    }
-    
-    return { data: globalQuote, isRateLimited: false };
-  } catch (error) {
-    console.error(`❌ Error fetching ${symbol} data:`, error.message);
-    return { data: null, isRateLimited: false };
+// Initialize Multi-Provider Manager
+function createMultiProviderManager(alphaVantageApiKey?: string): MultiProviderManager {
+  const manager = new MultiProviderManager();
+  
+  // Add Alpha Vantage provider (highest priority)
+  if (alphaVantageApiKey) {
+    manager.addProvider(new AlphaVantageProvider(alphaVantageApiKey));
   }
+  
+  // Add Yahoo Finance provider (fallback)
+  manager.addProvider(new YahooFinanceProvider());
+  
+  // Add Twelve Data provider (demo key)
+  manager.addProvider(new TwelveDataProvider());
+  
+  return manager;
+}
+
+async function fetchMultiProviderQuote(symbol: string, manager: MultiProviderManager): Promise<{ 
+  data: any; 
+  isRateLimited: boolean; 
+  rateLimitMessage?: string;
+  provider?: string;
+}> {
+  const result = await manager.fetchQuote(symbol);
+  
+  if (result.data) {
+    // Convert to Alpha Vantage format for compatibility
+    const alphaVantageFormat = {
+      '05. price': result.data.price.toString(),
+      '09. change': result.data.change.toString(),
+      '10. change percent': `${result.data.changePercent.toFixed(4)}%`,
+      '06. volume': result.data.volume?.toString() || '0'
+    };
+    
+    return {
+      data: alphaVantageFormat,
+      isRateLimited: false,
+      provider: result.provider
+    };
+  }
+  
+  return {
+    data: null,
+    isRateLimited: result.isRateLimited,
+    rateLimitMessage: result.rateLimitMessage,
+    provider: result.provider
+  };
 }
 
 async function fetchSectorPerformance(apiKey: string): Promise<SectorData[]> {
@@ -510,38 +481,69 @@ Deno.serve(async (req) => {
 
     console.log('Fetching market overview data...');
 
+    // Initialize multi-provider manager
+    const stockDataManager = createMultiProviderManager(alphaVantageApiKey);
+    console.log('🔧 Multi-provider manager initialized with providers:', 
+                stockDataManager.getProviderStatus().map(p => `${p.name}(${p.available ? 'available' : 'unavailable'})`));
+
     // Fetch market indices data and Fear & Greed Index in parallel
     const [sp500Result, nasdaqResult, dowResult, sectorsData, vixData, realFearGreedResult] = await Promise.allSettled([
-      fetchAlphaVantageQuote('SPY', alphaVantageApiKey), // S&P 500 ETF
-      fetchAlphaVantageQuote('QQQ', alphaVantageApiKey), // NASDAQ ETF
-      fetchAlphaVantageQuote('DIA', alphaVantageApiKey), // Dow Jones ETF
+      fetchMultiProviderQuote('SPY', stockDataManager), // S&P 500 ETF with multi-provider
+      fetchMultiProviderQuote('QQQ', stockDataManager), // NASDAQ ETF with multi-provider
+      fetchMultiProviderQuote('DIA', stockDataManager), // Dow Jones ETF with multi-provider
       fetchSectorPerformance(alphaVantageApiKey),
       fetchVIXData(alphaVantageApiKey),
       fetchRealFearGreedIndex() // Real Fear & Greed Index from Alternative.me
     ]);
 
-    // Check for rate limiting
+    // Check for rate limiting from multi-provider results
     let rateLimitInfo: {
       isLimited: boolean;
       message?: string;
       resetTime?: string;
       availableTomorrow?: boolean;
+      providers?: string[];
     } | undefined = undefined;
+    
     const checkRateLimit = (result: PromiseSettledResult<any>) => {
       if (result.status === 'fulfilled' && result.value?.isRateLimited) {
         return {
           isLimited: true,
           message: result.value.rateLimitMessage,
           resetTime: 'Tomorrow (UTC)',
-          availableTomorrow: true
+          availableTomorrow: true,
+          provider: result.value.provider
         };
       }
       return undefined;
     };
 
-    rateLimitInfo = checkRateLimit(sp500Result) || 
-                   checkRateLimit(nasdaqResult) || 
-                   checkRateLimit(dowResult);
+    const sp500RateLimit = checkRateLimit(sp500Result);
+    const nasdaqRateLimit = checkRateLimit(nasdaqResult);
+    const dowRateLimit = checkRateLimit(dowResult);
+    
+    // Only set rate limit if ALL providers are exhausted
+    const allProvidersExhausted = sp500RateLimit && nasdaqRateLimit && dowRateLimit;
+    
+    if (allProvidersExhausted) {
+      rateLimitInfo = {
+        isLimited: true,
+        message: 'All stock data providers have reached their rate limits.',
+        resetTime: 'Tomorrow (UTC)',
+        availableTomorrow: true,
+        providers: [sp500RateLimit.provider, nasdaqRateLimit.provider, dowRateLimit.provider]
+      };
+    }
+    
+    // Log provider usage
+    const providers = [sp500Result, nasdaqResult, dowResult]
+      .map((result, index) => {
+        const symbols = ['SPY', 'QQQ', 'DIA'];
+        return result.status === 'fulfilled' && result.value?.provider 
+          ? `${symbols[index]}:${result.value.provider}` 
+          : `${symbols[index]}:failed`;
+      });
+    console.log('📊 Provider usage:', providers.join(', '));
 
     // Extract index data
     const indices = {
@@ -590,7 +592,7 @@ Deno.serve(async (req) => {
       },
       marketSentiment: calculateMarketSentiment([indices.sp500, indices.nasdaq, indices.dow]),
       volatilityIndex: vix?.value || 20,
-      source: rateLimitInfo ? 'rate_limited' : (realFearGreed ? 'alpha_vantage_with_real_fgi' : 'alpha_vantage'),
+      source: rateLimitInfo ? 'rate_limited' : (realFearGreed ? 'multi_provider_with_real_fgi' : 'multi_provider'),
       lastUpdated: new Date().toISOString(),
       alphaVantageRateLimit: rateLimitInfo
     };
