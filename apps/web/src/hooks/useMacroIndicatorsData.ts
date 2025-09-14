@@ -1,6 +1,6 @@
 import useSWR from 'swr';
 import { MarketOverviewData, ApiResponse } from '@/types/api';
-import { edgeFunctionFetcher, logEnvironmentStatus } from '@/lib/api-utils';
+import { edgeFunctionFetcher } from '@/lib/api-utils';
 
 // Check if market is open (simplified - US Eastern time)
 const checkMarketHours = (): boolean => {
@@ -14,34 +14,11 @@ const checkMarketHours = (): boolean => {
 };
 
 const fetcher = async (): Promise<MarketOverviewData> => {
-  console.log('📊 MacroIndicators Fetcher Starting: market-overview');
-  
-  // Log environment status for debugging
-  logEnvironmentStatus();
-  
   try {
     const result: ApiResponse<MarketOverviewData> = await edgeFunctionFetcher('market-overview');
-    
-    console.group('📊 MacroIndicators Data Analysis');
-    console.log('✅ Response received successfully');
-    console.log('📦 Has Data:', !!result.data);
-    console.log('🏷️ Data Source:', result.data?.source);
-    console.log('📈 Indices Count:', Object.keys(result.data?.indices || {}).length);
-    console.log('🏭 Sectors Count:', result.data?.sectors?.length || 0);
-    console.log('💰 S&P 500 Value:', result.data?.indices?.sp500?.value);
-    console.log('⏰ API Timestamp:', result.timestamp);
-    
-    if (result.data?.source === 'mock_data') {
-      console.warn('⚠️ Still receiving mock data from backend');
-      console.warn('🔧 Check Supabase Edge Functions Alpha Vantage API key configuration');
-    } else if (result.data?.source === 'alpha_vantage') {
-      console.log('✅ Real Alpha Vantage data confirmed!');
-    }
-    
-    console.groupEnd();
     return result.data;
   } catch (error) {
-    console.error('❌ MacroIndicators Fetcher Error:', error);
+    console.error('MacroIndicators Fetcher Error:', error);
     throw error;
   }
 };

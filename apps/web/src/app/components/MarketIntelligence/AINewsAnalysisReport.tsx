@@ -2,7 +2,7 @@
 
 import React from 'react';
 import useSWR from 'swr';
-import { debugFetch } from '@/lib/api-utils';
+import { apiFetch } from '@/lib/api-utils';
 
 interface NewsItem {
   id: string;
@@ -42,7 +42,7 @@ interface AINewsAnalysisReportProps {
 
 const fetcher = async (url: string) => {
   console.log('📰 News Analysis Fetcher Starting:', url);
-  const response = await debugFetch(url);
+  const response = await apiFetch(url);
   const data = await response.json();
   console.log('📰 News Analysis Data:', data);
   return data;

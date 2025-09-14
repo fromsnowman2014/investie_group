@@ -2,7 +2,7 @@
 
 import React, { ReactNode } from 'react'
 import { SWRConfig } from 'swr'
-import { debugFetch } from '@/lib/api-utils'
+import { apiFetch } from '@/lib/api-utils'
 import { useNotifications } from './UIContext'
 
 interface SWRConfigProviderProps {
@@ -16,7 +16,7 @@ export function SWRConfigProvider({ children }: SWRConfigProviderProps) {
     // Global fetcher with error handling
     fetcher: async (url: string) => {
       try {
-        const response = await debugFetch(url)
+        const response = await apiFetch(url)
         const data = await response.json()
         return data
       } catch (error) {
