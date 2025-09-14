@@ -214,6 +214,52 @@ async function fetchFREDData(seriesId: string, apiKey: string): Promise<Economic
   }
 }
 
+async function fetchRealFearGreedIndex(): Promise<{ value: number; status: string; confidence: number } | null> {
+  try {
+    console.log('🎯 Fetching real Fear & Greed Index from Alternative.me API...');
+    const response = await fetch('https://api.alternative.me/fng/?limit=1', {
+      method: 'GET',
+      signal: AbortSignal.timeout(10000)
+    });
+
+    if (!response.ok) {
+      console.warn(`Alternative.me API error: ${response.status}`);
+      return null;
+    }
+
+    const data = await response.json();
+    console.log('📊 Raw Fear & Greed data:', JSON.stringify(data));
+    
+    if (data.metadata?.error || !data.data?.[0]) {
+      console.warn('No Fear & Greed Index data available from Alternative.me');
+      return null;
+    }
+
+    const fgiData = data.data[0];
+    const value = parseInt(fgiData.value) || 50;
+    let status: string;
+
+    // Map the classification to our status format
+    const classification = fgiData.value_classification?.toLowerCase();
+    if (value >= 75) status = 'extreme_greed';
+    else if (value >= 55) status = 'greed';
+    else if (value >= 45) status = 'neutral';
+    else if (value >= 25) status = 'fear';
+    else status = 'extreme_fear';
+
+    console.log(`✅ Real Fear & Greed Index: ${value} (${status})`);
+    
+    return {
+      value,
+      status,
+      confidence: 90 // High confidence for real API data
+    };
+  } catch (error) {
+    console.error('Error fetching real Fear & Greed Index:', error.message);
+    return null;
+  }
+}
+
 async function fetchVIXData(apiKey: string): Promise<{ value: number; status: string; interpretation: string } | null> {
   try {
     const vixData = await fetchAlphaVantageQuote('VIX', apiKey);
@@ -451,13 +497,14 @@ Deno.serve(async (req) => {
 
     console.log('Fetching market overview data...');
 
-    // Fetch market indices data in parallel
-    const [sp500Result, nasdaqResult, dowResult, sectorsData, vixData] = await Promise.allSettled([
+    // Fetch market indices data and Fear & Greed Index in parallel
+    const [sp500Result, nasdaqResult, dowResult, sectorsData, vixData, realFearGreedResult] = await Promise.allSettled([
       fetchAlphaVantageQuote('SPY', alphaVantageApiKey), // S&P 500 ETF
       fetchAlphaVantageQuote('QQQ', alphaVantageApiKey), // NASDAQ ETF
       fetchAlphaVantageQuote('DIA', alphaVantageApiKey), // Dow Jones ETF
       fetchSectorPerformance(alphaVantageApiKey),
-      fetchVIXData(alphaVantageApiKey)
+      fetchVIXData(alphaVantageApiKey),
+      fetchRealFearGreedIndex() // Real Fear & Greed Index from Alternative.me
     ]);
 
     // Check for rate limiting
@@ -492,6 +539,7 @@ Deno.serve(async (req) => {
 
     const sectors = sectorsData.status === 'fulfilled' ? sectorsData.value : getMockSectorData();
     const vix = vixData.status === 'fulfilled' ? vixData.value : null;
+    const realFearGreed = realFearGreedResult.status === 'fulfilled' ? realFearGreedResult.value : null;
 
     // Fetch economic indicators if FRED API key is available
     let economicIndicators;
@@ -510,8 +558,8 @@ Deno.serve(async (req) => {
       };
     }
 
-    // Calculate Fear & Greed Index
-    const fearGreedIndex = calculateFearGreedIndex(
+    // Use real Fear & Greed Index if available, otherwise calculate fallback
+    const fearGreedIndex = realFearGreed || calculateFearGreedIndex(
       indices.sp500.changePercent,
       vix?.value || 20,
       50 // Default volume metric
@@ -529,12 +577,14 @@ Deno.serve(async (req) => {
       },
       marketSentiment: calculateMarketSentiment([indices.sp500, indices.nasdaq, indices.dow]),
       volatilityIndex: vix?.value || 20,
-      source: rateLimitInfo ? 'rate_limited' : 'alpha_vantage',
+      source: rateLimitInfo ? 'rate_limited' : (realFearGreed ? 'alpha_vantage_with_real_fgi' : 'alpha_vantage'),
       lastUpdated: new Date().toISOString(),
       alphaVantageRateLimit: rateLimitInfo
     };
 
     console.log(`Market overview generated successfully`);
+    console.log(`Fear & Greed Index source: ${realFearGreed ? 'Alternative.me API' : 'Calculated fallback'}`);
+    console.log(`Fear & Greed Index value: ${fearGreedIndex.value} (${fearGreedIndex.status})`);
     
     return new Response(JSON.stringify(marketOverview), {
       headers: {
