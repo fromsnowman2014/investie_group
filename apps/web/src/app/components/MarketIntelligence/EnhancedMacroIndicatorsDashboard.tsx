@@ -257,7 +257,7 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
         {/* S&P 500 */}
         <div className={`indicator-row ${data.alphaVantageRateLimit?.isLimited ? 'rate-limited' : ''}`}>
           <span className="indicator-label">
-            S&P 500 <span className="symbol-text">SPY</span>
+            S&P 500 Index
             {data.alphaVantageRateLimit?.isLimited && (
               <span className="limited-badge">Limited</span>
             )}
@@ -267,7 +267,7 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
               <span className="unavailable-text">Temporarily Unavailable</span>
             ) : (
               <>
-                <span className="price-text">${data.sp500Sparkline?.currentPrice ? data.sp500Sparkline.currentPrice.toFixed(2) : '647.24'}</span>
+                <span className="price-text">{data.sp500Sparkline?.currentPrice ? data.sp500Sparkline.currentPrice.toFixed(2) : '6574.10'}</span>
                 <span className={`change-badge ${(data.sp500Sparkline?.weeklyChange ?? 1.09) >= 0 ? 'positive' : 'negative'}`}>
                   {(data.sp500Sparkline?.weeklyChange ?? 1.09) >= 0 ? '+' : ''}{(data.sp500Sparkline?.weeklyChange ?? 1.09).toFixed(2)}%
                 </span>
