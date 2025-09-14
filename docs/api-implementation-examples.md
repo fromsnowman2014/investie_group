@@ -315,7 +315,7 @@ const getRefreshInterval = () => {
 // api-utils.ts에서 환경 변수 우선순위 처리
 export function getApiBaseUrl(): string {
   const supabaseFunctionsUrl = process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL;
-  const functionsUrl = supabaseFunctionsUrl || 'https://fwnmnjwtbggasmunsfyk.supabase.co/functions/v1';
+  const functionsUrl = supabaseFunctionsUrl || 'https://your-project.supabase.co/functions/v1';
   
   console.log('🔧 Final Supabase Functions URL:', functionsUrl);
   
