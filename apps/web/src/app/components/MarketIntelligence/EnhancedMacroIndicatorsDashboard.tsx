@@ -31,6 +31,14 @@ interface EnhancedMarketSummary {
   } | null;
   
   lastUpdated: string;
+  
+  // API Rate Limit Information
+  alphaVantageRateLimit?: {
+    isLimited: boolean;
+    message?: string;
+    resetTime?: string;
+    availableTomorrow?: boolean;
+  };
 }
 
 
@@ -79,7 +87,14 @@ const fetcher = async (): Promise<EnhancedMarketSummary> => {
         weeklyChange: Number(((responseObj.indices as Record<string, unknown>).sp500 as Record<string, unknown>).changePercent) || 0
       } : null,
       
-      lastUpdated: (responseObj.lastUpdated as string) || new Date().toISOString()
+      lastUpdated: (responseObj.lastUpdated as string) || new Date().toISOString(),
+      
+      alphaVantageRateLimit: responseObj.alphaVantageRateLimit as {
+        isLimited: boolean;
+        message?: string;
+        resetTime?: string;
+        availableTomorrow?: boolean;
+      } | undefined
     };
     
     console.log('🔄 Transformed Data:', transformedData);
@@ -206,6 +221,28 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
 
   return (
     <div className="enhanced-macro-dashboard">
+      {/* API Rate Limit Warning */}
+      {data.alphaVantageRateLimit?.isLimited && (
+        <div className="rate-limit-warning">
+          <div className="warning-header">
+            <span className="warning-icon">ℹ️</span>
+            <span className="warning-title">주식 데이터 일시 제한</span>
+          </div>
+          <div className="warning-content">
+            <p>오늘 주식 시장 데이터 조회 한도에 도달했습니다.</p>
+            <p className="warning-detail">
+              📊 <strong>여전히 이용 가능:</strong> 금리, 인플레이션, 고용률 등 경제 지표
+            </p>
+            <p className="warning-reset">
+              🕒 <strong>주식 데이터 복구:</strong> {data.alphaVantageRateLimit.resetTime || '내일 오전'}
+            </p>
+            {data.alphaVantageRateLimit.availableTomorrow && (
+              <p className="warning-retry">내일 다시 방문하시면 실시간 주식 데이터를 확인하실 수 있습니다.</p>
+            )}
+          </div>
+        </div>
+      )}
+      
       <div className="dashboard-grid-compact">
         {/* Fear & Greed Index */}
         <div className="indicator-row">
@@ -218,13 +255,24 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
         </div>
         
         {/* S&P 500 */}
-        <div className="indicator-row">
-          <span className="indicator-label">S&P 500 <span className="symbol-text">SPY</span></span>
+        <div className={`indicator-row ${data.alphaVantageRateLimit?.isLimited ? 'rate-limited' : ''}`}>
+          <span className="indicator-label">
+            S&P 500 <span className="symbol-text">SPY</span>
+            {data.alphaVantageRateLimit?.isLimited && (
+              <span className="limited-badge">제한됨</span>
+            )}
+          </span>
           <span className="indicator-value">
-            <span className="price-text">${data.sp500Sparkline?.currentPrice ? data.sp500Sparkline.currentPrice.toFixed(2) : '647.24'}</span>
-            <span className={`change-badge ${(data.sp500Sparkline?.weeklyChange ?? 1.09) >= 0 ? 'positive' : 'negative'}`}>
-              {(data.sp500Sparkline?.weeklyChange ?? 1.09) >= 0 ? '+' : ''}{(data.sp500Sparkline?.weeklyChange ?? 1.09).toFixed(2)}%
-            </span>
+            {data.alphaVantageRateLimit?.isLimited ? (
+              <span className="unavailable-text">일시 사용불가</span>
+            ) : (
+              <>
+                <span className="price-text">${data.sp500Sparkline?.currentPrice ? data.sp500Sparkline.currentPrice.toFixed(2) : '647.24'}</span>
+                <span className={`change-badge ${(data.sp500Sparkline?.weeklyChange ?? 1.09) >= 0 ? 'positive' : 'negative'}`}>
+                  {(data.sp500Sparkline?.weeklyChange ?? 1.09) >= 0 ? '+' : ''}{(data.sp500Sparkline?.weeklyChange ?? 1.09).toFixed(2)}%
+                </span>
+              </>
+            )}
           </span>
         </div>
 
@@ -305,6 +353,88 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
 
         .error-icon {
           font-size: 16px;
+        }
+
+        /* Rate Limit Warning Styles */
+        .rate-limit-warning {
+          background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+          border: 1px solid #f59e0b;
+          border-radius: 12px;
+          padding: 16px;
+          margin-bottom: 16px;
+          box-shadow: 0 2px 4px rgba(245, 158, 11, 0.1);
+        }
+        
+        .warning-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 12px;
+        }
+        
+        .warning-icon {
+          font-size: 18px;
+        }
+        
+        .warning-title {
+          font-weight: 600;
+          font-size: 16px;
+          color: #92400e;
+        }
+        
+        .warning-content p {
+          margin: 8px 0;
+          font-size: 14px;
+          color: #78350f;
+          line-height: 1.5;
+        }
+        
+        .warning-content p:first-child {
+          margin-top: 0;
+          font-size: 15px;
+          font-weight: 500;
+        }
+        
+        .warning-content p:last-child {
+          margin-bottom: 0;
+        }
+        
+        .warning-detail {
+          background: rgba(245, 158, 11, 0.1);
+          padding: 8px 12px;
+          border-radius: 8px;
+          border-left: 3px solid #f59e0b;
+        }
+        
+        .warning-reset {
+          font-weight: 500;
+        }
+        
+        .warning-retry {
+          font-style: italic;
+          opacity: 0.9;
+        }
+        
+        /* Rate Limited Indicator Styles */
+        .indicator-row.rate-limited {
+          opacity: 0.6;
+          position: relative;
+        }
+        
+        .limited-badge {
+          background: #fecaca;
+          color: #991b1b;
+          font-size: 10px;
+          padding: 2px 6px;
+          border-radius: 12px;
+          font-weight: 500;
+          margin-left: 8px;
+        }
+        
+        .unavailable-text {
+          color: #94a3b8;
+          font-style: italic;
+          font-size: 13px;
         }
 
         .error-message {
