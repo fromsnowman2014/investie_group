@@ -545,14 +545,14 @@ Deno.serve(async (req) => {
     let economicIndicators;
     if (fredApiKey) {
       console.log('Fetching economic indicators from FRED...');
-      const [interestRateData, cpiData, unemploymentData] = await Promise.allSettled([
-        fetchFREDData('FEDFUNDS', fredApiKey), // Federal Funds Rate
+      const [treasuryRateData, cpiData, unemploymentData] = await Promise.allSettled([
+        fetchFREDData('DGS10', fredApiKey), // 10-Year Treasury Rate (Fixed!)
         fetchFREDData('CPIAUCSL', fredApiKey), // Consumer Price Index
         fetchFREDData('UNRATE', fredApiKey)    // Unemployment Rate
       ]);
 
       economicIndicators = {
-        interestRate: interestRateData.status === 'fulfilled' ? interestRateData.value : undefined,
+        interestRate: treasuryRateData.status === 'fulfilled' ? treasuryRateData.value : undefined,
         cpi: cpiData.status === 'fulfilled' ? cpiData.value : undefined,
         unemployment: unemploymentData.status === 'fulfilled' ? unemploymentData.value : undefined
       };
