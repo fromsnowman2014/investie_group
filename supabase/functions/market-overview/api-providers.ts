@@ -81,8 +81,21 @@ export class YahooFinanceProvider implements ApiProvider {
 
   async fetchQuote(symbol: string): Promise<StockQuoteData | null> {
     try {
+      // For S&P 500 index requests, use ^GSPC directly instead of SPY
+      let actualSymbol = symbol;
+      if (symbol === 'SPY') {
+        actualSymbol = '^GSPC'; // S&P 500 Index
+        console.log(`🔄 Converting SPY request to ^GSPC for direct S&P 500 index data`);
+      } else if (symbol === 'QQQ') {
+        actualSymbol = '^IXIC'; // NASDAQ Composite
+        console.log(`🔄 Converting QQQ request to ^IXIC for direct NASDAQ index data`);
+      } else if (symbol === 'DIA') {
+        actualSymbol = '^DJI'; // Dow Jones Industrial Average
+        console.log(`🔄 Converting DIA request to ^DJI for direct Dow index data`);
+      }
+
       // Yahoo Finance v8 API endpoint (unofficial but working)
-      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`;
+      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${actualSymbol}`;
       const response = await fetch(url, { 
         signal: AbortSignal.timeout(10000),
         headers: {
@@ -103,8 +116,10 @@ export class YahooFinanceProvider implements ApiProvider {
       const change = currentPrice - previousClose;
       const changePercent = previousClose ? (change / previousClose) * 100 : 0;
       
+      console.log(`✅ ${this.name}: Got direct index data for ${actualSymbol} = ${currentPrice}`);
+      
       return {
-        symbol,
+        symbol: actualSymbol, // Return the actual symbol we fetched
         price: currentPrice,
         change,
         changePercent,

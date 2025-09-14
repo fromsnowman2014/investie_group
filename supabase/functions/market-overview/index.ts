@@ -546,11 +546,31 @@ Deno.serve(async (req) => {
     console.log('📊 Provider usage:', providers.join(', '));
 
     // Extract index data
-    const indices = {
-      sp500: extractIndexData(sp500Result.status === 'fulfilled' ? sp500Result.value?.data : null, true), // SPY is ETF, needs conversion
-      nasdaq: extractIndexData(nasdaqResult.status === 'fulfilled' ? nasdaqResult.value?.data : null, true), // QQQ is ETF, needs conversion  
-      dow: extractIndexData(dowResult.status === 'fulfilled' ? dowResult.value?.data : null, true), // DIA is ETF, needs conversion
+    // Check if we got direct index data (no conversion needed) or ETF data (needs conversion)
+    const isDirectIndexData = (result: any) => {
+      return result?.provider === 'yahoo_finance'; // Yahoo Finance provides direct index data
     };
+    
+    const indices = {
+      sp500: extractIndexData(
+        sp500Result.status === 'fulfilled' ? sp500Result.value?.data : null, 
+        !isDirectIndexData(sp500Result.status === 'fulfilled' ? sp500Result.value : null)
+      ),
+      nasdaq: extractIndexData(
+        nasdaqResult.status === 'fulfilled' ? nasdaqResult.value?.data : null, 
+        !isDirectIndexData(nasdaqResult.status === 'fulfilled' ? nasdaqResult.value : null)
+      ), 
+      dow: extractIndexData(
+        dowResult.status === 'fulfilled' ? dowResult.value?.data : null, 
+        !isDirectIndexData(dowResult.status === 'fulfilled' ? dowResult.value : null)
+      ),
+    };
+    
+    console.log('📊 Index data sources:', {
+      sp500: isDirectIndexData(sp500Result.status === 'fulfilled' ? sp500Result.value : null) ? 'Direct Index' : 'ETF x10',
+      nasdaq: isDirectIndexData(nasdaqResult.status === 'fulfilled' ? nasdaqResult.value : null) ? 'Direct Index' : 'ETF x10',
+      dow: isDirectIndexData(dowResult.status === 'fulfilled' ? dowResult.value : null) ? 'Direct Index' : 'ETF x10'
+    });
 
     const sectors = sectorsData.status === 'fulfilled' ? sectorsData.value : getMockSectorData();
     const vix = vixData.status === 'fulfilled' ? vixData.value : null;
