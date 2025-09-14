@@ -337,15 +337,28 @@ function calculateFearGreedIndex(sp500Change: number, vixValue: number, volumeMe
   };
 }
 
-function extractIndexData(apiData: any): IndexData {
+function extractIndexData(apiData: any, isETF: boolean = false): IndexData {
   if (!apiData) {
     return { value: 0, change: 0, changePercent: 0 };
   }
 
+  let value = parseFloat(apiData['05. price']) || 0;
+  let change = parseFloat(apiData['09. change']) || 0;
+  let changePercent = parseFloat(apiData['10. change percent']?.replace('%', '')) || 0;
+
+  // Convert SPY ETF price to approximate S&P 500 index value
+  if (isETF) {
+    console.log(`🔄 Converting ETF price ${value} to index value`);
+    value = value * 10; // SPY trades at ~1/10th of S&P 500 index
+    change = change * 10;
+    // changePercent remains the same as it's already a percentage
+    console.log(`✅ Converted index value: ${value}`);
+  }
+
   return {
-    value: parseFloat(apiData['05. price']) || 0,
-    change: parseFloat(apiData['09. change']) || 0,
-    changePercent: parseFloat(apiData['10. change percent']?.replace('%', '')) || 0,
+    value,
+    change,
+    changePercent,
   };
 }
 
@@ -532,9 +545,9 @@ Deno.serve(async (req) => {
 
     // Extract index data
     const indices = {
-      sp500: extractIndexData(sp500Result.status === 'fulfilled' ? sp500Result.value?.data : null),
-      nasdaq: extractIndexData(nasdaqResult.status === 'fulfilled' ? nasdaqResult.value?.data : null),
-      dow: extractIndexData(dowResult.status === 'fulfilled' ? dowResult.value?.data : null),
+      sp500: extractIndexData(sp500Result.status === 'fulfilled' ? sp500Result.value?.data : null, true), // SPY is ETF, needs conversion
+      nasdaq: extractIndexData(nasdaqResult.status === 'fulfilled' ? nasdaqResult.value?.data : null, true), // QQQ is ETF, needs conversion  
+      dow: extractIndexData(dowResult.status === 'fulfilled' ? dowResult.value?.data : null, true), // DIA is ETF, needs conversion
     };
 
     const sectors = sectorsData.status === 'fulfilled' ? sectorsData.value : getMockSectorData();
