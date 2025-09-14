@@ -252,3 +252,38 @@ ETFs: SPY, QQQ, VTI
 - **API URLs**: Frontend automatically determines correct API base URL via environment variables
 
 When working with this codebase, always use the current Supabase Edge Functions architecture. The legacy NestJS backend is kept for reference but should not be extended. All new backend features should be implemented as Supabase Edge Functions.
+
+## API Key 사용 가이드 (엔지니어 참고)
+
+최근 main branch에 적용된 API key 시스템과 multi-provider 구조에 대한 상세 가이드:
+
+### 📚 참고 문서
+- **[API Key 사용 가이드](docs/api-key-usage-guide.md)**: 환경 설정, API 호출 방법, Rate Limit 처리
+- **[API 구현 예시](docs/api-implementation-examples.md)**: 실제 코드 예시와 모범 사례
+
+### 🔑 핵심 사용 패턴
+```typescript
+// edgeFunctionFetcher 사용 (권장)
+import { edgeFunctionFetcher } from '@/lib/api-utils';
+
+// 기본 호출
+const data = await edgeFunctionFetcher('market-overview');
+
+// SWR과 함께 사용
+const { data, error } = useSWR(
+  'market-overview',
+  () => edgeFunctionFetcher<MarketOverviewResponse>('market-overview')
+);
+```
+
+### 🚨 Rate Limit 처리
+- Alpha Vantage: 25 calls/day 제한 (자동 감지)
+- Yahoo Finance: 무제한 백업 API
+- Twelve Data: 데모 키 최종 백업
+- UI에서 Rate Limit 상태 자동 표시
+
+### ✅ 최근 개선사항 (main branch)
+- Multi-provider API 시스템으로 안정성 향상
+- S&P 500 정확도 개선 (직접 인덱스 데이터 사용)
+- Rate limit 자동 처리 및 사용자 안내
+- 프로덕션 환경에서 검증 완료
