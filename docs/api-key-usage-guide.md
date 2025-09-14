@@ -12,36 +12,57 @@
 
 ## 🔧 환경 설정
 
-### 1. 환경 변수 설정
+### ✅ 현재 프로덕션 환경 상태
 
+**이미 설정 완료된 환경 변수들**:
+- `NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL`: Vercel에 설정됨
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Vercel에 설정됨  
+- `ALPHA_VANTAGE_API_KEY`: Supabase Edge Functions에 설정됨
+- `FRED_API_KEY`: Supabase Edge Functions에 설정됨 (선택사항)
+
+### 💡 개발자가 알아야 할 점
+
+**추가 설정 불필요**: 모든 API 키와 환경 변수가 이미 프로덕션 서버에 설정되어 있습니다.
+
+**로컬 개발 시에만**: 필요한 경우 `.env.local` 파일 생성:
 ```bash
-# .env.local (개발 환경)
-NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL=https://your-project.supabase.co/functions/v1
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+# 로컬 테스트용 (선택사항)
+NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL=https://fwnmnjwtbggasmunsfyk.supabase.co/functions/v1
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-### 2. Supabase Edge Functions 환경 변수
+**자동 Fallback**: 환경 변수가 없어도 코드에서 자동으로 프로덕션 URL 사용
 
-Supabase Dashboard → Project Settings → Edge Functions:
-```bash
-ALPHA_VANTAGE_API_KEY=your-alpha-vantage-key
-FRED_API_KEY=your-fred-api-key (선택사항)
-```
+### 🖥️ 현재 서버 구성
 
-## 🚀 API 호출 방법
+**프로덕션 Supabase Functions URL**: 
+- `https://fwnmnjwtbggasmunsfyk.supabase.co/functions/v1`
+
+**사용 가능한 Edge Functions**:
+- `market-overview`: 시장 지수, 경제 지표, Fear & Greed Index
+- `stock-data`: 개별 주식 실시간 데이터
+- `ai-analysis`: AI 투자 분석 (개발 중)
+- `news-analysis`: 뉴스 분석 (개발 중)
+
+**Multi-Provider 시스템 동작**:
+1. Alpha Vantage API (25 calls/day) → 2. Yahoo Finance (무제한) → 3. Twelve Data (백업)
+
+## 🚀 API 사용법 (바로 사용 가능)
 
 ### 1. edgeFunctionFetcher 사용 (권장)
+
+모든 환경 설정이 완료되어 있어 **바로 사용 가능**합니다:
 
 ```typescript
 import { edgeFunctionFetcher } from '@/lib/api-utils';
 
-// 기본 사용법
-const data = await edgeFunctionFetcher('market-overview');
+// ✅ 시장 지수 + 경제 지표 (가장 많이 사용)
+const marketData = await edgeFunctionFetcher('market-overview');
 
-// 페이로드와 함께 사용
+// ✅ 개별 주식 데이터
 const stockData = await edgeFunctionFetcher('stock-data', { symbol: 'AAPL' });
 
-// 타입 지정
+// ✅ 타입 안전성을 위해 타입 지정 권장
 const data = await edgeFunctionFetcher<MarketOverviewResponse>('market-overview');
 ```
 
@@ -131,26 +152,31 @@ const analysis = await edgeFunctionFetcher('ai-analysis', { symbol: 'AAPL' });
 const news = await edgeFunctionFetcher('news-analysis', { symbol: 'AAPL' });
 ```
 
-## ⚠️ Rate Limit 처리
+## ⚠️ Rate Limit 자동 처리 (걱정 없음)
 
-### 1. 자동 Fallback 시스템
-- **Alpha Vantage** (우선순위 1): 25 calls/day 무료
-- **Yahoo Finance** (우선순위 2): 무제한 비공식 API
-- **Twelve Data** (우선순위 3): 데모 키 백업
+### ✅ 자동 Fallback 시스템 동작 중
 
-### 2. Rate Limit 감지 및 UI 표시
+**개발자가 신경 쓸 필요 없는 이유**:
+- Alpha Vantage 25회 제한 → 자동으로 Yahoo Finance 사용
+- Yahoo Finance 무제한 → 안정적인 백업 제공
+- 사용자에게 자동으로 상황 안내
+
+### 선택적: UI에 Rate Limit 상태 표시
+
+필요시에만 다음 패턴 사용:
 ```typescript
-// Rate limit 상태 확인
+// 선택적: Rate limit 상태 표시
 if (data.alphaVantageRateLimit?.isLimited) {
-  // 사용자에게 제한 상태 표시
   return (
     <div className="rate-limit-warning">
-      <p>일일 API 한도 도달. 내일 다시 이용 가능합니다.</p>
-      <p>현재는 대체 데이터 소스를 사용합니다.</p>
+      <p>📊 실시간 데이터는 대체 소스를 사용합니다</p>
+      <p>🕒 Alpha Vantage API는 내일 재설정됩니다</p>
     </div>
   );
 }
 ```
+
+**대부분의 경우**: Rate limit 처리가 백그라운드에서 자동 동작
 
 ## 🎯 실제 사용 예시
 
@@ -239,12 +265,18 @@ const { data } = useSWR(
 );
 ```
 
-## 🚨 주의사항
+## ✅ 개발자 체크리스트
 
-1. **환경 변수**: production에서 API 키가 올바르게 설정되었는지 확인
-2. **Rate Limit**: Alpha Vantage는 하루 25회 제한이 있음
-3. **타입 안정성**: edgeFunctionFetcher 사용 시 타입 지정 권장
-4. **에러 처리**: 네트워크 오류 및 API 제한에 대한 적절한 fallback 구현
+### 필수 사항 (꼭 해주세요)
+1. **타입 안전성**: `edgeFunctionFetcher<T>()` 타입 지정
+2. **에러 처리**: try-catch 블록으로 API 호출 감싸기
+3. **SWR 사용**: 데이터 캐싱과 자동 재시도를 위해 권장
+
+### 자동 처리됨 (신경 안 써도 됨)
+- ✅ **환경 변수**: 이미 프로덕션 서버에 설정 완료
+- ✅ **API 키**: Supabase와 Vercel에 안전하게 저장됨
+- ✅ **Rate Limit**: Multi-provider 시스템이 자동 처리
+- ✅ **Fallback URL**: 환경 변수 없어도 자동 설정
 
 ## 📚 참고 자료
 
