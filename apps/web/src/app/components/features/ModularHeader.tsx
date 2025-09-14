@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useStock } from '../StockProvider'
 import { StockSymbol } from '@/types/api'
-import { getAllStocks } from '@/lib/api'
+import { getAllStocks } from '@/lib/stock-data'
 import { Logo, StockDisplay } from '../ui'
 import { StockSelector, StockSearchBar } from './index'
 
@@ -24,10 +24,8 @@ export function ModularHeader() {
   useEffect(() => {
     // Load stock data for the dropdown and search
     getAllStocks().then(data => {
-      const formattedData = data.map(stock => ({
-        symbol: stock.symbol,
-        name: stock.name
-      }))
+      // Data is already in the correct format
+      const formattedData = data
       setStockData(formattedData)
     }).catch(error => {
       // Fallback to symbol list

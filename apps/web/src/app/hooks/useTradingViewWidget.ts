@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useId } from 'react'
 
 // Removed unused interface TradingViewWidgetConfig
 
@@ -113,6 +113,7 @@ export function useTradingViewWidget({
   dependencies = []
 }: UseTradingViewWidgetOptions) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const uniqueId = useId()
 
   useEffect(() => {
     const container = containerRef.current;
@@ -132,12 +133,12 @@ export function useTradingViewWidget({
     // Add widget configuration
     script.innerHTML = JSON.stringify({
       ...widgetConfig,
-      container_id: container.id || `tradingview-${widgetType}-${Date.now()}`
+      container_id: container.id || `tradingview-${widgetType}-${uniqueId}`
     })
 
     // Assign unique ID if not present
     if (!container.id) {
-      container.id = `tradingview-${widgetType}-${Date.now()}`
+      container.id = `tradingview-${widgetType}-${uniqueId}`
     }
 
     container.appendChild(script)
@@ -148,7 +149,8 @@ export function useTradingViewWidget({
         container.innerHTML = ''
       }
     }
-  }, [widgetType, symbol, config, ...dependencies])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [widgetType, symbol, JSON.stringify(config), JSON.stringify(dependencies)])
 
   return containerRef
 }

@@ -1,6 +1,6 @@
 import useSWR from 'swr';
 import { MarketOverviewData, ApiResponse } from '@/types/api';
-import { debugFetch, logEnvironmentStatus } from '@/lib/api-utils';
+import { edgeFunctionFetcher, logEnvironmentStatus } from '@/lib/api-utils';
 
 // Check if market is open (simplified - US Eastern time)
 const checkMarketHours = (): boolean => {
@@ -13,15 +13,14 @@ const checkMarketHours = (): boolean => {
   return day >= 1 && day <= 5 && hour >= 9 && hour < 16;
 };
 
-const fetcher = async (url: string): Promise<MarketOverviewData> => {
-  console.log('📊 MacroIndicators Fetcher Starting:', url);
+const fetcher = async (): Promise<MarketOverviewData> => {
+  console.log('📊 MacroIndicators Fetcher Starting: market-overview');
   
   // Log environment status for debugging
   logEnvironmentStatus();
   
   try {
-    const response = await debugFetch(url);
-    const result: ApiResponse<MarketOverviewData> = await response.json();
+    const result: ApiResponse<MarketOverviewData> = await edgeFunctionFetcher('market-overview');
     
     console.group('📊 MacroIndicators Data Analysis');
     console.log('✅ Response received successfully');
@@ -34,7 +33,7 @@ const fetcher = async (url: string): Promise<MarketOverviewData> => {
     
     if (result.data?.source === 'mock_data') {
       console.warn('⚠️ Still receiving mock data from backend');
-      console.warn('🔧 Check Railway Alpha Vantage API key configuration');
+      console.warn('🔧 Check Supabase Edge Functions Alpha Vantage API key configuration');
     } else if (result.data?.source === 'alpha_vantage') {
       console.log('✅ Real Alpha Vantage data confirmed!');
     }
@@ -51,7 +50,7 @@ export const useMacroIndicatorsData = () => {
   const isMarketOpen = checkMarketHours();
   
   const { data, error, isLoading, mutate } = useSWR(
-    '/api/v1/market/overview',
+    'market-overview',
     fetcher,
     { 
       refreshInterval: isMarketOpen ? 300000 : 0, // 5 minutes when market is open, no refresh when closed

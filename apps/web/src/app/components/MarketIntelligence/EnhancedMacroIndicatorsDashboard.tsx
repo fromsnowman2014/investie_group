@@ -2,6 +2,7 @@
 
 import React from 'react';
 import useSWR from 'swr';
+import { edgeFunctionFetcher } from '@/lib/api-utils';
 
 interface EnhancedMarketSummary {
   fearGreedIndex: {
@@ -30,34 +31,82 @@ interface EnhancedMarketSummary {
   } | null;
   
   lastUpdated: string;
+  
+  // API Rate Limit Information
+  alphaVantageRateLimit?: {
+    isLimited: boolean;
+    message?: string;
+    resetTime?: string;
+    availableTomorrow?: boolean;
+  };
 }
 
 
-const fetcher = async (url: string): Promise<EnhancedMarketSummary> => {
-  if (!url || url === 'undefined/api/v1/market/enhanced-summary') {
-    throw new Error('Invalid API URL: NEXT_PUBLIC_API_URL environment variable not set');
+const fetcher = async (): Promise<EnhancedMarketSummary> => {
+  const apiResponse = await edgeFunctionFetcher<unknown>('market-overview');
+  
+  console.log('🔍 Raw API Response:', apiResponse);
+  
+  // The API returns data directly, not wrapped in success/data structure
+  const responseObj = apiResponse as Record<string, unknown>;
+  
+  // Check if this is wrapped response (legacy format)
+  if (responseObj.success && responseObj.data) {
+    console.log('✅ Using wrapped response format');
+    return responseObj.data as EnhancedMarketSummary;
   }
   
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+  // Check if this is direct response format (current production format)
+  if (responseObj.economicIndicators || responseObj.indices || responseObj.fearGreedIndex) {
+    console.log('✅ Using direct response format');
+    
+    // Transform the API response to match our expected interface
+    const transformedData: EnhancedMarketSummary = {
+      fearGreedIndex: responseObj.fearGreedIndex ? {
+        value: Number((responseObj.fearGreedIndex as Record<string, unknown>).value) || 50,
+        status: ((responseObj.fearGreedIndex as Record<string, unknown>).status as 'extreme-fear' | 'fear' | 'neutral' | 'greed' | 'extreme-greed') || 'neutral'
+      } : null,
+      
+      economicIndicators: responseObj.economicIndicators ? {
+        interestRate: (responseObj.economicIndicators as Record<string, unknown>).interestRate ? {
+          value: Number(((responseObj.economicIndicators as Record<string, unknown>).interestRate as Record<string, unknown>).value) || 0,
+          change: Number(((responseObj.economicIndicators as Record<string, unknown>).interestRate as Record<string, unknown>).change) || 0
+        } : null,
+        cpi: (responseObj.economicIndicators as Record<string, unknown>).cpi ? {
+          value: Number(((responseObj.economicIndicators as Record<string, unknown>).cpi as Record<string, unknown>).value) || 0,
+          monthOverMonth: Number(((responseObj.economicIndicators as Record<string, unknown>).cpi as Record<string, unknown>).percentChange) || 0,
+          yearOverYear: Number(((responseObj.economicIndicators as Record<string, unknown>).cpi as Record<string, unknown>).percentChange) || 0
+        } : null,
+        unemployment: (responseObj.economicIndicators as Record<string, unknown>).unemployment ? {
+          value: Number(((responseObj.economicIndicators as Record<string, unknown>).unemployment as Record<string, unknown>).value) || 0
+        } : null
+      } : null,
+      
+      sp500Sparkline: (responseObj.indices as Record<string, unknown>)?.sp500 ? {
+        currentPrice: Number(((responseObj.indices as Record<string, unknown>).sp500 as Record<string, unknown>).value) || 0,
+        weeklyChange: Number(((responseObj.indices as Record<string, unknown>).sp500 as Record<string, unknown>).changePercent) || 0
+      } : null,
+      
+      lastUpdated: (responseObj.lastUpdated as string) || new Date().toISOString(),
+      
+      alphaVantageRateLimit: responseObj.alphaVantageRateLimit as {
+        isLimited: boolean;
+        message?: string;
+        resetTime?: string;
+        availableTomorrow?: boolean;
+      } | undefined
+    };
+    
+    console.log('🔄 Transformed Data:', transformedData);
+    return transformedData;
   }
   
-  const apiResponse = await response.json();
-  
-  
-  // Extract the actual market data from the API response wrapper
-  if (apiResponse.success && apiResponse.data) {
-    return apiResponse.data;
-  }
-  
-  throw new Error('Invalid API response structure: missing success or data field');
+  console.error('❌ Unexpected API response structure:', responseObj);
+  throw new Error('Invalid API response structure: missing expected fields');
 };
 
 const EnhancedMacroIndicatorsDashboard: React.FC = () => {
-  // Check if API URL is properly configured
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  const fullApiUrl = apiUrl ? `${apiUrl}/api/v1/market/enhanced-summary` : null;
+
 
   // Simplified refresh interval
   const getRefreshInterval = () => {
@@ -75,7 +124,7 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
   };
   
   const { data, error, isLoading } = useSWR<EnhancedMarketSummary>(
-    fullApiUrl, // This will be null if API URL is not configured, preventing the request
+    'market-overview',
     fetcher,
     {
       refreshInterval: getRefreshInterval(),
@@ -87,20 +136,17 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
     }
   );
 
-  // Configuration error state
-  if (!apiUrl) {
-    return (
-      <div className="enhanced-macro-dashboard error">
-        <div className="error-message">
-          <div className="error-indicator">
-            <span className="error-icon">⚠️</span>
-            <span>Configuration Error</span>
-          </div>
-          <p>API URL not configured. Please set NEXT_PUBLIC_API_URL environment variable.</p>
-        </div>
-      </div>
-    );
-  }
+  // Note: API URL configuration error handling removed as we now auto-detect the URL
+
+  // Debug logging
+  console.group('🔍 Enhanced Macro Indicators Debug');
+  console.log('Environment Variables:', {
+    NODE_ENV: process.env.NODE_ENV,
+    NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL: process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'SET' : 'MISSING'
+  });
+  console.log('SWR State:', { isLoading, error: error?.message, hasData: !!data });
+  console.groupEnd();
 
   // Loading state
   if (isLoading || !data) {
@@ -175,6 +221,28 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
 
   return (
     <div className="enhanced-macro-dashboard">
+      {/* API Rate Limit Warning */}
+      {data.alphaVantageRateLimit?.isLimited && (
+        <div className="rate-limit-warning">
+          <div className="warning-header">
+            <span className="warning-icon">ℹ️</span>
+            <span className="warning-title">Stock Data Temporarily Limited</span>
+          </div>
+          <div className="warning-content">
+            <p>Daily stock market data query limit has been reached.</p>
+            <p className="warning-detail">
+              📊 <strong>Still Available:</strong> Interest rates, inflation, unemployment and other economic indicators
+            </p>
+            <p className="warning-reset">
+              🕒 <strong>Stock Data Reset:</strong> {data.alphaVantageRateLimit.resetTime || 'Tomorrow morning'}
+            </p>
+            {data.alphaVantageRateLimit.availableTomorrow && (
+              <p className="warning-retry">Visit again tomorrow to access real-time stock market data.</p>
+            )}
+          </div>
+        </div>
+      )}
+      
       <div className="dashboard-grid-compact">
         {/* Fear & Greed Index */}
         <div className="indicator-row">
@@ -187,13 +255,24 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
         </div>
         
         {/* S&P 500 */}
-        <div className="indicator-row">
-          <span className="indicator-label">S&P 500 <span className="symbol-text">SPY</span></span>
+        <div className={`indicator-row ${data.alphaVantageRateLimit?.isLimited ? 'rate-limited' : ''}`}>
+          <span className="indicator-label">
+            S&P 500 Index
+            {data.alphaVantageRateLimit?.isLimited && (
+              <span className="limited-badge">Limited</span>
+            )}
+          </span>
           <span className="indicator-value">
-            <span className="price-text">${data.sp500Sparkline?.currentPrice?.toFixed(2) || '647.24'}</span>
-            <span className={`change-badge ${(data.sp500Sparkline?.weeklyChange ?? 1.09) >= 0 ? 'positive' : 'negative'}`}>
-              {(data.sp500Sparkline?.weeklyChange ?? 1.09) >= 0 ? '+' : ''}{(data.sp500Sparkline?.weeklyChange ?? 1.09).toFixed(2)}%
-            </span>
+            {data.alphaVantageRateLimit?.isLimited ? (
+              <span className="unavailable-text">Temporarily Unavailable</span>
+            ) : (
+              <>
+                <span className="price-text">{data.sp500Sparkline?.currentPrice ? data.sp500Sparkline.currentPrice.toFixed(2) : '6574.10'}</span>
+                <span className={`change-badge ${(data.sp500Sparkline?.weeklyChange ?? 1.09) >= 0 ? 'positive' : 'negative'}`}>
+                  {(data.sp500Sparkline?.weeklyChange ?? 1.09) >= 0 ? '+' : ''}{(data.sp500Sparkline?.weeklyChange ?? 1.09).toFixed(2)}%
+                </span>
+              </>
+            )}
           </span>
         </div>
 
@@ -201,7 +280,7 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
         <div className="indicator-row">
           <span className="indicator-label">📊 10Y Treasury</span>
           <span className="indicator-value">
-            <span className="main-value">{data.economicIndicators?.interestRate?.value?.toFixed(2) || '4.26'}%</span>
+            <span className="main-value">{data.economicIndicators?.interestRate?.value ? data.economicIndicators.interestRate.value.toFixed(2) : '4.26'}%</span>
             <span className={`change-badge ${(data.economicIndicators?.interestRate?.change ?? -0.13) >= 0 ? 'positive' : 'negative'}`}>
               {(data.economicIndicators?.interestRate?.change ?? -0.13) >= 0 ? '+' : ''}{(data.economicIndicators?.interestRate?.change ?? -0.13).toFixed(2)}%
             </span>
@@ -212,7 +291,7 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
         <div className="indicator-row">
           <span className="indicator-label">📈 CPI</span>
           <span className="indicator-value">
-            <span className="main-value">{data.economicIndicators?.cpi?.value?.toFixed(1) || '322.1'}</span>
+            <span className="main-value">{data.economicIndicators?.cpi?.value ? data.economicIndicators.cpi.value.toFixed(1) : '322.1'}</span>
             <span className="sub-values">
               M/M: <span className={`change-mini ${(data.economicIndicators?.cpi?.monthOverMonth ?? 0.20) >= 0 ? 'positive' : 'negative'}`}>
                 {(data.economicIndicators?.cpi?.monthOverMonth ?? 0.20) >= 0 ? '+' : ''}{(data.economicIndicators?.cpi?.monthOverMonth ?? 0.20).toFixed(2)}%
@@ -228,7 +307,7 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
         <div className="indicator-row">
           <span className="indicator-label">👥 Unemployment</span>
           <span className="indicator-value">
-            <span className="main-value">{data.economicIndicators?.unemployment?.value?.toFixed(1) || '4.3'}%</span>
+            <span className="main-value">{data.economicIndicators?.unemployment?.value ? data.economicIndicators.unemployment.value.toFixed(1) : '4.3'}%</span>
           </span>
         </div>
 
@@ -274,6 +353,88 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
 
         .error-icon {
           font-size: 16px;
+        }
+
+        /* Rate Limit Warning Styles */
+        .rate-limit-warning {
+          background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+          border: 1px solid #f59e0b;
+          border-radius: 12px;
+          padding: 16px;
+          margin-bottom: 16px;
+          box-shadow: 0 2px 4px rgba(245, 158, 11, 0.1);
+        }
+        
+        .warning-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 12px;
+        }
+        
+        .warning-icon {
+          font-size: 18px;
+        }
+        
+        .warning-title {
+          font-weight: 600;
+          font-size: 16px;
+          color: #92400e;
+        }
+        
+        .warning-content p {
+          margin: 8px 0;
+          font-size: 14px;
+          color: #78350f;
+          line-height: 1.5;
+        }
+        
+        .warning-content p:first-child {
+          margin-top: 0;
+          font-size: 15px;
+          font-weight: 500;
+        }
+        
+        .warning-content p:last-child {
+          margin-bottom: 0;
+        }
+        
+        .warning-detail {
+          background: rgba(245, 158, 11, 0.1);
+          padding: 8px 12px;
+          border-radius: 8px;
+          border-left: 3px solid #f59e0b;
+        }
+        
+        .warning-reset {
+          font-weight: 500;
+        }
+        
+        .warning-retry {
+          font-style: italic;
+          opacity: 0.9;
+        }
+        
+        /* Rate Limited Indicator Styles */
+        .indicator-row.rate-limited {
+          opacity: 0.6;
+          position: relative;
+        }
+        
+        .limited-badge {
+          background: #fecaca;
+          color: #991b1b;
+          font-size: 10px;
+          padding: 2px 6px;
+          border-radius: 12px;
+          font-weight: 500;
+          margin-left: 8px;
+        }
+        
+        .unavailable-text {
+          color: #94a3b8;
+          font-style: italic;
+          font-size: 13px;
         }
 
         .error-message {
