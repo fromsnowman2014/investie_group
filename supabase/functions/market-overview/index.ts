@@ -53,10 +53,16 @@ interface EconomicIndicator {
 
 async function fetchAlphaVantageQuote(symbol: string, apiKey: string): Promise<any> {
   try {
-    const response = await fetch(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`, {
+    const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`;
+    console.log(`🔍 Fetching Alpha Vantage data for ${symbol}...`);
+    console.log(`🔗 URL: ${url.replace(apiKey, 'HIDDEN_KEY')}`);
+    
+    const response = await fetch(url, {
       method: 'GET',
       signal: AbortSignal.timeout(10000)
     });
+
+    console.log(`📡 Alpha Vantage response for ${symbol}: ${response.status} ${response.statusText}`);
 
     if (!response.ok) {
       console.warn(`Alpha Vantage API error for ${symbol}: ${response.status}`);
@@ -64,9 +70,25 @@ async function fetchAlphaVantageQuote(symbol: string, apiKey: string): Promise<a
     }
 
     const data = await response.json();
-    return data['Global Quote'] || null;
+    
+    // Check for rate limit message
+    if (data.Information && data.Information.includes('rate limit')) {
+      console.warn(`⚠️ API Rate limit detected for ${symbol}: ${data.Information}`);
+      return null;
+    }
+    
+    console.log(`📦 Alpha Vantage raw data for ${symbol}:`, JSON.stringify(data));
+    
+    const globalQuote = data['Global Quote'];
+    if (!globalQuote) {
+      console.warn(`❌ No Global Quote data found for ${symbol}. Response keys:`, Object.keys(data));
+    } else {
+      console.log(`✅ Successfully parsed Global Quote for ${symbol}`);
+    }
+    
+    return globalQuote || null;
   } catch (error) {
-    console.error(`Error fetching ${symbol} data:`, error.message);
+    console.error(`❌ Error fetching ${symbol} data:`, error.message);
     return null;
   }
 }
@@ -252,11 +274,39 @@ function getMockSectorData(): SectorData[] {
 }
 
 function getMockMarketOverview(): MarketOverviewResponse {
+  // Generate realistic mock data based on recent market levels
+  const randomVariation = (base: number, variance: number) => base + (Math.random() - 0.5) * variance;
+  
+  // Realistic market levels as of September 2025
+  const sp500Value = randomVariation(5580, 50);
+  const sp500Change = randomVariation(0, 30);
+  const sp500ChangePercent = (sp500Change / sp500Value) * 100;
+  
+  const nasdaqValue = randomVariation(17400, 100);  
+  const nasdaqChange = randomVariation(0, 80);
+  const nasdaqChangePercent = (nasdaqChange / nasdaqValue) * 100;
+  
+  const dowValue = randomVariation(41000, 200);
+  const dowChange = randomVariation(0, 150);
+  const dowChangePercent = (dowChange / dowValue) * 100;
+
   return {
     indices: {
-      sp500: { value: 4150.23, change: 12.45, changePercent: 0.3 },
-      nasdaq: { value: 12850.67, change: -23.12, changePercent: -0.18 },
-      dow: { value: 34250.89, change: 45.67, changePercent: 0.13 },
+      sp500: { 
+        value: Math.round(sp500Value * 100) / 100, 
+        change: Math.round(sp500Change * 100) / 100, 
+        changePercent: Math.round(sp500ChangePercent * 10000) / 10000 
+      },
+      nasdaq: { 
+        value: Math.round(nasdaqValue * 100) / 100, 
+        change: Math.round(nasdaqChange * 100) / 100, 
+        changePercent: Math.round(nasdaqChangePercent * 10000) / 10000 
+      },
+      dow: { 
+        value: Math.round(dowValue * 100) / 100, 
+        change: Math.round(dowChange * 100) / 100, 
+        changePercent: Math.round(dowChangePercent * 10000) / 10000 
+      }
     },
     sectors: getMockSectorData(),
     economicIndicators: {
@@ -300,7 +350,7 @@ function getMockMarketOverview(): MarketOverviewResponse {
     },
     marketSentiment: 'neutral',
     volatilityIndex: 18.45,
-    source: 'mock_data',
+    source: 'simulated_data_due_to_api_limits',
     lastUpdated: new Date().toISOString()
   };
 }
@@ -331,8 +381,12 @@ Deno.serve(async (req) => {
     const alphaVantageApiKey = Deno.env.get('ALPHA_VANTAGE_API_KEY');
     const fredApiKey = Deno.env.get('FRED_API_KEY');
 
+    console.log('🔑 API Keys status:');
+    console.log(`  Alpha Vantage: ${alphaVantageApiKey ? 'SET (length: ' + alphaVantageApiKey.length + ')' : 'MISSING'}`);
+    console.log(`  FRED API: ${fredApiKey ? 'SET (length: ' + fredApiKey.length + ')' : 'MISSING'}`);
+
     if (!alphaVantageApiKey) {
-      console.warn('Alpha Vantage API key not configured, using mock data');
+      console.warn('⚠️ Alpha Vantage API key not configured, using mock data');
       const mockOverview = getMockMarketOverview();
       
       return new Response(JSON.stringify(mockOverview), {
