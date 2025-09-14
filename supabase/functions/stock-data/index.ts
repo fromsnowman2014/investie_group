@@ -11,6 +11,13 @@ interface StockPriceData {
   fiftyTwoWeekHigh?: number;
   fiftyTwoWeekLow?: number;
   source: string;
+  // API Rate Limit Information
+  alphaVantageRateLimit?: {
+    isLimited: boolean;
+    message?: string;
+    resetTime?: string;
+    availableTomorrow?: boolean;
+  };
 }
 
 interface AlphaVantageQuote {
@@ -58,9 +65,12 @@ function validateSymbol(symbol: string): boolean {
   return VALID_SYMBOLS.includes(symbol.toUpperCase());
 }
 
-async function getAlphaVantageQuote(symbol: string, apiKey: string): Promise<AlphaVantageQuote | null> {
+async function getAlphaVantageQuote(symbol: string, apiKey: string): Promise<{ data: AlphaVantageQuote | null; isRateLimited: boolean; rateLimitMessage?: string }> {
   try {
     const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`;
+    
+    console.log(`🔍 Fetching Alpha Vantage quote for ${symbol}...`);
+    console.log(`🔗 URL: ${url.replace(apiKey, 'HIDDEN_KEY')}`);
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -71,23 +81,79 @@ async function getAlphaVantageQuote(symbol: string, apiKey: string): Promise<Alp
     
     clearTimeout(timeoutId);
 
+    console.log(`📡 Alpha Vantage response for ${symbol}: ${response.status} ${response.statusText}`);
+
     if (!response.ok) {
       console.warn(`Alpha Vantage API error: ${response.status}`);
-      return null;
+      return { data: null, isRateLimited: false };
     }
 
     const data = await response.json();
+    console.log(`📦 Alpha Vantage raw data for ${symbol}:`, JSON.stringify(data));
+    
+    // Enhanced rate limit detection
+    if (data.Information) {
+      console.log(`ℹ️ Alpha Vantage Information field: ${data.Information}`);
+      
+      // Check for various rate limit messages
+      const rateLimitPatterns = [
+        'rate limit',
+        'API call frequency',
+        'calls per day',
+        'calls per minute',
+        'upgrade your API key',
+        'Thank you for using Alpha Vantage'
+      ];
+      
+      const isRateLimited = rateLimitPatterns.some(pattern => 
+        data.Information.toLowerCase().includes(pattern.toLowerCase())
+      );
+      
+      if (isRateLimited) {
+        console.warn(`⚠️ API Rate limit detected for ${symbol}: ${data.Information}`);
+        return { 
+          data: null, 
+          isRateLimited: true, 
+          rateLimitMessage: 'Daily API rate limit reached. Stock data temporarily unavailable.'
+        };
+      }
+    }
+    
+    // Check for Note field (another common rate limit indicator)
+    if (data.Note && data.Note.toLowerCase().includes('rate limit')) {
+      console.warn(`⚠️ API Rate limit detected in Note field for ${symbol}: ${data.Note}`);
+      return { 
+        data: null, 
+        isRateLimited: true, 
+        rateLimitMessage: 'Daily API rate limit reached. Stock data temporarily unavailable.'
+      };
+    }
+
     const quote = data['Global Quote'];
     
     if (!quote || Object.keys(quote).length === 0) {
-      console.warn(`No quote data returned for ${symbol}`);
-      return null;
+      console.warn(`❌ No Global Quote data found for ${symbol}. Response keys:`, Object.keys(data));
+      console.warn(`🚨 This might indicate rate limiting or API issues`);
+      
+      // If we get empty response or no data, assume it's rate limited
+      if (Object.keys(data).length === 0 || (!data['Global Quote'] && !data.Information && !data.Note)) {
+        console.warn(`⚠️ Empty response detected for ${symbol}, assuming rate limit`);
+        return { 
+          data: null, 
+          isRateLimited: true, 
+          rateLimitMessage: "Daily API rate limit reached. Stock data temporarily unavailable."
+        };
+      }
+      
+      return { data: null, isRateLimited: false };
+    } else {
+      console.log(`✅ Successfully parsed Global Quote for ${symbol}`);
     }
 
-    return quote;
+    return { data: quote, isRateLimited: false };
   } catch (error) {
-    console.error(`Alpha Vantage quote API error for ${symbol}:`, error.message);
-    return null;
+    console.error(`❌ Error fetching ${symbol} data:`, error.message);
+    return { data: null, isRateLimited: false };
   }
 }
 
@@ -231,8 +297,26 @@ Deno.serve(async (req) => {
     console.log('📊 Quote Result:', quoteResult.status, quoteResult.status === 'rejected' ? quoteResult.reason : 'Success');
     console.log('📊 Overview Result:', overviewResult.status, overviewResult.status === 'rejected' ? overviewResult.reason : 'Success');
 
-    const quote = quoteResult.status === 'fulfilled' ? quoteResult.value : null;
+    const quoteResponse = quoteResult.status === 'fulfilled' ? quoteResult.value : null;
     const overview = overviewResult.status === 'fulfilled' ? overviewResult.value : null;
+    const quote = quoteResponse?.data;
+
+    // Check for rate limiting
+    let rateLimitInfo: {
+      isLimited: boolean;
+      message?: string;
+      resetTime?: string;
+      availableTomorrow?: boolean;
+    } | undefined = undefined;
+
+    if (quoteResponse?.isRateLimited) {
+      rateLimitInfo = {
+        isLimited: true,
+        message: quoteResponse.rateLimitMessage,
+        resetTime: 'Tomorrow (UTC)',
+        availableTomorrow: true
+      };
+    }
 
     if (quote && overview) {
       const stockData: StockPriceData = {
@@ -245,9 +329,26 @@ Deno.serve(async (req) => {
         fiftyTwoWeekHigh: parseFloat(overview['52WeekHigh']),
         fiftyTwoWeekLow: parseFloat(overview['52WeekLow']),
         source: 'alpha_vantage',
+        alphaVantageRateLimit: rateLimitInfo
       };
 
       console.log(`Fetched fresh stock data for ${upperSymbol} from Alpha Vantage`);
+      
+      return new Response(JSON.stringify(stockData), {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
+    }
+
+    // If we detected rate limiting, include that info even with mock data
+    if (rateLimitInfo) {
+      console.warn(`Alpha Vantage API rate limited for ${upperSymbol}, using mock data with warning`);
+      const stockData = {
+        ...getMockStockData(upperSymbol),
+        alphaVantageRateLimit: rateLimitInfo
+      };
       
       return new Response(JSON.stringify(stockData), {
         headers: {
