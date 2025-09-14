@@ -226,18 +226,18 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
         <div className="rate-limit-warning">
           <div className="warning-header">
             <span className="warning-icon">ℹ️</span>
-            <span className="warning-title">주식 데이터 일시 제한</span>
+            <span className="warning-title">Stock Data Temporarily Limited</span>
           </div>
           <div className="warning-content">
-            <p>오늘 주식 시장 데이터 조회 한도에 도달했습니다.</p>
+            <p>Daily stock market data query limit has been reached.</p>
             <p className="warning-detail">
-              📊 <strong>여전히 이용 가능:</strong> 금리, 인플레이션, 고용률 등 경제 지표
+              📊 <strong>Still Available:</strong> Interest rates, inflation, unemployment and other economic indicators
             </p>
             <p className="warning-reset">
-              🕒 <strong>주식 데이터 복구:</strong> {data.alphaVantageRateLimit.resetTime || '내일 오전'}
+              🕒 <strong>Stock Data Reset:</strong> {data.alphaVantageRateLimit.resetTime || 'Tomorrow morning'}
             </p>
             {data.alphaVantageRateLimit.availableTomorrow && (
-              <p className="warning-retry">내일 다시 방문하시면 실시간 주식 데이터를 확인하실 수 있습니다.</p>
+              <p className="warning-retry">Visit again tomorrow to access real-time stock market data.</p>
             )}
           </div>
         </div>
@@ -259,12 +259,12 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
           <span className="indicator-label">
             S&P 500 <span className="symbol-text">SPY</span>
             {data.alphaVantageRateLimit?.isLimited && (
-              <span className="limited-badge">제한됨</span>
+              <span className="limited-badge">Limited</span>
             )}
           </span>
           <span className="indicator-value">
             {data.alphaVantageRateLimit?.isLimited ? (
-              <span className="unavailable-text">일시 사용불가</span>
+              <span className="unavailable-text">Temporarily Unavailable</span>
             ) : (
               <>
                 <span className="price-text">${data.sp500Sparkline?.currentPrice ? data.sp500Sparkline.currentPrice.toFixed(2) : '647.24'}</span>

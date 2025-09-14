@@ -102,7 +102,7 @@ async function fetchAlphaVantageQuote(symbol: string, apiKey: string): Promise<{
         return { 
           data: null, 
           isRateLimited: true, 
-          rateLimitMessage: data.Information 
+          rateLimitMessage: 'Daily API rate limit reached. Stock market data temporarily unavailable.'
         };
       }
     }
@@ -113,7 +113,7 @@ async function fetchAlphaVantageQuote(symbol: string, apiKey: string): Promise<{
       return { 
         data: null, 
         isRateLimited: true, 
-        rateLimitMessage: data.Note 
+        rateLimitMessage: 'Daily API rate limit reached. Stock market data temporarily unavailable.'
       };
     }
     
@@ -128,7 +128,7 @@ async function fetchAlphaVantageQuote(symbol: string, apiKey: string): Promise<{
         return { 
           data: null, 
           isRateLimited: true, 
-          rateLimitMessage: "API appears to be rate limited (empty response)" 
+          rateLimitMessage: "Daily API rate limit reached. Stock market data temporarily unavailable."
         };
       }
       
@@ -448,67 +448,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // TEMPORARY: Force rate limit detection for testing
-    // This simulates the rate limit scenario we want to show to users
-    const forceRateLimit = true;
-    if (forceRateLimit) {
-      console.warn('🧪 TESTING: Forcing rate limit scenario for UI testing');
-      
-      // Fetch economic indicators normally (they work with FRED API)
-      let economicIndicators;
-      if (fredApiKey) {
-        console.log('Fetching economic indicators from FRED...');
-        const [interestRateData, cpiData, unemploymentData] = await Promise.allSettled([
-          fetchFREDData('FEDFUNDS', fredApiKey), // Federal Funds Rate
-          fetchFREDData('CPIAUCSL', fredApiKey), // Consumer Price Index
-          fetchFREDData('UNRATE', fredApiKey)    // Unemployment Rate
-        ]);
-
-        economicIndicators = {
-          interestRate: interestRateData.status === 'fulfilled' ? interestRateData.value : undefined,
-          cpi: cpiData.status === 'fulfilled' ? cpiData.value : undefined,
-          unemployment: unemploymentData.status === 'fulfilled' ? unemploymentData.value : undefined
-        };
-      }
-
-      // Return response with rate limit info but without mock stock data
-      const rateLimitedResponse: MarketOverviewResponse = {
-        indices: {
-          sp500: { value: 0, change: 0, changePercent: 0 },
-          nasdaq: { value: 0, change: 0, changePercent: 0 },
-          dow: { value: 0, change: 0, changePercent: 0 }
-        },
-        sectors: [],
-        economicIndicators,
-        fearGreedIndex: {
-          value: 50,
-          status: 'neutral',
-          confidence: 30 // Lower confidence due to limited data
-        },
-        vix: {
-          value: 20,
-          status: 'moderate',
-          interpretation: 'Data unavailable due to API limitations'
-        },
-        marketSentiment: 'neutral',
-        volatilityIndex: 20,
-        source: 'rate_limited',
-        lastUpdated: new Date().toISOString(),
-        alphaVantageRateLimit: {
-          isLimited: true,
-          message: 'Thank you for using Alpha Vantage! Our standard API call frequency is 25 requests per day.',
-          resetTime: 'Tomorrow (UTC)',
-          availableTomorrow: true
-        }
-      };
-
-      return new Response(JSON.stringify(rateLimitedResponse), {
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        }
-      });
-    }
 
     console.log('Fetching market overview data...');
 
