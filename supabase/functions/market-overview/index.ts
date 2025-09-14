@@ -27,6 +27,13 @@ interface MarketOverviewResponse {
   volatilityIndex: number;
   source: string;
   lastUpdated: string;
+  // API Rate Limit Information
+  alphaVantageRateLimit?: {
+    isLimited: boolean;
+    message?: string;
+    resetTime?: string;
+    availableTomorrow?: boolean;
+  };
 }
 
 interface IndexData {
@@ -51,7 +58,7 @@ interface EconomicIndicator {
   source: string;
 }
 
-async function fetchAlphaVantageQuote(symbol: string, apiKey: string): Promise<any> {
+async function fetchAlphaVantageQuote(symbol: string, apiKey: string): Promise<{ data: any; isRateLimited: boolean; rateLimitMessage?: string }> {
   try {
     const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`;
     console.log(`🔍 Fetching Alpha Vantage data for ${symbol}...`);
@@ -66,30 +73,74 @@ async function fetchAlphaVantageQuote(symbol: string, apiKey: string): Promise<a
 
     if (!response.ok) {
       console.warn(`Alpha Vantage API error for ${symbol}: ${response.status}`);
-      return null;
+      return { data: null, isRateLimited: false };
     }
 
     const data = await response.json();
-    
-    // Check for rate limit message
-    if (data.Information && data.Information.includes('rate limit')) {
-      console.warn(`⚠️ API Rate limit detected for ${symbol}: ${data.Information}`);
-      return null;
-    }
-    
     console.log(`📦 Alpha Vantage raw data for ${symbol}:`, JSON.stringify(data));
     
+    // Enhanced rate limit detection
+    if (data.Information) {
+      console.log(`ℹ️ Alpha Vantage Information field: ${data.Information}`);
+      
+      // Check for various rate limit messages
+      const rateLimitPatterns = [
+        'rate limit',
+        'API call frequency',
+        'calls per day',
+        'calls per minute',
+        'upgrade your API key',
+        'Thank you for using Alpha Vantage'
+      ];
+      
+      const isRateLimited = rateLimitPatterns.some(pattern => 
+        data.Information.toLowerCase().includes(pattern.toLowerCase())
+      );
+      
+      if (isRateLimited) {
+        console.warn(`⚠️ API Rate limit detected for ${symbol}: ${data.Information}`);
+        return { 
+          data: null, 
+          isRateLimited: true, 
+          rateLimitMessage: data.Information 
+        };
+      }
+    }
+    
+    // Check for Note field (another common rate limit indicator)
+    if (data.Note && data.Note.toLowerCase().includes('rate limit')) {
+      console.warn(`⚠️ API Rate limit detected in Note field for ${symbol}: ${data.Note}`);
+      return { 
+        data: null, 
+        isRateLimited: true, 
+        rateLimitMessage: data.Note 
+      };
+    }
+    
     const globalQuote = data['Global Quote'];
-    if (!globalQuote) {
+    if (!globalQuote || Object.keys(globalQuote).length === 0) {
       console.warn(`❌ No Global Quote data found for ${symbol}. Response keys:`, Object.keys(data));
+      console.warn(`🚨 This might indicate rate limiting or API issues`);
+      
+      // If we get empty response or no data, assume it's rate limited
+      if (Object.keys(data).length === 0 || (!data['Global Quote'] && !data.Information && !data.Note)) {
+        console.warn(`⚠️ Empty response detected for ${symbol}, assuming rate limit`);
+        return { 
+          data: null, 
+          isRateLimited: true, 
+          rateLimitMessage: "API appears to be rate limited (empty response)" 
+        };
+      }
+      
+      return { data: null, isRateLimited: false };
     } else {
       console.log(`✅ Successfully parsed Global Quote for ${symbol}`);
     }
     
-    return globalQuote || null;
+    return { data: globalQuote, isRateLimited: false };
   } catch (error) {
     console.error(`❌ Error fetching ${symbol} data:`, error.message);
-    return null;
+    return { data: null, isRateLimited: false };
   }
 }
 
@@ -397,10 +448,72 @@ Deno.serve(async (req) => {
       });
     }
 
+    // TEMPORARY: Force rate limit detection for testing
+    // This simulates the rate limit scenario we want to show to users
+    const forceRateLimit = true;
+    if (forceRateLimit) {
+      console.warn('🧪 TESTING: Forcing rate limit scenario for UI testing');
+      
+      // Fetch economic indicators normally (they work with FRED API)
+      let economicIndicators;
+      if (fredApiKey) {
+        console.log('Fetching economic indicators from FRED...');
+        const [interestRateData, cpiData, unemploymentData] = await Promise.allSettled([
+          fetchFREDData('FEDFUNDS', fredApiKey), // Federal Funds Rate
+          fetchFREDData('CPIAUCSL', fredApiKey), // Consumer Price Index
+          fetchFREDData('UNRATE', fredApiKey)    // Unemployment Rate
+        ]);
+
+        economicIndicators = {
+          interestRate: interestRateData.status === 'fulfilled' ? interestRateData.value : undefined,
+          cpi: cpiData.status === 'fulfilled' ? cpiData.value : undefined,
+          unemployment: unemploymentData.status === 'fulfilled' ? unemploymentData.value : undefined
+        };
+      }
+
+      // Return response with rate limit info but without mock stock data
+      const rateLimitedResponse: MarketOverviewResponse = {
+        indices: {
+          sp500: { value: 0, change: 0, changePercent: 0 },
+          nasdaq: { value: 0, change: 0, changePercent: 0 },
+          dow: { value: 0, change: 0, changePercent: 0 }
+        },
+        sectors: [],
+        economicIndicators,
+        fearGreedIndex: {
+          value: 50,
+          status: 'neutral',
+          confidence: 30 // Lower confidence due to limited data
+        },
+        vix: {
+          value: 20,
+          status: 'moderate',
+          interpretation: 'Data unavailable due to API limitations'
+        },
+        marketSentiment: 'neutral',
+        volatilityIndex: 20,
+        source: 'rate_limited',
+        lastUpdated: new Date().toISOString(),
+        alphaVantageRateLimit: {
+          isLimited: true,
+          message: 'Thank you for using Alpha Vantage! Our standard API call frequency is 25 requests per day.',
+          resetTime: 'Tomorrow (UTC)',
+          availableTomorrow: true
+        }
+      };
+
+      return new Response(JSON.stringify(rateLimitedResponse), {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
+    }
+
     console.log('Fetching market overview data...');
 
     // Fetch market indices data in parallel
-    const [sp500Data, nasdaqData, dowData, sectorsData, vixData] = await Promise.allSettled([
+    const [sp500Result, nasdaqResult, dowResult, sectorsData, vixData] = await Promise.allSettled([
       fetchAlphaVantageQuote('SPY', alphaVantageApiKey), // S&P 500 ETF
       fetchAlphaVantageQuote('QQQ', alphaVantageApiKey), // NASDAQ ETF
       fetchAlphaVantageQuote('DIA', alphaVantageApiKey), // Dow Jones ETF
@@ -408,11 +521,34 @@ Deno.serve(async (req) => {
       fetchVIXData(alphaVantageApiKey)
     ]);
 
+    // Check for rate limiting
+    let rateLimitInfo: {
+      isLimited: boolean;
+      message?: string;
+      resetTime?: string;
+      availableTomorrow?: boolean;
+    } | undefined = undefined;
+    const checkRateLimit = (result: PromiseSettledResult<any>) => {
+      if (result.status === 'fulfilled' && result.value?.isRateLimited) {
+        return {
+          isLimited: true,
+          message: result.value.rateLimitMessage,
+          resetTime: 'Tomorrow (UTC)',
+          availableTomorrow: true
+        };
+      }
+      return undefined;
+    };
+
+    rateLimitInfo = checkRateLimit(sp500Result) || 
+                   checkRateLimit(nasdaqResult) || 
+                   checkRateLimit(dowResult);
+
     // Extract index data
     const indices = {
-      sp500: extractIndexData(sp500Data.status === 'fulfilled' ? sp500Data.value : null),
-      nasdaq: extractIndexData(nasdaqData.status === 'fulfilled' ? nasdaqData.value : null),
-      dow: extractIndexData(dowData.status === 'fulfilled' ? dowData.value : null),
+      sp500: extractIndexData(sp500Result.status === 'fulfilled' ? sp500Result.value?.data : null),
+      nasdaq: extractIndexData(nasdaqResult.status === 'fulfilled' ? nasdaqResult.value?.data : null),
+      dow: extractIndexData(dowResult.status === 'fulfilled' ? dowResult.value?.data : null),
     };
 
     const sectors = sectorsData.status === 'fulfilled' ? sectorsData.value : getMockSectorData();
@@ -454,8 +590,9 @@ Deno.serve(async (req) => {
       },
       marketSentiment: calculateMarketSentiment([indices.sp500, indices.nasdaq, indices.dow]),
       volatilityIndex: vix?.value || 20,
-      source: 'alpha_vantage',
-      lastUpdated: new Date().toISOString()
+      source: rateLimitInfo ? 'rate_limited' : 'alpha_vantage',
+      lastUpdated: new Date().toISOString(),
+      alphaVantageRateLimit: rateLimitInfo
     };
 
     console.log(`Market overview generated successfully`);
