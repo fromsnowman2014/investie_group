@@ -48,7 +48,6 @@ export class AlphaVantageProvider implements ApiProvider {
         const rateLimitPatterns = ['rate limit', 'API call frequency', 'calls per day', 'Thank you for using Alpha Vantage'];
         
         if (rateLimitPatterns.some(pattern => message.toLowerCase().includes(pattern.toLowerCase()))) {
-          console.warn(`⚠️ ${this.name}: Rate limit detected - ${message}`);
           this.isAvailable = false;
           this.rateLimit = { remaining: 0, resetTime: 'Tomorrow (UTC)' };
           return null;
@@ -67,7 +66,6 @@ export class AlphaVantageProvider implements ApiProvider {
         source: this.name
       };
     } catch (error) {
-      console.error(`${this.name} error:`, error.message);
       return null;
     }
   }
@@ -85,13 +83,10 @@ export class YahooFinanceProvider implements ApiProvider {
       let actualSymbol = symbol;
       if (symbol === 'SPY') {
         actualSymbol = '^GSPC'; // S&P 500 Index
-        console.log(`🔄 Converting SPY request to ^GSPC for direct S&P 500 index data`);
       } else if (symbol === 'QQQ') {
         actualSymbol = '^IXIC'; // NASDAQ Composite
-        console.log(`🔄 Converting QQQ request to ^IXIC for direct NASDAQ index data`);
       } else if (symbol === 'DIA') {
         actualSymbol = '^DJI'; // Dow Jones Industrial Average
-        console.log(`🔄 Converting DIA request to ^DJI for direct Dow index data`);
       }
 
       // Yahoo Finance v8 API endpoint (unofficial but working)
@@ -116,7 +111,6 @@ export class YahooFinanceProvider implements ApiProvider {
       const change = currentPrice - previousClose;
       const changePercent = previousClose ? (change / previousClose) * 100 : 0;
       
-      console.log(`✅ ${this.name}: Got direct index data for ${actualSymbol} = ${currentPrice}`);
       
       return {
         symbol: actualSymbol, // Return the actual symbol we fetched
@@ -128,7 +122,6 @@ export class YahooFinanceProvider implements ApiProvider {
         source: this.name
       };
     } catch (error) {
-      console.error(`${this.name} error:`, error.message);
       return null;
     }
   }
@@ -171,7 +164,6 @@ export class TwelveDataProvider implements ApiProvider {
         source: this.name
       };
     } catch (error) {
-      console.error(`${this.name} error:`, error.message);
       return null;
     }
   }
@@ -193,31 +185,21 @@ export class MultiProviderManager {
     isRateLimited: boolean;
     rateLimitMessage?: string;
   }> {
-    console.log(`🔍 Fetching quote for ${symbol} using multi-provider system...`);
-    
     for (const provider of this.providers) {
       if (!provider.isAvailable) {
-        console.log(`⏭️ Skipping ${provider.name} (unavailable)`);
         continue;
       }
       
-      console.log(`🎯 Trying ${provider.name}...`);
       const data = await provider.fetchQuote(symbol);
       
       if (data) {
-        console.log(`✅ Success with ${provider.name}: ${data.price}`);
         return {
           data,
           provider: provider.name,
           isRateLimited: false
         };
-      } else if (!provider.isAvailable) {
-        console.log(`❌ ${provider.name} hit rate limit`);
-        // Continue to next provider
       }
     }
-    
-    console.log(`❌ All providers failed for ${symbol}`);
     return {
       data: null,
       provider: 'none',

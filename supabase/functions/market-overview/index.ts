@@ -187,7 +187,6 @@ async function fetchFREDData(seriesId: string, apiKey: string): Promise<Economic
 
 async function fetchRealFearGreedIndex(): Promise<{ value: number; status: string; confidence: number } | null> {
   try {
-    console.log('🎯 Fetching real Fear & Greed Index from Alternative.me API...');
     const response = await fetch('https://api.alternative.me/fng/?limit=1', {
       method: 'GET',
       signal: AbortSignal.timeout(10000)
@@ -199,10 +198,7 @@ async function fetchRealFearGreedIndex(): Promise<{ value: number; status: strin
     }
 
     const data = await response.json();
-    console.log('📊 Raw Fear & Greed data:', JSON.stringify(data));
-    
     if (data.metadata?.error || !data.data?.[0]) {
-      console.warn('No Fear & Greed Index data available from Alternative.me');
       return null;
     }
 
@@ -218,7 +214,6 @@ async function fetchRealFearGreedIndex(): Promise<{ value: number; status: strin
     else if (value >= 25) status = 'fear';
     else status = 'extreme_fear';
 
-    console.log(`✅ Real Fear & Greed Index: ${value} (${status})`);
     
     return {
       value,
@@ -317,13 +312,11 @@ function extractIndexData(apiData: any, isETF: boolean = false): IndexData {
   let change = parseFloat(apiData['09. change']) || 0;
   let changePercent = parseFloat(apiData['10. change percent']?.replace('%', '')) || 0;
 
-  // Convert SPY ETF price to approximate S&P 500 index value
+  // Convert ETF price to approximate index value if needed
   if (isETF) {
-    console.log(`🔄 Converting ETF price ${value} to index value`);
-    value = value * 10; // SPY trades at ~1/10th of S&P 500 index
+    value = value * 10; // ETFs trade at ~1/10th of index value
     change = change * 10;
     // changePercent remains the same as it's already a percentage
-    console.log(`✅ Converted index value: ${value}`);
   }
 
   return {
@@ -479,12 +472,8 @@ Deno.serve(async (req) => {
     }
 
 
-    console.log('Fetching market overview data...');
-
     // Initialize multi-provider manager
     const stockDataManager = createMultiProviderManager(alphaVantageApiKey);
-    console.log('🔧 Multi-provider manager initialized with providers:', 
-                stockDataManager.getProviderStatus().map(p => `${p.name}(${p.available ? 'available' : 'unavailable'})`));
 
     // Fetch market indices data and Fear & Greed Index in parallel
     const [sp500Result, nasdaqResult, dowResult, sectorsData, vixData, realFearGreedResult] = await Promise.allSettled([
@@ -535,15 +524,6 @@ Deno.serve(async (req) => {
       };
     }
     
-    // Log provider usage
-    const providers = [sp500Result, nasdaqResult, dowResult]
-      .map((result, index) => {
-        const symbols = ['SPY', 'QQQ', 'DIA'];
-        return result.status === 'fulfilled' && result.value?.provider 
-          ? `${symbols[index]}:${result.value.provider}` 
-          : `${symbols[index]}:failed`;
-      });
-    console.log('📊 Provider usage:', providers.join(', '));
 
     // Extract index data
     // Check if we got direct index data (no conversion needed) or ETF data (needs conversion)
@@ -566,11 +546,6 @@ Deno.serve(async (req) => {
       ),
     };
     
-    console.log('📊 Index data sources:', {
-      sp500: isDirectIndexData(sp500Result.status === 'fulfilled' ? sp500Result.value : null) ? 'Direct Index' : 'ETF x10',
-      nasdaq: isDirectIndexData(nasdaqResult.status === 'fulfilled' ? nasdaqResult.value : null) ? 'Direct Index' : 'ETF x10',
-      dow: isDirectIndexData(dowResult.status === 'fulfilled' ? dowResult.value : null) ? 'Direct Index' : 'ETF x10'
-    });
 
     const sectors = sectorsData.status === 'fulfilled' ? sectorsData.value : getMockSectorData();
     const vix = vixData.status === 'fulfilled' ? vixData.value : null;
@@ -617,9 +592,6 @@ Deno.serve(async (req) => {
       alphaVantageRateLimit: rateLimitInfo
     };
 
-    console.log(`Market overview generated successfully`);
-    console.log(`Fear & Greed Index source: ${realFearGreed ? 'Alternative.me API' : 'Calculated fallback'}`);
-    console.log(`Fear & Greed Index value: ${fearGreedIndex.value} (${fearGreedIndex.status})`);
     
     return new Response(JSON.stringify(marketOverview), {
       headers: {
