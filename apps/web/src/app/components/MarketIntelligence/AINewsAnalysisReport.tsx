@@ -2,91 +2,56 @@
 
 import React from 'react';
 import useSWR from 'swr';
-import { edgeFunctionFetcher } from '@/lib/api-utils';
+import { debugFetch } from '@/lib/api-utils';
 
-// Updated interfaces to match our actual API structure
-interface HeadlineItem {
+interface NewsItem {
+  id: string;
   title: string;
-  source: string;
-  sentiment: number;
-  timestamp: string;
   summary: string;
-}
-
-interface KeyTopic {
-  topic: string;
-  sentiment: number;
-  mentions: number;
+  sentiment: 'positive' | 'negative' | 'neutral';
+  sentimentScore: number;
+  relevanceScore: number;
+  source: string;
+  publishedAt: string;
+  url: string;
+  topics: string[];
+  impact: 'high' | 'medium' | 'low';
+  aiAnalysis: {
+    keyPoints: string[];
+    marketImpact: string;
+    tradingSignals: string[];
+  };
 }
 
 interface NewsAnalysisData {
   symbol: string;
-  sentiment: string;
-  sentimentScore: number;
-  confidence: number;
-  newsCount: number;
-  timeframe: string;
-  keyTopics: KeyTopic[];
-  headlines: HeadlineItem[];
-  aiSummary: {
-    mainTheme: string;
-    keyInsights: string[];
-    investmentImplication: string;
-    riskFactors: string[];
-    catalysts: string[];
+  news: NewsItem[];
+  analytics: {
+    overallSentiment: 'positive' | 'negative' | 'neutral';
+    sentimentScore: number;
+    totalArticles: number;
+    highImpactNews: number;
+    trendingTopics: string[];
+    lastUpdated: string;
   };
-  lastUpdated: string;
-  analysisVersion: string;
 }
 
 interface AINewsAnalysisReportProps {
   symbol: string;
 }
 
-const fetcher = async (symbol: string): Promise<NewsAnalysisData> => {
-  console.log('📰 News Analysis Fetcher Starting:', symbol);
-  
-  try {
-    const result = await edgeFunctionFetcher<unknown>('news-analysis', { symbol });
-    console.log('📰 News Analysis Response:', result);
-    
-    // Handle both wrapper format {success: true, data: ...} and direct data  
-    const resultObj = result as Record<string, unknown>;
-    let data = resultObj.success && resultObj.data ? resultObj.data : result;
-    
-    // Ensure required fields have default values to prevent undefined errors
-    const dataObj = data as Record<string, unknown>;
-    data = {
-      symbol: (dataObj.symbol as string) || 'UNKNOWN',
-      sentiment: (dataObj.sentiment as string) || 'neutral',
-      sentimentScore: (dataObj.sentimentScore as number) || 0,
-      confidence: (dataObj.confidence as number) || 0,
-      newsCount: (dataObj.newsCount as number) || 0,
-      timeframe: (dataObj.timeframe as string) || '24h',
-      keyTopics: Array.isArray(dataObj.keyTopics) ? dataObj.keyTopics : [],
-      headlines: Array.isArray(dataObj.headlines) ? dataObj.headlines : [],
-      aiSummary: (dataObj.aiSummary as Record<string, unknown>) || {
-        mainTheme: 'No analysis available',
-        keyInsights: [],
-        investmentImplication: 'HOLD',
-        riskFactors: [],
-        catalysts: []
-      },
-      lastUpdated: (dataObj.lastUpdated as string) || new Date().toISOString(),
-      analysisVersion: (dataObj.analysisVersion as string) || 'v1.0.0'
-    };
-    
-    return data as NewsAnalysisData;
-  } catch (error) {
-    console.error('News Analysis Fetcher Error:', error);
-    throw error;
-  }
+const fetcher = async (url: string) => {
+  console.log('📰 News Analysis Fetcher Starting:', url);
+  const response = await debugFetch(url);
+  const data = await response.json();
+  console.log('📰 News Analysis Data:', data);
+  return data;
 };
 
 export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportProps) {
   const { data, error, isLoading } = useSWR<NewsAnalysisData>(
-    symbol ? `news-analysis-${symbol}` : null,
-    () => fetcher(symbol),
+    symbol ? `/api/v1/dashboard/${symbol}/news-analysis` : null,
+    fetcher,
     { refreshInterval: 600000 } // 10 minutes
   );
 
@@ -137,30 +102,24 @@ export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportPro
     }
   };
 
+  const getImpactBadge = (impact: string) => {
+    switch (impact) {
+      case 'high': return { color: 'var(--color-error)', text: 'HIGH' };
+      case 'medium': return { color: 'var(--color-warning)', text: 'MED' };
+      default: return { color: 'var(--color-text-tertiary)', text: 'LOW' };
+    }
+  };
 
   const formatTimeAgo = (dateString: string) => {
-    if (!dateString) return 'Unknown';
+    const now = new Date();
+    const published = new Date(dateString);
+    const diffMs = now.getTime() - published.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     
-    try {
-      const now = new Date();
-      const published = new Date(dateString);
-      
-      // Check if the date is valid
-      if (isNaN(published.getTime())) {
-        return 'Invalid date';
-      }
-      
-      const diffMs = now.getTime() - published.getTime();
-      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-      
-      if (diffHours < 1) return 'Just now';
-      if (diffHours < 24) return `${diffHours}h ago`;
-      const diffDays = Math.floor(diffHours / 24);
-      return `${diffDays}d ago`;
-    } catch (error) {
-      console.error('Date formatting error:', error);
-      return 'Unknown';
-    }
+    if (diffHours < 1) return 'Just now';
+    if (diffHours < 24) return `${diffHours}h ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays}d ago`;
   };
 
   const truncateText = (text: string, maxLength: number) => {
@@ -175,84 +134,61 @@ export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportPro
           <div className="sentiment-indicator">
             <span 
               className="sentiment-badge"
-              style={{ backgroundColor: getSentimentColor(data.sentiment) }}
+              style={{ backgroundColor: getSentimentColor(data.analytics.overallSentiment) }}
             >
-              {getSentimentIcon(data.sentiment)}
-              {data.sentiment.toUpperCase()}
+              {getSentimentIcon(data.analytics.overallSentiment)}
+              {data.analytics.overallSentiment.toUpperCase()}
             </span>
             <span className="sentiment-score">
-              Score: {typeof data.sentimentScore === 'number' ? data.sentimentScore.toFixed(2) : '0.00'}
-            </span>
-            <span className="confidence-score">
-              Confidence: {typeof data.confidence === 'number' ? (data.confidence * 100).toFixed(0) : '0'}%
+              Score: {data.analytics.sentimentScore.toFixed(2)}
             </span>
           </div>
           <div className="news-stats">
             <span className="stat">
-              <strong>{data.newsCount}</strong> articles
+              <strong>{data.analytics.totalArticles}</strong> articles
             </span>
             <span className="stat">
-              <strong>{data.timeframe}</strong> timeframe
+              <strong>{data.analytics.highImpactNews}</strong> high impact
             </span>
           </div>
         </div>
 
-        {/* Key Topics */}
+        {/* Trending Topics */}
         <div className="trending-topics">
-          <h4>🔥 Key Topics</h4>
+          <h4>🔥 Trending Topics</h4>
           <div className="topics-list">
-            {data.keyTopics.map((topic, index) => (
-              <span 
-                key={index} 
-                className="topic-tag"
-                style={{ 
-                  backgroundColor: topic.sentiment > 0 ? 'var(--color-success-light)' : 
-                                   topic.sentiment < 0 ? 'var(--color-error-light)' : 
-                                   'var(--color-neutral-light)',
-                  color: topic.sentiment > 0 ? 'var(--color-success)' : 
-                         topic.sentiment < 0 ? 'var(--color-error)' : 
-                         'var(--color-text-secondary)'
-                }}
-              >
-                {topic.topic} ({topic.mentions})
-              </span>
+            {data.analytics.trendingTopics.map((topic, index) => (
+              <span key={index} className="topic-tag">{topic}</span>
             ))}
-          </div>
-        </div>
-
-        {/* AI Summary */}
-        <div className="ai-summary">
-          <h4>🤖 AI Analysis Summary</h4>
-          <p className="main-theme">{data.aiSummary.mainTheme}</p>
-          <div className="investment-implication">
-            <strong>Investment Implication:</strong> 
-            <span className={`implication ${data.aiSummary.investmentImplication.toLowerCase()}`}>
-              {data.aiSummary.investmentImplication}
-            </span>
           </div>
         </div>
       </div>
 
-      {/* Headlines */}
+      {/* News Items */}
       <div className="news-items">
-        {data.headlines.map((headline, index) => {
-          const sentimentType = headline.sentiment > 0.1 ? 'positive' : 
-                               headline.sentiment < -0.1 ? 'negative' : 'neutral';
+        {data.news.map((newsItem) => {
+          const impactBadge = getImpactBadge(newsItem.impact);
           return (
-            <div key={index} className="news-item">
+            <div key={newsItem.id} className="news-item">
               {/* News Header */}
               <div className="news-header">
                 <div className="news-meta">
-                  <span className="news-source">{headline.source}</span>
-                  <span className="news-time">{formatTimeAgo(headline.timestamp)}</span>
+                  <span className="news-source">{newsItem.source}</span>
+                  <span className="news-time">{formatTimeAgo(newsItem.publishedAt)}</span>
+                  <span 
+                    className="impact-badge"
+                    style={{ backgroundColor: impactBadge.color }}
+                  >
+                    {impactBadge.text}
+                  </span>
                 </div>
                 <div 
                   className="news-sentiment"
-                  style={{ color: getSentimentColor(sentimentType) }}
+                  style={{ color: getSentimentColor(newsItem.sentiment) }}
                 >
-                  {getSentimentIcon(sentimentType)}
+                  {getSentimentIcon(newsItem.sentiment)}
                   <span className="sentiment-score">
-                    {typeof headline.sentiment === 'number' ? (headline.sentiment * 100).toFixed(0) : '0'}
+                    {(newsItem.sentimentScore * 100).toFixed(0)}%
                   </span>
                 </div>
               </div>
@@ -260,342 +196,68 @@ export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportPro
               {/* News Content */}
               <div className="news-content">
                 <h5 className="news-title">
-                  {truncateText(headline.title, 80)}
+                  <a 
+                    href={newsItem.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="news-link"
+                  >
+                    {truncateText(newsItem.title, 80)}
+                  </a>
                 </h5>
                 <p className="news-summary">
-                  {truncateText(headline.summary, 150)}
+                  {truncateText(newsItem.summary, 150)}
                 </p>
+
+                {/* Topics */}
+                <div className="news-topics">
+                  {newsItem.topics.slice(0, 3).map((topic, index) => (
+                    <span key={index} className="topic-chip">{topic}</span>
+                  ))}
+                </div>
+
+                {/* AI Analysis */}
+                <div className="ai-analysis-section">
+                  <div className="analysis-toggle">
+                    <span className="ai-icon">🤖</span>
+                    <span>AI Analysis</span>
+                  </div>
+                  <div className="analysis-content">
+                    <div className="market-impact">
+                      <strong>Market Impact:</strong> {newsItem.aiAnalysis.marketImpact}
+                    </div>
+                    {newsItem.aiAnalysis.keyPoints.length > 0 && (
+                      <div className="key-points">
+                        <strong>Key Points:</strong>
+                        <ul>
+                          {newsItem.aiAnalysis.keyPoints.slice(0, 2).map((point, index) => (
+                            <li key={index}>{point}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {newsItem.aiAnalysis.tradingSignals.length > 0 && (
+                      <div className="trading-signals">
+                        <strong>Trading Signals:</strong>
+                        <div className="signals-list">
+                          {newsItem.aiAnalysis.tradingSignals.slice(0, 2).map((signal, index) => (
+                            <span key={index} className="signal-tag">{signal}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* Key Insights */}
-      <div className="key-insights">
-        <h4>💡 Key Insights</h4>
-        <ul className="insights-list">
-          {data.aiSummary.keyInsights.map((insight, index) => (
-            <li key={index}>{insight}</li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Risk Factors & Catalysts */}
-      <div className="risk-catalysts">
-        <div className="risk-factors">
-          <h5>⚠️ Risk Factors</h5>
-          <ul>
-            {data.aiSummary.riskFactors.map((risk, index) => (
-              <li key={index}>{risk}</li>
-            ))}
-          </ul>
-        </div>
-        <div className="catalysts">
-          <h5>🚀 Catalysts</h5>
-          <ul>
-            {data.aiSummary.catalysts.map((catalyst, index) => (
-              <li key={index}>{catalyst}</li>
-            ))}
-          </ul>
-        </div>
-      </div>
-
       {/* Last Updated */}
       <div className="news-footer">
-        <small>
-          Last updated: {data.lastUpdated 
-            ? new Date(data.lastUpdated).toLocaleString() 
-            : 'N/A'
-          }
-        </small>
-        <small>Analysis version: {data.analysisVersion || 'N/A'}</small>
+        <small>Last updated: {new Date(data.analytics.lastUpdated).toLocaleString()}</small>
       </div>
-
-      <style jsx>{`
-        .ai-news-analysis-report {
-          padding: 16px;
-          background: #fafbfc;
-          border-radius: 8px;
-          border: 1px solid #e4e7eb;
-        }
-
-        .news-analytics-overview {
-          background: white;
-          padding: 16px;
-          border-radius: 6px;
-          margin-bottom: 16px;
-          border: 1px solid #f1f5f9;
-        }
-
-        .analytics-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 16px;
-        }
-
-        .sentiment-indicator {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-
-        .sentiment-badge {
-          padding: 6px 12px;
-          border-radius: 6px;
-          font-weight: 600;
-          font-size: 14px;
-          color: white;
-        }
-
-        .sentiment-score, .confidence-score {
-          font-size: 14px;
-          color: #6b7280;
-        }
-
-        .news-stats {
-          display: flex;
-          gap: 16px;
-        }
-
-        .stat {
-          font-size: 14px;
-          color: #6b7280;
-        }
-
-        .trending-topics {
-          margin-bottom: 16px;
-        }
-
-        .trending-topics h4 {
-          margin: 0 0 8px 0;
-          font-size: 16px;
-          color: #374151;
-        }
-
-        .topics-list {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-        }
-
-        .topic-tag {
-          padding: 4px 8px;
-          border-radius: 4px;
-          font-size: 12px;
-          font-weight: 500;
-          background: #f3f4f6;
-          color: #6b7280;
-        }
-
-        .ai-summary h4 {
-          margin: 0 0 8px 0;
-          font-size: 16px;
-          color: #374151;
-        }
-
-        .main-theme {
-          margin: 0 0 12px 0;
-          color: #4b5563;
-          font-style: italic;
-        }
-
-        .investment-implication {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .implication {
-          padding: 4px 8px;
-          border-radius: 4px;
-          font-weight: 600;
-          font-size: 12px;
-        }
-
-        .implication.buy {
-          background: #10b981;
-          color: white;
-        }
-
-        .implication.hold {
-          background: #f59e0b;
-          color: white;
-        }
-
-        .implication.sell {
-          background: #ef4444;
-          color: white;
-        }
-
-        .news-items {
-          margin-bottom: 16px;
-        }
-
-        .news-item {
-          background: white;
-          padding: 16px;
-          margin-bottom: 12px;
-          border-radius: 6px;
-          border: 1px solid #f1f5f9;
-        }
-
-        .news-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 12px;
-        }
-
-        .news-meta {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-
-        .news-source {
-          font-weight: 600;
-          font-size: 14px;
-          color: #374151;
-        }
-
-        .news-time {
-          font-size: 14px;
-          color: #9ca3af;
-        }
-
-        .news-sentiment {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          font-size: 14px;
-          font-weight: 600;
-        }
-
-        .news-title {
-          margin: 0 0 8px 0;
-          font-size: 16px;
-          color: #1f2937;
-        }
-
-        .news-link {
-          color: inherit;
-          text-decoration: none;
-        }
-
-        .news-link:hover {
-          color: #3b82f6;
-        }
-
-        .news-summary {
-          margin: 0 0 12px 0;
-          color: #6b7280;
-          line-height: 1.5;
-        }
-
-        .key-insights h4 {
-          margin: 0 0 8px 0;
-          font-size: 16px;
-          color: #374151;
-        }
-
-        .insights-list {
-          margin: 0;
-          padding-left: 20px;
-        }
-
-        .insights-list li {
-          margin-bottom: 4px;
-          color: #4b5563;
-        }
-
-        .risk-catalysts {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 16px;
-          margin-bottom: 16px;
-        }
-
-        .risk-factors, .catalysts {
-          background: white;
-          padding: 16px;
-          border-radius: 6px;
-          border: 1px solid #f1f5f9;
-        }
-
-        .risk-factors h5, .catalysts h5 {
-          margin: 0 0 8px 0;
-          font-size: 14px;
-          color: #374151;
-        }
-
-        .risk-factors ul, .catalysts ul {
-          margin: 0;
-          padding-left: 16px;
-        }
-
-        .risk-factors li, .catalysts li {
-          margin-bottom: 4px;
-          font-size: 14px;
-          color: #6b7280;
-        }
-
-        .news-footer {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding-top: 16px;
-          border-top: 1px solid #f1f5f9;
-        }
-
-        .news-footer small {
-          color: #9ca3af;
-          font-size: 12px;
-        }
-
-        .news-analysis-loading,
-        .news-analysis-error,
-        .news-analysis-empty {
-          text-align: center;
-          padding: 32px;
-          color: #6b7280;
-        }
-
-        .skeleton-news {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-
-        .skeleton-news-item {
-          height: 80px;
-          background: #f3f4f6;
-          border-radius: 6px;
-          animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-
-        @media (max-width: 768px) {
-          .analytics-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 12px;
-          }
-
-          .sentiment-indicator {
-            flex-wrap: wrap;
-          }
-
-          .risk-catalysts {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
     </div>
   );
 }

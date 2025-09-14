@@ -2,7 +2,7 @@
 
 import React from 'react';
 import useSWR from 'swr';
-import { edgeFunctionFetcher } from '@/lib/api-utils';
+import { debugFetch } from '@/lib/api-utils';
 import FinancialExpandableSection from '../FinancialExpandableSection';
 
 interface AIAnalysisData {
@@ -11,61 +11,30 @@ interface AIAnalysisData {
   confidence: number;
   targetPrice: number;
   currentPrice: number;
-  priceChange?: number;
-  priceChangePercent?: number;
-  analysisDate?: string;
-  keyPoints?: string[];
-  risks?: string[];
-  opportunities?: string[];
-  timeHorizon?: string;
-  investmentRating?: number; // 1-10
-  // API response properties
-  upside?: number;
-  lastUpdated?: string;
-  reasoning?: {
-    bullishPoints: string[];
-    bearishPoints: string[];
-    keyRisks: string[];
-  };
+  priceChange: number;
+  priceChangePercent: number;
+  analysisDate: string;
+  keyPoints: string[];
+  risks: string[];
+  opportunities: string[];
+  timeHorizon: string;
+  investmentRating: number; // 1-10
 }
 
 interface AIInvestmentOpinionProps {
   symbol: string;
 }
 
-const fetcher = async (symbol: string) => {
-  console.log('🤖 AI Analysis Fetcher Starting for symbol:', symbol);
-  const rawData = await edgeFunctionFetcher('ai-analysis', { symbol });
-  console.log('🤖 AI Analysis Raw Response:', rawData);
-  
-  // Transform Edge Function response to match component expectations
-  const rawDataTyped = rawData as Record<string, unknown>; // Type assertion for Edge Function response
-  const transformedData: AIAnalysisData = {
-    symbol: (rawDataTyped.symbol as string) || symbol,
-    recommendation: (rawDataTyped.recommendation as 'BUY' | 'HOLD' | 'SELL') || 'HOLD',
-    confidence: (rawDataTyped.confidence as number) || 50,
-    targetPrice: (rawDataTyped.targetPrice as number) || 0,
-    currentPrice: (rawDataTyped.currentPrice as number) || 0,
-    priceChange: (rawDataTyped.priceChange as number) ?? 0,
-    priceChangePercent: (rawDataTyped.priceChangePercent as number) ?? 0,
-    analysisDate: (rawDataTyped.analysisDate as string) || (rawDataTyped.timestamp as string) || new Date().toISOString(),
-    keyPoints: (rawDataTyped.keyFactors as string[]) || [],
-    risks: (rawDataTyped.risks as string[]) || [],
-    opportunities: (rawDataTyped.opportunities as string[]) || [],
-    timeHorizon: (rawDataTyped.timeHorizon as string) || 'Medium-term',
-    investmentRating: Math.round(((rawDataTyped.confidence as number) || 50) / 10),
-    upside: rawDataTyped.upside as number,
-    lastUpdated: (rawDataTyped.timestamp as string) || new Date().toISOString(),
-  };
-  
-  console.log('🔧 Transformed Data:', transformedData);
-  return transformedData;
+const fetcher = async (url: string) => {
+  const response = await debugFetch(url);
+  const data = await response.json();
+  return data;
 };
 
 export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps) {
   const { data, error, isLoading } = useSWR<AIAnalysisData>(
-    symbol ? `ai-analysis-${symbol}` : null,
-    () => fetcher(symbol),
+    symbol ? `/api/v1/dashboard/${symbol}/ai-analysis` : null,
+    fetcher,
     { refreshInterval: 600000 } // 10 minutes
   );
 
@@ -105,17 +74,6 @@ export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps
     );
   }
 
-  // Debug log the entire data object and critical properties
-  console.log('🤖 AIInvestmentOpinion data object:', data);
-  console.log('🔍 Critical properties check:', {
-    currentPrice: { value: data.currentPrice, type: typeof data.currentPrice },
-    targetPrice: { value: data.targetPrice, type: typeof data.targetPrice },
-    priceChange: { value: data.priceChange, type: typeof data.priceChange },
-    priceChangePercent: { value: data.priceChangePercent, type: typeof data.priceChangePercent },
-    confidence: { value: data.confidence, type: typeof data.confidence },
-    investmentRating: { value: data.investmentRating, type: typeof data.investmentRating }
-  });
-
   const getRecommendationColor = (rec: string) => {
     switch (rec) {
       case 'BUY': return 'var(--color-success)';
@@ -134,23 +92,9 @@ export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps
     }
   };
 
-  const formatPrice = (price: number) => {
-    if (price === undefined || price === null || isNaN(price)) {
-      return '$0.00';
-    }
-    return `$${price.toFixed(2)}`;
-  };
-  
-  const formatPercent = (percent: number) => {
-    if (percent === undefined || percent === null || isNaN(percent)) {
-      return '0.00%';
-    }
-    return `${percent >= 0 ? '+' : ''}${percent.toFixed(2)}%`;
-  };
-  const formatDate = (dateString: string | undefined) => {
-    if (!dateString) return new Date().toLocaleDateString();
-    return new Date(dateString).toLocaleDateString();
-  };
+  const formatPrice = (price: number) => `$${price.toFixed(2)}`;
+  const formatPercent = (percent: number) => `${percent >= 0 ? '+' : ''}${percent.toFixed(2)}%`;
+  const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString();
 
   const getRatingLabel = (rating: number) => {
     if (rating >= 8) return 'Excellent';
@@ -178,7 +122,7 @@ export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps
         </div>
         <div className="analysis-meta">
           <span className="analysis-date">{formatDate(data.analysisDate)}</span>
-          <span className="time-horizon">{data.timeHorizon ?? 'Medium-term'} outlook</span>
+          <span className="time-horizon">{data.timeHorizon} outlook</span>
         </div>
       </div>
 
@@ -187,33 +131,24 @@ export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps
         <div className="price-card current-price">
           <div className="data-row">
             <span className="data-label">Current Price</span>
-            <span className="data-value financial-data-large">
-              {formatPrice(data.currentPrice)}
-            </span>
+            <span className="data-value financial-data-large">{formatPrice(data.currentPrice)}</span>
           </div>
           <div className="data-row">
             <span className="data-label">Change</span>
-            <span className={`data-value financial-data ${(data.priceChange ?? 0) >= 0 ? 'price-positive' : 'price-negative'}`}>
-              {`${formatPrice(data.priceChange ?? 0)} (${formatPercent(data.priceChangePercent ?? 0)})`}
+            <span className={`data-value financial-data ${data.priceChange >= 0 ? 'price-positive' : 'price-negative'}`}>
+              {formatPrice(data.priceChange)} ({formatPercent(data.priceChangePercent)})
             </span>
           </div>
         </div>
         <div className="price-card target-price">
           <div className="data-row">
             <span className="data-label">Target Price</span>
-            <span className="data-value financial-data-large">
-              {formatPrice(data.targetPrice)}
-            </span>
+            <span className="data-value financial-data-large">{formatPrice(data.targetPrice)}</span>
           </div>
           <div className="data-row">
             <span className="data-label">Upside</span>
             <span className="data-value financial-data price-positive">
-              {(() => {
-                const targetPrice = data.targetPrice ?? 0;
-                const currentPrice = data.currentPrice ?? 0;
-                const upside = currentPrice > 0 ? ((targetPrice - currentPrice) / currentPrice) * 100 : 0;
-                return formatPercent(upside);
-              })()}
+              {formatPercent(((data.targetPrice - data.currentPrice) / data.currentPrice) * 100)}
             </span>
           </div>
         </div>
@@ -223,15 +158,15 @@ export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps
       <div className="investment-rating">
         <div className="data-row">
           <span className="data-label">Investment Rating</span>
-          <span className="data-value financial-data-large">{data.investmentRating ?? 7}/10</span>
+          <span className="data-value financial-data-large">{data.investmentRating}/10</span>
         </div>
         <div className="rating-bar mt-2 h-2 bg-gray-200 rounded">
           <div 
             className="rating-fill h-full bg-blue-600 rounded transition-all duration-300"
-            style={{ width: `${((data.investmentRating ?? 7) / 10) * 100}%` }}
+            style={{ width: `${(data.investmentRating / 10) * 100}%` }}
           ></div>
         </div>
-        <div className="metadata-text mt-1 text-center">{getRatingLabel(data.investmentRating ?? 7)}</div>
+        <div className="metadata-text mt-1 text-center">{getRatingLabel(data.investmentRating)}</div>
       </div>
 
       {/* Analysis Points - Using FinancialExpandableSection */}
@@ -246,7 +181,7 @@ export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps
         }}
         metrics={{
           confidence: data.confidence,
-          lastUpdated: new Date(data.analysisDate || new Date().toISOString())
+          lastUpdated: new Date(data.analysisDate)
         }}
         className="mb-4"
       >
@@ -256,7 +191,7 @@ export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps
               <span>💡</span> Key Points
             </h4>
             <ul className="space-y-1">
-              {(data.keyPoints ?? []).map((point, index) => (
+              {data.keyPoints.map((point, index) => (
                 <li key={index} className="supporting-text">{point}</li>
               ))}
             </ul>
@@ -267,7 +202,7 @@ export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps
               <span>🚀</span> Opportunities
             </h4>
             <ul className="space-y-1">
-              {(data.opportunities ?? []).map((opportunity, index) => (
+              {data.opportunities.map((opportunity, index) => (
                 <li key={index} className="supporting-text">{opportunity}</li>
               ))}
             </ul>
@@ -278,7 +213,7 @@ export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps
               <span>⚠️</span> Risks
             </h4>
             <ul className="space-y-1">
-              {(data.risks ?? []).map((risk, index) => (
+              {data.risks.map((risk, index) => (
                 <li key={index} className="supporting-text">{risk}</li>
               ))}
             </ul>

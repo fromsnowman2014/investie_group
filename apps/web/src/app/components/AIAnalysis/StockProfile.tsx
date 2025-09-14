@@ -2,7 +2,7 @@
 
 import React from 'react';
 import useSWR from 'swr';
-import { edgeFunctionFetcher } from '@/lib/api-utils';
+import { debugFetch } from '@/lib/api-utils';
 import FinancialExpandableSection from '../FinancialExpandableSection';
 
 interface StockProfileData {
@@ -25,17 +25,16 @@ interface StockProfileProps {
   symbol: string;
 }
 
-const fetcher = async (symbol: string): Promise<StockProfileData> => {
-  console.log('📊 Stock Profile Fetcher Starting:', symbol);
-  const data = await edgeFunctionFetcher<StockProfileData>('stock-data', { symbol });
-  console.log('📊 Stock Profile Data:', data);
+const fetcher = async (url: string) => {
+  const response = await debugFetch(url);
+  const data = await response.json();
   return data;
 };
 
 export default function StockProfile({ symbol }: StockProfileProps) {
   const { data, error, isLoading } = useSWR<StockProfileData>(
-    symbol ? `stock-profile-${symbol}` : null,
-    () => fetcher(symbol),
+    symbol ? `/api/v1/dashboard/${symbol}/profile` : null,
+    fetcher,
     { refreshInterval: 300000 } // 5 minutes
   );
 
@@ -74,16 +73,14 @@ export default function StockProfile({ symbol }: StockProfileProps) {
     );
   }
 
-  const formatMarketCap = (value: number | undefined | null) => {
-    if (typeof value !== 'number' || isNaN(value)) return 'N/A';
+  const formatMarketCap = (value: number) => {
     if (value >= 1e12) return `$${(value / 1e12).toFixed(2)}T`;
     if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`;
     if (value >= 1e6) return `$${(value / 1e6).toFixed(2)}M`;
     return `$${value.toLocaleString()}`;
   };
 
-  const formatNumber = (value: number | undefined | null) => {
-    if (typeof value !== 'number' || isNaN(value)) return 'N/A';
+  const formatNumber = (value: number) => {
     if (value >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
     if (value >= 1e3) return `${(value / 1e3).toFixed(1)}K`;
     return value.toLocaleString();
@@ -112,11 +109,11 @@ export default function StockProfile({ symbol }: StockProfileProps) {
         </div>
         <div className="data-row">
           <span className="data-label">P/E Ratio</span>
-          <span className="data-value financial-data">{typeof data.peRatio === 'number' ? data.peRatio.toFixed(2) : 'N/A'}</span>
+          <span className="data-value financial-data">{data.peRatio?.toFixed(2) || 'N/A'}</span>
         </div>
         <div className="data-row">
           <span className="data-label">Dividend Yield</span>
-          <span className="data-value financial-data">{typeof data.dividendYield === 'number' && data.dividendYield > 0 ? `${(data.dividendYield * 100).toFixed(2)}%` : 'N/A'}</span>
+          <span className="data-value financial-data">{data.dividendYield ? `${(data.dividendYield * 100).toFixed(2)}%` : 'N/A'}</span>
         </div>
       </div>
 
