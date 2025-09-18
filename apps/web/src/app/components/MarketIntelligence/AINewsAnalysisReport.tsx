@@ -4,36 +4,44 @@ import React from 'react';
 import useSWR from 'swr';
 import { debugFetch } from '@/lib/api-utils';
 
-interface NewsItem {
-  id: string;
+interface NewsArticle {
   title: string;
-  summary: string;
-  sentiment: 'positive' | 'negative' | 'neutral';
-  sentimentScore: number;
-  relevanceScore: number;
+  link: string;
+  snippet?: string;
+  date: string;
   source: string;
-  publishedAt: string;
-  url: string;
-  topics: string[];
-  impact: 'high' | 'medium' | 'low';
-  aiAnalysis: {
-    keyPoints: string[];
-    marketImpact: string;
-    tradingSignals: string[];
-  };
 }
 
-interface NewsAnalysisData {
+interface StockNewsData {
   symbol: string;
-  news: NewsItem[];
-  analytics: {
-    overallSentiment: 'positive' | 'negative' | 'neutral';
-    sentimentScore: number;
-    totalArticles: number;
-    highImpactNews: number;
-    trendingTopics: string[];
-    lastUpdated: string;
+  overview?: {
+    overview: string;
+    recommendation: 'BUY' | 'HOLD' | 'SELL';
+    confidence: number;
+    keyFactors: string[];
+    riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
+    timeHorizon: string;
+    timestamp: string;
   };
+  stockNews?: {
+    headline: string;
+    articles: NewsArticle[];
+    query?: string;
+    fetchedAt: string;
+    totalArticles: number;
+    dateRange?: {
+      oldest: string;
+      newest: string;
+    };
+  };
+  macroNews?: {
+    topHeadline: string;
+    articles: NewsArticle[];
+    totalArticles: number;
+    fetchedAt: string;
+    query?: string;
+  };
+  timestamp: string;
 }
 
 interface AINewsAnalysisReportProps {
@@ -49,8 +57,8 @@ const fetcher = async (url: string) => {
 };
 
 export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportProps) {
-  const { data, error, isLoading } = useSWR<NewsAnalysisData>(
-    symbol ? `/api/v1/dashboard/${symbol}/news-analysis` : null,
+  const { data, error, isLoading } = useSWR<StockNewsData>(
+    symbol ? `/api/v1/news/${symbol}` : null,
     fetcher,
     { refreshInterval: 600000 } // 10 minutes
   );
