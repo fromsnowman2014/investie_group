@@ -43,7 +43,7 @@ export function SWRConfigProvider({ children }: SWRConfigProviderProps) {
     keepPreviousData: true,
 
     // Global error handler
-    onError: (error: Error, key: string) => {
+    onError: (error: Error) => {
       // Add user-friendly notification
       let message = 'Failed to load data. Please try again.'
       
@@ -65,7 +65,7 @@ export function SWRConfigProvider({ children }: SWRConfigProviderProps) {
 
 
     // Loading state change handler
-    onLoadingSlow: (key: string) => {
+    onLoadingSlow: () => {
       addNotification({
         type: 'info',
         message: 'Loading data is taking longer than expected...',

@@ -27,7 +27,7 @@ export function ModularHeader() {
       // Data is already in the correct format
       const formattedData = data
       setStockData(formattedData)
-    }).catch(error => {
+    }).catch(() => {
       // Fallback to symbol list
       setStockData(STOCK_SYMBOLS.map(symbol => ({ symbol, name: symbol })))
     })

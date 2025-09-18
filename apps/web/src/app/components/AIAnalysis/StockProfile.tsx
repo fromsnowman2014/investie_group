@@ -28,7 +28,6 @@ interface StockProfileProps {
 }
 
 export default function StockProfile({ symbol }: StockProfileProps) {
-  console.log('🎯 StockProfile component rendered with symbol:', symbol);
 
   const [marketData, setMarketData] = useState<StockMarketData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,8 +43,8 @@ export default function StockProfile({ symbol }: StockProfileProps) {
     setLoading(true);
     setError(null);
 
-    edgeFunctionFetcher('stock-data', { symbol })
-      .then((result: StockMarketData) => {
+    edgeFunctionFetcher<StockMarketData>('stock-data', { symbol })
+      .then((result) => {
         console.log('✅ Market data received:', result);
         setMarketData(result);
         setLoading(false);
