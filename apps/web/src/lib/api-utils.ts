@@ -48,12 +48,12 @@ export async function apiFetcher<T = unknown>(url: string): Promise<T> {
  * Supabase Edge Function fetcher with proper authentication
  */
 export async function edgeFunctionFetcher<T = unknown>(
-  functionName: string, 
+  functionName: string,
   payload?: unknown
 ): Promise<T> {
   const baseUrl = getApiBaseUrl();
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'fallback-anon-key';
-  
+
   const url = `${baseUrl}/${functionName}`;
   const options: RequestInit = {
     method: 'POST',
@@ -63,7 +63,7 @@ export async function edgeFunctionFetcher<T = unknown>(
     },
     body: payload ? JSON.stringify(payload) : undefined,
   };
-  
+
   const response = await apiFetch(url, options);
   return response.json();
 }
