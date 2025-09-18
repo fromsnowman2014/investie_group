@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { StockProvider } from "./components/StockProvider";
 import SWRProvider from "./components/SWRProvider";
-import APIDebugger from "./components/APIDebugger";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,7 +29,6 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <APIDebugger />
         <SWRProvider>
           <StockProvider>
             {children}

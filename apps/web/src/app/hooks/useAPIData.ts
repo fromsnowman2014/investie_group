@@ -17,9 +17,7 @@ interface APIDataState<T> {
 }
 
 const defaultFetcher = async <T = unknown>(endpoint: string): Promise<T> => {
-  console.log(`🔍 Edge Function Fetcher Starting: ${endpoint}`)
   const data = await edgeFunctionFetcher<T>(endpoint)
-  console.log(`📊 Edge Function Data Received: ${endpoint}`, data)
   return data
 }
 

@@ -29,20 +29,16 @@ export function useStockDataLoader(): UseStockDataLoaderState {
       setIsLoading(true)
       setError(null)
 
-      console.log('🔄 Loading stock data from API...')
       const data = await getAllStocks()
       
       // Data is already in the correct format
       const formattedData = data
       
-      console.log('✅ Stock data loaded successfully:', formattedData.length, 'stocks')
       setStockData(formattedData)
     } catch (err) {
-      console.error('❌ Failed to load stock data:', err)
       setError(err instanceof Error ? err : new Error('Failed to load stock data'))
       
       // Fallback to symbol list
-      console.log('🔄 Using fallback stock symbols')
       setStockData(STOCK_SYMBOLS.map(symbol => ({ symbol, name: symbol })))
     } finally {
       setIsLoading(false)

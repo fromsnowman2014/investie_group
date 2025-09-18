@@ -2,7 +2,7 @@
 
 import React from 'react';
 import useSWR from 'swr';
-import { debugFetch } from '@/lib/api-utils';
+import { apiFetch } from '@/lib/api-utils';
 import FinancialExpandableSection from '../FinancialExpandableSection';
 
 interface AIAnalysisData {
@@ -26,7 +26,7 @@ interface AIInvestmentOpinionProps {
 }
 
 const fetcher = async (url: string) => {
-  const response = await debugFetch(url);
+  const response = await apiFetch(url);
   const data = await response.json();
   return data;
 };
