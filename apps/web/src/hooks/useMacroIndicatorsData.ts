@@ -15,99 +15,20 @@ const checkMarketHours = (): boolean => {
 
 const fetcher = async (): Promise<MarketOverviewData> => {
   try {
-    // First try to get cached data from database-reader
-    console.log('🔍 Fetching market data from cache...');
+    // Temporarily use market-overview directly due to database-reader issues
+    console.log('🔍 Fetching market data directly from market-overview...');
 
-    const cachedResult = await edgeFunctionFetcher('database-reader', {
-      action: 'get_market_overview'
-    });
+    const result = await edgeFunctionFetcher('market-overview', {});
 
-    // Transform cached data to match the expected MarketOverviewData format
-    if (cachedResult) {
-      console.log(`✅ Cache hit! Got ${cachedResult.cacheInfo?.totalIndicators || 0} indicators from cache`);
-
-      // Extract data from cached format and transform to expected format
-      const transformedData: MarketOverviewData = {
-        indices: {
-          sp500: cachedResult.sp500Data ? {
-            value: cachedResult.sp500Data.data_value.price || 0,
-            change: cachedResult.sp500Data.data_value.change || 0,
-            changePercent: cachedResult.sp500Data.data_value.change_percent || 0
-          } : { value: 0, change: 0, changePercent: 0 },
-          nasdaq: { value: 0, change: 0, changePercent: 0 }, // Not in cache yet
-          dow: { value: 0, change: 0, changePercent: 0 }     // Not in cache yet
-        },
-        sectors: [], // Transform sector data if available
-        economicIndicators: {
-          // Transform economic indicators from cache
-          interestRate: cachedResult.economicIndicators?.find(e => e.indicator_type === 'treasury_10y') ? {
-            value: cachedResult.economicIndicators.find(e => e.indicator_type === 'treasury_10y')?.data_value.value || 0,
-            previousValue: cachedResult.economicIndicators.find(e => e.indicator_type === 'treasury_10y')?.data_value.previous_value || 0,
-            change: cachedResult.economicIndicators.find(e => e.indicator_type === 'treasury_10y')?.data_value.change || 0,
-            percentChange: cachedResult.economicIndicators.find(e => e.indicator_type === 'treasury_10y')?.data_value.change_percent || 0,
-            date: cachedResult.economicIndicators.find(e => e.indicator_type === 'treasury_10y')?.data_value.date || new Date().toISOString().split('T')[0],
-            trend: cachedResult.economicIndicators.find(e => e.indicator_type === 'treasury_10y')?.data_value.trend || 'stable',
-            source: 'cached_data'
-          } : undefined,
-          unemployment: cachedResult.economicIndicators?.find(e => e.indicator_type === 'unemployment') ? {
-            value: cachedResult.economicIndicators.find(e => e.indicator_type === 'unemployment')?.data_value.value || 0,
-            previousValue: cachedResult.economicIndicators.find(e => e.indicator_type === 'unemployment')?.data_value.previous_value || 0,
-            change: cachedResult.economicIndicators.find(e => e.indicator_type === 'unemployment')?.data_value.change || 0,
-            percentChange: cachedResult.economicIndicators.find(e => e.indicator_type === 'unemployment')?.data_value.change_percent || 0,
-            date: cachedResult.economicIndicators.find(e => e.indicator_type === 'unemployment')?.data_value.date || new Date().toISOString().split('T')[0],
-            trend: cachedResult.economicIndicators.find(e => e.indicator_type === 'unemployment')?.data_value.trend || 'stable',
-            source: 'cached_data'
-          } : undefined,
-          cpi: cachedResult.economicIndicators?.find(e => e.indicator_type === 'cpi') ? {
-            value: cachedResult.economicIndicators.find(e => e.indicator_type === 'cpi')?.data_value.value || 0,
-            previousValue: cachedResult.economicIndicators.find(e => e.indicator_type === 'cpi')?.data_value.previous_value || 0,
-            change: cachedResult.economicIndicators.find(e => e.indicator_type === 'cpi')?.data_value.change || 0,
-            percentChange: cachedResult.economicIndicators.find(e => e.indicator_type === 'cpi')?.data_value.change_percent || 0,
-            date: cachedResult.economicIndicators.find(e => e.indicator_type === 'cpi')?.data_value.date || new Date().toISOString().split('T')[0],
-            trend: cachedResult.economicIndicators.find(e => e.indicator_type === 'cpi')?.data_value.trend || 'stable',
-            source: 'cached_data'
-          } : undefined
-        },
-        fearGreedIndex: cachedResult.fearGreedIndex ? {
-          value: cachedResult.fearGreedIndex.data_value.value || 50,
-          status: cachedResult.fearGreedIndex.data_value.classification || 'neutral',
-          confidence: 90
-        } : undefined,
-        vix: cachedResult.vixData ? {
-          value: cachedResult.vixData.data_value.value || 20,
-          status: cachedResult.vixData.data_value.status || 'moderate',
-          interpretation: cachedResult.vixData.data_value.interpretation || 'Normal market conditions'
-        } : undefined,
-        marketSentiment: 'neutral', // Calculate based on available data
-        volatilityIndex: cachedResult.vixData?.data_value.value || 20,
-        source: cachedResult.source || 'cached_data',
-        lastUpdated: cachedResult.lastUpdated || new Date().toISOString(),
-        // Add cache metadata
-        cacheInfo: {
-          isFromCache: true,
-          cacheHitRate: cachedResult.cacheInfo?.cacheHitRate || 0,
-          totalIndicators: cachedResult.cacheInfo?.totalIndicators || 0,
-          freshIndicators: cachedResult.cacheInfo?.freshIndicators || 0,
-          dataAge: cachedResult.fearGreedIndex?.age_seconds || 0
-        }
-      };
-
-      return transformedData;
+    // market-overview returns data directly in the correct format
+    if (result) {
+      console.log('✅ Got market data directly from market-overview');
+      
+      // Return the data directly as market-overview already provides the correct format
+      return result as MarketOverviewData;
     }
 
-    // Fallback to direct API call if cache fails
-    console.warn('⚠️ Cache miss, falling back to direct API call...');
-    const result: ApiResponse<MarketOverviewData> = await edgeFunctionFetcher('market-overview');
-    return {
-      ...result.data,
-      cacheInfo: {
-        isFromCache: false,
-        cacheHitRate: 0,
-        totalIndicators: 0,
-        freshIndicators: 0,
-        dataAge: 0
-      }
-    };
+    throw new Error('No data received from market-overview');
   } catch (error) {
     console.error('MacroIndicators Fetcher Error:', error);
     throw error;

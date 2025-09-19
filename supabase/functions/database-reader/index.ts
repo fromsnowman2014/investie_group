@@ -55,11 +55,21 @@ interface MarketOverviewResponse {
 // Initialize Supabase client
 const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'https://fwnmnjwtbggasmunsfyk.supabase.co'
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || Deno.env.get('SERVICE_ROLE_KEY') || ''
+const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || Deno.env.get('NEXT_PUBLIC_SUPABASE_ANON_KEY') || ''
 
 if (!supabaseServiceKey) {
   console.error('❌ SUPABASE_SERVICE_ROLE_KEY is not configured');
+} else {
+  console.log('✅ SUPABASE_SERVICE_ROLE_KEY is configured');
 }
 
+if (!supabaseAnonKey) {
+  console.error('❌ SUPABASE_ANON_KEY is not configured');
+} else {
+  console.log('✅ SUPABASE_ANON_KEY is configured');
+}
+
+// Use service role key for database operations
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 // Load configuration values from cache_config table or environment variables
@@ -101,8 +111,24 @@ async function loadCacheConfig(): Promise<CacheConfig> {
 // Query cached data from database
 async function queryFromCache(indicatorType: string): Promise<MarketData | null> {
   try {
+    console.log(`🔍 Querying cache for indicator: ${indicatorType}`);
+    
+    // Use direct SQL query instead of RPC function to avoid potential permission issues
     const { data, error } = await supabase
-      .rpc('get_latest_market_indicator', { p_indicator_type: indicatorType });
+      .from('market_indicators_cache')
+      .select(`
+        id,
+        indicator_type,
+        data_value,
+        metadata,
+        data_source,
+        created_at,
+        expires_at
+      `)
+      .eq('indicator_type', indicatorType)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(1);
 
     if (error) {
       console.error(`❌ Cache query error for ${indicatorType}:`, error.message);
@@ -115,10 +141,15 @@ async function queryFromCache(indicatorType: string): Promise<MarketData | null>
     }
 
     const result = data[0];
+    const ageSeconds = Math.floor((Date.now() - new Date(result.created_at).getTime()) / 1000);
+    
+    console.log(`✅ Found cached data for ${indicatorType}, age: ${ageSeconds}s`);
+    
     return {
       ...result,
+      age_seconds: ageSeconds,
       source: 'cache' as const,
-      freshness: calculateFreshness(result.age_seconds, 12 * 3600) // 12 hours default
+      freshness: calculateFreshness(ageSeconds, 12 * 3600) // 12 hours default
     };
 
   } catch (error) {
@@ -289,28 +320,55 @@ async function getMarketOverview(): Promise<MarketOverviewResponse> {
 // Health check function
 async function performHealthCheck(): Promise<{ status: string; details: Record<string, unknown> }> {
   try {
-    // Test database connection
+    // Debug environment variables
+    console.log('🔧 Environment Variables Debug:');
+    console.log('SUPABASE_URL:', Deno.env.get('SUPABASE_URL') ? 'SET' : 'NOT SET');
+    console.log('SUPABASE_SERVICE_ROLE_KEY:', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ? 'SET' : 'NOT SET');
+    console.log('SERVICE_ROLE_KEY:', Deno.env.get('SERVICE_ROLE_KEY') ? 'SET' : 'NOT SET');
+    console.log('SUPABASE_ANON_KEY:', Deno.env.get('SUPABASE_ANON_KEY') ? 'SET' : 'NOT SET');
+    console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY:', Deno.env.get('NEXT_PUBLIC_SUPABASE_ANON_KEY') ? 'SET' : 'NOT SET');
+    
+    // Test database connection with existing table first
+    console.log('🔧 Testing database connection...');
+    console.log('Supabase URL:', supabaseUrl);
+    console.log('Service Key exists:', !!supabaseServiceKey);
+    console.log('Service Key length:', supabaseServiceKey.length);
+    
     const { data: testData, error: dbError } = await supabase
-      .from('cache_config')
-      .select('config_key')
+      .from('stock_data')
+      .select('id')
       .limit(1);
 
     if (dbError) {
+      console.error('❌ Database connection failed:', dbError);
       return {
         status: 'unhealthy',
         details: {
           database: 'failed',
           error: dbError.message,
-          timestamp: new Date().toISOString()
+          errorCode: dbError.code,
+          errorDetails: dbError.details,
+          hint: dbError.hint,
+          timestamp: new Date().toISOString(),
+          debugInfo: {
+            url: supabaseUrl,
+            hasKey: !!supabaseServiceKey,
+            keyLength: supabaseServiceKey.length
+          }
         }
       };
     }
 
-    // Test cache function
-    const { data: functionTest, error: functionError } = await supabase
-      .rpc('get_latest_market_indicator', { p_indicator_type: 'fear_greed' });
+    // Test cache table access
+    console.log('🔍 Testing market_indicators_cache table access...');
+    const { data: tableTest, error: tableError } = await supabase
+      .from('market_indicators_cache')
+      .select('*')
+      .limit(5);
+      
+    console.log('Market indicators cache test result:', { data: tableTest, error: tableError });
 
-    const cacheStatus = functionError ? 'failed' : 'ok';
+    const cacheStatus = tableError ? 'failed' : 'ok';
 
     // Count available indicators
     const { data: countData, error: countError } = await supabase

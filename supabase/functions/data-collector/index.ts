@@ -33,6 +33,7 @@ interface MarketIndicatorRecord {
   metadata?: Record<string, unknown>;
   data_source: string;
   expires_at?: string;
+  is_active?: boolean;
 }
 
 interface EconomicIndicatorRecord {
@@ -93,7 +94,12 @@ const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || Deno.env
 
 if (!supabaseServiceKey) {
   console.error('❌ SUPABASE_SERVICE_ROLE_KEY is not configured');
+} else {
+  console.log('✅ SUPABASE_SERVICE_ROLE_KEY configured, length:', supabaseServiceKey.length);
 }
+
+console.log('🔧 Supabase URL:', supabaseUrl);
+console.log('🔧 Service Key prefix:', supabaseServiceKey.substring(0, 20) + '...');
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
@@ -417,7 +423,8 @@ async function collectEconomicIndicators(): Promise<MarketIndicatorRecord[]> {
             units: data.units || 'Percent'
           },
           data_source: 'fred',
-          expires_at: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString() // 12 hours
+          expires_at: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(), // 12 hours
+          is_active: true
         };
 
         results.push(marketIndicator);
@@ -483,7 +490,8 @@ async function collectMarketIndicators(): Promise<MarketIndicatorRecord[]> {
           exchange: 'NYSE'
         },
         data_source: 'alpha_vantage',
-        expires_at: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString() // 6 hours
+        expires_at: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(), // 6 hours
+        is_active: true
       };
 
       results.push(marketIndicator);
@@ -539,7 +547,8 @@ async function collectMarketIndicators(): Promise<MarketIndicatorRecord[]> {
           description: 'Market volatility indicator'
         },
         data_source: 'alpha_vantage',
-        expires_at: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString() // 6 hours
+        expires_at: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(), // 6 hours
+        is_active: true
       };
 
       results.push(marketIndicator);
@@ -595,7 +604,8 @@ async function collectSentimentIndicators(): Promise<MarketIndicatorRecord[]> {
           description: 'Market sentiment indicator (0-100)'
         },
         data_source: 'alternative_me',
-        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
+        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
+        is_active: true
       };
 
       results.push(marketIndicator);
@@ -614,20 +624,56 @@ async function saveMarketIndicators(indicators: MarketIndicatorRecord[]): Promis
   if (indicators.length === 0) return true;
 
   try {
-    const { error } = await supabase
-      .from('market_indicators_cache')
-      .insert(indicators);
-
-    if (error) {
-      console.error('Database insert error for market_indicators_cache:', error.message);
-      return false;
+    console.log(`🔄 Attempting to save ${indicators.length} indicators to market_indicators_cache`);
+    console.log('📊 Sample indicator:', JSON.stringify(indicators[0], null, 2));
+    
+    // Log all indicators for debugging
+    for (let i = 0; i < indicators.length; i++) {
+      console.log(`📋 Indicator ${i}:`, JSON.stringify(indicators[i], null, 2));
     }
+    
+    const { data, error } = await supabase
+      .from('market_indicators_cache')
+      .insert(indicators)
+      .select();
 
-    console.log(`✅ Saved ${indicators.length} market indicators to database`);
+        if (error) {
+          console.error('❌ Database insert error for market_indicators_cache:');
+          console.error('Error message:', error.message);
+          console.error('Error code:', error.code);
+          console.error('Error details:', error.details);
+          console.error('Error hint:', error.hint);
+          console.error('Full error object:', JSON.stringify(error, null, 2));
+          
+          // Try to insert each indicator individually to find the problematic one
+          console.log('🔍 Trying individual inserts to identify problematic data...');
+          for (let i = 0; i < indicators.length; i++) {
+            try {
+              const { error: singleError } = await supabase
+                .from('market_indicators_cache')
+                .insert([indicators[i]])
+                .select();
+              
+              if (singleError) {
+                console.error(`❌ Error with indicator ${i}:`, JSON.stringify(indicators[i], null, 2));
+                console.error(`Single insert error:`, singleError.message);
+              } else {
+                console.log(`✅ Indicator ${i} inserted successfully`);
+              }
+            } catch (singleException) {
+              console.error(`💥 Exception with indicator ${i}:`, singleException.message);
+            }
+          }
+          
+          return false;
+        }
+
+    console.log(`✅ Successfully saved ${indicators.length} market indicators to database`);
+    console.log('📊 Saved data sample:', JSON.stringify(data?.[0], null, 2));
     return true;
 
   } catch (error) {
-    console.error('Database save error for market_indicators_cache:', error.message);
+    console.error('💥 Database save exception for market_indicators_cache:', error.message);
     return false;
   }
 }

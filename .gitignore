@@ -61,3 +61,4 @@ next-env.d.ts
 
 # Backend data folder (managed by external backend server)
 apps/backend/data/
+.env*.local
