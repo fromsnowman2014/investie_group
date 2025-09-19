@@ -79,6 +79,36 @@ export interface SectorPerformance {
   performance: 'positive' | 'negative';
 }
 
+export interface EconomicIndicator {
+  value: number;
+  previousValue?: number;
+  change?: number;
+  percentChange?: number;
+  date: string;
+  trend: 'rising' | 'falling' | 'stable';
+  source: string;
+}
+
+export interface FearGreedIndex {
+  value: number;
+  status: string;
+  confidence: number;
+}
+
+export interface VIXData {
+  value: number;
+  status: string;
+  interpretation: string;
+}
+
+export interface CacheInfo {
+  isFromCache: boolean;
+  cacheHitRate: number;
+  totalIndicators: number;
+  freshIndicators: number;
+  dataAge: number;
+}
+
 export interface MarketOverviewData {
   indices: {
     sp500: MarketIndex;
@@ -86,9 +116,18 @@ export interface MarketOverviewData {
     dow: MarketIndex;
   };
   sectors: SectorPerformance[];
+  economicIndicators?: {
+    interestRate?: EconomicIndicator;
+    cpi?: EconomicIndicator;
+    unemployment?: EconomicIndicator;
+  };
+  fearGreedIndex?: FearGreedIndex;
+  vix?: VIXData;
   marketSentiment: 'bullish' | 'bearish' | 'neutral';
   volatilityIndex: number;
   source: string;
+  lastUpdated: string;
+  cacheInfo?: CacheInfo;
 }
 
 export interface MarketOverview {
