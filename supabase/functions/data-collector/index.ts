@@ -2,743 +2,466 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 
-interface StockDataRecord {
-  symbol: string;
-  price: number;
-  change_amount: number;
-  change_percent: number;
-  market_cap?: number;
-  volume?: number;
-  pe_ratio?: number;
-  fifty_two_week_high?: number;
-  fifty_two_week_low?: number;
-  data_source: string;
+// Types for cached data queries
+interface CachedDataQuery {
+  indicatorType?: string;
+  maxAge?: number;          // Override configuration values (seconds)
+  fallbackToAPI?: boolean;  // Real-time API call on cache failure
+  forceRefresh?: boolean;   // Force refresh request
+  action: string;
 }
 
-interface AIAnalysisRecord {
-  symbol: string;
-  rating: 'bullish' | 'neutral' | 'bearish';
-  confidence: number;
-  recommendation: 'BUY' | 'HOLD' | 'SELL';
-  summary: string;
-  key_factors: string[];
-  analysis_date: string;
-  ai_source: string;
+interface CacheConfig {
+  maxAge: number;           // Default 12 hours (43200 seconds)
+  staleWhileRevalidate: number;  // Background refresh allowance time
+  retryAttempts: number;    // API call retry count
+  fallbackEnabled: boolean; // Fallback activation
 }
 
-// New interfaces for market indicators caching
-interface MarketIndicatorRecord {
+interface MarketData {
+  id?: number;
   indicator_type: string;
   data_value: Record<string, unknown>;
   metadata?: Record<string, unknown>;
   data_source: string;
+  created_at: string;
   expires_at?: string;
-  is_active?: boolean;
+  age_seconds?: number;
+  source?: 'cache' | 'realtime' | 'fallback';
+  freshness?: {
+    ageInSeconds: number;
+    ageInHours: number;
+    freshness: number;
+    isStale: boolean;
+  };
 }
 
-interface EconomicIndicatorRecord {
-  indicator_name: string;
-  current_value: number;
-  previous_value?: number;
-  change_percent?: number;
-  trend?: 'up' | 'down' | 'stable';
-  data_source: string;
-  data_date: string;
+interface MarketOverviewResponse {
+  fearGreedIndex?: MarketData;
+  economicIndicators?: MarketData[];
+  marketIndicators?: MarketData[];
+  sp500Data?: MarketData;
+  vixData?: MarketData;
+  lastUpdated: string;
+  source: 'cache' | 'mixed' | 'realtime';
+  cacheInfo: {
+    totalIndicators: number;
+    freshIndicators: number;
+    staleIndicators: number;
+    cacheHitRate: number;
+  };
 }
 
-interface MarketIndicatorCollectionJob {
-  indicators: IndicatorType[];
-  frequency: 'hourly' | 'daily' | 'weekly';
-  retryConfig: RetryConfig;
-  cacheConfig: CacheConfig;
-}
-
-interface RetryConfig {
-  maxAttempts: number;
-  delayMs: number;
-  backoffMultiplier: number;
-}
-
-interface CacheConfig {
-  maxAgeHours: number;
-  staleWhileRevalidateHours: number;
-}
-
-// Define indicator types to collect
-enum IndicatorType {
-  FEAR_GREED_INDEX = 'fear_greed',
-  VIX_VOLATILITY = 'vix',
-  TREASURY_10Y = 'treasury_10y',
-  CPI_INFLATION = 'cpi',
-  UNEMPLOYMENT = 'unemployment',
-  SP500_INDEX = 'sp500',
-  NASDAQ_INDEX = 'nasdaq',
-  SECTOR_PERFORMANCE = 'sectors'
-}
-
-interface CollectionResult {
-  success: boolean;
-  collected: number;
-  errors: string[];
-  timestamp: string;
-}
-
-const VALID_SYMBOLS = [
-  'AAPL', 'TSLA', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 
-  'META', 'NFLX', 'AVGO', 'AMD', 'JPM', 'BAC'
-];
-
-// Initialize Supabase client with service role key
+// Initialize Supabase client
 const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'https://fwnmnjwtbggasmunsfyk.supabase.co'
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || Deno.env.get('SERVICE_ROLE_KEY') || ''
+const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || Deno.env.get('NEXT_PUBLIC_SUPABASE_ANON_KEY') || ''
 
 if (!supabaseServiceKey) {
   console.error('❌ SUPABASE_SERVICE_ROLE_KEY is not configured');
 } else {
-  console.log('✅ SUPABASE_SERVICE_ROLE_KEY configured, length:', supabaseServiceKey.length);
+  console.log('✅ SUPABASE_SERVICE_ROLE_KEY is configured');
 }
 
-console.log('🔧 Supabase URL:', supabaseUrl);
-console.log('🔧 Service Key prefix:', supabaseServiceKey.substring(0, 20) + '...');
+if (!supabaseAnonKey) {
+  console.error('❌ SUPABASE_ANON_KEY is not configured');
+} else {
+  console.log('✅ SUPABASE_ANON_KEY is configured');
+}
 
+// Use service role key for database operations
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-async function fetchStockDataFromAlphaVantage(symbol: string): Promise<StockDataRecord | null> {
+// Load configuration values from cache_config table or environment variables
+async function loadCacheConfig(): Promise<CacheConfig> {
   try {
-    const apiKey = Deno.env.get('ALPHA_VANTAGE_API_KEY');
-    if (!apiKey) {
-      console.warn('Alpha Vantage API key not found');
-      return null;
-    }
-
-    console.log(`📊 Fetching Alpha Vantage data for ${symbol}...`);
-
-    // Fetch quote data
-    const quoteUrl = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`;
-    const quoteResponse = await fetch(quoteUrl);
-    
-    if (!quoteResponse.ok) {
-      console.error(`Alpha Vantage quote API error: ${quoteResponse.status}`);
-      return null;
-    }
-
-    const quoteData = await quoteResponse.json();
-    const quote = quoteData['Global Quote'];
-
-    if (!quote || Object.keys(quote).length === 0) {
-      console.warn(`No quote data returned for ${symbol}`);
-      return null;
-    }
-
-    // Fetch overview data 
-    const overviewUrl = `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${symbol}&apikey=${apiKey}`;
-    const overviewResponse = await fetch(overviewUrl);
-    
-    if (!overviewResponse.ok) {
-      console.error(`Alpha Vantage overview API error: ${overviewResponse.status}`);
-      return null;
-    }
-
-    const overview = await overviewResponse.json();
-
-    if (!overview.Symbol) {
-      console.warn(`No overview data returned for ${symbol}`);
-      return null;
-    }
-
-    // Parse market cap
-    const parseMarketCap = (marketCapString: string): number | null => {
-      if (!marketCapString || marketCapString === 'None') return null;
-      const cleanString = marketCapString.replace(/[^0-9.]/g, '');
-      const value = parseFloat(cleanString);
-      if (marketCapString.includes('T')) return value * 1e12;
-      if (marketCapString.includes('B')) return value * 1e9;
-      if (marketCapString.includes('M')) return value * 1e6;
-      return value;
-    };
-
-    const stockData: StockDataRecord = {
-      symbol: symbol,
-      price: parseFloat(quote['05. price']) || 0,
-      change_amount: parseFloat(quote['09. change']) || 0,
-      change_percent: parseFloat(quote['10. change percent'].replace('%', '')) || 0,
-      market_cap: parseMarketCap(overview.MarketCapitalization),
-      volume: parseInt(quote['06. volume']) || null,
-      pe_ratio: parseFloat(overview.PERatio) || null,
-      fifty_two_week_high: parseFloat(overview['52WeekHigh']) || null,
-      fifty_two_week_low: parseFloat(overview['52WeekLow']) || null,
-      data_source: 'alpha_vantage'
-    };
-
-    console.log(`✅ Stock data fetched for ${symbol}: $${stockData.price}`);
-    return stockData;
-
-  } catch (error) {
-    console.error(`Error fetching stock data for ${symbol}:`, error.message);
-    return null;
-  }
-}
-
-async function generateAIAnalysisWithClaude(symbol: string): Promise<AIAnalysisRecord | null> {
-  try {
-    const claudeApiKey = Deno.env.get('CLAUDE_API_KEY');
-    if (!claudeApiKey) {
-      console.warn('Claude API key not found');
-      return null;
-    }
-
-    console.log(`🤖 Generating AI analysis for ${symbol}...`);
-
-    const prompt = `As a senior investment analyst, provide a comprehensive evaluation of ${symbol} stock. 
-    Consider recent market conditions, company fundamentals, industry trends, and macroeconomic factors.
-    Rate the stock as bullish, neutral, or bearish with a confidence level (0-100).
-    Provide specific key factors that support your analysis.
-    Give a clear BUY/HOLD/SELL recommendation based on current conditions.`;
-
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': claudeApiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-3-haiku-20240307',
-        max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: `${prompt}\\n\\nRespond with valid JSON matching this schema:
-          {
-            "rating": "bullish|neutral|bearish",
-            "confidence": 85,
-            "summary": "2-3 sentence analysis",
-            "keyFactors": ["factor1", "factor2", "factor3"],
-            "recommendation": "BUY|HOLD|SELL"
-          }`
-        }]
-      })
-    });
-
-    if (!response.ok) {
-      console.error(`Claude API error: ${response.status}`);
-      return null;
-    }
-
-    const data = await response.json();
-    const content = data.content?.[0]?.text;
-    
-    if (!content) {
-      console.warn('No content returned from Claude API');
-      return null;
-    }
-
-    // Extract JSON from response
-    const jsonMatch = content.match(/\\{[\\s\\S]*\\}/);
-    if (jsonMatch) {
-      const analysisData = JSON.parse(jsonMatch[0]);
-      
-      const aiAnalysis: AIAnalysisRecord = {
-        symbol: symbol,
-        rating: analysisData.rating,
-        confidence: analysisData.confidence,
-        recommendation: analysisData.recommendation,
-        summary: analysisData.summary,
-        key_factors: analysisData.keyFactors,
-        analysis_date: new Date().toISOString(),
-        ai_source: 'claude'
-      };
-
-      console.log(`✅ AI analysis generated for ${symbol}: ${aiAnalysis.rating} (${aiAnalysis.confidence}%)`);
-      return aiAnalysis;
-    }
-
-    return null;
-
-  } catch (error) {
-    console.error(`Error generating AI analysis for ${symbol}:`, error.message);
-    return null;
-  }
-}
-
-async function saveStockDataToDatabase(stockData: StockDataRecord): Promise<boolean> {
-  try {
-    const { error } = await supabase
-      .from('stock_data')
-      .insert(stockData);
+    const { data: configs, error } = await supabase
+      .from('cache_config')
+      .select('config_key, config_value');
 
     if (error) {
-      console.error(`Database insert error for stock_data:`, error.message);
-      return false;
+      console.warn('⚠️ Failed to load cache config from database:', error.message);
     }
 
-    console.log(`✅ Stock data saved to database: ${stockData.symbol}`);
-    return true;
+    // Create config map with defaults
+    const configMap = new Map<string, string>();
+    if (configs) {
+      configs.forEach(config => configMap.set(config.config_key, config.config_value));
+    }
 
+    return {
+      maxAge: parseInt(configMap.get('cache_max_age_hours') || Deno.env.get('CACHE_MAX_AGE_HOURS') || '12') * 3600,
+      staleWhileRevalidate: parseInt(configMap.get('cache_stale_hours') || Deno.env.get('CACHE_STALE_HOURS') || '6') * 3600,
+      retryAttempts: parseInt(configMap.get('api_retry_attempts') || Deno.env.get('API_RETRY_ATTEMPTS') || '3'),
+      fallbackEnabled: (configMap.get('cache_fallback_enabled') || Deno.env.get('CACHE_FALLBACK_ENABLED') || 'true') !== 'false'
+    };
   } catch (error) {
-    console.error(`Database save error for stock_data:`, error.message);
-    return false;
+    console.error('❌ Error loading cache config:', error.message);
+
+    // Return defaults
+    return {
+      maxAge: 12 * 3600, // 12 hours
+      staleWhileRevalidate: 6 * 3600, // 6 hours
+      retryAttempts: 3,
+      fallbackEnabled: true
+    };
   }
 }
 
-async function saveAIAnalysisToDatabase(aiAnalysis: AIAnalysisRecord): Promise<boolean> {
+// Query cached data from database using direct PostgreSQL connection to avoid PGRST002 errors
+async function queryFromCache(indicatorType: string): Promise<MarketData | null> {
   try {
-    const { error } = await supabase
-      .from('ai_analysis')
-      .insert(aiAnalysis);
-
-    if (error) {
-      console.error(`Database insert error for ai_analysis:`, error.message);
-      return false;
-    }
-
-    console.log(`✅ AI analysis saved to database: ${aiAnalysis.symbol}`);
-    return true;
-
-  } catch (error) {
-    console.error(`Database save error for ai_analysis:`, error.message);
-    return false;
-  }
-}
-
-// Market Indicators Collection Functions
-
-// Utility function for retrying API calls
-async function retryWithBackoff<T>(
-  fn: () => Promise<T>,
-  maxAttempts: number = 3,
-  baseDelay: number = 1000
-): Promise<T> {
-  let lastError: Error;
-
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
-      return await fn();
-    } catch (error) {
-      lastError = error as Error;
-
-      if (attempt === maxAttempts) {
-        throw lastError;
+    console.log(`🔍 Querying cache for indicator: ${indicatorType}`);
+    
+    // Try direct PostgreSQL connection first to avoid PostgREST PGRST002 issues
+    const queryResult = await (async () => {
+      const dbUrl = Deno.env.get('SUPABASE_DB_URL');
+      if (!dbUrl) {
+        console.log('❌ No SUPABASE_DB_URL, falling back to PostgREST');
+        return await supabase
+          .from('market_indicators_cache')
+          .select(`
+            id,
+            indicator_type,
+            data_value,
+            metadata,
+            data_source,
+            created_at,
+            expires_at
+          `)
+          .eq('indicator_type', indicatorType)
+          .eq('is_active', true)
+          .order('created_at', { ascending: false })
+          .limit(1);
       }
 
-      const delay = baseDelay * Math.pow(2, attempt - 1);
-      console.log(`🔄 Retry attempt ${attempt}/${maxAttempts} after ${delay}ms...`);
-      await new Promise(resolve => setTimeout(resolve, delay));
-    }
-  }
+      console.log('🔗 Using direct DB connection for query:', dbUrl.substring(0, 50) + '...');
 
-  throw lastError!;
-}
+      try {
+        // Import postgres driver
+        const { Client } = await import('https://deno.land/x/postgres@v0.17.0/mod.ts');
 
-// Rate limiting helper
-class RateLimiter {
-  private lastCall: number = 0;
-  private minInterval: number;
+        const client = new Client(dbUrl);
+        await client.connect();
+        console.log('✅ Direct PostgreSQL connection successful for query');
 
-  constructor(callsPerSecond: number) {
-    this.minInterval = 1000 / callsPerSecond;
-  }
+        const result = await client.queryObject`
+          SELECT 
+            id,
+            indicator_type,
+            data_value,
+            metadata,
+            data_source,
+            created_at,
+            expires_at
+          FROM market_indicators_cache 
+          WHERE indicator_type = ${indicatorType} 
+            AND is_active = true 
+          ORDER BY created_at DESC 
+          LIMIT 1;
+        `;
 
-  async wait(): Promise<void> {
-    const now = Date.now();
-    const timeSinceLastCall = now - this.lastCall;
+        await client.end();
+        console.log(`✅ Direct query successful, found ${result.rows.length} rows`);
 
-    if (timeSinceLastCall < this.minInterval) {
-      const waitTime = this.minInterval - timeSinceLastCall;
-      await new Promise(resolve => setTimeout(resolve, waitTime));
-    }
-
-    this.lastCall = Date.now();
-  }
-}
-
-// Rate limiters for different APIs
-const fredRateLimiter = new RateLimiter(0.2); // 5 calls per second max for FRED
-const alphaVantageRateLimiter = new RateLimiter(0.2); // 5 calls per second max for Alpha Vantage
-
-async function collectEconomicIndicators(): Promise<MarketIndicatorRecord[]> {
-  const results: MarketIndicatorRecord[] = [];
-  const fredApiKey = Deno.env.get('FRED_API_KEY');
-
-  if (!fredApiKey) {
-    console.warn('⚠️ FRED API key not found, skipping economic indicators');
-    return results;
-  }
-
-  console.log('📊 Collecting economic indicators from FRED...');
-
-  // Economic indicators to collect
-  const indicators = [
-    { series: 'DGS10', type: IndicatorType.TREASURY_10Y, name: '10-Year Treasury Rate' },
-    { series: 'UNRATE', type: IndicatorType.UNEMPLOYMENT, name: 'Unemployment Rate' },
-    { series: 'CPIAUCSL', type: IndicatorType.CPI_INFLATION, name: 'Consumer Price Index' }
-  ];
-
-  for (const indicator of indicators) {
-    try {
-      await fredRateLimiter.wait(); // Apply rate limiting
-
-      const fetchData = async () => {
-        const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${indicator.series}&api_key=${fredApiKey}&file_type=json&limit=2&sort_order=desc`;
-        const response = await fetch(url, {
-          headers: {
-            'User-Agent': 'Investie-Data-Collector/1.0'
-          },
-          signal: AbortSignal.timeout(10000) // 10 second timeout
-        });
-
-        if (!response.ok) {
-          throw new Error(`FRED API error for ${indicator.series}: ${response.status}`);
-        }
-
-        return await response.json();
-      };
-
-      const data = await retryWithBackoff(fetchData, 3, 1000);
-      if (data.observations && data.observations.length > 0) {
-        const latest = data.observations[0];
-        const previous = data.observations[1];
-
-        // Validate data
-        if (latest.value === '.' || isNaN(parseFloat(latest.value))) {
-          console.warn(`⚠️ Invalid data for ${indicator.name}: ${latest.value}`);
-          continue;
-        }
-
-        const currentValue = parseFloat(latest.value);
-        const previousValue = previous && previous.value !== '.' ? parseFloat(previous.value) : null;
-        const changePercent = previousValue ? ((currentValue - previousValue) / previousValue) * 100 : null;
-
-        const marketIndicator: MarketIndicatorRecord = {
-          indicator_type: indicator.type,
-          data_value: {
-            value: currentValue,
-            date: latest.date,
-            previous_value: previousValue,
-            change_percent: changePercent,
-            trend: changePercent ? (changePercent > 0 ? 'up' : changePercent < 0 ? 'down' : 'stable') : 'stable'
-          },
-          metadata: {
-            series_id: indicator.series,
-            name: indicator.name,
-            units: data.units || 'Percent'
-          },
-          data_source: 'fred',
-          expires_at: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(), // 12 hours
-          is_active: true
+        return { 
+          data: result.rows, 
+          error: null 
         };
 
-        results.push(marketIndicator);
-        console.log(`✅ Collected ${indicator.name}: ${currentValue}%`);
-      } else {
-        console.warn(`⚠️ No data available for ${indicator.name}`);
+      } catch (directError) {
+        console.error('❌ Direct connection query failed:', directError.message);
+        console.log('🔄 Falling back to PostgREST...');
+
+        // Fallback to PostgREST
+        return await supabase
+          .from('market_indicators_cache')
+          .select(`
+            id,
+            indicator_type,
+            data_value,
+            metadata,
+            data_source,
+            created_at,
+            expires_at
+          `)
+          .eq('indicator_type', indicatorType)
+          .eq('is_active', true)
+          .order('created_at', { ascending: false })
+          .limit(1);
+      }
+    })();
+
+    const { data, error } = queryResult;
+
+    if (error) {
+      console.error(`❌ Cache query error for ${indicatorType}:`, error.message);
+      console.error('Error details:', error);
+      return null;
+    }
+
+    if (!data || data.length === 0) {
+      console.log(`📭 No cached data found for ${indicatorType}`);
+      return null;
+    }
+
+    const result = data[0];
+    const ageSeconds = Math.floor((Date.now() - new Date(result.created_at).getTime()) / 1000);
+    
+    console.log(`✅ Found cached data for ${indicatorType}, age: ${ageSeconds}s`);
+    
+    return {
+      ...result,
+      age_seconds: ageSeconds,
+      source: 'cache' as const,
+      freshness: calculateFreshness(ageSeconds, 12 * 3600) // 12 hours default
+    };
+
+  } catch (error) {
+    console.error(`💥 Cache query exception for ${indicatorType}:`, error.message);
+    return null;
+  }
+}
+
+// Calculate data freshness metrics
+function calculateFreshness(ageSeconds: number, maxAge: number) {
+  const ageInHours = Math.floor(ageSeconds / 3600);
+  const freshness = Math.max(0, 100 - (ageSeconds / maxAge) * 100);
+  const isStale = ageSeconds > maxAge;
+
+  return {
+    ageInSeconds: ageSeconds,
+    ageInHours,
+    freshness: Math.round(freshness),
+    isStale
+  };
+}
+
+// Data freshness validation functions
+function isDataFresh(data: MarketData, maxAge: number): boolean {
+  return (data.age_seconds || 0) < maxAge;
+}
+
+function isDataStale(data: MarketData, maxAge: number, staleThreshold: number): boolean {
+  const age = data.age_seconds || 0;
+  return age >= maxAge && age < (maxAge + staleThreshold);
+}
+
+// Get cached market data with smart cache strategy
+async function getCachedMarketData(query: CachedDataQuery): Promise<MarketData | null> {
+  const config = await loadCacheConfig();
+  const maxAge = query.maxAge || config.maxAge;
+
+  if (!query.indicatorType) {
+    throw new Error('indicatorType is required');
+  }
+
+  console.log(`🔍 Querying cached data for ${query.indicatorType} (maxAge: ${maxAge}s)`);
+
+  // 1. Query latest data from cache
+  const cachedData = await queryFromCache(query.indicatorType);
+
+  // 2. Handle force refresh request
+  if (query.forceRefresh) {
+    console.log(`🔄 Force refresh requested for ${query.indicatorType}`);
+    // For now, return cached data (in production, this would trigger API refresh)
+    return cachedData;
+  }
+
+  // 3. Data freshness validation
+  if (cachedData && isDataFresh(cachedData, maxAge)) {
+    console.log(`✅ Fresh cache hit for ${query.indicatorType} (${cachedData.age_seconds}s old)`);
+    return cachedData;
+  }
+
+  // 4. Stale-While-Revalidate pattern
+  if (cachedData && isDataStale(cachedData, maxAge, config.staleWhileRevalidate)) {
+    console.log(`🔄 Serving stale data while revalidating ${query.indicatorType}`);
+    // Background data refresh would happen here in production
+    // For now, return the stale data with appropriate marking
+    return {
+      ...cachedData,
+      source: 'cache' as const,
+      freshness: {
+        ...cachedData.freshness!,
+        isStale: true
+      }
+    };
+  }
+
+  // 5. Cache miss or very stale data
+  if (cachedData) {
+    console.warn(`⚠️ Returning stale cache data for ${query.indicatorType} (${cachedData.age_seconds}s old)`);
+    return {
+      ...cachedData,
+      source: 'cache' as const,
+      freshness: {
+        ...cachedData.freshness!,
+        isStale: true
+      }
+    };
+  }
+
+  // 6. No data available
+  console.warn(`❌ No cached data available for ${query.indicatorType}`);
+  return null;
+}
+
+// Get comprehensive market overview
+async function getMarketOverview(): Promise<MarketOverviewResponse> {
+  console.log('📊 Getting comprehensive market overview...');
+
+  const indicators = [
+    'fear_greed',
+    'sp500',
+    'vix',
+    'treasury_10y',
+    'unemployment',
+    'cpi'
+  ];
+
+  const results: MarketData[] = [];
+  let freshCount = 0;
+  let staleCount = 0;
+
+  // Fetch all indicators
+  for (const indicatorType of indicators) {
+    try {
+      const data = await getCachedMarketData({
+        indicatorType,
+        action: 'get_cached_data'
+      });
+
+      if (data) {
+        results.push(data);
+        if (data.freshness?.isStale) {
+          staleCount++;
+        } else {
+          freshCount++;
+        }
       }
     } catch (error) {
-      console.error(`❌ Error collecting ${indicator.name}:`, error.message);
+      console.error(`❌ Error fetching ${indicatorType}:`, error.message);
     }
   }
 
-  return results;
-}
+  // Organize data by type
+  const fearGreedIndex = results.find(r => r.indicator_type === 'fear_greed');
+  const sp500Data = results.find(r => r.indicator_type === 'sp500');
+  const vixData = results.find(r => r.indicator_type === 'vix');
 
-async function collectMarketIndicators(): Promise<MarketIndicatorRecord[]> {
-  const results: MarketIndicatorRecord[] = [];
-  const alphaVantageKey = Deno.env.get('ALPHA_VANTAGE_API_KEY');
+  const economicIndicators = results.filter(r =>
+    ['treasury_10y', 'unemployment', 'cpi'].includes(r.indicator_type)
+  );
 
-  if (!alphaVantageKey) {
-    console.warn('⚠️ Alpha Vantage API key not found, skipping market indicators');
-    return results;
-  }
+  const marketIndicators = results.filter(r =>
+    ['sp500', 'vix'].includes(r.indicator_type)
+  );
 
-  console.log('📈 Collecting market indicators from Alpha Vantage...');
+  const cacheHitRate = results.length > 0 ? (results.length / indicators.length) * 100 : 0;
+  const mostRecentUpdate = results.reduce((latest, current) => {
+    return new Date(current.created_at) > new Date(latest) ? current.created_at : latest;
+  }, '1970-01-01T00:00:00Z');
 
-  // Collect S&P 500 data
-  try {
-    await alphaVantageRateLimiter.wait(); // Apply rate limiting
+  console.log(`📈 Market overview complete: ${results.length}/${indicators.length} indicators (${freshCount} fresh, ${staleCount} stale)`);
 
-    const fetchSP500 = async () => {
-      const sp500Url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=SPY&apikey=${alphaVantageKey}`;
-      const response = await fetch(sp500Url, {
-        headers: {
-          'User-Agent': 'Investie-Data-Collector/1.0'
-        },
-        signal: AbortSignal.timeout(15000) // 15 second timeout
-      });
-
-      if (!response.ok) {
-        throw new Error(`Alpha Vantage API error for SPY: ${response.status}`);
-      }
-
-      return await response.json();
-    };
-
-    const data = await retryWithBackoff(fetchSP500, 3, 1000);
-    const quote = data['Global Quote'];
-
-    if (quote && Object.keys(quote).length > 0) {
-      const marketIndicator: MarketIndicatorRecord = {
-        indicator_type: IndicatorType.SP500_INDEX,
-        data_value: {
-          symbol: 'SPY',
-          price: parseFloat(quote['05. price']),
-          change: parseFloat(quote['09. change']),
-          change_percent: parseFloat(quote['10. change percent'].replace('%', '')),
-          volume: parseInt(quote['06. volume']),
-          timestamp: quote['07. latest trading day']
-        },
-        metadata: {
-          name: 'S&P 500 ETF (SPY)',
-          exchange: 'NYSE'
-        },
-        data_source: 'alpha_vantage',
-        expires_at: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(), // 6 hours
-        is_active: true
-      };
-
-      results.push(marketIndicator);
-      console.log(`✅ Collected S&P 500: $${marketIndicator.data_value.price}`);
-    } else {
-      console.warn('⚠️ No S&P 500 data available');
+  return {
+    fearGreedIndex,
+    sp500Data,
+    vixData,
+    economicIndicators,
+    marketIndicators,
+    lastUpdated: mostRecentUpdate,
+    source: freshCount > staleCount ? 'cache' : 'mixed',
+    cacheInfo: {
+      totalIndicators: results.length,
+      freshIndicators: freshCount,
+      staleIndicators: staleCount,
+      cacheHitRate: Math.round(cacheHitRate)
     }
-  } catch (error) {
-    console.error('Error collecting S&P 500 data:', error.message);
-  }
-
-  // Collect VIX data
-  try {
-    await alphaVantageRateLimiter.wait(); // Apply rate limiting
-
-    const fetchVIX = async () => {
-      const vixUrl = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=VIX&apikey=${alphaVantageKey}`;
-      const response = await fetch(vixUrl, {
-        headers: {
-          'User-Agent': 'Investie-Data-Collector/1.0'
-        },
-        signal: AbortSignal.timeout(15000) // 15 second timeout
-      });
-
-      if (!response.ok) {
-        throw new Error(`Alpha Vantage API error for VIX: ${response.status}`);
-      }
-
-      return await response.json();
-    };
-
-    const data = await retryWithBackoff(fetchVIX, 3, 1000);
-    const quote = data['Global Quote'];
-
-    if (quote && Object.keys(quote).length > 0) {
-      const vixValue = parseFloat(quote['05. price']);
-      let volatilityLevel = 'normal';
-      if (vixValue > 30) volatilityLevel = 'high';
-      else if (vixValue > 20) volatilityLevel = 'elevated';
-      else if (vixValue < 12) volatilityLevel = 'low';
-
-      const marketIndicator: MarketIndicatorRecord = {
-        indicator_type: IndicatorType.VIX_VOLATILITY,
-        data_value: {
-          value: vixValue,
-          change: parseFloat(quote['09. change']),
-          change_percent: parseFloat(quote['10. change percent'].replace('%', '')),
-          level: volatilityLevel,
-          timestamp: quote['07. latest trading day']
-        },
-        metadata: {
-          name: 'CBOE Volatility Index',
-          description: 'Market volatility indicator'
-        },
-        data_source: 'alpha_vantage',
-        expires_at: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(), // 6 hours
-        is_active: true
-      };
-
-      results.push(marketIndicator);
-      console.log(`✅ Collected VIX: ${vixValue} (${volatilityLevel})`);
-    } else {
-      console.warn('⚠️ No VIX data available');
-    }
-  } catch (error) {
-    console.error('Error collecting VIX data:', error.message);
-  }
-
-  return results;
-}
-
-async function collectSentimentIndicators(): Promise<MarketIndicatorRecord[]> {
-  const results: MarketIndicatorRecord[] = [];
-
-  console.log('😱 Collecting sentiment indicators...');
-
-  // Collect Fear & Greed Index
-  try {
-    const fetchFearGreed = async () => {
-      const fearGreedUrl = 'https://api.alternative.me/fng/';
-      const response = await fetch(fearGreedUrl, {
-        headers: {
-          'User-Agent': 'Investie-Data-Collector/1.0'
-        },
-        signal: AbortSignal.timeout(10000) // 10 second timeout
-      });
-
-      if (!response.ok) {
-        throw new Error(`Alternative.me API error: ${response.status}`);
-      }
-
-      return await response.json();
-    };
-
-    const data = await retryWithBackoff(fetchFearGreed, 3, 1000);
-    if (data.data && data.data.length > 0) {
-      const latest = data.data[0];
-
-      const marketIndicator: MarketIndicatorRecord = {
-        indicator_type: IndicatorType.FEAR_GREED_INDEX,
-        data_value: {
-          value: parseInt(latest.value),
-          classification: latest.value_classification,
-          timestamp: latest.timestamp,
-          time_until_update: latest.time_until_update
-        },
-        metadata: {
-          name: 'Fear & Greed Index',
-          source: 'Alternative.me',
-          description: 'Market sentiment indicator (0-100)'
-        },
-        data_source: 'alternative_me',
-        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
-        is_active: true
-      };
-
-      results.push(marketIndicator);
-      console.log(`✅ Collected Fear & Greed Index: ${latest.value} (${latest.value_classification})`);
-    } else {
-      console.warn('⚠️ No Fear & Greed Index data available');
-    }
-  } catch (error) {
-    console.error('Error collecting Fear & Greed Index:', error.message);
-  }
-
-  return results;
-}
-
-async function saveMarketIndicators(indicators: MarketIndicatorRecord[]): Promise<boolean> {
-  if (indicators.length === 0) return true;
-
-  try {
-    console.log(`🔄 Attempting to save ${indicators.length} indicators to market_indicators_cache`);
-    console.log('📊 Sample indicator:', JSON.stringify(indicators[0], null, 2));
-    
-    // Log all indicators for debugging
-    for (let i = 0; i < indicators.length; i++) {
-      console.log(`📋 Indicator ${i}:`, JSON.stringify(indicators[i], null, 2));
-    }
-    
-    const { data, error } = await supabase
-      .from('market_indicators_cache')
-      .insert(indicators)
-      .select();
-
-        if (error) {
-          console.error('❌ Database insert error for market_indicators_cache:');
-          console.error('Error message:', error.message);
-          console.error('Error code:', error.code);
-          console.error('Error details:', error.details);
-          console.error('Error hint:', error.hint);
-          console.error('Full error object:', JSON.stringify(error, null, 2));
-          
-          // Try to insert each indicator individually to find the problematic one
-          console.log('🔍 Trying individual inserts to identify problematic data...');
-          for (let i = 0; i < indicators.length; i++) {
-            try {
-              const { error: singleError } = await supabase
-                .from('market_indicators_cache')
-                .insert([indicators[i]])
-                .select();
-              
-              if (singleError) {
-                console.error(`❌ Error with indicator ${i}:`, JSON.stringify(indicators[i], null, 2));
-                console.error(`Single insert error:`, singleError.message);
-              } else {
-                console.log(`✅ Indicator ${i} inserted successfully`);
-              }
-            } catch (singleException) {
-              console.error(`💥 Exception with indicator ${i}:`, singleException.message);
-            }
-          }
-          
-          return false;
-        }
-
-    console.log(`✅ Successfully saved ${indicators.length} market indicators to database`);
-    console.log('📊 Saved data sample:', JSON.stringify(data?.[0], null, 2));
-    return true;
-
-  } catch (error) {
-    console.error('💥 Database save exception for market_indicators_cache:', error.message);
-    return false;
-  }
-}
-
-async function collectAllMarketIndicators(): Promise<CollectionResult> {
-  const results: MarketIndicatorRecord[] = [];
-  const errors: string[] = [];
-
-  console.log('🚀 Starting comprehensive market indicators collection...');
-
-  try {
-    // 1. Collect economic indicators (FRED API)
-    const economicIndicators = await collectEconomicIndicators();
-    results.push(...economicIndicators);
-    console.log(`📊 Economic indicators collected: ${economicIndicators.length}`);
-  } catch (error) {
-    const errorMsg = `Economic indicators collection failed: ${error.message}`;
-    console.error(errorMsg);
-    errors.push(errorMsg);
-  }
-
-  try {
-    // 2. Collect market indicators (Alpha Vantage)
-    const marketIndicators = await collectMarketIndicators();
-    results.push(...marketIndicators);
-    console.log(`📈 Market indicators collected: ${marketIndicators.length}`);
-  } catch (error) {
-    const errorMsg = `Market indicators collection failed: ${error.message}`;
-    console.error(errorMsg);
-    errors.push(errorMsg);
-  }
-
-  try {
-    // 3. Collect sentiment indicators (Alternative.me)
-    const sentimentIndicators = await collectSentimentIndicators();
-    results.push(...sentimentIndicators);
-    console.log(`😱 Sentiment indicators collected: ${sentimentIndicators.length}`);
-  } catch (error) {
-    const errorMsg = `Sentiment indicators collection failed: ${error.message}`;
-    console.error(errorMsg);
-    errors.push(errorMsg);
-  }
-
-  // 4. Save all indicators to database
-  try {
-    await saveMarketIndicators(results);
-  } catch (error) {
-    const errorMsg = `Database save failed: ${error.message}`;
-    console.error(errorMsg);
-    errors.push(errorMsg);
-  }
-
-  const collectionResult: CollectionResult = {
-    success: errors.length === 0,
-    collected: results.length,
-    errors: errors,
-    timestamp: new Date().toISOString()
   };
-
-  console.log(`✅ Market indicators collection completed: ${collectionResult.collected} indicators collected, ${errors.length} errors`);
-
-  return collectionResult;
 }
 
+// Health check function
+async function performHealthCheck(): Promise<{ status: string; details: Record<string, unknown> }> {
+  try {
+    // Debug environment variables
+    console.log('🔧 Environment Variables Debug:');
+    console.log('SUPABASE_URL:', Deno.env.get('SUPABASE_URL') ? 'SET' : 'NOT SET');
+    console.log('SUPABASE_SERVICE_ROLE_KEY:', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ? 'SET' : 'NOT SET');
+    console.log('SERVICE_ROLE_KEY:', Deno.env.get('SERVICE_ROLE_KEY') ? 'SET' : 'NOT SET');
+    console.log('SUPABASE_ANON_KEY:', Deno.env.get('SUPABASE_ANON_KEY') ? 'SET' : 'NOT SET');
+    console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY:', Deno.env.get('NEXT_PUBLIC_SUPABASE_ANON_KEY') ? 'SET' : 'NOT SET');
+    console.log('SUPABASE_DB_URL:', Deno.env.get('SUPABASE_DB_URL') ? 'SET' : 'NOT SET');
+    
+    // Skip PostgREST connection test and use direct DB connection instead
+    console.log('⚠️ Skipping PostgREST test due to PGRST002 issues, using direct DB connection');
+    
+    // Test direct PostgreSQL connection
+    const dbUrl = Deno.env.get('SUPABASE_DB_URL');
+    if (dbUrl) {
+      try {
+        const { Client } = await import('https://deno.land/x/postgres@v0.17.0/mod.ts');
+        const client = new Client(dbUrl);
+        await client.connect();
+        console.log('✅ Direct PostgreSQL connection successful');
+        
+        const result = await client.queryObject`
+          SELECT COUNT(*) as count FROM market_indicators_cache WHERE is_active = true;
+        `;
+        
+        await client.end();
+        
+        const indicatorCount = result.rows[0]?.count || 0;
+        console.log(`📊 Found ${indicatorCount} active indicators`);
+        
+        return {
+          status: 'healthy',
+          details: {
+            database: 'connected_direct',
+            connectionType: 'postgresql_direct',
+            availableIndicators: indicatorCount,
+            timestamp: new Date().toISOString()
+          }
+        };
+        
+      } catch (directError) {
+        console.error('❌ Direct PostgreSQL connection failed:', directError.message);
+        return {
+          status: 'unhealthy',
+          details: {
+            database: 'failed',
+            connectionType: 'postgresql_direct',
+            error: directError.message,
+            timestamp: new Date().toISOString()
+          }
+        };
+      }
+    } else {
+      return {
+        status: 'unhealthy',
+        details: {
+          database: 'no_db_url',
+          error: 'SUPABASE_DB_URL environment variable not set',
+          timestamp: new Date().toISOString()
+        }
+      };
+    }
+
+  } catch (error) {
+    return {
+      status: 'error',
+      details: {
+        error: error.message,
+        timestamp: new Date().toISOString()
+      }
+    };
+  }
+}
+
+// Main request handler
 Deno.serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       status: 200,
@@ -761,102 +484,35 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { action, symbols, source } = await req.json();
+    const query: CachedDataQuery = await req.json();
 
-    if (action === 'collect_all') {
-      // New comprehensive market indicators collection
-      console.log(`🚀 Starting comprehensive data collection (source: ${source || 'manual'})`);
+    if (query.action === 'get_market_overview') {
+      const overview = await getMarketOverview();
 
-      const result = await collectAllMarketIndicators();
-
-      return new Response(JSON.stringify({
-        ...result,
-        source: source || 'manual',
-        message: `Collected ${result.collected} indicators with ${result.errors.length} errors`
-      }), {
+      return new Response(JSON.stringify(overview), {
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
+          'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'public, max-age=300' // 5 minutes
         }
       });
 
-    } else if (action === 'collect') {
-      const symbolList = symbols || VALID_SYMBOLS.slice(0, 2); // Limit to 2 for testing
-      const results = [];
+    } else if (query.action === 'get_cached_data' && query.indicatorType) {
+      const data = await getCachedMarketData(query);
 
-      console.log(`🚀 Starting data collection for symbols: ${symbolList.join(', ')}`);
-
-      for (const symbol of symbolList) {
-        console.log(`🔄 Processing ${symbol}...`);
-        
-        // Fetch and save stock data
-        const stockData = await fetchStockDataFromAlphaVantage(symbol);
-        if (stockData) {
-          await saveStockDataToDatabase(stockData);
-          results.push({ symbol, stockData: true });
-        } else {
-          results.push({ symbol, stockData: false });
-        }
-
-        // Fetch and save AI analysis
-        const aiAnalysis = await generateAIAnalysisWithClaude(symbol);
-        if (aiAnalysis) {
-          await saveAIAnalysisToDatabase(aiAnalysis);
-          results[results.length - 1].aiAnalysis = true;
-        } else {
-          results[results.length - 1].aiAnalysis = false;
-        }
-
-        // Rate limiting - 3 second delay between symbols
-        if (symbolList.indexOf(symbol) < symbolList.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 3000));
-        }
-      }
-
-      const summary = {
-        timestamp: new Date().toISOString(),
-        processed: symbolList.length,
-        successful: results.filter(r => r.stockData).length,
-        results: results
-      };
-
-      console.log(`✅ Data collection completed: ${summary.successful}/${summary.processed} successful`);
-
-      return new Response(JSON.stringify(summary), {
+      return new Response(JSON.stringify(data || { error: 'No data found' }), {
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
+          'Access-Control-Allow-Origin': '*',
+          'Cache-Control': data ? 'public, max-age=300' : 'no-cache'
         }
       });
 
-    } else if (action === 'health') {
-      // Health check
-      console.log(`🔑 Service Role Key status: ${supabaseServiceKey ? 'FOUND' : 'NOT FOUND'}`);
-      
-      const { data, error } = await supabase
-        .from('stock_data')
-        .select('id')
-        .limit(1);
+    } else if (query.action === 'health') {
+      const health = await performHealthCheck();
 
-      if (error) {
-        console.error('Database health check failed:', error.message);
-        return new Response(JSON.stringify({ 
-          status: 'error', 
-          message: error.message 
-        }), {
-          status: 500,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-          }
-        });
-      }
-
-      return new Response(JSON.stringify({ 
-        status: 'healthy', 
-        database: 'connected',
-        timestamp: new Date().toISOString()
-      }), {
+      return new Response(JSON.stringify(health), {
+        status: health.status === 'healthy' ? 200 : 503,
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*'
@@ -864,7 +520,9 @@ Deno.serve(async (req) => {
       });
 
     } else {
-      return new Response(JSON.stringify({ error: 'Invalid action. Use "collect_all", "collect", or "health"' }), {
+      return new Response(JSON.stringify({
+        error: 'Invalid action. Use "get_market_overview", "get_cached_data", or "health"'
+      }), {
         status: 400,
         headers: {
           'Content-Type': 'application/json',
@@ -874,11 +532,11 @@ Deno.serve(async (req) => {
     }
 
   } catch (error) {
-    console.error('Data collector function error:', error.message);
-    
-    return new Response(JSON.stringify({ 
+    console.error('Database reader function error:', error.message);
+
+    return new Response(JSON.stringify({
       error: 'Internal server error',
-      message: error.message 
+      message: error.message
     }), {
       status: 500,
       headers: {

@@ -102,8 +102,8 @@ const showDesktopNotification = (alert: Alert) => {
     const notification = new Notification(`${alert.level.toUpperCase()}: ${alert.component}`, {
       body: alert.message,
       icon: '/favicon.ico',
-      tag: alert.id,
-      timestamp: new Date(alert.timestamp).getTime()
+      tag: alert.id
+      // timestamp 제거됨 - NotificationOptions에서 지원하지 않음
     });
 
     // Auto-close after 10 seconds
