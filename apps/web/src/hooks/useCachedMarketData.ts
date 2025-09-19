@@ -71,8 +71,13 @@ export const useCachedMarketData = (config: CachedMarketDataConfig = {}): Cached
     try {
       console.log('🔄 Fetching cached market data...');
 
-      // Temporarily use market-overview directly due to database-reader issues
-      const result = await edgeFunctionFetcher<MarketOverviewResponse>('market-overview', {});
+      // Use database-reader for cached market data
+      const result = await edgeFunctionFetcher<MarketOverviewResponse>('database-reader', {
+        action: 'get_market_overview',
+        maxAge: config.maxAge,
+        fallbackToAPI: true,
+        forceRefresh: config.forceRefresh || false
+      });
 
       console.log(`✅ Cached data fetched: ${result.cacheInfo.totalIndicators} indicators (${result.cacheInfo.cacheHitRate}% cache hit rate)`);
 
@@ -108,7 +113,12 @@ export const useCachedMarketData = (config: CachedMarketDataConfig = {}): Cached
 
     try {
       const result = await mutate(
-        edgeFunctionFetcher<MarketOverviewResponse>('market-overview', {}),
+        edgeFunctionFetcher<MarketOverviewResponse>('database-reader', {
+          action: 'get_market_overview',
+          maxAge: 0,  // Force fresh data
+          fallbackToAPI: true,
+          forceRefresh: true
+        }),
         { revalidate: false }
       );
 

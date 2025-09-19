@@ -72,6 +72,13 @@ if (!supabaseAnonKey) {
 // Use service role key for database operations
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
+// Helper function to handle BigInt serialization
+function serializeForJSON(obj: any): any {
+  return JSON.parse(JSON.stringify(obj, (key, value) =>
+    typeof value === 'bigint' ? value.toString() : value
+  ));
+}
+
 // Load configuration values from cache_config table or environment variables
 async function loadCacheConfig(): Promise<CacheConfig> {
   try {
@@ -108,95 +115,29 @@ async function loadCacheConfig(): Promise<CacheConfig> {
   }
 }
 
-// Query cached data from database using direct PostgreSQL connection to avoid PGRST002 errors
+// Query cached data from database (simplified version)
 async function queryFromCache(indicatorType: string): Promise<MarketData | null> {
   try {
     console.log(`🔍 Querying cache for indicator: ${indicatorType}`);
-    
-    // Try direct PostgreSQL connection first to avoid PostgREST PGRST002 issues
-    const queryResult = await (async () => {
-      const dbUrl = Deno.env.get('SUPABASE_DB_URL');
-      if (!dbUrl) {
-        console.log('❌ No SUPABASE_DB_URL, falling back to PostgREST');
-        return await supabase
-          .from('market_indicators_cache')
-          .select(`
-            id,
-            indicator_type,
-            data_value,
-            metadata,
-            data_source,
-            created_at,
-            expires_at
-          `)
-          .eq('indicator_type', indicatorType)
-          .eq('is_active', true)
-          .order('created_at', { ascending: false })
-          .limit(1);
-      }
 
-      console.log('🔗 Using direct DB connection for query:', dbUrl.substring(0, 50) + '...');
-
-      try {
-        // Import postgres driver
-        const { Client } = await import('https://deno.land/x/postgres@v0.17.0/mod.ts');
-
-        const client = new Client(dbUrl);
-        await client.connect();
-        console.log('✅ Direct PostgreSQL connection successful for query');
-
-        const result = await client.queryObject`
-          SELECT 
-            id::text,
-            indicator_type,
-            data_value,
-            metadata,
-            data_source,
-            created_at,
-            expires_at
-          FROM market_indicators_cache 
-          WHERE indicator_type = ${indicatorType} 
-            AND is_active = true 
-          ORDER BY created_at DESC 
-          LIMIT 1;
-        `;
-
-        await client.end();
-        console.log(`✅ Direct query successful, found ${result.rows.length} rows`);
-
-        return { 
-          data: result.rows, 
-          error: null 
-        };
-
-      } catch (directError) {
-        console.error('❌ Direct connection query failed:', directError.message);
-        console.log('🔄 Falling back to PostgREST...');
-
-        // Fallback to PostgREST
-        return await supabase
-          .from('market_indicators_cache')
-          .select(`
-            id,
-            indicator_type,
-            data_value,
-            metadata,
-            data_source,
-            created_at,
-            expires_at
-          `)
-          .eq('indicator_type', indicatorType)
-          .eq('is_active', true)
-          .order('created_at', { ascending: false })
-          .limit(1);
-      }
-    })();
-
-    const { data, error } = queryResult;
+    const { data, error } = await supabase
+      .from('market_indicators_cache')
+      .select(`
+        id,
+        indicator_type,
+        data_value,
+        metadata,
+        data_source,
+        created_at,
+        expires_at
+      `)
+      .eq('indicator_type', indicatorType)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(1);
 
     if (error) {
       console.error(`❌ Cache query error for ${indicatorType}:`, error.message);
-      console.error('Error details:', error);
       return null;
     }
 
@@ -207,9 +148,9 @@ async function queryFromCache(indicatorType: string): Promise<MarketData | null>
 
     const result = data[0];
     const ageSeconds = Math.floor((Date.now() - new Date(result.created_at).getTime()) / 1000);
-    
+
     console.log(`✅ Found cached data for ${indicatorType}, age: ${ageSeconds}s`);
-    
+
     return {
       ...result,
       age_seconds: ageSeconds,
@@ -382,80 +323,44 @@ async function getMarketOverview(): Promise<MarketOverviewResponse> {
   };
 }
 
-// Health check function
+// Health check function (simplified)
 async function performHealthCheck(): Promise<{ status: string; details: Record<string, unknown> }> {
   try {
-    // Debug environment variables
-    console.log('🔧 Environment Variables Debug:');
-    console.log('SUPABASE_URL:', Deno.env.get('SUPABASE_URL') ? 'SET' : 'NOT SET');
-    console.log('SUPABASE_SERVICE_ROLE_KEY:', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ? 'SET' : 'NOT SET');
-    console.log('SERVICE_ROLE_KEY:', Deno.env.get('SERVICE_ROLE_KEY') ? 'SET' : 'NOT SET');
-    console.log('SUPABASE_ANON_KEY:', Deno.env.get('SUPABASE_ANON_KEY') ? 'SET' : 'NOT SET');
-    console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY:', Deno.env.get('NEXT_PUBLIC_SUPABASE_ANON_KEY') ? 'SET' : 'NOT SET');
-    console.log('SUPABASE_DB_URL:', Deno.env.get('SUPABASE_DB_URL') ? 'SET' : 'NOT SET');
-    
-    // Skip PostgREST connection test and use direct DB connection instead
-    console.log('⚠️ Skipping PostgREST test due to PGRST002 issues, using direct DB connection');
-    
-    // Test direct PostgreSQL connection
-    const dbUrl = Deno.env.get('SUPABASE_DB_URL');
-    if (dbUrl) {
-      try {
-        const { Client } = await import('https://deno.land/x/postgres@v0.17.0/mod.ts');
-        const client = new Client(dbUrl);
-        await client.connect();
-        console.log('✅ Direct PostgreSQL connection successful');
-        
-        const result = await client.queryObject`
-          SELECT COUNT(*)::int as count FROM market_indicators_cache WHERE is_active = true;
-        `;
-        
-        await client.end();
-        
-        const indicatorCount = Number(result.rows[0]?.count || 0);
-        console.log(`📊 Found ${indicatorCount} active indicators`);
-        
-        return {
-          status: 'healthy',
-          details: {
-            database: 'connected_direct',
-            connectionType: 'postgresql_direct',
-            availableIndicators: indicatorCount,
-            timestamp: new Date().toISOString()
-          }
-        };
-        
-      } catch (directError) {
-        console.error('❌ Direct PostgreSQL connection failed:', directError.message);
-        return {
-          status: 'unhealthy',
-          details: {
-            database: 'failed',
-            connectionType: 'postgresql_direct',
-            error: directError.message,
-            timestamp: new Date().toISOString()
-          }
-        };
-      }
-    } else {
-      return {
-        status: 'unhealthy',
-        details: {
-          database: 'no_db_url',
-          error: 'SUPABASE_DB_URL environment variable not set',
-          timestamp: new Date().toISOString()
-        }
-      };
+    console.log('🔧 Performing health check...');
+
+    // Test database connection with count query
+    const { count, error } = await supabase
+      .from('market_indicators_cache')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_active', true);
+
+    if (error) {
+      throw new Error(`Database connection failed: ${error.message}`);
     }
 
-  } catch (error) {
-    return {
-      status: 'error',
+    const indicatorCount = count || 0;
+    console.log(`📊 Found ${indicatorCount} active indicators`);
+
+    return serializeForJSON({
+      status: 'healthy',
       details: {
+        database: 'connected',
+        connectionType: 'postgrest',
+        availableIndicators: indicatorCount,
+        timestamp: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Health check failed:', error.message);
+    return serializeForJSON({
+      status: 'unhealthy',
+      details: {
+        database: 'failed',
         error: error.message,
         timestamp: new Date().toISOString()
       }
-    };
+    });
   }
 }
 
