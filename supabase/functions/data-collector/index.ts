@@ -6,6 +6,7 @@ import { createClient } from 'jsr:@supabase/supabase-js@2'
 interface CollectionJob {
   action: string;
   indicators?: string[];
+  indicatorType?: string;  // For collect_indicator action
   source?: string;
   forceRefresh?: boolean;
 }
@@ -473,6 +474,68 @@ async function saveIndicatorsToDatabase(indicators: MarketIndicator[]): Promise<
   }
 }
 
+// Collect specific indicator for background revalidation
+async function collectSpecificIndicator(indicatorType: string, source: string = 'api'): Promise<CollectionResult> {
+  console.log(`🔄 Collecting specific indicator: ${indicatorType} (source: ${source})`);
+
+  const indicatorCollectors: Record<string, () => Promise<MarketIndicator | null>> = {
+    'fear_greed': fetchFearGreedIndex,
+    'sp500': fetchSP500Data,
+    'vix': fetchVIXData,
+    'treasury_10y': fetchTreasury10Y,
+    'unemployment': fetchUnemploymentRate,
+    'cpi': fetchCPIData
+  };
+
+  const collector = indicatorCollectors[indicatorType];
+  if (!collector) {
+    console.error(`❌ Unknown indicator type: ${indicatorType}`);
+    return {
+      success: false,
+      collected: 0,
+      errors: [`Unknown indicator type: ${indicatorType}`],
+      indicators: [],
+      timestamp: new Date().toISOString()
+    };
+  }
+
+  try {
+    const indicator = await collector();
+    if (indicator) {
+      // Save to database
+      const saved = await saveIndicatorsToDatabase([indicator]);
+
+      console.log(`✅ Successfully collected and saved ${indicatorType}`);
+      return {
+        success: true,
+        collected: 1,
+        errors: [],
+        indicators: [indicator],
+        timestamp: new Date().toISOString()
+      };
+    } else {
+      console.warn(`⚠️ No data collected for ${indicatorType}`);
+      return {
+        success: false,
+        collected: 0,
+        errors: [`No data collected for ${indicatorType}`],
+        indicators: [],
+        timestamp: new Date().toISOString()
+      };
+    }
+  } catch (error) {
+    const errorMsg = `${indicatorType}: ${error.message}`;
+    console.error(`❌ Collection error: ${errorMsg}`);
+    return {
+      success: false,
+      collected: 0,
+      errors: [errorMsg],
+      indicators: [],
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
 // Collect all market indicators
 async function collectAllMarketIndicators(): Promise<CollectionResult> {
   console.log('🚀 Starting comprehensive market data collection...');
@@ -604,6 +667,30 @@ Deno.serve(async (req) => {
         }
       });
 
+    } else if (job.action === 'collect_indicator') {
+      // Collect specific indicator for background revalidation
+      if (!job.indicatorType) {
+        return new Response(JSON.stringify({
+          error: 'indicatorType is required for collect_indicator action'
+        }), {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          }
+        });
+      }
+
+      const result = await collectSpecificIndicator(job.indicatorType, job.source || 'api');
+
+      return new Response(JSON.stringify(result), {
+        status: result.success ? 200 : 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
+
     } else if (job.action === 'health') {
       const health = await performHealthCheck();
 
@@ -617,7 +704,7 @@ Deno.serve(async (req) => {
 
     } else {
       return new Response(JSON.stringify({
-        error: 'Invalid action. Use "collect_all" or "health"'
+        error: 'Invalid action. Use "collect_all", "collect_indicator", or "health"'
       }), {
         status: 400,
         headers: {

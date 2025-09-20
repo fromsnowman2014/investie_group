@@ -218,8 +218,12 @@ async function getCachedMarketData(query: CachedDataQuery): Promise<MarketData |
   // 4. Stale-While-Revalidate pattern
   if (cachedData && isDataStale(cachedData, maxAge, config.staleWhileRevalidate)) {
     console.log(`🔄 Serving stale data while revalidating ${query.indicatorType}`);
-    // Background data refresh would happen here in production
-    // For now, return the stale data with appropriate marking
+
+    // Background data refresh - trigger async revalidation
+    revalidateDataInBackground(query.indicatorType).catch(error => {
+      console.error(`❌ Background revalidation failed for ${query.indicatorType}:`, error.message);
+    });
+
     return {
       ...cachedData,
       source: 'cache' as const,
@@ -249,7 +253,7 @@ async function getCachedMarketData(query: CachedDataQuery): Promise<MarketData |
 }
 
 // Get comprehensive market overview
-async function getMarketOverview(): Promise<MarketOverviewResponse> {
+async function getMarketOverview(maxAge?: number): Promise<MarketOverviewResponse> {
   console.log('📊 Getting comprehensive market overview...');
 
   const indicators = [
@@ -270,6 +274,7 @@ async function getMarketOverview(): Promise<MarketOverviewResponse> {
     try {
       const data = await getCachedMarketData({
         indicatorType,
+        maxAge,
         action: 'get_cached_data'
       });
 
@@ -364,6 +369,78 @@ async function performHealthCheck(): Promise<{ status: string; details: Record<s
   }
 }
 
+// Background data revalidation function
+async function revalidateDataInBackground(indicatorType: string): Promise<void> {
+  try {
+    console.log(`🔄 Starting background revalidation for ${indicatorType}`);
+
+    // Get current Supabase URL for internal function calls
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'http://127.0.0.1:54321';
+    const isLocal = supabaseUrl.includes('127.0.0.1') || supabaseUrl.includes('localhost');
+    const functionsUrl = isLocal ?
+      'http://127.0.0.1:54321/functions/v1' :
+      `${supabaseUrl}/functions/v1`;
+
+    // Call data-collector to refresh specific indicator
+    const response = await fetch(`${functionsUrl}/data-collector`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${supabaseServiceKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        action: 'collect_indicator',
+        indicatorType: indicatorType,
+        source: 'background_revalidation'
+      })
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      console.log(`✅ Background revalidation completed for ${indicatorType}:`, result);
+    } else {
+      const errorText = await response.text();
+      console.error(`❌ Background revalidation failed for ${indicatorType}:`, response.status, errorText);
+    }
+
+  } catch (error) {
+    console.error(`💥 Background revalidation error for ${indicatorType}:`, error.message);
+  }
+}
+
+// Trigger background revalidation for all stale indicators
+async function revalidateAllStaleData(): Promise<void> {
+  try {
+    console.log('🔄 Starting background revalidation for all stale data');
+
+    const functionsUrl = Deno.env.get('SUPABASE_URL')?.includes('127.0.0.1') ?
+      'http://127.0.0.1:54321/functions/v1' :
+      `${Deno.env.get('SUPABASE_URL')}/functions/v1`;
+
+    const response = await fetch(`${functionsUrl}/data-collector`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${supabaseServiceKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        action: 'collect_all',
+        source: 'background_revalidation'
+      })
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      console.log('✅ Background revalidation completed for all indicators:', result);
+    } else {
+      console.error('❌ Background revalidation failed:', response.status, await response.text());
+    }
+
+  } catch (error) {
+    console.error('💥 Background revalidation error:', error.message);
+  }
+}
+
 // Main request handler
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
@@ -392,7 +469,7 @@ Deno.serve(async (req) => {
     const query: CachedDataQuery = await req.json();
 
     if (query.action === 'get_market_overview') {
-      const overview = await getMarketOverview();
+      const overview = await getMarketOverview(query.maxAge);
 
       return new Response(JSON.stringify(overview), {
         headers: {

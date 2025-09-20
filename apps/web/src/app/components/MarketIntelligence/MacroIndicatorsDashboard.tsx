@@ -8,12 +8,12 @@ interface MacroIndicatorsDashboardProps {
 }
 
 export default function MacroIndicatorsDashboard({ }: MacroIndicatorsDashboardProps) {
-  const { 
-    marketData: data, 
-    error, 
-    isLoading, 
-    isMarketOpen, 
-    refetch: mutate 
+  const {
+    marketData: data,
+    error,
+    isLoading,
+    isMarketOpen,
+    refetch: mutate
   } = useMacroIndicatorsData();
 
   // Enhanced debug logging for deployment troubleshooting
