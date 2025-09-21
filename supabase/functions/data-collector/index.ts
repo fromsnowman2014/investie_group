@@ -129,7 +129,7 @@ async function fetchSP500Data(): Promise<MarketIndicator | null> {
         'data-collector',
         async () => {
           const response = await fetch(
-            `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=SPY&apikey=${apiKey}`
+            `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=%5EGSPC&apikey=${apiKey}`
           );
           if (!response.ok) {
             throw new Error(`Alpha Vantage API error: ${response.status}`);
@@ -164,7 +164,7 @@ async function fetchSP500Data(): Promise<MarketIndicator | null> {
     return null;
   }
 
-  console.log(`✅ S&P 500 (SPY) data fetched successfully: ${quote['05. price']} (${result.userMessage.status})`);
+  console.log(`✅ S&P 500 Index data fetched successfully: ${quote['05. price']} (${result.userMessage.status})`);
 
   // Log any warnings or issues
   if (result.userMessage.status !== 'success') {
@@ -174,7 +174,7 @@ async function fetchSP500Data(): Promise<MarketIndicator | null> {
   return {
     indicator_type: 'sp500',
     data_value: {
-      symbol: 'SPY',
+      symbol: '^GSPC',
       price: parseFloat(quote['05. price']),
       change: parseFloat(quote['09. change']),
       change_percent: parseFloat(quote['10. change percent'].replace('%', '')),
@@ -182,8 +182,8 @@ async function fetchSP500Data(): Promise<MarketIndicator | null> {
       timestamp: quote['07. latest trading day']
     },
     metadata: {
-      name: 'S&P 500 ETF (SPY)',
-      exchange: 'NYSE'
+      name: 'S&P 500 Index',
+      exchange: 'INDEX'
     },
     data_source: 'alpha_vantage',
     expires_at: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
@@ -206,7 +206,7 @@ async function fetchSP500FromYahoo(): Promise<MarketIndicator | null> {
       'data-collector',
       async () => {
         const response = await fetch(
-          'https://query1.finance.yahoo.com/v8/finance/chart/SPY'
+          'https://query1.finance.yahoo.com/v8/finance/chart/%5EGSPC'
         );
 
         if (!response.ok) {
@@ -226,12 +226,12 @@ async function fetchSP500FromYahoo(): Promise<MarketIndicator | null> {
     const latestClose = quote.close[quote.close.length - 1];
     const latestVolume = quote.volume[quote.volume.length - 1];
 
-    console.log('✅ S&P 500 (SPY) data fetched from Yahoo Finance:', latestClose);
+    console.log('✅ S&P 500 Index data fetched from Yahoo Finance:', latestClose);
 
     return {
       indicator_type: 'sp500',
       data_value: {
-        symbol: 'SPY',
+        symbol: '^GSPC',
         price: latestClose,
         change: latestClose - meta.previousClose,
         change_percent: ((latestClose - meta.previousClose) / meta.previousClose) * 100,
@@ -239,8 +239,8 @@ async function fetchSP500FromYahoo(): Promise<MarketIndicator | null> {
         timestamp: new Date(timestamp * 1000).toISOString().split('T')[0]
       },
       metadata: {
-        name: 'S&P 500 ETF (SPY)',
-        exchange: 'NYSE'
+        name: 'S&P 500 Index',
+        exchange: 'INDEX'
       },
       data_source: 'yahoo_finance',
       expires_at: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString() // 6 hours
