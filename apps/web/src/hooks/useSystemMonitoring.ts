@@ -128,7 +128,7 @@ const playAlertSound = (level: Alert['level']) => {
     audio.play().catch(() => {
       // Ignore audio playback errors
     });
-  } catch (error) {
+  } catch {
     // Ignore audio setup errors
   }
 };
@@ -174,7 +174,7 @@ export const useSystemMonitoring = (): MonitoringHookResult => {
       refreshInterval: config.enabled ? config.refreshInterval : 0,
       revalidateOnFocus: false,
       errorRetryInterval: 10000,
-      onSuccess: (data) => {
+      onSuccess: () => {
         setLastUpdate(new Date());
         setIsConnected(true);
       },
@@ -261,9 +261,10 @@ export const useSystemMonitoring = (): MonitoringHookResult => {
   // Clean up old acknowledged alerts (older than 7 days)
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-      const validAlerts = [...acknowledgedAlerts].filter(alertId => {
-        // If we can't determine age, keep it
+      // Clean up old acknowledged alerts (older than 7 days)
+      // const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      const validAlerts = [...acknowledgedAlerts].filter(() => {
+        // If we can't determine age, keep it for now
         return true;
       });
 

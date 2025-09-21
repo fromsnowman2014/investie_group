@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import useSWR from 'swr';
 import { edgeFunctionFetcher } from '@/lib/api-utils';
 
@@ -189,7 +189,7 @@ const ComponentHealthCard: React.FC<{
 
 export const SystemHealthDashboard: React.FC = () => {
   const [autoRefresh, setAutoRefresh] = useState(true);
-  const [refreshInterval, setRefreshInterval] = useState(30000); // 30 seconds
+  const [refreshInterval] = useState(30000); // 30 seconds
 
   // Fetch system health data
   const { data: healthData, error: healthError, mutate: refreshHealth } = useSWR<SystemHealth>(
@@ -258,8 +258,9 @@ export const SystemHealthDashboard: React.FC = () => {
     critical: 'text-red-600'
   };
 
-  const criticalAlerts = healthData.alerts.filter(alert => alert.level === 'critical');
-  const warningAlerts = healthData.alerts.filter(alert => alert.level === 'warning');
+  // Filter alerts by severity for potential future use
+  // const criticalAlerts = healthData.alerts.filter(alert => alert.level === 'critical');
+  // const warningAlerts = healthData.alerts.filter(alert => alert.level === 'warning');
 
   return (
     <div className="space-y-6">

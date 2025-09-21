@@ -1,15 +1,32 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { edgeFunctionFetcher } from '@/lib/api-utils';
 
+interface ApiUsageStats {
+  api_provider: string;
+  total_requests: number;
+  successful_requests: number;
+  failed_requests: number;
+  avg_response_time_ms: number;
+  usage_percentage: number;
+  last_request_at: string;
+}
+
+interface RealtimeData {
+  api_provider: string;
+  requests_today: number;
+  requests_this_hour: number;
+  health_status: string;
+}
+
 interface ApiUsageData {
-  today: any[];
-  realtime: any[];
+  today: ApiUsageStats[];
+  realtime: RealtimeData[];
   rateLimited: string[];
 }
 
-interface ApiUsageStats {
+interface FormattedApiUsageStats {
   provider: string;
   totalRequests: number;
   successRate: number;
@@ -31,12 +48,12 @@ export default function ApiUsageDebugger() {
 
     try {
       // Try to fetch from local first, then production
-      let data;
+      let data: ApiUsageData;
       try {
-        data = await edgeFunctionFetcher('api-usage-dashboard', {
+        data = await edgeFunctionFetcher<ApiUsageData>('api-usage-dashboard', {
           action: 'summary'
         });
-      } catch (localError) {
+      } catch {
         console.warn('Local API failed, trying alternative methods');
         // Alternative: direct database query or mock data
         data = await getMockUsageData();
@@ -93,15 +110,17 @@ export default function ApiUsageDebugger() {
     };
   };
 
+  const fetchUsageDataCallback = React.useCallback(fetchUsageData, []);
+
   useEffect(() => {
-    fetchUsageData();
+    fetchUsageDataCallback();
 
     // Auto-refresh every 30 seconds
-    const interval = setInterval(fetchUsageData, 30000);
+    const interval = setInterval(fetchUsageDataCallback, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchUsageDataCallback]);
 
-  const formatUsageStats = (data: ApiUsageData): ApiUsageStats[] => {
+  const formatUsageStats = (data: ApiUsageData): FormattedApiUsageStats[] => {
     return data.today.map(item => ({
       provider: item.api_provider,
       totalRequests: item.total_requests || 0,
