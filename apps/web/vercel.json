@@ -2,11 +2,5 @@
   "framework": "nextjs",
   "buildCommand": "cd ../.. && npm run build --workspace=web",
   "installCommand": "cd ../.. && npm ci --legacy-peer-deps",
-  "outputDirectory": ".next",
-  "crons": [
-    {
-      "path": "/api/cron/collect-market-data",
-      "schedule": "0 9,16 * * 1-5"
-    }
-  ]
+  "outputDirectory": ".next"
 }
