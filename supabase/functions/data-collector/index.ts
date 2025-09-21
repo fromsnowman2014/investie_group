@@ -2,6 +2,13 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 import { trackApiCall, apiTracker } from '../_shared/api-usage-tracker.ts'
+import {
+  validateAlphaVantageResponse,
+  validateAndProcessApiResponse,
+  generateUserFriendlyMessage,
+  type DataFreshnessConfig,
+  type ApiValidationResult
+} from '../_shared/api-validation.ts'
 
 // Types for data collection
 interface CollectionJob {
@@ -18,6 +25,12 @@ interface MarketIndicator {
   metadata?: Record<string, unknown>;
   data_source: string;
   expires_at?: string;
+  validation?: {
+    status: 'success' | 'warning' | 'error';
+    message?: string;
+    dataAge?: number;
+    isStale?: boolean;
+  };
 }
 
 interface CollectionResult {
@@ -93,71 +106,94 @@ async function fetchFearGreedIndex(): Promise<MarketIndicator | null> {
 }
 
 async function fetchSP500Data(): Promise<MarketIndicator | null> {
-  try {
-    console.log('🔍 Fetching S&P 500 data from Alpha Vantage...');
+  console.log('🔍 Fetching S&P 500 data from Alpha Vantage...');
 
-    const apiKey = Deno.env.get('ALPHA_VANTAGE_API_KEY');
-    if (!apiKey) {
-      console.warn('⚠️ ALPHA_VANTAGE_API_KEY not configured, using Yahoo Finance fallback');
-      return await fetchSP500FromYahoo();
-    }
-
-    // Fetch SPY ETF as S&P 500 proxy with usage tracking
-    const data = await trackApiCall(
-      'alpha_vantage',
-      'https://www.alphavantage.co/query',
-      'data-collector',
-      async () => {
-        const response = await fetch(
-          `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=SPY&apikey=${apiKey}`
-        );
-
-        if (!response.ok) {
-          throw new Error(`Alpha Vantage API error: ${response.status}`);
-        }
-
-        return await response.json();
-      },
-      {
-        indicatorType: 'sp500',
-        apiKey: apiKey
-      }
-    );
-
-    if (data['Note'] && data['Note'].includes('API call frequency')) {
-      console.warn('⚠️ Alpha Vantage rate limit hit, using Yahoo Finance fallback');
-      return await fetchSP500FromYahoo();
-    }
-
-    const quote = data['Global Quote'];
-    if (!quote) {
-      throw new Error('Invalid Alpha Vantage response format');
-    }
-
-    console.log('✅ S&P 500 (SPY) data fetched successfully:', quote['05. price']);
-
-    return {
-      indicator_type: 'sp500',
-      data_value: {
-        symbol: 'SPY',
-        price: parseFloat(quote['05. price']),
-        change: parseFloat(quote['09. change']),
-        change_percent: parseFloat(quote['10. change percent'].replace('%', '')),
-        volume: parseInt(quote['06. volume']),
-        timestamp: quote['07. latest trading day']
-      },
-      metadata: {
-        name: 'S&P 500 ETF (SPY)',
-        exchange: 'NYSE'
-      },
-      data_source: 'alpha_vantage',
-      expires_at: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString() // 6 hours
-    };
-  } catch (error) {
-    console.error('❌ Failed to fetch S&P 500 from Alpha Vantage:', error.message);
-    console.log('🔄 Trying Yahoo Finance fallback...');
+  const apiKey = Deno.env.get('ALPHA_VANTAGE_API_KEY');
+  if (!apiKey) {
+    console.warn('⚠️ ALPHA_VANTAGE_API_KEY not configured, using Yahoo Finance fallback');
     return await fetchSP500FromYahoo();
   }
+
+  const config: DataFreshnessConfig = {
+    maxAgeHours: 12,
+    warnAfterHours: 6,
+    source: 'Alpha Vantage'
+  };
+
+  // Enhanced API call with comprehensive validation
+  const result = await validateAndProcessApiResponse(
+    async () => {
+      return await trackApiCall(
+        'alpha_vantage',
+        'https://www.alphavantage.co/query',
+        'data-collector',
+        async () => {
+          const response = await fetch(
+            `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=SPY&apikey=${apiKey}`
+          );
+          if (!response.ok) {
+            throw new Error(`Alpha Vantage API error: ${response.status}`);
+          }
+          return await response.json();
+        },
+        {
+          indicatorType: 'sp500',
+          apiKey: apiKey
+        }
+      );
+    },
+    validateAlphaVantageResponse,
+    config,
+    fetchSP500FromYahoo
+  );
+
+  // Process validated response
+  if (!result.data) {
+    console.error('❌ Failed to fetch valid S&P 500 data from any source');
+    return null;
+  }
+
+  const quote = result.data['Global Quote'];
+  if (!quote && result.data.data_source === 'yahoo_finance') {
+    // Return Yahoo Finance data if it's from fallback
+    return result.data as MarketIndicator;
+  }
+
+  if (!quote) {
+    console.error('❌ Invalid response format after validation');
+    return null;
+  }
+
+  console.log(`✅ S&P 500 (SPY) data fetched successfully: ${quote['05. price']} (${result.userMessage.status})`);
+
+  // Log any warnings or issues
+  if (result.userMessage.status !== 'success') {
+    console.warn(`⚠️ Data Quality Issue: ${result.userMessage.title} - ${result.userMessage.message}`);
+  }
+
+  return {
+    indicator_type: 'sp500',
+    data_value: {
+      symbol: 'SPY',
+      price: parseFloat(quote['05. price']),
+      change: parseFloat(quote['09. change']),
+      change_percent: parseFloat(quote['10. change percent'].replace('%', '')),
+      volume: parseInt(quote['06. volume']),
+      timestamp: quote['07. latest trading day']
+    },
+    metadata: {
+      name: 'S&P 500 ETF (SPY)',
+      exchange: 'NYSE'
+    },
+    data_source: 'alpha_vantage',
+    expires_at: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
+    validation: {
+      status: result.userMessage.status,
+      message: result.userMessage.message,
+      dataAge: result.validation.dataAge,
+      isStale: !result.validation.isFresh
+    }
+  };
 }
 
 async function fetchSP500FromYahoo(): Promise<MarketIndicator | null> {
