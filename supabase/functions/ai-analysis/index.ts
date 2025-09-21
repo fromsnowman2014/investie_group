@@ -1,5 +1,6 @@
 // Setup type definitions for built-in Supabase Runtime APIs
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
+import { trackApiCall } from '../_shared/api-usage-tracker.ts';
 
 interface AIAnalysisResponse {
   rating: 'bullish' | 'neutral' | 'bearish';
@@ -22,42 +23,52 @@ function validateSymbol(symbol: string): boolean {
 
 async function generateClaudeAnalysis(symbol: string, claudeApiKey: string): Promise<AIAnalysisResponse | null> {
   try {
-    const prompt = `As a senior investment analyst, provide a comprehensive evaluation of ${symbol} stock. 
+    const prompt = `As a senior investment analyst, provide a comprehensive evaluation of ${symbol} stock.
     Consider recent market conditions, company fundamentals, industry trends, and macroeconomic factors.
     Rate the stock as bullish, neutral, or bearish with a confidence level (0-100).
     Provide specific key factors that support your analysis.
     Give a clear BUY/HOLD/SELL recommendation based on current conditions.`;
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': claudeApiKey,
-        'anthropic-version': '2023-06-01'
+    const data = await trackApiCall(
+      'anthropic',
+      'https://api.anthropic.com/v1/messages',
+      'ai-analysis',
+      async () => {
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': claudeApiKey,
+            'anthropic-version': '2023-06-01'
+          },
+          body: JSON.stringify({
+            model: 'claude-3-haiku-20240307',
+            max_tokens: 1000,
+            messages: [{
+              role: 'user',
+              content: `${prompt}\n\nRespond with valid JSON matching this schema:
+              {
+                "rating": "bullish|neutral|bearish",
+                "confidence": 85,
+                "summary": "2-3 sentence analysis",
+                "keyFactors": ["factor1", "factor2", "factor3"],
+                "recommendation": "BUY|HOLD|SELL"
+              }`
+            }]
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Claude API error: ${response.status}`);
+        }
+
+        return await response.json();
       },
-      body: JSON.stringify({
-        model: 'claude-3-haiku-20240307',
-        max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: `${prompt}\n\nRespond with valid JSON matching this schema:
-          {
-            "rating": "bullish|neutral|bearish",
-            "confidence": 85,
-            "summary": "2-3 sentence analysis",
-            "keyFactors": ["factor1", "factor2", "factor3"],
-            "recommendation": "BUY|HOLD|SELL"
-          }`
-        }]
-      })
-    });
-
-    if (!response.ok) {
-      console.warn(`Claude API error: ${response.status}`);
-      return null;
-    }
-
-    const data = await response.json();
+      {
+        indicatorType: 'ai_analysis',
+        apiKey: claudeApiKey
+      }
+    );
     const content = data.content?.[0]?.text;
     
     if (!content) {
@@ -92,28 +103,38 @@ async function generateOpenAIAnalysis(symbol: string, openaiApiKey: string): Pro
   try {
     const prompt = `As a senior investment analyst, analyze ${symbol} stock. Rate as bullish/neutral/bearish with confidence (0-100). Provide 2-3 sentence summary, key factors, and BUY/HOLD/SELL recommendation. Respond in JSON format with fields: rating, confidence, summary, keyFactors (array), recommendation.`;
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${openaiApiKey}`
+    const data = await trackApiCall(
+      'openai',
+      'https://api.openai.com/v1/chat/completions',
+      'ai-analysis',
+      async () => {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${openaiApiKey}`
+          },
+          body: JSON.stringify({
+            model: 'gpt-3.5-turbo',
+            messages: [{
+              role: 'user',
+              content: prompt
+            }],
+            max_tokens: 500
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`OpenAI API error: ${response.status}`);
+        }
+
+        return await response.json();
       },
-      body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [{
-          role: 'user',
-          content: prompt
-        }],
-        max_tokens: 500
-      })
-    });
-
-    if (!response.ok) {
-      console.warn(`OpenAI API error: ${response.status}`);
-      return null;
-    }
-
-    const data = await response.json();
+      {
+        indicatorType: 'ai_analysis',
+        apiKey: openaiApiKey
+      }
+    );
     const content = data.choices?.[0]?.message?.content;
     
     if (!content) {

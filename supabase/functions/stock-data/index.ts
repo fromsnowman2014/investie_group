@@ -1,5 +1,6 @@
 // Setup type definitions for built-in Supabase Runtime APIs
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
+import { trackApiCall } from '../_shared/api-usage-tracker.ts';
 
 interface StockPriceData {
   price: number;
@@ -68,27 +69,37 @@ function validateSymbol(symbol: string): boolean {
 async function getAlphaVantageQuote(symbol: string, apiKey: string): Promise<{ data: AlphaVantageQuote | null; isRateLimited: boolean; rateLimitMessage?: string }> {
   try {
     const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`;
-    
+
     console.log(`🔍 Fetching Alpha Vantage quote for ${symbol}...`);
     console.log(`🔗 URL: ${url.replace(apiKey, 'HIDDEN_KEY')}`);
-    
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-    
-    const response = await fetch(url, {
-      signal: controller.signal
-    });
-    
-    clearTimeout(timeoutId);
 
-    console.log(`📡 Alpha Vantage response for ${symbol}: ${response.status} ${response.statusText}`);
+    const data = await trackApiCall(
+      'alpha_vantage',
+      url,
+      'stock-data',
+      async () => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    if (!response.ok) {
-      console.warn(`Alpha Vantage API error: ${response.status}`);
-      return { data: null, isRateLimited: false };
-    }
+        const response = await fetch(url, {
+          signal: controller.signal
+        });
 
-    const data = await response.json();
+        clearTimeout(timeoutId);
+
+        console.log(`📡 Alpha Vantage response for ${symbol}: ${response.status} ${response.statusText}`);
+
+        if (!response.ok) {
+          throw new Error(`Alpha Vantage API error: ${response.status}`);
+        }
+
+        return await response.json();
+      },
+      {
+        indicatorType: 'stock_quote',
+        apiKey: apiKey
+      }
+    );
     console.log(`📦 Alpha Vantage raw data for ${symbol}:`, JSON.stringify(data));
     
     // Enhanced rate limit detection
@@ -160,22 +171,32 @@ async function getAlphaVantageQuote(symbol: string, apiKey: string): Promise<{ d
 async function getAlphaVantageOverview(symbol: string, apiKey: string): Promise<AlphaVantageOverview | null> {
   try {
     const url = `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${symbol}&apikey=${apiKey}`;
-    
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-    
-    const response = await fetch(url, {
-      signal: controller.signal
-    });
-    
-    clearTimeout(timeoutId);
 
-    if (!response.ok) {
-      console.warn(`Alpha Vantage Overview API error: ${response.status}`);
-      return null;
-    }
+    const overview = await trackApiCall(
+      'alpha_vantage',
+      url,
+      'stock-data',
+      async () => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    const overview = await response.json();
+        const response = await fetch(url, {
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          throw new Error(`Alpha Vantage Overview API error: ${response.status}`);
+        }
+
+        return await response.json();
+      },
+      {
+        indicatorType: 'stock_overview',
+        apiKey: apiKey
+      }
+    );
     
     if (!overview || overview.Symbol !== symbol) {
       console.warn(`No overview data returned for ${symbol}`);

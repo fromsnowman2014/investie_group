@@ -200,15 +200,25 @@ async function fetchSP500FromYahoo(): Promise<MarketIndicator | null> {
   try {
     console.log('🔍 Fetching S&P 500 data from Yahoo Finance...');
 
-    const response = await fetch(
-      'https://query1.finance.yahoo.com/v8/finance/chart/SPY'
+    const data = await trackApiCall(
+      'yahoo_finance',
+      'https://query1.finance.yahoo.com/v8/finance/chart/SPY',
+      'data-collector',
+      async () => {
+        const response = await fetch(
+          'https://query1.finance.yahoo.com/v8/finance/chart/SPY'
+        );
+
+        if (!response.ok) {
+          throw new Error(`Yahoo Finance API error: ${response.status}`);
+        }
+
+        return await response.json();
+      },
+      {
+        indicatorType: 'sp500_backup'
+      }
     );
-
-    if (!response.ok) {
-      throw new Error(`Yahoo Finance API error: ${response.status}`);
-    }
-
-    const data = await response.json();
     const result = data.chart.result[0];
     const meta = result.meta;
     const quote = result.indicators.quote[0];
@@ -299,15 +309,25 @@ async function fetchVIXFromYahoo(): Promise<MarketIndicator | null> {
   try {
     console.log('🔍 Fetching VIX data from Yahoo Finance...');
 
-    const response = await fetch(
-      'https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX'
+    const data = await trackApiCall(
+      'yahoo_finance',
+      'https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX',
+      'data-collector',
+      async () => {
+        const response = await fetch(
+          'https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX'
+        );
+
+        if (!response.ok) {
+          throw new Error(`Yahoo Finance API error: ${response.status}`);
+        }
+
+        return await response.json();
+      },
+      {
+        indicatorType: 'vix_backup'
+      }
     );
-
-    if (!response.ok) {
-      throw new Error(`Yahoo Finance API error: ${response.status}`);
-    }
-
-    const data = await response.json();
     const result = data.chart.result[0];
     const meta = result.meta;
     const quote = result.indicators.quote[0];
@@ -349,15 +369,25 @@ async function fetchTreasury10Y(): Promise<MarketIndicator | null> {
       return null;
     }
 
-    const response = await fetch(
-      `https://api.stlouisfed.org/fred/series/observations?series_id=DGS10&api_key=${apiKey}&file_type=json&limit=1&sort_order=desc`
+    const data = await trackApiCall(
+      'fred',
+      'https://api.stlouisfed.org/fred/series/observations',
+      'data-collector',
+      async () => {
+        const response = await fetch(
+          `https://api.stlouisfed.org/fred/series/observations?series_id=DGS10&api_key=${apiKey}&file_type=json&limit=1&sort_order=desc`
+        );
+        if (!response.ok) {
+          throw new Error(`FRED API error: ${response.status}`);
+        }
+        return await response.json();
+      },
+      {
+        indicatorType: 'treasury_10y',
+        apiKey: apiKey
+      }
     );
 
-    if (!response.ok) {
-      throw new Error(`FRED API error: ${response.status}`);
-    }
-
-    const data = await response.json();
     const observation = data.observations[0];
 
     if (observation.value === '.') {

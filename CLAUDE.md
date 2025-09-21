@@ -149,8 +149,24 @@ All endpoints are Supabase Edge Functions with POST requests:
 ### Supabase Edge Functions Environment Variables
 Set in Supabase Dashboard → Project Settings → Edge Functions:
 ```bash
+# Market Data APIs
 ALPHA_VANTAGE_API_KEY=your-alpha-vantage-key  # Required for real stock data
+FRED_API_KEY=your-fred-api-key                 # Federal Reserve Economic Data (optional)
+
+# AI Analysis APIs (optional)
+CLAUDE_API_KEY=your-claude-api-key             # Anthropic Claude API
+OPENAI_API_KEY=your-openai-api-key             # OpenAI GPT API
+
+# API Usage Monitoring (optional)
+DISABLE_API_TRACKING=false                     # Set to 'true' to disable usage tracking
 ```
+
+**API Provider Usage:**
+- **Alpha Vantage**: Stock quotes, company overviews, S&P 500, VIX data
+- **FRED**: Treasury rates, unemployment data, CPI data
+- **Yahoo Finance**: Backup data source (no API key required)
+- **Alternative.me**: Fear & Greed Index (no API key required)
+- **Claude/OpenAI**: AI-powered stock analysis (optional features)
 
 ### Frontend (.env.local in apps/web)
 ```bash

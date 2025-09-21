@@ -129,11 +129,99 @@ export default function ApiUsageDebugger() {
         : 0,
       avgResponseTime: Math.round(item.avg_response_time_ms || 0),
       usagePercentage: item.usage_percentage || 0,
-      lastRequest: item.last_request_at ? new Date(item.last_request_at).toLocaleTimeString() : 'Never',
+      lastRequest: item.last_request_at ? formatCompactTime(new Date(item.last_request_at)) : 'Never',
       status: item.failed_requests > item.successful_requests ? 'error'
              : item.usage_percentage > 80 ? 'warning'
              : 'healthy'
     }));
+  };
+
+  // Enhanced time formatting with date and relative time
+  const formatDetailedTime = (date: Date): string => {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+
+    // Show relative time if recent
+    let relativeTime = '';
+    if (diffMinutes < 1) {
+      relativeTime = 'just now';
+    } else if (diffMinutes < 60) {
+      relativeTime = `${diffMinutes}m ago`;
+    } else if (diffHours < 24) {
+      relativeTime = `${diffHours}h ago`;
+    } else {
+      const diffDays = Math.floor(diffHours / 24);
+      relativeTime = `${diffDays}d ago`;
+    }
+
+    // Format date and time
+    const isToday = date.toDateString() === now.toDateString();
+    const dateStr = isToday ? 'Today' : date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
+    });
+    const timeStr = date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+
+    return `${dateStr} ${timeStr} (${relativeTime})`;
+  };
+
+  // Compact time format for provider cards
+  const formatCompactTime = (date: Date): string => {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+
+    if (diffMinutes < 1) {
+      return 'now';
+    } else if (diffMinutes < 60) {
+      return `${diffMinutes}m`;
+    } else if (diffHours < 24) {
+      return `${diffHours}h`;
+    } else {
+      const diffDays = Math.floor(diffHours / 24);
+      return `${diffDays}d`;
+    }
+  };
+
+  // Predict next update time based on provider patterns
+  const getNextUpdateInfo = (provider: string, lastRequest: string): string => {
+    if (!lastRequest || lastRequest === 'Never') return 'Unknown';
+
+    const lastUpdate = new Date(lastRequest);
+    const now = new Date();
+
+    // Provider-specific update intervals
+    const intervals = {
+      'alternative_me': 24 * 60 * 60 * 1000, // 24 hours
+      'alpha_vantage': 12 * 60 * 60 * 1000,  // 12 hours
+      'yahoo_finance': 6 * 60 * 60 * 1000,    // 6 hours
+      'default': 12 * 60 * 60 * 1000           // 12 hours default
+    };
+
+    const interval = intervals[provider as keyof typeof intervals] || intervals.default;
+    const nextUpdate = new Date(lastUpdate.getTime() + interval);
+
+    // Check if next update is due
+    if (now >= nextUpdate) {
+      return 'Due now';
+    }
+
+    const timeUntil = nextUpdate.getTime() - now.getTime();
+    const hoursUntil = Math.floor(timeUntil / (1000 * 60 * 60));
+    const minutesUntil = Math.floor((timeUntil % (1000 * 60 * 60)) / (1000 * 60));
+
+    if (hoursUntil > 0) {
+      return `${hoursUntil}h ${minutesUntil}m`;
+    } else {
+      return `${minutesUntil}m`;
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -181,7 +269,7 @@ export default function ApiUsageDebugger() {
         </div>
         {lastUpdate && (
           <p className="text-xs opacity-90">
-            Last update: {lastUpdate.toLocaleTimeString()}
+            Last update: {formatDetailedTime(lastUpdate)}
           </p>
         )}
       </div>
@@ -236,8 +324,17 @@ export default function ApiUsageDebugger() {
                     <div>Avg Time: {stat.avgResponseTime}ms</div>
                     <div>Usage: {stat.usagePercentage.toFixed(1)}%</div>
                   </div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    Last: {stat.lastRequest}
+                  <div className="text-xs text-gray-500 mt-2 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span>Last update:</span>
+                      <span className="font-medium">{stat.lastRequest}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Next update:</span>
+                      <span className="font-medium text-blue-600">
+                        {getNextUpdateInfo(stat.provider, usageData.today.find(item => item.api_provider === stat.provider)?.last_request_at || '')}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
