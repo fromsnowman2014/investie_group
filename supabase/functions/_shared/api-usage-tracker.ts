@@ -347,9 +347,11 @@ export class ApiUsageTracker {
     }
   }
 
-  // Get usage summary for debugging
+  // Get comprehensive usage summary with proper aggregation
   async getUsageSummary(): Promise<{
     today: any[],
+    weekly: any[],
+    monthly: any[],
     realtime: any[],
     rateLimited: string[]
   }> {
@@ -362,13 +364,102 @@ export class ApiUsageTracker {
       .filter(stat => stat.is_rate_limited)
       .map(stat => stat.api_provider);
 
+    // Aggregate today's stats by provider to avoid duplicates
+    const todayDate = new Date().toISOString().split('T')[0];
+    const todayFiltered = todayStats.filter(stat => stat.date_tracked === todayDate);
+
+    const todayAggregated = this.aggregateStatsByProvider(todayFiltered);
+
+    // Get weekly and monthly aggregations
+    const weeklyAggregated = this.getWeeklyAggregation(todayStats);
+    const monthlyAggregated = this.getMonthlyAggregation(todayStats);
+
     return {
-      today: todayStats.filter(stat =>
-        stat.date_tracked === new Date().toISOString().split('T')[0]
-      ),
+      today: todayAggregated,
+      weekly: weeklyAggregated,
+      monthly: monthlyAggregated,
       realtime: realtimeStats,
       rateLimited
     };
+  }
+
+  // Aggregate statistics by provider to remove duplicates
+  private aggregateStatsByProvider(stats: any[]): any[] {
+    const providerMap = new Map();
+
+    stats.forEach(stat => {
+      const key = stat.api_provider;
+      if (providerMap.has(key)) {
+        const existing = providerMap.get(key);
+        existing.total_requests += stat.total_requests || 0;
+        existing.successful_requests += stat.successful_requests || 0;
+        existing.failed_requests += stat.failed_requests || 0;
+        existing.rate_limited_requests += stat.rate_limited_requests || 0;
+
+        // Average response time calculation
+        const totalTime = (existing.avg_response_time_ms * existing.request_count) +
+                         (stat.avg_response_time_ms * stat.total_requests);
+        existing.request_count += stat.total_requests;
+        existing.avg_response_time_ms = totalTime / existing.request_count;
+
+        // Keep latest timestamp
+        if (stat.last_request_at &&
+            (!existing.last_request_at || stat.last_request_at > existing.last_request_at)) {
+          existing.last_request_at = stat.last_request_at;
+        }
+      } else {
+        providerMap.set(key, {
+          ...stat,
+          request_count: stat.total_requests || 0
+        });
+      }
+    });
+
+    return Array.from(providerMap.values()).map(stat => {
+      // Calculate final metrics
+      const successRate = stat.total_requests > 0
+        ? (stat.successful_requests / stat.total_requests * 100).toFixed(1)
+        : '0';
+
+      // Calculate usage percentage based on known limits
+      const dailyLimits = {
+        'alpha_vantage': 25,
+        'fred': 1000,
+        'twelve_data': 100,
+        'yahoo_finance': 10000,
+        'alternative_me': 1000
+      };
+
+      const limit = dailyLimits[stat.api_provider] || null;
+      const usage_percentage = limit ? (stat.total_requests / limit * 100).toFixed(1) : null;
+
+      return {
+        ...stat,
+        success_rate: successRate,
+        usage_percentage: usage_percentage,
+        daily_limit: limit
+      };
+    });
+  }
+
+  // Get weekly aggregation (last 7 days)
+  private getWeeklyAggregation(allStats: any[]): any[] {
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    const weekAgoStr = weekAgo.toISOString().split('T')[0];
+
+    const weeklyStats = allStats.filter(stat => stat.date_tracked >= weekAgoStr);
+    return this.aggregateStatsByProvider(weeklyStats);
+  }
+
+  // Get monthly aggregation (last 30 days)
+  private getMonthlyAggregation(allStats: any[]): any[] {
+    const monthAgo = new Date();
+    monthAgo.setDate(monthAgo.getDate() - 30);
+    const monthAgoStr = monthAgo.toISOString().split('T')[0];
+
+    const monthlyStats = allStats.filter(stat => stat.date_tracked >= monthAgoStr);
+    return this.aggregateStatsByProvider(monthlyStats);
   }
 }
 

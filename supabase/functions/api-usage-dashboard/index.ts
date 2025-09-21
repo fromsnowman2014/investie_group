@@ -10,16 +10,75 @@ interface DashboardRequest {
   format?: 'json' | 'html';
 }
 
+// Generate statistics table for different time periods
+function generateStatsTable(stats: any[], title: string): string {
+  if (!stats || stats.length === 0) {
+    return `<p style="text-align: center; color: #718096; padding: 40px;">No data available for ${title.toLowerCase()}</p>`;
+  }
+
+  return `
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Provider</th>
+            <th>Requests</th>
+            <th>Success Rate</th>
+            <th>Avg Time</th>
+            <th>Usage %</th>
+            <th>Daily Limit</th>
+            <th>Last Request</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${stats.map(item => {
+            const usagePercent = parseFloat(item.usage_percentage || '0');
+            const usageClass = usagePercent > 80 ? 'danger' : usagePercent > 60 ? 'warning' : '';
+            const successRate = parseFloat(item.success_rate || '0');
+
+            return `
+              <tr>
+                <td>
+                  <strong>${item.api_provider}</strong>
+                  ${item.daily_limit ? `<div class="provider-limit">Limit: ${item.daily_limit}/day</div>` : ''}
+                </td>
+                <td>${item.total_requests || 0}</td>
+                <td>${successRate.toFixed(1)}%</td>
+                <td>${item.avg_response_time_ms ? Math.round(item.avg_response_time_ms) + 'ms' : 'N/A'}</td>
+                <td>
+                  ${item.usage_percentage ? usagePercent.toFixed(1) + '%' : 'N/A'}
+                  ${item.usage_percentage ? `
+                    <div class="usage-bar">
+                      <div class="usage-fill ${usageClass}" style="width: ${Math.min(usagePercent, 100)}%"></div>
+                    </div>
+                  ` : ''}
+                </td>
+                <td>${item.daily_limit || 'Unlimited'}</td>
+                <td>${item.last_request_at ? new Date(item.last_request_at).toLocaleTimeString() : 'Never'}</td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
 // Generate HTML dashboard for browser viewing
 function generateDashboard(data: {
   today: any[],
+  weekly: any[],
+  monthly: any[],
   realtime: any[],
   rateLimited: string[],
   debugLogs?: any[]
 }): string {
-  const { today, realtime, rateLimited, debugLogs = [] } = data;
+  const { today, weekly, monthly, realtime, rateLimited, debugLogs = [] } = data;
 
   const todayTotal = today.reduce((sum, item) => sum + (item.total_requests || 0), 0);
+  const weeklyTotal = weekly.reduce((sum, item) => sum + (item.total_requests || 0), 0);
+  const monthlyTotal = monthly.reduce((sum, item) => sum + (item.total_requests || 0), 0);
+
   const successRate = today.length > 0
     ? Math.round((today.reduce((sum, item) => sum + (item.successful_requests || 0), 0) / todayTotal) * 100)
     : 0;
@@ -202,10 +261,66 @@ function generateDashboard(data: {
         }
         .usage-fill.warning { background: linear-gradient(90deg, #ed8936, #dd6b20); }
         .usage-fill.danger { background: linear-gradient(90deg, #f56565, #e53e3e); }
+
+        /* Tab Styles */
+        .tab-container {
+            margin-top: 16px;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 16px;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #718096;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        .tab-btn:hover {
+            color: #4c51bf;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .provider-limit {
+            font-size: 0.8rem;
+            color: #718096;
+            margin-top: 2px;
+        }
     </style>
     <script>
         function refreshDashboard() {
             window.location.reload();
+        }
+
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
         }
 
         // Auto-refresh every 30 seconds
@@ -235,8 +350,18 @@ function generateDashboard(data: {
                 <div class="overview-stats">
                     <div class="stat-item">
                         <span class="stat-value">${todayTotal}</span>
-                        <div class="stat-label">Total Requests</div>
+                        <div class="stat-label">Today</div>
                     </div>
+                    <div class="stat-item">
+                        <span class="stat-value">${weeklyTotal}</span>
+                        <div class="stat-label">This Week</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">${monthlyTotal}</span>
+                        <div class="stat-label">This Month</div>
+                    </div>
+                </div>
+                <div class="overview-stats">
                     <div class="stat-item">
                         <span class="stat-value">${successRate}%</span>
                         <div class="stat-label">Success Rate</div>
@@ -244,6 +369,10 @@ function generateDashboard(data: {
                     <div class="stat-item">
                         <span class="stat-value">${rateLimited.length}</span>
                         <div class="stat-label">Rate Limited</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">${today.length}</span>
+                        <div class="stat-label">Active APIs</div>
                     </div>
                 </div>
             </div>
@@ -273,50 +402,33 @@ function generateDashboard(data: {
             </div>
         </div>
 
-        <!-- Detailed Usage Table -->
+        <!-- Time Period Tabs -->
         <div class="card">
             <h2>
                 <div class="card-icon" style="background: #ed8936; color: white;">📈</div>
-                Detailed Usage Statistics
+                API Usage Statistics
             </h2>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Provider</th>
-                            <th>Total Requests</th>
-                            <th>Success Rate</th>
-                            <th>Avg Response Time</th>
-                            <th>Usage %</th>
-                            <th>Last Request</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${today.map(item => {
-                          const usagePercent = item.usage_percentage || 0;
-                          const usageClass = usagePercent > 80 ? 'danger' : usagePercent > 60 ? 'warning' : '';
-                          const successRate = item.total_requests > 0
-                            ? Math.round((item.successful_requests / item.total_requests) * 100)
-                            : 0;
+            <div class="tab-container">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="showTab('today')">Today</button>
+                    <button class="tab-btn" onclick="showTab('weekly')">Weekly</button>
+                    <button class="tab-btn" onclick="showTab('monthly')">Monthly</button>
+                </div>
 
-                          return `
-                            <tr>
-                                <td><strong>${item.api_provider}</strong></td>
-                                <td>${item.total_requests || 0}</td>
-                                <td>${successRate}%</td>
-                                <td>${item.avg_response_time_ms ? Math.round(item.avg_response_time_ms) + 'ms' : 'N/A'}</td>
-                                <td>
-                                    ${usagePercent.toFixed(1)}%
-                                    <div class="usage-bar">
-                                        <div class="usage-fill ${usageClass}" style="width: ${Math.min(usagePercent, 100)}%"></div>
-                                    </div>
-                                </td>
-                                <td>${item.last_request_at ? new Date(item.last_request_at).toLocaleTimeString() : 'Never'}</td>
-                            </tr>
-                          `;
-                        }).join('')}
-                    </tbody>
-                </table>
+                <!-- Today Tab -->
+                <div id="today-tab" class="tab-content active">
+                    ${generateStatsTable(today, 'Today\'s Usage')}
+                </div>
+
+                <!-- Weekly Tab -->
+                <div id="weekly-tab" class="tab-content">
+                    ${generateStatsTable(weekly, 'Weekly Usage (Last 7 Days)')}
+                </div>
+
+                <!-- Monthly Tab -->
+                <div id="monthly-tab" class="tab-content">
+                    ${generateStatsTable(monthly, 'Monthly Usage (Last 30 Days)')}
+                </div>
             </div>
         </div>
 

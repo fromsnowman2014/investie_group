@@ -22,6 +22,8 @@ interface RealtimeData {
 
 interface ApiUsageData {
   today: ApiUsageStats[];
+  weekly: ApiUsageStats[];
+  monthly: ApiUsageStats[];
   realtime: RealtimeData[];
   rateLimited: string[];
 }
@@ -36,8 +38,11 @@ interface FormattedApiUsageStats {
   status: 'healthy' | 'warning' | 'error';
 }
 
+type TimePeriod = 'today' | 'weekly' | 'monthly';
+
 export default function ApiUsageDebugger() {
   const [usageData, setUsageData] = useState<ApiUsageData | null>(null);
+  const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>('today');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
@@ -71,27 +76,41 @@ export default function ApiUsageDebugger() {
 
   // Mock data for testing when API is not available
   const getMockUsageData = async (): Promise<ApiUsageData> => {
+    const todayData = [
+      {
+        api_provider: 'alternative_me',
+        total_requests: 5,
+        successful_requests: 5,
+        failed_requests: 0,
+        avg_response_time_ms: 350,
+        usage_percentage: 5.0,
+        last_request_at: new Date().toISOString()
+      },
+      {
+        api_provider: 'alpha_vantage',
+        total_requests: 3,
+        successful_requests: 2,
+        failed_requests: 1,
+        avg_response_time_ms: 1200,
+        usage_percentage: 12.0,
+        last_request_at: new Date(Date.now() - 3600000).toISOString()
+      }
+    ];
+
     return {
-      today: [
-        {
-          api_provider: 'alternative_me',
-          total_requests: 5,
-          successful_requests: 5,
-          failed_requests: 0,
-          avg_response_time_ms: 350,
-          usage_percentage: 5.0,
-          last_request_at: new Date().toISOString()
-        },
-        {
-          api_provider: 'alpha_vantage',
-          total_requests: 3,
-          successful_requests: 2,
-          failed_requests: 1,
-          avg_response_time_ms: 1200,
-          usage_percentage: 12.0,
-          last_request_at: new Date(Date.now() - 3600000).toISOString()
-        }
-      ],
+      today: todayData,
+      weekly: todayData.map(item => ({
+        ...item,
+        total_requests: item.total_requests * 7,
+        successful_requests: item.successful_requests * 7,
+        failed_requests: item.failed_requests * 7
+      })),
+      monthly: todayData.map(item => ({
+        ...item,
+        total_requests: item.total_requests * 30,
+        successful_requests: item.successful_requests * 30,
+        failed_requests: item.failed_requests * 30
+      })),
       realtime: [
         {
           api_provider: 'alternative_me',
@@ -120,8 +139,9 @@ export default function ApiUsageDebugger() {
     return () => clearInterval(interval);
   }, [fetchUsageDataCallback]);
 
-  const formatUsageStats = (data: ApiUsageData): FormattedApiUsageStats[] => {
-    return data.today.map(item => ({
+  const formatUsageStats = (data: ApiUsageData, period: TimePeriod = 'today'): FormattedApiUsageStats[] => {
+    const statsData = data[period] || data.today;
+    return statsData.map(item => ({
       provider: item.api_provider,
       totalRequests: item.total_requests || 0,
       successRate: item.total_requests > 0
@@ -242,6 +262,45 @@ export default function ApiUsageDebugger() {
     }
   };
 
+  // Calculate overall success rate for a period
+  const calculateOverallSuccessRate = (stats: ApiUsageStats[]): number => {
+    const totalRequests = stats.reduce((sum, item) => sum + (item.total_requests || 0), 0);
+    const totalSuccess = stats.reduce((sum, item) => sum + (item.successful_requests || 0), 0);
+    return totalRequests > 0 ? Math.round((totalSuccess / totalRequests) * 100) : 0;
+  };
+
+  // Analyze usage trends between periods
+  const getTrendAnalysis = (data: ApiUsageData, period: TimePeriod) => {
+    const currentData = data[period] || [];
+    const todayData = data.today || [];
+
+    return currentData.map(item => {
+      const todayItem = todayData.find(t => t.api_provider === item.api_provider);
+      if (!todayItem) {
+        return { provider: item.api_provider, trend: 'stable', change: 'N/A' };
+      }
+
+      const periodAverage = period === 'weekly'
+        ? (item.total_requests || 0) / 7
+        : (item.total_requests || 0) / 30;
+
+      const todayRequests = todayItem.total_requests || 0;
+      const difference = todayRequests - periodAverage;
+      const percentChange = periodAverage > 0 ? Math.round((difference / periodAverage) * 100) : 0;
+
+      let trend: 'up' | 'down' | 'stable' = 'stable';
+      if (Math.abs(percentChange) > 20) {
+        trend = percentChange > 0 ? 'up' : 'down';
+      }
+
+      return {
+        provider: item.api_provider,
+        trend,
+        change: `${percentChange > 0 ? '+' : ''}${percentChange}%`
+      };
+    });
+  };
+
   if (loading && !usageData) {
     return (
       <div className="fixed bottom-4 right-4 bg-white border border-gray-200 rounded-lg shadow-lg p-4 max-w-sm">
@@ -289,18 +348,37 @@ export default function ApiUsageDebugger() {
           </div>
         ) : usageData ? (
           <div className="space-y-3">
+            {/* Time Period Selector */}
+            <div className="flex space-x-1 bg-gray-100 rounded-lg p-1 text-xs">
+              {(['today', 'weekly', 'monthly'] as TimePeriod[]).map((period) => (
+                <button
+                  key={period}
+                  onClick={() => setSelectedPeriod(period)}
+                  className={`flex-1 py-1 px-2 rounded-md font-medium transition-colors ${
+                    selectedPeriod === period
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  {period === 'today' ? 'Today' : period === 'weekly' ? 'Week' : 'Month'}
+                </button>
+              ))}
+            </div>
+
             {/* Summary Stats */}
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="bg-gray-50 p-2 rounded">
-                <p className="font-medium text-gray-700">Total Requests</p>
+                <p className="font-medium text-gray-700">
+                  {selectedPeriod === 'today' ? 'Today' : selectedPeriod === 'weekly' ? 'This Week' : 'This Month'}
+                </p>
                 <p className="text-lg font-bold text-blue-600">
-                  {usageData.today.reduce((sum, item) => sum + (item.total_requests || 0), 0)}
+                  {(usageData[selectedPeriod] || usageData.today).reduce((sum, item) => sum + (item.total_requests || 0), 0)}
                 </p>
               </div>
               <div className="bg-gray-50 p-2 rounded">
-                <p className="font-medium text-gray-700">Rate Limited</p>
-                <p className="text-lg font-bold text-red-600">
-                  {usageData.rateLimited.length}
+                <p className="font-medium text-gray-700">Success Rate</p>
+                <p className="text-lg font-bold text-green-600">
+                  {calculateOverallSuccessRate(usageData[selectedPeriod] || usageData.today)}%
                 </p>
               </div>
             </div>
@@ -308,7 +386,7 @@ export default function ApiUsageDebugger() {
             {/* Provider Details */}
             <div className="space-y-2">
               <h4 className="font-medium text-gray-700 text-sm">Provider Status</h4>
-              {formatUsageStats(usageData).map((stat, index) => (
+              {formatUsageStats(usageData, selectedPeriod).map((stat, index) => (
                 <div key={index} className="border border-gray-100 rounded p-2">
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-medium text-sm text-gray-800">
@@ -332,7 +410,7 @@ export default function ApiUsageDebugger() {
                     <div className="flex items-center justify-between">
                       <span>Next update:</span>
                       <span className="font-medium text-blue-600">
-                        {getNextUpdateInfo(stat.provider, usageData.today.find(item => item.api_provider === stat.provider)?.last_request_at || '')}
+                        {getNextUpdateInfo(stat.provider, (usageData[selectedPeriod] || usageData.today).find(item => item.api_provider === stat.provider)?.last_request_at || '')}
                       </span>
                     </div>
                   </div>
@@ -349,6 +427,26 @@ export default function ApiUsageDebugger() {
                 </p>
               </div>
             )}
+
+            {/* Usage Trend Indicator */}
+            {selectedPeriod !== 'today' && (
+              <div className="bg-blue-50 border border-blue-200 rounded p-2">
+                <p className="text-sm font-medium text-blue-800">Trend Analysis:</p>
+                <div className="text-xs text-blue-600 space-y-1">
+                  {getTrendAnalysis(usageData, selectedPeriod).map((trend, idx) => (
+                    <div key={idx} className="flex justify-between">
+                      <span>{trend.provider}:</span>
+                      <span className={`font-medium ${
+                        trend.trend === 'up' ? 'text-green-600' :
+                        trend.trend === 'down' ? 'text-red-600' : 'text-gray-600'
+                      }`}>
+                        {trend.trend === 'up' ? '↗️' : trend.trend === 'down' ? '↘️' : '→'} {trend.change}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <div className="text-gray-500 text-sm text-center py-4">
@@ -359,9 +457,15 @@ export default function ApiUsageDebugger() {
 
       {/* Footer */}
       <div className="bg-gray-50 p-2 rounded-b-lg">
-        <p className="text-xs text-gray-500 text-center">
-          Auto-refresh every 30s | Debug Mode
-        </p>
+        <div className="flex justify-between items-center text-xs text-gray-500">
+          <span>Auto-refresh: 30s</span>
+          <span className="flex items-center space-x-1">
+            <span>Period: {selectedPeriod}</span>
+            {usageData?.rateLimited.length === 0 && (
+              <span className="text-green-600">🟢</span>
+            )}
+          </span>
+        </div>
       </div>
     </div>
   );
