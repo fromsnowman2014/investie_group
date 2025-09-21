@@ -1,6 +1,7 @@
 // Setup type definitions for built-in Supabase Runtime APIs
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import { createClient } from 'jsr:@supabase/supabase-js@2'
+import { trackApiCall, apiTracker } from '../_shared/api-usage-tracker.ts'
 
 // Types for data collection
 interface CollectionJob {
@@ -52,12 +53,19 @@ async function fetchFearGreedIndex(): Promise<MarketIndicator | null> {
   try {
     console.log('🔍 Fetching Fear & Greed Index from Alternative.me...');
 
-    const response = await fetch('https://api.alternative.me/fng/?limit=1&format=json');
-    if (!response.ok) {
-      throw new Error(`Alternative.me API error: ${response.status}`);
-    }
-
-    const data = await response.json();
+    const data = await trackApiCall(
+      'alternative_me',
+      'https://api.alternative.me/fng/',
+      'data-collector',
+      async () => {
+        const response = await fetch('https://api.alternative.me/fng/?limit=1&format=json');
+        if (!response.ok) {
+          throw new Error(`Alternative.me API error: ${response.status}`);
+        }
+        return await response.json();
+      },
+      { indicatorType: 'fear_greed' }
+    );
     const fngData = data.data[0];
 
     console.log('✅ Fear & Greed Index fetched successfully:', fngData.value);
@@ -94,16 +102,27 @@ async function fetchSP500Data(): Promise<MarketIndicator | null> {
       return await fetchSP500FromYahoo();
     }
 
-    // Fetch SPY ETF as S&P 500 proxy
-    const response = await fetch(
-      `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=SPY&apikey=${apiKey}`
+    // Fetch SPY ETF as S&P 500 proxy with usage tracking
+    const data = await trackApiCall(
+      'alpha_vantage',
+      'https://www.alphavantage.co/query',
+      'data-collector',
+      async () => {
+        const response = await fetch(
+          `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=SPY&apikey=${apiKey}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`Alpha Vantage API error: ${response.status}`);
+        }
+
+        return await response.json();
+      },
+      {
+        indicatorType: 'sp500',
+        apiKey: apiKey
+      }
     );
-
-    if (!response.ok) {
-      throw new Error(`Alpha Vantage API error: ${response.status}`);
-    }
-
-    const data = await response.json();
 
     if (data['Note'] && data['Note'].includes('API call frequency')) {
       console.warn('⚠️ Alpha Vantage rate limit hit, using Yahoo Finance fallback');
