@@ -75,7 +75,9 @@ export class ApiUsageTracker {
 
   constructor() {
     this.supabase = getSupabaseClient();
-    this.isEnabled = Deno.env.get('DISABLE_API_TRACKING') !== 'true';
+    // FORCE ENABLE tracking for debugging
+    this.isEnabled = true; // Deno.env.get('DISABLE_API_TRACKING') !== 'true';
+    console.log('🔧 API Tracking FORCE ENABLED for debugging');
   }
 
   // Track API call with comprehensive metrics
@@ -139,8 +141,9 @@ export class ApiUsageTracker {
       const responseTime = Math.round(performance.now() - startTime);
 
       // Log usage to database (async, don't block)
+      console.log(`🔧 isEnabled: ${this.isEnabled}, about to log usage for ${options.provider}`);
       if (this.isEnabled) {
-        this.logUsage({
+        const logData = {
           api_provider: options.provider,
           api_key_hash: options.apiKey ? await hashApiKey(options.apiKey) : undefined,
           endpoint: options.endpoint,
@@ -155,9 +158,14 @@ export class ApiUsageTracker {
           function_name: options.functionName,
           user_agent: options.userAgent,
           source: this.getEnvironmentSource()
-        }).catch(logError => {
-          console.error('Failed to log API usage:', logError.message);
+        };
+        console.log('🔧 Logging to database:', JSON.stringify(logData, null, 2));
+        this.logUsage(logData).catch(logError => {
+          console.error('❌ Failed to log API usage:', logError.message);
+          console.error('❌ Full error:', logError);
         });
+      } else {
+        console.log('⚠️ API tracking is disabled, skipping database log');
       }
 
       // Always log to console for immediate debugging
