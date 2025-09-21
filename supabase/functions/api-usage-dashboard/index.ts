@@ -343,9 +343,11 @@ Deno.serve(async (req) => {
     });
   }
 
+  // Parse request parameters
+  const url = new URL(req.url);
+  const action = url.searchParams.get('action') || 'dashboard';
+
   try {
-    const url = new URL(req.url);
-    const action = url.searchParams.get('action') || 'dashboard';
     const provider = url.searchParams.get('provider');
     const format = url.searchParams.get('format') as 'json' | 'html' || 'html';
 

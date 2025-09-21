@@ -199,55 +199,75 @@ export class ApiUsageTracker {
 
   // Get daily usage statistics
   async getDailyUsageStats(provider?: string): Promise<any[]> {
-    let query = this.supabase
-      .from('api_usage_debug')
-      .select('*')
-      .order('date_tracked', { ascending: false });
+    try {
+      let query = this.supabase
+        .from('api_usage_debug')
+        .select('*')
+        .order('date_tracked', { ascending: false });
 
-    if (provider) {
-      query = query.eq('api_provider', provider);
+      if (provider) {
+        query = query.eq('api_provider', provider);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.warn(`Database query failed: ${error.message}. Returning empty data.`);
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      console.warn(`getDailyUsageStats error: ${error.message}. Returning empty data.`);
+      return [];
     }
-
-    const { data, error } = await query;
-
-    if (error) {
-      throw new Error(`Failed to get usage stats: ${error.message}`);
-    }
-
-    return data || [];
   }
 
   // Get real-time usage
   async getRealtimeUsage(): Promise<any[]> {
-    const { data, error } = await this.supabase
-      .from('api_usage_realtime')
-      .select('*')
-      .order('last_request_at', { ascending: false });
+    try {
+      const { data, error } = await this.supabase
+        .from('api_usage_realtime')
+        .select('*')
+        .order('last_request_at', { ascending: false });
 
-    if (error) {
-      throw new Error(`Failed to get realtime usage: ${error.message}`);
+      if (error) {
+        console.warn(`Database query failed: ${error.message}. Returning empty data.`);
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      console.warn(`getRealtimeUsage error: ${error.message}. Returning empty data.`);
+      return [];
     }
-
-    return data || [];
   }
 
   // Check if API is rate limited
   async isRateLimited(provider: string): Promise<boolean> {
-    const { data, error } = await this.supabase
-      .from('api_usage_realtime')
-      .select('is_rate_limited, rate_limit_reset_at')
-      .eq('api_provider', provider)
-      .single();
+    try {
+      const { data, error } = await this.supabase
+        .from('api_usage_realtime')
+        .select('is_rate_limited, rate_limit_reset_at')
+        .eq('api_provider', provider)
+        .single();
 
-    if (error || !data) return false;
+      if (error || !data) {
+        console.warn(`Could not check rate limit for ${provider}: ${error?.message || 'No data'}. Assuming not rate limited.`);
+        return false;
+      }
 
-    // Check if still rate limited
-    if (data.is_rate_limited && data.rate_limit_reset_at) {
-      const resetTime = new Date(data.rate_limit_reset_at);
-      return new Date() < resetTime;
+      // Check if still rate limited
+      if (data.is_rate_limited && data.rate_limit_reset_at) {
+        const resetTime = new Date(data.rate_limit_reset_at);
+        return new Date() < resetTime;
+      }
+
+      return data.is_rate_limited || false;
+    } catch (error) {
+      console.warn(`isRateLimited error for ${provider}: ${error.message}. Assuming not rate limited.`);
+      return false;
     }
-
-    return data.is_rate_limited || false;
   }
 
   // Get usage summary for debugging

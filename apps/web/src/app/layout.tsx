@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { StockProvider } from "./components/StockProvider";
 import SWRProvider from "./components/SWRProvider";
+import ApiUsageDebugger from "@/components/ApiUsageDebugger";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
         <SWRProvider>
           <StockProvider>
             {children}
+            <ApiUsageDebugger />
           </StockProvider>
         </SWRProvider>
       </body>
