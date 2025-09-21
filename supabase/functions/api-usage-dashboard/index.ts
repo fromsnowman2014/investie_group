@@ -14,9 +14,10 @@ interface DashboardRequest {
 function generateDashboard(data: {
   today: any[],
   realtime: any[],
-  rateLimited: string[]
+  rateLimited: string[],
+  debugLogs?: any[]
 }): string {
-  const { today, realtime, rateLimited } = data;
+  const { today, realtime, rateLimited, debugLogs = [] } = data;
 
   const todayTotal = today.reduce((sum, item) => sum + (item.total_requests || 0), 0);
   const successRate = today.length > 0
@@ -319,11 +320,58 @@ function generateDashboard(data: {
             </div>
         </div>
 
+        ${debugLogs.length > 0 ? `
+        <div class="card">
+            <h2>
+                <div class="card-icon" style="background: #3182ce; color: white;">🔍</div>
+                Real-time API Debug Logs
+            </h2>
+            <div style="background: #f7fafc; border-radius: 8px; padding: 16px; max-height: 400px; overflow-y: auto; font-family: 'Monaco', 'Menlo', monospace; font-size: 12px;">
+                ${debugLogs.map(log => `
+                    <div style="margin-bottom: 12px; padding: 8px; background: white; border-radius: 6px; border-left: 4px solid ${log.success ? '#48bb78' : '#f56565'};">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span style="font-weight: bold; color: ${log.success ? '#2d5a27' : '#c53030'};">
+                                ${log.success ? '✅' : '❌'} ${log.provider.toUpperCase()}
+                            </span>
+                            <span style="color: #718096; font-size: 10px;">
+                                ${new Date(log.timestamp).toLocaleTimeString()}
+                            </span>
+                        </div>
+                        <div style="color: #4a5568; margin-bottom: 2px;">
+                            <strong>${log.indicatorType}</strong> via ${log.functionName}
+                        </div>
+                        <div style="color: #718096; font-size: 11px;">
+                            ${log.responseTime}ms | ${log.rateLimitRemaining ?? 'Unknown'} calls remaining | ${log.environment}
+                        </div>
+                        ${log.errorType ? `<div style="color: #e53e3e; font-size: 11px; margin-top: 4px;">Error: ${log.errorType}</div>` : ''}
+                    </div>
+                `).join('')}
+            </div>
+            <div style="margin-top: 12px; text-align: center;">
+                <button onclick="window.location.reload()" style="background: #3182ce; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">
+                    🔄 Refresh Logs
+                </button>
+                <a href="?action=debug-logs&format=json" target="_blank" style="margin-left: 8px; color: #3182ce; text-decoration: none; font-size: 12px;">
+                    📄 JSON Export
+                </a>
+            </div>
+        </div>
+        ` : ''}
+
         <div class="refresh-info">
             <div>Last updated: <span id="lastUpdate"></span></div>
             <button class="refresh-btn" onclick="refreshDashboard()">🔄 Refresh Now</button>
         </div>
     </div>
+
+    <script>
+        // Auto-refresh every 30 seconds in production
+        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+            setTimeout(() => {
+                window.location.reload();
+            }, 30000);
+        }
+    </script>
 </body>
 </html>
   `;
@@ -355,16 +403,22 @@ Deno.serve(async (req) => {
       case 'dashboard':
       case 'summary': {
         const summary = await apiTracker.getUsageSummary();
+        const debugLogs = apiTracker.getRecentDebugLogs(25); // Get last 25 entries
+
+        const dashboardData = {
+          ...summary,
+          debugLogs
+        };
 
         if (format === 'json') {
-          return new Response(JSON.stringify(summary, null, 2), {
+          return new Response(JSON.stringify(dashboardData, null, 2), {
             headers: {
               'Content-Type': 'application/json',
               'Access-Control-Allow-Origin': '*'
             }
           });
         } else {
-          const html = generateDashboard(summary);
+          const html = generateDashboard(dashboardData);
           return new Response(html, {
             headers: {
               'Content-Type': 'text/html',
@@ -372,6 +426,18 @@ Deno.serve(async (req) => {
             }
           });
         }
+      }
+
+      case 'debug-logs': {
+        const limit = parseInt(url.searchParams.get('limit') || '50');
+        const debugLogs = apiTracker.getRecentDebugLogs(limit);
+
+        return new Response(JSON.stringify(debugLogs, null, 2), {
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          }
+        });
       }
 
       case 'daily': {

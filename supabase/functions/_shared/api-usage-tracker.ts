@@ -50,6 +50,24 @@ async function hashApiKey(apiKey: string): Promise<string> {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 64);
 }
 
+// In-memory debug storage for production environments
+interface DebugInfo {
+  timestamp: string;
+  provider: string;
+  endpoint: string;
+  indicatorType: string;
+  functionName: string;
+  success: boolean;
+  responseTime: number;
+  errorType?: string;
+  rateLimitRemaining?: number;
+  environment: string;
+}
+
+// Global debug storage (reset on function restart)
+const debugLog: DebugInfo[] = [];
+const MAX_DEBUG_ENTRIES = 100; // Keep last 100 entries
+
 // Professional API usage tracker
 export class ApiUsageTracker {
   private supabase;
@@ -144,6 +162,9 @@ export class ApiUsageTracker {
 
       // Always log to console for immediate debugging
       this.logToConsole(options, responseTime, success, errorType, rateLimitRemaining);
+
+      // Store debug info in memory for dashboard access (all environments)
+      this.storeDebugInfo(options, responseTime, success, errorType, rateLimitRemaining);
     }
 
     return result!;
@@ -161,6 +182,7 @@ export class ApiUsageTracker {
   }
 
   // Enhanced console logging with structured format
+  // Use console.info for better visibility in production environments
   private logToConsole(
     options: ApiCallOptions,
     responseTime: number,
@@ -170,8 +192,10 @@ export class ApiUsageTracker {
   ): void {
     const timestamp = new Date().toISOString();
     const status = success ? '✅ SUCCESS' : `❌ FAILED (${errorType})`;
+    const environment = this.getEnvironmentSource();
 
-    console.log(`
+    // Use console.info for production visibility, with fallback to console.log
+    const logMessage = `
 🔍 API USAGE DEBUG | ${timestamp}
    Provider: ${options.provider}
    Endpoint: ${options.endpoint}
@@ -180,8 +204,61 @@ export class ApiUsageTracker {
    Status: ${status}
    Response Time: ${responseTime}ms
    Rate Limit Remaining: ${rateLimitRemaining ?? 'Unknown'}
-   Environment: ${this.getEnvironmentSource()}
-   ----------------------------------------`);
+   Environment: ${environment}
+   ----------------------------------------`;
+
+    // Try different logging levels to ensure visibility in production
+    try {
+      if (environment === 'production') {
+        // In production, use console.info for better visibility
+        console.info(`[API_DEBUG]${logMessage}`);
+        // Also log as warning for critical information
+        if (!success || (rateLimitRemaining && rateLimitRemaining < 5)) {
+          console.warn(`[API_ALERT] ${options.provider}: ${status} (${rateLimitRemaining} calls remaining)`);
+        }
+      } else {
+        // In local/staging, use console.log as before
+        console.log(logMessage);
+      }
+    } catch (e) {
+      // Fallback to basic console.log if console.info fails
+      console.log(logMessage);
+    }
+  }
+
+  // Store debug info in memory for production dashboard access
+  private storeDebugInfo(
+    options: ApiCallOptions,
+    responseTime: number,
+    success: boolean,
+    errorType?: string,
+    rateLimitRemaining?: number
+  ): void {
+    const debugInfo: DebugInfo = {
+      timestamp: new Date().toISOString(),
+      provider: options.provider,
+      endpoint: options.endpoint,
+      indicatorType: options.indicatorType || 'N/A',
+      functionName: options.functionName,
+      success,
+      responseTime,
+      errorType,
+      rateLimitRemaining,
+      environment: this.getEnvironmentSource()
+    };
+
+    // Add to beginning of array
+    debugLog.unshift(debugInfo);
+
+    // Keep only the latest entries
+    if (debugLog.length > MAX_DEBUG_ENTRIES) {
+      debugLog.splice(MAX_DEBUG_ENTRIES);
+    }
+  }
+
+  // Get recent debug logs (for dashboard)
+  getRecentDebugLogs(limit: number = 50): DebugInfo[] {
+    return debugLog.slice(0, limit);
   }
 
   // Get current environment
