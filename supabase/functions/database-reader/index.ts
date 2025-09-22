@@ -138,6 +138,39 @@ async function queryFromCache(indicatorType: string): Promise<MarketData | null>
   try {
     console.log(`🔍 Querying cache for indicator: ${indicatorType}`);
 
+    // Enhanced debugging - first check if any data exists in the table
+    const { data: allData, error: allError } = await supabase
+      .from('market_indicators_cache')
+      .select('indicator_type, is_active, created_at')
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    if (allError) {
+      console.error(`❌ Error checking all table data:`, allError);
+      return {
+        error: `Database access failed: ${allError.message}`,
+        totalRecords: 0,
+        availableIndicators: []
+      };
+    } else {
+      console.log(`📊 Total records in table: ${allData?.length || 0}`);
+      console.log(`📋 Available indicators:`, allData?.map(d => `${d.indicator_type}(active:${d.is_active})`).join(', '));
+
+      // Return debug info for this specific query
+      const debugResult = {
+        totalRecords: allData?.length || 0,
+        availableIndicators: allData?.map(d => `${d.indicator_type}(active:${d.is_active})`) || [],
+        searchingFor: indicatorType
+      };
+
+      if (allData?.length === 0) {
+        return {
+          error: `No data in table at all - database is empty`,
+          ...debugResult
+        };
+      }
+    }
+
     const { data, error } = await supabase
       .from('market_indicators_cache')
       .select(`
@@ -155,12 +188,23 @@ async function queryFromCache(indicatorType: string): Promise<MarketData | null>
       .limit(1);
 
     if (error) {
-      console.error(`❌ Cache query error for ${indicatorType}:`, error.message);
+      console.error(`❌ Cache query error for ${indicatorType}:`, JSON.stringify(error, null, 2));
       return null;
     }
 
     if (!data || data.length === 0) {
       console.log(`📭 No cached data found for ${indicatorType}`);
+      // Additional debug: check if data exists without is_active filter
+      const { data: inactiveData } = await supabase
+        .from('market_indicators_cache')
+        .select('indicator_type, is_active, created_at')
+        .eq('indicator_type', indicatorType)
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      if (inactiveData && inactiveData.length > 0) {
+        console.log(`🔍 Found inactive data for ${indicatorType}:`, inactiveData.map(d => `active:${d.is_active}, created:${d.created_at}`));
+      }
       return null;
     }
 
@@ -286,10 +330,14 @@ async function getMarketOverview(maxAge?: number): Promise<MarketOverviewRespons
   const results: MarketData[] = [];
   let freshCount = 0;
   let staleCount = 0;
+  const debugInfo: string[] = [];
+
+  debugInfo.push(`🔧 DEBUG: Starting market overview collection for ${indicators.length} indicators`);
 
   // Fetch all indicators
   for (const indicatorType of indicators) {
     try {
+      debugInfo.push(`🔍 DEBUG: Fetching ${indicatorType}...`);
       const data = await getCachedMarketData({
         indicatorType,
         maxAge,
@@ -297,14 +345,18 @@ async function getMarketOverview(maxAge?: number): Promise<MarketOverviewRespons
       });
 
       if (data) {
+        debugInfo.push(`✅ DEBUG: Found ${indicatorType} data from ${data.source} (${data.age_seconds}s old)`);
         results.push(data);
         if (data.freshness?.isStale) {
           staleCount++;
         } else {
           freshCount++;
         }
+      } else {
+        debugInfo.push(`❌ DEBUG: No data found for ${indicatorType}`);
       }
     } catch (error) {
+      debugInfo.push(`💥 DEBUG: Error fetching ${indicatorType}: ${error.message}`);
       console.error(`❌ Error fetching ${indicatorType}:`, error.message);
     }
   }
@@ -327,6 +379,7 @@ async function getMarketOverview(maxAge?: number): Promise<MarketOverviewRespons
     return new Date(current.created_at) > new Date(latest) ? current.created_at : latest;
   }, '1970-01-01T00:00:00Z');
 
+  debugInfo.push(`📈 DEBUG: Market overview complete: ${results.length}/${indicators.length} indicators (${freshCount} fresh, ${staleCount} stale)`);
   console.log(`📈 Market overview complete: ${results.length}/${indicators.length} indicators (${freshCount} fresh, ${staleCount} stale)`);
 
   return {
@@ -342,7 +395,9 @@ async function getMarketOverview(maxAge?: number): Promise<MarketOverviewRespons
       freshIndicators: freshCount,
       staleIndicators: staleCount,
       cacheHitRate: Math.round(cacheHitRate)
-    }
+    },
+    // Temporary debug information
+    debugInfo: debugInfo
   };
 }
 
