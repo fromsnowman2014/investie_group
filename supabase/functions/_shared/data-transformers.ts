@@ -23,10 +23,15 @@ export function convertCachedDataToMarketOverview(cachedData: DatabaseReaderResp
   const vixData = cachedData.vixData;
   const economicIndicators = cachedData.economicIndicators || [];
 
-  // Convert S&P 500 data to indices format
-  const sp500Value = (sp500Data?.data_value?.price as number) || 5580;
-  const sp500Change = (sp500Data?.data_value?.change as number) || 0;
-  const sp500ChangePercent = (sp500Data?.data_value?.change_percent as number) || 0;
+  // Convert S&P 500 data to indices format - NO FALLBACKS, FORCE API DATA
+  const sp500Value = sp500Data?.data_value?.price as number;
+  const sp500Change = sp500Data?.data_value?.change as number;
+  const sp500ChangePercent = sp500Data?.data_value?.change_percent as number;
+
+  // If no real data available, return error instead of fallback
+  if (!sp500Value) {
+    throw new Error('S&P 500 data not available - API or database error');
+  }
 
   // Create indices using S&P 500 as base with realistic ratios
   const indices = {
@@ -205,79 +210,8 @@ function getCurrentDate(): string {
 }
 
 /**
- * Generate fallback mock data when all else fails
+ * Generate fallback error response - NO MORE HARDCODED VALUES
  */
 export function generateMockMarketOverview(): MarketOverviewResponse {
-  const randomVariation = (base: number, variance: number) =>
-    base + (Math.random() - 0.5) * variance;
-
-  const sp500Value = randomVariation(5580, 50);
-  const sp500Change = randomVariation(0, 30);
-  const sp500ChangePercent = (sp500Change / sp500Value) * 100;
-
-  return {
-    indices: {
-      sp500: {
-        value: Math.round(sp500Value * 100) / 100,
-        change: Math.round(sp500Change * 100) / 100,
-        changePercent: Math.round(sp500ChangePercent * 10000) / 10000
-      },
-      nasdaq: {
-        value: Math.round(sp500Value * 3.1 * 100) / 100,
-        change: Math.round(sp500Change * 2.5 * 100) / 100,
-        changePercent: Math.round(sp500ChangePercent * 1.2 * 10000) / 10000
-      },
-      dow: {
-        value: Math.round(sp500Value * 7.3 * 100) / 100,
-        change: Math.round(sp500Change * 6.8 * 100) / 100,
-        changePercent: Math.round(sp500ChangePercent * 0.9 * 10000) / 10000
-      }
-    },
-    sectors: [
-      { name: 'Technology', change: 0.25, performance: 'positive' },
-      { name: 'Healthcare', change: -0.15, performance: 'negative' },
-      { name: 'Energy', change: 1.23, performance: 'positive' },
-      { name: 'Financial Services', change: 0.45, performance: 'positive' }
-    ],
-    economicIndicators: {
-      interestRate: {
-        value: 4.25,
-        date: getCurrentDate(),
-        trend: 'rising',
-        source: 'mock_data'
-      },
-      cpi: {
-        value: 307.2,
-        date: getCurrentDate(),
-        trend: 'rising',
-        source: 'mock_data'
-      },
-      unemployment: {
-        value: 3.8,
-        date: getCurrentDate(),
-        trend: 'stable',
-        source: 'mock_data'
-      }
-    },
-    fearGreedIndex: {
-      value: 52,
-      status: 'neutral',
-      confidence: 60
-    },
-    vix: {
-      value: 18.45,
-      status: 'low',
-      interpretation: 'Low volatility environment suggesting market stability'
-    },
-    marketSentiment: 'neutral',
-    volatilityIndex: 18.45,
-    source: 'mock_fallback_data',
-    lastUpdated: new Date().toISOString(),
-    cacheInfo: {
-      totalIndicators: 0,
-      freshIndicators: 0,
-      staleIndicators: 0,
-      cacheHitRate: 0
-    }
-  };
+  throw new Error('Market data unavailable - database connection failed. Please check Supabase environment variables.');
 }
