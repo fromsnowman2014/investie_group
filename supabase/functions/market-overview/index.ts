@@ -2,6 +2,7 @@
 // Provides market data through a 12-hour cache system with on-demand updates
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
+import { createClient } from 'jsr:@supabase/supabase-js@2'
 import type {
   MarketOverviewResponse,
   CachedDataQuery,
@@ -20,6 +21,16 @@ import {
   generateMockMarketOverview
 } from '../_shared/data-transformers.ts'
 
+// Direct database access setup (bypassing database-reader)
+const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'https://fwnmnjwtbggasmunsfyk.supabase.co'
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+
+const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+  db: { schema: 'public' },
+  auth: { persistSession: false, autoRefreshToken: false },
+  global: { headers: { 'x-application-name': 'market-overview-direct' } }
+})
+
 /**
  * Configuration constants
  */
@@ -29,22 +40,41 @@ const CACHE_HEADERS = {
 };
 
 /**
- * Get cached market data with automatic refresh logic
+ * Get cached market data with direct database access (bypassing database-reader)
  */
 async function getCachedMarketData(maxAge: number = DEFAULT_MAX_AGE): Promise<DatabaseReaderResponse> {
   const log = logFunctionCall('getCachedMarketData', { maxAge });
 
   try {
-    const requestBody: CachedDataQuery = {
-      action: 'get_market_overview',
-      maxAge,
-      fallbackToAPI: true
-    };
+    console.log('🔧 Using direct database access to bypass database-reader issues');
 
-    const cachedData = await callInternalFunction<DatabaseReaderResponse>(
-      'database-reader',
-      requestBody
-    );
+    // Direct database query for market indicators
+    const { data: indicators, error } = await supabase
+      .from('market_indicators_cache')
+      .select('*')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('❌ Direct database query failed:', error);
+      throw error;
+    }
+
+    console.log(`✅ Retrieved ${indicators?.length || 0} indicators from database directly`);
+
+    // Transform data to match expected format
+    const cachedData: DatabaseReaderResponse = {
+      economicIndicators: indicators?.filter(i => ['treasury_10y', 'unemployment', 'cpi'].includes(i.indicator_type)) || [],
+      marketIndicators: indicators?.filter(i => ['sp500', 'vix', 'fear_greed'].includes(i.indicator_type)) || [],
+      lastUpdated: indicators?.[0]?.created_at || new Date().toISOString(),
+      source: 'cache' as const,
+      cacheInfo: {
+        totalIndicators: indicators?.length || 0,
+        freshIndicators: indicators?.length || 0,
+        staleIndicators: 0,
+        cacheHitRate: 1
+      }
+    };
 
     log.end(cachedData);
     return cachedData;

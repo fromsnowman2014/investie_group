@@ -69,8 +69,26 @@ if (!supabaseAnonKey) {
   console.log('✅ SUPABASE_ANON_KEY is configured');
 }
 
+// Create function to initialize Supabase client with enhanced configuration
+function createSupabaseClient() {
+  return createClient(supabaseUrl, supabaseServiceKey, {
+    db: {
+      schema: 'public'
+    },
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false
+    },
+    global: {
+      headers: {
+        'x-application-name': 'database-reader'
+      }
+    }
+  });
+}
+
 // Use service role key for database operations
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
+const supabase = createSupabaseClient()
 
 // Helper function to handle BigInt serialization
 function serializeForJSON(obj: any): any {

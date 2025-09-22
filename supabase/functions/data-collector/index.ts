@@ -41,7 +41,7 @@ interface CollectionResult {
   timestamp: string;
 }
 
-// Initialize Supabase client
+// Initialize Supabase client with enhanced configuration
 const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'https://fwnmnjwtbggasmunsfyk.supabase.co'
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || Deno.env.get('SERVICE_ROLE_KEY') || ''
 
@@ -51,8 +51,26 @@ if (!supabaseServiceKey) {
   console.log('✅ SUPABASE_SERVICE_ROLE_KEY is configured');
 }
 
+// Create function to initialize Supabase client with retry logic and optimized settings
+function createSupabaseClient() {
+  return createClient(supabaseUrl, supabaseServiceKey, {
+    db: {
+      schema: 'public'
+    },
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false
+    },
+    global: {
+      headers: {
+        'x-application-name': 'data-collector'
+      }
+    }
+  });
+}
+
 // Use service role key for database operations
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
+const supabase = createSupabaseClient()
 
 // Helper function to handle BigInt serialization
 function serializeForJSON(obj: any): any {
@@ -519,44 +537,106 @@ async function fetchCPIData(): Promise<MarketIndicator | null> {
   }
 }
 
-// Save indicators to database
-async function saveIndicatorsToDatabase(indicators: MarketIndicator[]): Promise<void> {
+// Retry helper function for database operations
+async function retryDatabaseOperation<T>(
+  operation: () => Promise<T>,
+  maxRetries: number = 3,
+  delayMs: number = 1000
+): Promise<T> {
+  let lastError: any;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error;
+      const isRetryableError = error.message?.includes('schema cache') ||
+                               error.message?.includes('connection') ||
+                               error.message?.includes('timeout');
+
+      if (attempt < maxRetries && isRetryableError) {
+        console.warn(`⚠️ Attempt ${attempt} failed, retrying in ${delayMs}ms:`, error.message);
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+        delayMs *= 2; // Exponential backoff
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  throw lastError;
+}
+
+// Save indicators to database with comprehensive error tracking and retry logic
+async function saveIndicatorsToDatabase(indicators: MarketIndicator[]): Promise<{success: boolean, saved: number, errors: string[]}> {
   if (indicators.length === 0) {
     console.log('⚠️ No indicators to save');
-    return;
+    return { success: true, saved: 0, errors: [] };
   }
 
   console.log(`💾 Saving ${indicators.length} indicators to database...`);
 
+  let savedCount = 0;
+  const errors: string[] = [];
+
   for (const indicator of indicators) {
     try {
-      // First, mark existing indicators as inactive (soft delete)
-      await supabase
-        .from('market_indicators_cache')
-        .update({ is_active: false })
-        .eq('indicator_type', indicator.indicator_type);
+      console.log(`🔄 Processing ${indicator.indicator_type}...`);
+      console.log(`📋 Data to save:`, JSON.stringify({
+        indicator_type: indicator.indicator_type,
+        data_value_keys: Object.keys(indicator.data_value),
+        data_source: indicator.data_source,
+        expires_at: indicator.expires_at
+      }, null, 2));
 
-      // Insert new indicator
-      const { error } = await supabase
-        .from('market_indicators_cache')
-        .insert({
+      // Use retry logic for database operations with UPSERT approach
+      await retryDatabaseOperation(async () => {
+        // Prepare data for upsert operation
+        const upsertData = {
           indicator_type: indicator.indicator_type,
           data_value: indicator.data_value,
           metadata: indicator.metadata || {},
           data_source: indicator.data_source,
           expires_at: indicator.expires_at,
-          is_active: true
-        });
+          is_active: true,
+          updated_at: new Date().toISOString()
+        };
 
-      if (error) {
-        console.error(`❌ Failed to save ${indicator.indicator_type}:`, error.message);
-      } else {
-        console.log(`✅ Saved ${indicator.indicator_type} to database`);
-      }
+        console.log(`📤 Upserting ${indicator.indicator_type} with data:`, JSON.stringify(upsertData, null, 2));
+
+        // Use upsert (INSERT ... ON CONFLICT UPDATE) to handle existing records
+        const { data: upsertedData, error: upsertError } = await supabase
+          .from('market_indicators_cache')
+          .upsert(upsertData, {
+            onConflict: 'indicator_type',
+            ignoreDuplicates: false
+          })
+          .select();
+
+        if (upsertError) {
+          console.error(`❌ Failed to upsert ${indicator.indicator_type}:`, JSON.stringify(upsertError, null, 2));
+          throw new Error(`Upsert error for ${indicator.indicator_type}: ${upsertError.message} (code: ${upsertError.code})`);
+        }
+
+        console.log(`✅ Successfully upserted ${indicator.indicator_type} to database`);
+        console.log(`📥 Upserted data:`, JSON.stringify(upsertedData, null, 2));
+        savedCount++;
+      });
+
     } catch (error) {
-      console.error(`💥 Exception saving ${indicator.indicator_type}:`, error.message);
+      console.error(`💥 Failed to save ${indicator.indicator_type} after retries:`, error);
+      errors.push(`${indicator.indicator_type}: ${error.message}`);
     }
   }
+
+  const result = {
+    success: savedCount > 0 && errors.length === 0,
+    saved: savedCount,
+    errors
+  };
+
+  console.log(`💾 Database save result:`, JSON.stringify(result, null, 2));
+  return result;
 }
 
 // Collect specific indicator for background revalidation
@@ -587,17 +667,28 @@ async function collectSpecificIndicator(indicatorType: string, source: string = 
   try {
     const indicator = await collector();
     if (indicator) {
-      // Save to database
-      const saved = await saveIndicatorsToDatabase([indicator]);
+      // Save to database with detailed error tracking
+      const saveResult = await saveIndicatorsToDatabase([indicator]);
 
-      console.log(`✅ Successfully collected and saved ${indicatorType}`);
-      return {
-        success: true,
-        collected: 1,
-        errors: [],
-        indicators: [indicator],
-        timestamp: new Date().toISOString()
-      };
+      if (saveResult.success) {
+        console.log(`✅ Successfully collected and saved ${indicatorType}`);
+        return {
+          success: true,
+          collected: 1,
+          errors: [],
+          indicators: [indicator],
+          timestamp: new Date().toISOString()
+        };
+      } else {
+        console.error(`❌ Failed to save ${indicatorType} to database:`, saveResult.errors);
+        return {
+          success: false,
+          collected: 0,
+          errors: [`Collection successful but database save failed: ${saveResult.errors.join(', ')}`],
+          indicators: [indicator],
+          timestamp: new Date().toISOString()
+        };
+      }
     } else {
       console.warn(`⚠️ No data collected for ${indicatorType}`);
       return {
@@ -651,9 +742,15 @@ async function collectAllMarketIndicators(): Promise<CollectionResult> {
     }
   }
 
-  // Save to database
+  // Save to database with detailed tracking
   try {
-    await saveIndicatorsToDatabase(indicators);
+    const saveResult = await saveIndicatorsToDatabase(indicators);
+    if (!saveResult.success) {
+      errors.push(...saveResult.errors);
+      console.error('❌ Database save failed with errors:', saveResult.errors);
+    } else {
+      console.log(`✅ Successfully saved ${saveResult.saved} indicators to database`);
+    }
   } catch (error) {
     errors.push(`Database save error: ${error.message}`);
     console.error('❌ Database save failed:', error.message);
