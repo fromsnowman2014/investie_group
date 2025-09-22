@@ -684,7 +684,8 @@ async function performHealthCheck(): Promise<{ status: string; details: Record<s
       .eq('is_active', true);
 
     if (error) {
-      throw new Error(`Database connection failed: ${error.message}`);
+      console.error('Database error details:', JSON.stringify(error, null, 2));
+      throw new Error(`Database connection failed: ${error.message || JSON.stringify(error)}`);
     }
 
     // Check environment variables
@@ -704,10 +705,13 @@ async function performHealthCheck(): Promise<{ status: string; details: Record<s
       }
     });
   } catch (error) {
+    console.error('Health check failed:', error);
     return serializeForJSON({
       status: 'unhealthy',
       details: {
-        error: error.message,
+        error: error.message || String(error),
+        errorType: error.constructor.name,
+        stack: error.stack,
         timestamp: new Date().toISOString()
       }
     });
@@ -787,9 +791,34 @@ Deno.serve(async (req) => {
         }
       });
 
+    } else if (job.action === 'debug') {
+      const debugInfo = {
+        environment: 'production',
+        environmentVariables: {
+          SUPABASE_URL: !!Deno.env.get('SUPABASE_URL'),
+          SUPABASE_SERVICE_ROLE_KEY: !!supabaseServiceKey,
+          ALPHA_VANTAGE_API_KEY: !!Deno.env.get('ALPHA_VANTAGE_API_KEY'),
+          FRED_API_KEY: !!Deno.env.get('FRED_API_KEY')
+        },
+        supabaseConfig: {
+          url: supabaseUrl,
+          serviceKeyLength: supabaseServiceKey ? supabaseServiceKey.length : 0,
+          serviceKeyPrefix: supabaseServiceKey ? supabaseServiceKey.substring(0, 10) + '...' : 'not_set'
+        },
+        timestamp: new Date().toISOString()
+      };
+
+      return new Response(JSON.stringify(debugInfo), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
+
     } else {
       return new Response(JSON.stringify({
-        error: 'Invalid action. Use "collect_all", "collect_indicator", or "health"'
+        error: 'Invalid action. Use "collect_all", "collect_indicator", "health", or "debug"'
       }), {
         status: 400,
         headers: {
