@@ -6,3 +6,119 @@
 2025-09-23T05:48:02.327056Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
 2025-09-23T05:48:05.626962Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps/backend/src/stocks/services/index.ts"), AnchoredSystemPathBuf("apps/backend/src/market/services/alpha-vantage.service.ts"), AnchoredSystemPathBuf("apps/backend/src/stocks/interfaces/stock-validation.interface.ts"), AnchoredSystemPathBuf("apps/backend/src/stocks/stocks.service.ts"), AnchoredSystemPathBuf("apps/backend/src/stocks/services/stock-cache.service.ts"), AnchoredSystemPathBuf("apps/backend/src/stocks/interfaces/stock-transform.interface.ts"), AnchoredSystemPathBuf("apps/backend/src/app.service.ts"), AnchoredSystemPathBuf("apps/backend/src/market/market.module.ts"), AnchoredSystemPathBuf("apps/backend/src/market/services/fred-api.service.ts"), AnchoredSystemPathBuf("apps/backend/src/stocks/services/stock-data.service.ts"), AnchoredSystemPathBuf("apps/backend/src/stocks/services/stock-transform.service.ts"), AnchoredSystemPathBuf("apps/backend/src/stocks/services/stock-validation.service.ts"), AnchoredSystemPathBuf("apps/backend/src/market/services/scheduled-market-updates.service.ts"), AnchoredSystemPathBuf("apps/backend/src/stocks/interfaces/stock-cache.interface.ts"), AnchoredSystemPathBuf("apps/backend/src/market/market.controller.ts"), AnchoredSystemPathBuf("apps/backend/src/market/services/market-cache.service.ts"), AnchoredSystemPathBuf("apps/backend/src/stocks/interfaces/index.ts"), AnchoredSystemPathBuf("apps/backend/src/market/market.service.ts"), AnchoredSystemPathBuf("apps/backend/src/market/services/fear-greed-index.service.ts"), AnchoredSystemPathBuf("apps/backend/src/stocks/interfaces/stock-data.interface.ts"), AnchoredSystemPathBuf("apps/backend/src/market/services/yahoo-finance.service.ts")}
 2025-09-23T05:48:05.626983Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("backend"), path: AnchoredSystemPathBuf("apps/backend") }}))
+2025-09-23T07:13:58.996722Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/postgres-version")}
+2025-09-23T07:13:58.998328Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:13:59.588490Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/gotrue-version")}
+2025-09-23T07:13:59.588721Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:13:59.686314Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/rest-version")}
+2025-09-23T07:13:59.686331Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:00.287823Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/pooler-url")}
+2025-09-23T07:14:00.287852Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:03.088025Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/storage-version")}
+2025-09-23T07:14:03.088068Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:03.288021Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/project-ref")}
+2025-09-23T07:14:03.288032Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:20.887799Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_api-usage-dashboard")}
+2025-09-23T07:14:20.887830Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:21.687045Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_api-usage-dashboard/output.eszip")}
+2025-09-23T07:14:21.687059Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:21.886968Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_api-usage-dashboard"), AnchoredSystemPathBuf("supabase/.temp/.output_api-usage-dashboard/output.eszip")}
+2025-09-23T07:14:21.886979Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:23.087459Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_news-analysis")}
+2025-09-23T07:14:23.087469Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:23.487769Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_news-analysis/output.eszip")}
+2025-09-23T07:14:23.487782Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:23.587176Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_news-analysis/output.eszip"), AnchoredSystemPathBuf("supabase/.temp/.output_news-analysis")}
+2025-09-23T07:14:23.587187Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:24.187190Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_stock-data")}
+2025-09-23T07:14:24.187230Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:24.786750Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_stock-data/output.eszip")}
+2025-09-23T07:14:24.786760Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:24.987514Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_stock-data"), AnchoredSystemPathBuf("supabase/.temp/.output_stock-data/output.eszip")}
+2025-09-23T07:14:24.987525Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:26.088118Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_test-api-tracking")}
+2025-09-23T07:14:26.088126Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:26.587597Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_test-api-tracking/output.eszip")}
+2025-09-23T07:14:26.587607Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:26.886840Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_test-api-tracking/output.eszip"), AnchoredSystemPathBuf("supabase/.temp/.output_test-api-tracking")}
+2025-09-23T07:14:26.886856Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:27.886427Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_monitoring")}
+2025-09-23T07:14:27.886439Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:28.387209Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_monitoring/output.eszip")}
+2025-09-23T07:14:28.387219Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:28.687190Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_monitoring"), AnchoredSystemPathBuf("supabase/.temp/.output_monitoring/output.eszip")}
+2025-09-23T07:14:28.687200Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:29.887954Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_ai-analysis")}
+2025-09-23T07:14:29.887968Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:30.388125Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_ai-analysis/output.eszip")}
+2025-09-23T07:14:30.388145Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:30.487536Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_ai-analysis/output.eszip")}
+2025-09-23T07:14:30.487546Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:30.787408Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_ai-analysis"), AnchoredSystemPathBuf("supabase/.temp/.output_ai-analysis/output.eszip")}
+2025-09-23T07:14:30.787420Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:31.687451Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_data-collector")}
+2025-09-23T07:14:31.687463Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:32.287212Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_data-collector/output.eszip")}
+2025-09-23T07:14:32.287223Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:32.687932Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_data-collector/output.eszip"), AnchoredSystemPathBuf("supabase/.temp/.output_data-collector")}
+2025-09-23T07:14:32.687944Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:33.687383Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_database-reader")}
+2025-09-23T07:14:33.687499Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:34.187025Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_database-reader/output.eszip")}
+2025-09-23T07:14:34.187039Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:34.387906Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_database-reader"), AnchoredSystemPathBuf("supabase/.temp/.output_database-reader/output.eszip")}
+2025-09-23T07:14:34.387914Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:35.487621Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_debug-env")}
+2025-09-23T07:14:35.487630Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:35.987779Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_debug-env/output.eszip")}
+2025-09-23T07:14:35.987791Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:36.087540Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_debug-env/output.eszip"), AnchoredSystemPathBuf("supabase/.temp/.output_debug-env")}
+2025-09-23T07:14:36.087554Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:36.687351Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_market-overview")}
+2025-09-23T07:14:36.687363Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:37.087768Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_market-overview/output.eszip")}
+2025-09-23T07:14:37.087788Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:14:37.386931Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_market-overview"), AnchoredSystemPathBuf("supabase/.temp/.output_market-overview/output.eszip")}
+2025-09-23T07:14:37.386941Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:31:13.602502Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_data-collector")}
+2025-09-23T07:31:13.602799Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:31:14.201008Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_data-collector/output.eszip")}
+2025-09-23T07:31:14.201033Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:31:14.401456Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_data-collector/output.eszip"), AnchoredSystemPathBuf("supabase/.temp/.output_data-collector"), AnchoredSystemPathBuf("supabase/.temp/.output_debug-env")}
+2025-09-23T07:31:14.401471Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:31:14.802587Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_debug-env/output.eszip")}
+2025-09-23T07:31:14.802599Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:31:14.901321Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_debug-env"), AnchoredSystemPathBuf("supabase/.temp/.output_market-overview"), AnchoredSystemPathBuf("supabase/.temp/.output_debug-env/output.eszip")}
+2025-09-23T07:31:14.901334Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:31:15.401332Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_market-overview/output.eszip")}
+2025-09-23T07:31:15.401344Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:31:15.701017Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_market-overview"), AnchoredSystemPathBuf("supabase/.temp/.output_market-overview/output.eszip"), AnchoredSystemPathBuf("supabase/.temp/.output_test-api-tracking")}
+2025-09-23T07:31:15.701029Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:31:16.102200Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_test-api-tracking/output.eszip")}
+2025-09-23T07:31:16.102213Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:31:16.401841Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_ai-analysis"), AnchoredSystemPathBuf("supabase/.temp/.output_test-api-tracking"), AnchoredSystemPathBuf("supabase/.temp/.output_test-api-tracking/output.eszip")}
+2025-09-23T07:31:16.401853Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:31:16.800822Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_ai-analysis/output.eszip")}
+2025-09-23T07:31:16.800833Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:31:17.100923Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_ai-analysis"), AnchoredSystemPathBuf("supabase/.temp/.output_api-usage-dashboard"), AnchoredSystemPathBuf("supabase/.temp/.output_ai-analysis/output.eszip")}
+2025-09-23T07:31:17.100936Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:31:17.501954Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_api-usage-dashboard/output.eszip")}
+2025-09-23T07:31:17.501965Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:31:17.701775Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_database-reader"), AnchoredSystemPathBuf("supabase/.temp/.output_api-usage-dashboard/output.eszip"), AnchoredSystemPathBuf("supabase/.temp/.output_api-usage-dashboard")}
+2025-09-23T07:31:17.701786Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:31:18.101525Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_database-reader/output.eszip")}
+2025-09-23T07:31:18.101535Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:31:18.402001Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_database-reader/output.eszip"), AnchoredSystemPathBuf("supabase/.temp/.output_database-reader"), AnchoredSystemPathBuf("supabase/.temp/.output_monitoring")}
+2025-09-23T07:31:18.402017Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:31:18.901856Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_monitoring/output.eszip")}
+2025-09-23T07:31:18.901868Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:31:19.101842Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_monitoring"), AnchoredSystemPathBuf("supabase/.temp/.output_news-analysis"), AnchoredSystemPathBuf("supabase/.temp/.output_monitoring/output.eszip")}
+2025-09-23T07:31:19.101852Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:31:19.501801Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_news-analysis/output.eszip")}
+2025-09-23T07:31:19.501815Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:31:19.601787Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_news-analysis"), AnchoredSystemPathBuf("supabase/.temp/.output_stock-data"), AnchoredSystemPathBuf("supabase/.temp/.output_news-analysis/output.eszip")}
+2025-09-23T07:31:19.601799Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:31:20.301734Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_stock-data/output.eszip")}
+2025-09-23T07:31:20.301746Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-09-23T07:31:20.502283Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase/.temp/.output_stock-data"), AnchoredSystemPathBuf("supabase/.temp/.output_stock-data/output.eszip")}
+2025-09-23T07:31:20.502294Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
