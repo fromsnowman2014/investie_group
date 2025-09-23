@@ -23,7 +23,7 @@ import {
 
 // Direct database access setup (bypassing database-reader)
 const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'https://fwnmnjwtbggasmunsfyk.supabase.co'
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || Deno.env.get('SERVICE_ROLE_KEY') || ''
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
   db: { schema: 'public' },

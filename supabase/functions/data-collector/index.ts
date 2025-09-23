@@ -46,9 +46,10 @@ const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'https://fwnmnjwtbggasmunsfy
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || Deno.env.get('SERVICE_ROLE_KEY') || ''
 
 if (!supabaseServiceKey) {
-  console.error('❌ SUPABASE_SERVICE_ROLE_KEY is not configured');
+  console.error('❌ Service Role Key is not configured (checked SUPABASE_SERVICE_ROLE_KEY and SERVICE_ROLE_KEY)');
 } else {
-  console.log('✅ SUPABASE_SERVICE_ROLE_KEY is configured');
+  const keySource = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ? 'SUPABASE_SERVICE_ROLE_KEY' : 'SERVICE_ROLE_KEY';
+  console.log(`✅ Service Role Key is configured (using ${keySource})`);
 }
 
 // Create function to initialize Supabase client with retry logic and optimized settings

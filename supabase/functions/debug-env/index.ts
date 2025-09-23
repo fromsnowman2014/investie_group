@@ -5,7 +5,9 @@ Deno.serve(async (req) => {
   const debug = {
     DISABLE_API_TRACKING: Deno.env.get('DISABLE_API_TRACKING'),
     SUPABASE_URL: Deno.env.get('SUPABASE_URL'),
-    SERVICE_ROLE_KEY_EXISTS: !!Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'),
+    SERVICE_ROLE_KEY_EXISTS: !!(Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || Deno.env.get('SERVICE_ROLE_KEY')),
+    SERVICE_ROLE_KEY_SOURCE: Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ? 'SUPABASE_SERVICE_ROLE_KEY' : 
+                             Deno.env.get('SERVICE_ROLE_KEY') ? 'SERVICE_ROLE_KEY' : 'none',
     ALPHA_VANTAGE_API_KEY_EXISTS: !!Deno.env.get('ALPHA_VANTAGE_API_KEY'),
   };
 

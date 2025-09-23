@@ -58,9 +58,10 @@ const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || Deno.env
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || Deno.env.get('NEXT_PUBLIC_SUPABASE_ANON_KEY') || ''
 
 if (!supabaseServiceKey) {
-  console.error('❌ SUPABASE_SERVICE_ROLE_KEY is not configured');
+  console.error('❌ Service Role Key is not configured (checked SUPABASE_SERVICE_ROLE_KEY and SERVICE_ROLE_KEY)');
 } else {
-  console.log('✅ SUPABASE_SERVICE_ROLE_KEY is configured');
+  const keySource = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ? 'SUPABASE_SERVICE_ROLE_KEY' : 'SERVICE_ROLE_KEY';
+  console.log(`✅ Service Role Key is configured (using ${keySource})`);
 }
 
 if (!supabaseAnonKey) {
