@@ -9,7 +9,7 @@ export class StockTransformService implements IStockTransformService {
     aiEvaluation: any,
     technicals: any,
     newsSummary: any,
-    symbol: StockSymbol
+    symbol: StockSymbol,
   ): StockCardData {
     return {
       symbol,
@@ -69,7 +69,9 @@ export class StockTransformService implements IStockTransformService {
     return sectors[symbol] || 'Technology';
   }
 
-  extractSentimentFromOverview(overview: any): 'positive' | 'neutral' | 'negative' {
+  extractSentimentFromOverview(
+    overview: any,
+  ): 'positive' | 'neutral' | 'negative' {
     if (!overview) return 'neutral';
 
     const text = (overview.overview || '').toLowerCase();

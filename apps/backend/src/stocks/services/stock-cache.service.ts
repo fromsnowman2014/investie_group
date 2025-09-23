@@ -1,6 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { StockSymbol } from '../../common/types';
-import { IStockCacheService, CachedStockData, StockPriceData } from '../interfaces';
+import {
+  IStockCacheService,
+  CachedStockData,
+  StockPriceData,
+} from '../interfaces';
 import { SupabaseService } from '../../database/supabase.service';
 
 @Injectable()
@@ -9,7 +13,9 @@ export class StockCacheService implements IStockCacheService {
 
   constructor(private readonly supabaseService: SupabaseService) {}
 
-  async loadStockDataFromCache(symbol: StockSymbol): Promise<CachedStockData | null> {
+  async loadStockDataFromCache(
+    symbol: StockSymbol,
+  ): Promise<CachedStockData | null> {
     try {
       const supabase = this.supabaseService.getClient();
       const { data, error } = await supabase
@@ -28,13 +34,16 @@ export class StockCacheService implements IStockCacheService {
     } catch (error) {
       this.logger.warn(
         `Failed to load stock data from cache for ${symbol}:`,
-        error.message
+        error.message,
       );
       return null;
     }
   }
 
-  async storeStockDataInCache(symbol: StockSymbol, stockData: StockPriceData): Promise<void> {
+  async storeStockDataInCache(
+    symbol: StockSymbol,
+    stockData: StockPriceData,
+  ): Promise<void> {
     try {
       const supabase = this.supabaseService.getClient();
 
@@ -58,11 +67,11 @@ export class StockCacheService implements IStockCacheService {
       if (error) {
         this.logger.error(
           `Failed to store stock data in cache for ${symbol}:`,
-          error
+          error,
         );
       } else {
         this.logger.log(
-          `Stock data stored successfully in cache for ${symbol}`
+          `Stock data stored successfully in cache for ${symbol}`,
         );
       }
     } catch (error) {

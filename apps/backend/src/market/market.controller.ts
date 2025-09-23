@@ -1,4 +1,10 @@
-import { Controller, Get, Post, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { MarketService } from './market.service';
 
 @Controller('api/v1/market')
@@ -160,9 +166,9 @@ export class MarketController {
         services: {
           market: 'operational',
           cache: 'operational',
-          scheduler: 'operational'
+          scheduler: 'operational',
         },
-        environment: process.env.NODE_ENV || 'development'
+        environment: process.env.NODE_ENV || 'development',
       };
 
       return {

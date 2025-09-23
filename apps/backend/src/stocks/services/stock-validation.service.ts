@@ -30,9 +30,13 @@ export class StockValidationService implements IStockValidationService {
     }
 
     const requiredFields = ['price', 'change', 'changePercent'];
-    
+
     for (const field of requiredFields) {
-      if (!(field in data) || typeof data[field] !== 'number' || isNaN(data[field])) {
+      if (
+        !(field in data) ||
+        typeof data[field] !== 'number' ||
+        isNaN(data[field])
+      ) {
         return false;
       }
     }

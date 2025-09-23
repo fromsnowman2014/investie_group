@@ -12,8 +12,8 @@ import { YahooFinanceService } from './services/yahoo-finance.service';
 
 @Module({
   imports: [
-    DatabaseModule, 
-    ScheduleModule.forRoot() // Enable scheduled tasks
+    DatabaseModule,
+    ScheduleModule.forRoot(), // Enable scheduled tasks
   ],
   controllers: [MarketController],
   providers: [
@@ -23,7 +23,7 @@ import { YahooFinanceService } from './services/yahoo-finance.service';
     AlphaVantageService,
     MarketCacheService,
     ScheduledMarketUpdatesService,
-    YahooFinanceService
+    YahooFinanceService,
   ],
   exports: [
     MarketService,
@@ -32,7 +32,7 @@ import { YahooFinanceService } from './services/yahoo-finance.service';
     AlphaVantageService,
     MarketCacheService,
     ScheduledMarketUpdatesService,
-    YahooFinanceService
+    YahooFinanceService,
   ],
 })
 export class MarketModule {}

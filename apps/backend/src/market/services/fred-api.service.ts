@@ -41,11 +41,14 @@ export interface UnemploymentData extends EconomicIndicator {
 export class FredApiService {
   private readonly logger = new Logger(FredApiService.name);
   private readonly fredApiKey = process.env.FRED_API_KEY;
-  private readonly fredBaseUrl = 'https://api.stlouisfed.org/fred/series/observations';
+  private readonly fredBaseUrl =
+    'https://api.stlouisfed.org/fred/series/observations';
 
   constructor() {
     if (!this.fredApiKey) {
-      this.logger.warn('FRED API key not configured. Economic indicators will use mock data.');
+      this.logger.warn(
+        'FRED API key not configured. Economic indicators will use mock data.',
+      );
     }
   }
 
@@ -60,9 +63,11 @@ export class FredApiService {
 
       const response = await this.fetchFredData('GS10', 2); // 10-Year Treasury
       const observations = response.observations;
-      
+
       if (observations.length < 2) {
-        throw new Error('Insufficient data points for interest rate calculation');
+        throw new Error(
+          'Insufficient data points for interest rate calculation',
+        );
       }
 
       const current = parseFloat(observations[0].value);
@@ -79,7 +84,7 @@ export class FredApiService {
         basisPointsChange: basisPointsChange,
         date: observations[0].date,
         trend: this.determineTrend(change),
-        source: 'fred_api'
+        source: 'fred_api',
       };
     } catch (error) {
       this.logger.error('Error fetching interest rate data:', error.message);
@@ -98,7 +103,7 @@ export class FredApiService {
 
       const [monthlyResponse, yearlyResponse] = await Promise.all([
         this.fetchFredData('CPIAUCSL', 2), // Monthly CPI
-        this.fetchFredData('CPIAUCSL', 13) // 13 months for YoY calculation
+        this.fetchFredData('CPIAUCSL', 13), // 13 months for YoY calculation
       ]);
 
       const monthlyObs = monthlyResponse.observations;
@@ -128,7 +133,7 @@ export class FredApiService {
         trend: this.determineTrend(change),
         direction: this.determineDirection(monthOverMonth),
         inflationPressure: this.determineInflationPressure(yearOverYear),
-        source: 'fred_api'
+        source: 'fred_api',
       };
     } catch (error) {
       this.logger.error('Error fetching CPI data:', error.message);
@@ -149,7 +154,9 @@ export class FredApiService {
       const observations = response.observations;
 
       if (observations.length < 2) {
-        throw new Error('Insufficient data points for unemployment calculation');
+        throw new Error(
+          'Insufficient data points for unemployment calculation',
+        );
       }
 
       const current = parseFloat(observations[0].value);
@@ -167,7 +174,7 @@ export class FredApiService {
         date: observations[0].date,
         trend: this.determineTrend(change),
         employmentHealth: this.determineEmploymentHealth(current, change),
-        source: 'fred_api'
+        source: 'fred_api',
       };
     } catch (error) {
       this.logger.error('Error fetching unemployment data:', error.message);
@@ -178,7 +185,10 @@ export class FredApiService {
   /**
    * Fetch data from FRED API
    */
-  private async fetchFredData(seriesId: string, limit: number = 1): Promise<FredApiResponse> {
+  private async fetchFredData(
+    seriesId: string,
+    limit: number = 1,
+  ): Promise<FredApiResponse> {
     try {
       const response = await axios.get(this.fredBaseUrl, {
         params: {
@@ -186,18 +196,23 @@ export class FredApiService {
           api_key: this.fredApiKey,
           file_type: 'json',
           limit: limit,
-          sort_order: 'desc'
+          sort_order: 'desc',
         },
-        timeout: 10000
+        timeout: 10000,
       });
 
       if (!response.data || !response.data.observations) {
-        throw new Error(`Invalid response from FRED API for series ${seriesId}`);
+        throw new Error(
+          `Invalid response from FRED API for series ${seriesId}`,
+        );
       }
 
       return response.data;
     } catch (error) {
-      this.logger.error(`FRED API request failed for series ${seriesId}:`, error.message);
+      this.logger.error(
+        `FRED API request failed for series ${seriesId}:`,
+        error.message,
+      );
       throw error;
     }
   }
@@ -217,13 +232,18 @@ export class FredApiService {
     return value > 0 ? 'up' : 'down';
   }
 
-  private determineInflationPressure(yearOverYear: number): 'low' | 'moderate' | 'high' {
+  private determineInflationPressure(
+    yearOverYear: number,
+  ): 'low' | 'moderate' | 'high' {
     if (yearOverYear <= 2.0) return 'low';
     if (yearOverYear <= 4.0) return 'moderate';
     return 'high';
   }
 
-  private determineEmploymentHealth(rate: number, change: number): 'strong' | 'moderate' | 'weak' {
+  private determineEmploymentHealth(
+    rate: number,
+    change: number,
+  ): 'strong' | 'moderate' | 'weak' {
     // Lower unemployment rate is better
     // Decreasing unemployment is positive
     if (rate <= 4.0 && change <= 0) return 'strong';
@@ -237,14 +257,15 @@ export class FredApiService {
   private getMockInterestRateData(): InterestRateData {
     return {
       value: 4.25,
-      previousValue: 4.10,
+      previousValue: 4.1,
       change: 0.15,
       percentChange: 3.66,
       basisPointsChange: 15,
       date: new Date().toISOString().split('T')[0],
       trend: 'rising',
       source: 'fred_api',
-      aiOutlook: 'Fed expected to maintain current stance amid inflation concerns'
+      aiOutlook:
+        'Fed expected to maintain current stance amid inflation concerns',
     };
   }
 
@@ -260,7 +281,7 @@ export class FredApiService {
       trend: 'rising',
       direction: 'up',
       inflationPressure: 'moderate',
-      source: 'fred_api'
+      source: 'fred_api',
     };
   }
 
@@ -274,7 +295,7 @@ export class FredApiService {
       date: new Date().toISOString().split('T')[0],
       trend: 'falling',
       employmentHealth: 'strong',
-      source: 'fred_api'
+      source: 'fred_api',
     };
   }
 }
