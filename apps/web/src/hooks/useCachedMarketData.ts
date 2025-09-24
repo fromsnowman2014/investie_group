@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { edgeFunctionFetcher } from '@/lib/api-utils';
+import { hybridMarketOverviewFetcher, hybridIndicatorFetcher } from '@/lib/hybrid-fetcher';
 
 // Types for cached market data
 interface CachedMarketDataConfig {
@@ -69,21 +69,16 @@ export const useCachedMarketData = (config: CachedMarketDataConfig = {}): Cached
 
   const fetcher = async (): Promise<MarketOverviewResponse> => {
     try {
-      console.log('🔄 Fetching cached market data...');
+      console.log('🔄 Fetching market data (hybrid mode)...');
 
-      // Use database-reader for cached market data
-      const result = await edgeFunctionFetcher<MarketOverviewResponse>('database-reader', {
-        action: 'get_market_overview',
-        maxAge: config.maxAge,
-        fallbackToAPI: true,
-        forceRefresh: config.forceRefresh || false
-      });
+      // Use hybrid fetcher - automatically chooses between Direct API and Edge Functions
+      const result = await hybridMarketOverviewFetcher();
 
-      console.log(`✅ Cached data fetched: ${result.cacheInfo.totalIndicators} indicators (${result.cacheInfo.cacheHitRate}% cache hit rate)`);
+      console.log(`✅ Market data fetched: ${result.cacheInfo.totalIndicators} indicators (source: ${result.source})`);
 
       return result;
     } catch (error) {
-      console.error('❌ Cached market data fetch error:', error);
+      console.error('❌ Hybrid market data fetch error:', error);
       throw error;
     }
   };
@@ -109,23 +104,18 @@ export const useCachedMarketData = (config: CachedMarketDataConfig = {}): Cached
 
   // Force refresh function
   const forceRefresh = async (): Promise<MarketOverviewResponse | undefined> => {
-    console.log('🔄 Force refreshing market data...');
+    console.log('🔄 Force refreshing market data (hybrid mode)...');
 
     try {
       const result = await mutate(
-        edgeFunctionFetcher<MarketOverviewResponse>('database-reader', {
-          action: 'get_market_overview',
-          maxAge: 0,  // Force fresh data
-          fallbackToAPI: true,
-          forceRefresh: true
-        }),
+        hybridMarketOverviewFetcher(),
         { revalidate: false }
       );
 
-      console.log('✅ Force refresh completed');
+      console.log('✅ Force refresh completed (hybrid mode)');
       return result;
     } catch (error) {
-      console.error('❌ Force refresh failed:', error);
+      console.error('❌ Force refresh failed (hybrid mode):', error);
       throw error;
     }
   };
@@ -169,20 +159,15 @@ export const useCachedMarketData = (config: CachedMarketDataConfig = {}): Cached
 export const useCachedIndicator = (indicatorType: string, config: CachedMarketDataConfig = {}) => {
   const fetcher = async (): Promise<CachedMarketData | null> => {
     try {
-      console.log(`🔍 Fetching ${indicatorType} from cache...`);
+      console.log(`🔍 Fetching ${indicatorType} (hybrid mode)...`);
 
-      const result = await edgeFunctionFetcher<CachedMarketData>('database-reader', {
-        action: 'get_cached_data',
-        indicatorType,
-        maxAge: config.maxAge,
-        fallbackToAPI: true,
-        forceRefresh: config.forceRefresh || false
-      });
+      // Use hybrid fetcher for individual indicators
+      const result = await hybridIndicatorFetcher(indicatorType);
 
-      console.log(`✅ ${indicatorType} data fetched from cache`);
+      console.log(`✅ ${indicatorType} data fetched (hybrid mode)`);
       return result;
     } catch (error) {
-      console.error(`❌ Error fetching ${indicatorType}:`, error);
+      console.error(`❌ Error fetching ${indicatorType} (hybrid mode):`, error);
       throw error;
     }
   };

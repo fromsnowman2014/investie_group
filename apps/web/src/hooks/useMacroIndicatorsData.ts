@@ -1,6 +1,7 @@
 import useSWR from 'swr';
 import { MarketOverviewData } from '@/types/api';
 import { edgeFunctionFetcher } from '@/lib/api-utils';
+import { hybridMarketOverviewFetcher } from '@/lib/hybrid-fetcher';
 
 // Import proper interfaces from shared cache module to avoid duplication
 interface MarketOverviewResponse {
@@ -88,70 +89,60 @@ const calculateDataAge = (lastUpdated?: string): number => {
 
 const fetcher = async (): Promise<MarketOverviewData> => {
   try {
-    // Try to use database-reader cache first (restored from f717bd3 implementation)
-    console.log('🔄 Attempting to fetch cached market data from database-reader...');
+    console.log('🔄 Fetching macro indicators data (hybrid mode)...');
 
-    try {
-      const cachedResult = await edgeFunctionFetcher<MarketOverviewResponse>('database-reader', {
-        action: 'get_market_overview',
-        maxAge: 12 * 3600, // 12 hours
-        fallbackToAPI: true,
-        forceRefresh: false
-      });
+    // Use hybrid fetcher - automatically chooses between Direct API and Edge Functions
+    const hybridResult = await hybridMarketOverviewFetcher();
 
-      if (cachedResult && cachedResult.cacheInfo) {
-        console.log(`✅ Got cached data from database-reader (${cachedResult.cacheInfo.cacheHitRate}% cache hit rate)`);
+    // Convert hybrid result to expected MarketOverviewData format
+    const extractMarketData = (data?: CachedMarketData, fallbackValue = 0) => ({
+      value: (data?.data_value.price as number) || (data?.data_value.value as number) || fallbackValue,
+      change: (data?.data_value.change as number) || 0,
+      changePercent: (data?.data_value.changePercent as number) || 0
+    });
 
-        // Convert cached format to expected format with type safety
-        // Helper function to safely extract market data
-        const extractMarketData = (data?: CachedMarketData, fallbackValue = 0) => ({
-          value: data?.data_value.price || data?.data_value.value || fallbackValue,
-          change: data?.data_value.change || 0,
-          changePercent: data?.data_value.changePercent || 0
-        });
-
-        const adaptedData: MarketOverviewData = {
-          indices: {
-            sp500: extractMarketData(cachedResult.sp500Data, 4500),
-            nasdaq: extractMarketData(cachedResult.nasdaqData, 14000),
-            dow: extractMarketData(cachedResult.dowData, 35000)
-          },
-          sectors: [], // TODO: Implement sector data extraction when available
-          volatilityIndex: cachedResult.vixData?.data_value.price ||
-                           cachedResult.vixData?.data_value.value || 20,
-          marketSentiment: determineSentiment(cachedResult),
-          source: cachedResult.source || 'cache',
-          lastUpdated: cachedResult.lastUpdated || new Date().toISOString(),
-          cacheInfo: {
-            isFromCache: true,
-            cacheHitRate: cachedResult.cacheInfo.cacheHitRate,
-            totalIndicators: cachedResult.cacheInfo.totalIndicators,
-            freshIndicators: cachedResult.cacheInfo.freshIndicators,
-            dataAge: calculateDataAge(cachedResult.lastUpdated)
-          }
-        };
-
-        return adaptedData;
+    const adaptedData: MarketOverviewData = {
+      indices: {
+        sp500: extractMarketData(hybridResult.sp500Data, 4500),
+        nasdaq: extractMarketData(hybridResult.nasdaqData, 14000),
+        dow: extractMarketData(hybridResult.dowData, 35000)
+      },
+      sectors: [], // TODO: Implement sector data extraction when available
+      volatilityIndex: (hybridResult.vixData?.data_value.price as number) ||
+                       (hybridResult.vixData?.data_value.value as number) || 20,
+      marketSentiment: determineSentiment(hybridResult),
+      source: hybridResult.source || 'hybrid',
+      lastUpdated: hybridResult.lastUpdated || new Date().toISOString(),
+      cacheInfo: {
+        isFromCache: hybridResult.source === 'cache',
+        cacheHitRate: hybridResult.cacheInfo.cacheHitRate,
+        totalIndicators: hybridResult.cacheInfo.totalIndicators,
+        freshIndicators: hybridResult.cacheInfo.freshIndicators,
+        dataAge: calculateDataAge(hybridResult.lastUpdated)
       }
-    } catch (cacheError) {
-      const errorMessage = cacheError instanceof Error ? cacheError.message : 'Unknown error';
-      console.warn('⚠️ Database-reader failed, falling back to market-overview:', errorMessage);
-    }
+    };
 
-    // Fallback to market-overview if cache fails
-    console.log('🔍 Falling back to market-overview direct API...');
+    console.log(`✅ Macro indicators data fetched (hybrid mode, source: ${hybridResult.source})`);
 
-    const result = await edgeFunctionFetcher('market-overview', {});
-
-    if (result) {
-      console.log('✅ Got market data from market-overview fallback');
-      return result as MarketOverviewData;
-    }
-
-    throw new Error('No data received from either cache or fallback API');
+    return adaptedData;
   } catch (error) {
-    console.error('MacroIndicators Fetcher Error:', error);
-    throw error;
+    console.error('❌ Hybrid MacroIndicators Fetcher Error:', error);
+
+    // Final fallback to market-overview if hybrid fails
+    try {
+      console.log('🔍 Final fallback to market-overview...');
+      const result = await edgeFunctionFetcher('market-overview', {});
+
+      if (result) {
+        console.log('✅ Got market data from market-overview fallback');
+        return result as MarketOverviewData;
+      }
+
+      throw new Error('Market-overview fallback also failed');
+    } catch (fallbackError) {
+      console.error('❌ All fallbacks failed:', fallbackError);
+      throw error; // Throw original hybrid error
+    }
   }
 };
 
