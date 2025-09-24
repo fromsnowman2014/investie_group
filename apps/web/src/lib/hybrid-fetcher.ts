@@ -280,7 +280,7 @@ async function saveDirectAPIDataToSupabase(indicators: DirectAPIMarketData[]): P
   try {
     console.log('💾 Saving Direct API data to Supabase...');
 
-    const response = await edgeFunctionFetcher('data-collector', {
+    await edgeFunctionFetcher('data-collector', {
       action: 'save_market_data',
       data: indicators.map(indicator => ({
         indicator_type: indicator.indicator_type,
@@ -292,7 +292,6 @@ async function saveDirectAPIDataToSupabase(indicators: DirectAPIMarketData[]): P
     });
 
     console.log(`✅ Saved ${indicators.length} indicators to Supabase database`);
-    return response;
 
   } catch (error) {
     console.error('❌ Failed to save Direct API data to Supabase:', error);
