@@ -17,6 +17,7 @@ interface CollectionJob {
   indicatorType?: string;  // For collect_indicator action
   source?: string;
   forceRefresh?: boolean;
+  data?: MarketIndicator[];  // For save_market_data action (from Direct API)
 }
 
 interface MarketIndicator {
@@ -599,28 +600,34 @@ async function saveIndicatorsToDatabase(indicators: MarketIndicator[]): Promise<
           metadata: indicator.metadata || {},
           data_source: indicator.data_source,
           expires_at: indicator.expires_at,
-          is_active: true,
-          updated_at: new Date().toISOString()
+          is_active: true
         };
 
-        console.log(`📤 Upserting ${indicator.indicator_type} with data:`, JSON.stringify(upsertData, null, 2));
+        console.log(`📤 Inserting ${indicator.indicator_type} with data:`, JSON.stringify(upsertData, null, 2));
 
-        // Use upsert (INSERT ... ON CONFLICT UPDATE) to handle existing records
-        const { data: upsertedData, error: upsertError } = await supabase
+        // First try to delete any existing records for this indicator type
+        const { error: deleteError } = await supabase
           .from('market_indicators_cache')
-          .upsert(upsertData, {
-            onConflict: 'indicator_type',
-            ignoreDuplicates: false
-          })
-          .select();
+          .delete()
+          .eq('indicator_type', indicator.indicator_type);
 
-        if (upsertError) {
-          console.error(`❌ Failed to upsert ${indicator.indicator_type}:`, JSON.stringify(upsertError, null, 2));
-          throw new Error(`Upsert error for ${indicator.indicator_type}: ${upsertError.message} (code: ${upsertError.code})`);
+        if (deleteError) {
+          console.warn(`⚠️ Delete existing ${indicator.indicator_type} warning:`, deleteError.message);
         }
 
-        console.log(`✅ Successfully upserted ${indicator.indicator_type} to database`);
-        console.log(`📥 Upserted data:`, JSON.stringify(upsertedData, null, 2));
+        // Then insert new data
+        const { data: insertedData, error: insertError } = await supabase
+          .from('market_indicators_cache')
+          .insert(upsertData)
+          .select();
+
+        if (insertError) {
+          console.error(`❌ Failed to insert ${indicator.indicator_type}:`, JSON.stringify(insertError, null, 2));
+          throw new Error(`Insert error for ${indicator.indicator_type}: ${insertError.message} (code: ${insertError.code})`);
+        }
+
+        console.log(`✅ Successfully inserted ${indicator.indicator_type} to database`);
+        console.log(`📥 Inserted data:`, JSON.stringify(insertedData, null, 2));
         savedCount++;
       });
 
@@ -889,6 +896,38 @@ Deno.serve(async (req) => {
         }
       });
 
+    } else if (job.action === 'save_market_data') {
+      // New action: Save market data received from Direct API (Frontend)
+      if (!job.data || !Array.isArray(job.data)) {
+        return new Response(JSON.stringify({
+          error: 'data is required and must be an array for save_market_data action'
+        }), {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          }
+        });
+      }
+
+      console.log(`🏢 Saving ${job.data.length} indicators from Direct API to database...`);
+
+      const result = await saveIndicatorsToDatabase(job.data);
+
+      return new Response(JSON.stringify({
+        success: result.success,
+        saved: result.saved,
+        errors: result.errors,
+        timestamp: new Date().toISOString(),
+        source: 'direct_api_save'
+      }), {
+        status: result.success ? 200 : 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
+
     } else if (job.action === 'debug') {
       const debugInfo = {
         environment: 'production',
@@ -916,7 +955,7 @@ Deno.serve(async (req) => {
 
     } else {
       return new Response(JSON.stringify({
-        error: 'Invalid action. Use "collect_all", "collect_indicator", "health", or "debug"'
+        error: 'Invalid action. Use "collect_all", "collect_indicator", "save_market_data", "health", or "debug"'
       }), {
         status: 400,
         headers: {

@@ -162,6 +162,13 @@ export async function hybridMarketOverviewFetcher(): Promise<MarketOverviewRespo
         console.log(`📊 Alpha Vantage usage: ${directResult.usageInfo.alpha_vantage.used}/${directResult.usageInfo.alpha_vantage.limit}`);
       }
 
+      // Direct API에서 수집한 데이터를 Supabase에 저장 (백그라운드 작업)
+      if (directResult.indicators.length > 0) {
+        saveDirectAPIDataToSupabase(directResult.indicators).catch(error => {
+          console.warn('⚠️ Failed to save Direct API data to Supabase:', error.message);
+        });
+      }
+
       return transformedResult;
 
     } catch (error) {
@@ -263,6 +270,33 @@ export async function hybridIndicatorFetcher(indicatorType: string): Promise<Cac
       fallbackToAPI: true,
       forceRefresh: false
     });
+  }
+}
+
+/**
+ * Direct API에서 수집한 데이터를 Supabase data-collector에 저장
+ */
+async function saveDirectAPIDataToSupabase(indicators: DirectAPIMarketData[]): Promise<void> {
+  try {
+    console.log('💾 Saving Direct API data to Supabase...');
+
+    const response = await edgeFunctionFetcher('data-collector', {
+      action: 'save_market_data',
+      data: indicators.map(indicator => ({
+        indicator_type: indicator.indicator_type,
+        data_value: indicator.data_value,
+        metadata: indicator.metadata,
+        data_source: indicator.data_source,
+        expires_at: indicator.expires_at
+      }))
+    });
+
+    console.log(`✅ Saved ${indicators.length} indicators to Supabase database`);
+    return response;
+
+  } catch (error) {
+    console.error('❌ Failed to save Direct API data to Supabase:', error);
+    throw error;
   }
 }
 
