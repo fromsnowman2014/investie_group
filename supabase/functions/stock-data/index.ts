@@ -228,7 +228,19 @@ function parseMarketCap(marketCapString: string): number {
 }
 
 function getMockStockData(symbol: string): StockPriceData {
-  const basePrice = MOCK_PRICES[symbol] || 100;
+  // Use predefined prices for known symbols, otherwise generate dynamic price based on symbol hash
+  let basePrice = MOCK_PRICES[symbol];
+
+  if (!basePrice) {
+    // Generate consistent price based on symbol hash (so same symbol always gets same base price)
+    const hashCode = symbol.split('').reduce((acc, char) => {
+      return char.charCodeAt(0) + ((acc << 5) - acc);
+    }, 0);
+
+    // Generate price between $10-$500 based on hash
+    basePrice = Math.abs(hashCode % 490) + 10;
+  }
+
   const change = (Math.random() - 0.5) * 10;
   const changePercent = (change / basePrice) * 100;
 
@@ -281,16 +293,9 @@ Deno.serve(async (req) => {
     }
 
     const upperSymbol = symbol.toUpperCase();
-    
-    if (!validateSymbol(upperSymbol)) {
-      return new Response(JSON.stringify({ error: `Invalid stock symbol: ${symbol}` }), {
-        status: 400,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        }
-      });
-    }
+
+    // Symbol validation removed - now accepts any stock symbol for broader market coverage
+    // This allows users to search and get data for all NYSE/NASDAQ stocks
 
     // Get API key from environment variables
     const alphaVantageApiKey = Deno.env.get('ALPHA_VANTAGE_API_KEY');
