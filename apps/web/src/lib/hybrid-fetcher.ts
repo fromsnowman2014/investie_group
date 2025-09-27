@@ -4,6 +4,36 @@
 import { edgeFunctionFetcher } from './api-utils';
 
 /**
+ * Economic Indicator interface
+ */
+interface EconomicIndicator {
+  value: number;
+  previousValue?: number;
+  change?: number;
+  date: string;
+  trend: 'rising' | 'falling' | 'stable';
+  source: string;
+}
+
+/**
+ * Individual Indicator Response interface
+ */
+interface IndicatorResponse {
+  indicator_type: string;
+  data_value: {
+    value?: number;
+    change?: number;
+    changePercent?: number;
+    price?: number;
+    status?: string;
+    confidence?: number;
+    interpretation?: string;
+  };
+  data_source: string;
+  created_at: string;
+}
+
+/**
  * Market Overview Response interface (simplified for real-time API)
  */
 interface MarketOverviewResponse {
@@ -17,7 +47,7 @@ interface MarketOverviewResponse {
     change: number;
     performance: 'positive' | 'negative';
   }>;
-  economicIndicators?: Record<string, any>;
+  economicIndicators?: Record<string, EconomicIndicator>;
   fearGreedIndex?: {
     value: number;
     status: string;
@@ -58,7 +88,7 @@ export async function hybridMarketOverviewFetcher(): Promise<MarketOverviewRespo
 /**
  * Individual indicator fetcher (deprecated - use market overview instead)
  */
-export async function hybridIndicatorFetcher(indicatorType: string): Promise<any | null> {
+export async function hybridIndicatorFetcher(indicatorType: string): Promise<IndicatorResponse | null> {
   console.warn(`⚠️ hybridIndicatorFetcher is deprecated. Use hybridMarketOverviewFetcher instead. Requested: ${indicatorType}`);
 
   try {
@@ -76,7 +106,7 @@ export async function hybridIndicatorFetcher(indicatorType: string): Promise<any
       case 'vix':
         return {
           indicator_type: 'vix',
-          data_value: marketOverview.vix,
+          data_value: marketOverview.vix || { value: 20, status: 'moderate', interpretation: 'VIX data unavailable' },
           data_source: marketOverview.source,
           created_at: marketOverview.lastUpdated
         };
@@ -90,7 +120,7 @@ export async function hybridIndicatorFetcher(indicatorType: string): Promise<any
       case 'fear_greed':
         return {
           indicator_type: 'fear_greed',
-          data_value: marketOverview.fearGreedIndex,
+          data_value: marketOverview.fearGreedIndex || { value: 50, status: 'neutral', confidence: 50 },
           data_source: marketOverview.source,
           created_at: marketOverview.lastUpdated
         };

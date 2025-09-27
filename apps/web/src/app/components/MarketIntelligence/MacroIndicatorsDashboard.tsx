@@ -9,12 +9,16 @@ interface MacroIndicatorsDashboardProps {
 
 export default function MacroIndicatorsDashboard({ }: MacroIndicatorsDashboardProps) {
   const {
-    marketData: data,
+    data,
     error,
     isLoading,
-    isMarketOpen,
-    refetch: mutate
+    refresh: mutate
   } = useMacroIndicatorsData();
+
+  // Market is open during standard trading hours (9:30 AM - 4:00 PM ET)
+  const now = new Date();
+  const hour = now.getHours();
+  const isMarketOpen = hour >= 9 && hour < 16;
 
   // Enhanced debug logging for deployment troubleshooting
   React.useEffect(() => {

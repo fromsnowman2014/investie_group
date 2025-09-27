@@ -101,13 +101,7 @@ export interface VIXData {
   interpretation: string;
 }
 
-export interface CacheInfo {
-  isFromCache: boolean;
-  cacheHitRate: number;
-  totalIndicators: number;
-  freshIndicators: number;
-  dataAge: number;
-}
+// Cache-related interfaces removed - using real-time API only
 
 export interface MarketOverviewData {
   indices: {
@@ -127,7 +121,6 @@ export interface MarketOverviewData {
   volatilityIndex: number;
   source: string;
   lastUpdated: string;
-  cacheInfo?: CacheInfo;
 }
 
 export interface MarketOverview {

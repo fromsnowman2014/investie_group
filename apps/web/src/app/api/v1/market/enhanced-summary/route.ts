@@ -144,11 +144,7 @@ const generateEnhancedMarketSummary = () => {
     ],
     
     lastUpdated: new Date().toISOString(),
-    cacheInfo: {
-      hitRate: 0.87,
-      totalRequests: 1250,
-      averageResponseTime: 145
-    }
+    timestamp: new Date().toISOString()
   };
 };
 
