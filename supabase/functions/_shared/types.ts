@@ -1,27 +1,6 @@
 // Shared types for Supabase Edge Functions
 // This file contains common type definitions used across multiple functions
 
-// Cache-related types
-export interface CachedMarketData {
-  id?: number;
-  indicator_type: string;
-  data_value: Record<string, unknown>;
-  metadata?: Record<string, unknown>;
-  data_source: string;
-  created_at: string;
-  expires_at?: string;
-  age_seconds?: number;
-  source?: 'cache' | 'realtime' | 'fallback';
-  freshness?: MarketDataFreshness;
-}
-
-export interface MarketDataFreshness {
-  ageInSeconds: number;
-  ageInHours: number;
-  freshness: number;
-  isStale: boolean;
-}
-
 // Market data types
 export interface IndexData {
   value: number;
@@ -76,34 +55,14 @@ export interface MarketOverviewResponse {
   volatilityIndex: number;
   source: string;
   lastUpdated: string;
-  cacheInfo?: CacheInfo;
+  timestamp?: string;
 }
 
-export interface CacheInfo {
-  totalIndicators: number;
-  freshIndicators: number;
-  staleIndicators: number;
-  cacheHitRate: number;
-}
-
-export interface DatabaseReaderResponse {
-  fearGreedIndex?: CachedMarketData;
-  economicIndicators?: CachedMarketData[];
-  marketIndicators?: CachedMarketData[];
-  sp500Data?: CachedMarketData;
-  vixData?: CachedMarketData;
-  lastUpdated: string;
-  source: 'cache' | 'mixed' | 'realtime';
-  cacheInfo: CacheInfo;
-}
-
-// API request types
-export interface CachedDataQuery {
-  indicatorType?: string;
-  maxAge?: number;
-  fallbackToAPI?: boolean;
+// API request types for real-time data fetching
+export interface APIDataRequest {
+  symbol?: string;
+  indicators?: string[];
   forceRefresh?: boolean;
-  action: string;
 }
 
 // Error response type
