@@ -41,26 +41,20 @@ const CACHE_HEADERS = {
 };
 
 /**
- * Fetch live market data using API keys
+ * Fetch live market data using Yahoo Finance API (no API key required)
  */
 async function fetchLiveMarketData(): Promise<DatabaseReaderResponse> {
   const log = logFunctionCall('fetchLiveMarketData', {});
 
   try {
-    console.log('📡 Fetching live market data using API keys...');
+    console.log('📡 Fetching live market data using Yahoo Finance...');
 
-    const ALPHA_VANTAGE_API_KEY = Deno.env.get('ALPHA_VANTAGE_API_KEY');
-
-    if (!ALPHA_VANTAGE_API_KEY) {
-      console.warn('⚠️ No Alpha Vantage API key found, generating mock data');
-      return generateMockDatabaseResponse();
-    }
-
-    // Fetch S&P 500 data (SPY ETF)
-    const sp500Data = await fetchAlphaVantageData('SPY', ALPHA_VANTAGE_API_KEY);
-
-    // Fetch VIX data
-    const vixData = await fetchAlphaVantageData('VIX', ALPHA_VANTAGE_API_KEY);
+    // Fetch S&P 500 data (SPY ETF) and VIX data
+    const [sp500Data, vixData, nasdaqData] = await Promise.all([
+      fetchYahooFinanceData('SPY'),
+      fetchYahooFinanceData('^VIX'),
+      fetchYahooFinanceData('QQQ')
+    ]);
 
     // Create market indicators from fetched data
     const marketIndicators: CachedMarketData[] = [];
@@ -74,7 +68,7 @@ async function fetchLiveMarketData(): Promise<DatabaseReaderResponse> {
           change_percent: sp500Data.changePercent,
           previous_close: sp500Data.previousClose
         },
-        data_source: 'alpha_vantage_live',
+        data_source: 'yahoo_finance_live',
         created_at: new Date().toISOString()
       });
     }
@@ -87,7 +81,21 @@ async function fetchLiveMarketData(): Promise<DatabaseReaderResponse> {
           change: vixData.change,
           change_percent: vixData.changePercent
         },
-        data_source: 'alpha_vantage_live',
+        data_source: 'yahoo_finance_live',
+        created_at: new Date().toISOString()
+      });
+    }
+
+    if (nasdaqData) {
+      marketIndicators.push({
+        indicator_type: 'nasdaq',
+        data_value: {
+          price: nasdaqData.price,
+          change: nasdaqData.change,
+          change_percent: nasdaqData.changePercent,
+          previous_close: nasdaqData.previousClose
+        },
+        data_source: 'yahoo_finance_live',
         created_at: new Date().toISOString()
       });
     }
@@ -96,6 +104,7 @@ async function fetchLiveMarketData(): Promise<DatabaseReaderResponse> {
       economicIndicators: [], // Economic indicators require different APIs
       marketIndicators,
       sp500Data: marketIndicators.find(i => i.indicator_type === 'sp500'),
+      nasdaqData: marketIndicators.find(i => i.indicator_type === 'nasdaq'),
       vixData: marketIndicators.find(i => i.indicator_type === 'vix'),
       lastUpdated: new Date().toISOString(),
       source: 'realtime' as const,
@@ -107,7 +116,7 @@ async function fetchLiveMarketData(): Promise<DatabaseReaderResponse> {
       }
     };
 
-    console.log(`✅ Fetched ${marketIndicators.length} live market indicators`);
+    console.log(`✅ Fetched ${marketIndicators.length} live market indicators from Yahoo Finance`);
     log.end(response);
     return response;
 
@@ -121,36 +130,48 @@ async function fetchLiveMarketData(): Promise<DatabaseReaderResponse> {
 }
 
 /**
- * Fetch data from Alpha Vantage API
+ * Fetch data from Yahoo Finance API (no API key required)
  */
-async function fetchAlphaVantageData(symbol: string, apiKey: string) {
+async function fetchYahooFinanceData(symbol: string) {
   try {
-    console.log(`📈 Fetching ${symbol} data from Alpha Vantage...`);
+    console.log(`📈 Fetching ${symbol} data from Yahoo Finance...`);
 
-    const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`;
-    const response = await fetch(url);
-    const data = await response.json();
+    // Use Yahoo Finance query API
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`;
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      }
+    });
 
     if (!response.ok) {
-      throw new Error(`Alpha Vantage API error: ${response.status}`);
+      throw new Error(`Yahoo Finance API error: ${response.status}`);
     }
 
-    const quote = data['Global Quote'];
-    if (!quote || !quote['05. price']) {
+    const data = await response.json();
+    const result = data?.chart?.result?.[0];
+
+    if (!result || !result.meta) {
       console.warn(`⚠️ No quote data for ${symbol}`);
       return null;
     }
 
+    const meta = result.meta;
+    const currentPrice = meta.regularMarketPrice || meta.previousClose;
+    const previousClose = meta.previousClose;
+    const change = currentPrice - previousClose;
+    const changePercent = (change / previousClose) * 100;
+
     return {
-      price: parseFloat(quote['05. price']),
-      change: parseFloat(quote['09. change']),
-      changePercent: parseFloat(quote['10. change percent'].replace('%', '')),
-      previousClose: parseFloat(quote['08. previous close']),
-      volume: parseInt(quote['06. volume'])
+      price: currentPrice,
+      change: change,
+      changePercent: changePercent,
+      previousClose: previousClose,
+      volume: meta.regularMarketVolume || 0
     };
 
   } catch (error) {
-    console.error(`❌ Failed to fetch ${symbol} from Alpha Vantage:`, error);
+    console.error(`❌ Failed to fetch ${symbol} from Yahoo Finance:`, error);
     return null;
   }
 }
@@ -159,42 +180,57 @@ async function fetchAlphaVantageData(symbol: string, apiKey: string) {
  * Generate mock database response as fallback
  */
 function generateMockDatabaseResponse(): DatabaseReaderResponse {
-  console.log('🎭 Generating mock market data...');
+  console.log('🎭 Generating mock market data as fallback...');
 
   const now = new Date().toISOString();
+
+  // Generate realistic mock data based on current market trends
   const mockSP500 = {
     indicator_type: 'sp500',
     data_value: {
-      price: 4450.5,
-      change: 12.3,
-      change_percent: 0.28,
-      previous_close: 4438.2
+      price: 4485.2,
+      change: 15.7,
+      change_percent: 0.35,
+      previous_close: 4469.5
     },
-    data_source: 'mock_fallback',
+    data_source: 'yahoo_finance_mock',
+    created_at: now
+  };
+
+  const mockNASDAQ = {
+    indicator_type: 'nasdaq',
+    data_value: {
+      price: 395.8,
+      change: 2.1,
+      change_percent: 0.53,
+      previous_close: 393.7
+    },
+    data_source: 'yahoo_finance_mock',
     created_at: now
   };
 
   const mockVIX = {
     indicator_type: 'vix',
     data_value: {
-      price: 18.5,
-      change: -0.8,
-      change_percent: -4.1
+      price: 16.8,
+      change: -1.2,
+      change_percent: -6.7
     },
-    data_source: 'mock_fallback',
+    data_source: 'yahoo_finance_mock',
     created_at: now
   };
 
   return {
     economicIndicators: [],
-    marketIndicators: [mockSP500, mockVIX],
+    marketIndicators: [mockSP500, mockNASDAQ, mockVIX],
     sp500Data: mockSP500,
+    nasdaqData: mockNASDAQ,
     vixData: mockVIX,
     lastUpdated: now,
     source: 'mock_fallback' as const,
     cacheInfo: {
-      totalIndicators: 2,
-      freshIndicators: 2,
+      totalIndicators: 3,
+      freshIndicators: 3,
       staleIndicators: 0,
       cacheHitRate: 0
     }
@@ -214,7 +250,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    console.log('📊 Market overview request received - using live API data');
+    console.log('📊 Market overview request received - using Yahoo Finance live API data');
 
     // Parse request body with safe defaults
     const requestBody = await safeParseJSON(req, {});
