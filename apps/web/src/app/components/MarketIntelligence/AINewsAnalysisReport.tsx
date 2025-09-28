@@ -158,7 +158,7 @@ export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportPro
         <div className="trending-topics">
           <h4>🔥 Trending Topics</h4>
           <div className="topics-list">
-            {data.analytics.trendingTopics.map((topic, index) => (
+            {(data.analytics?.trendingTopics || []).map((topic, index) => (
               <span key={index} className="topic-tag">{topic}</span>
             ))}
           </div>
@@ -167,7 +167,7 @@ export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportPro
 
       {/* News Items */}
       <div className="news-items">
-        {data.news.map((newsItem) => {
+        {(data.news || []).map((newsItem) => {
           const impactBadge = getImpactBadge(newsItem.impact);
           return (
             <div key={newsItem.id} className="news-item">
@@ -212,7 +212,7 @@ export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportPro
 
                 {/* Topics */}
                 <div className="news-topics">
-                  {newsItem.topics.slice(0, 3).map((topic, index) => (
+                  {(newsItem.topics || []).slice(0, 3).map((topic, index) => (
                     <span key={index} className="topic-chip">{topic}</span>
                   ))}
                 </div>
@@ -225,23 +225,23 @@ export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportPro
                   </div>
                   <div className="analysis-content">
                     <div className="market-impact">
-                      <strong>Market Impact:</strong> {newsItem.aiAnalysis.marketImpact}
+                      <strong>Market Impact:</strong> {newsItem.aiAnalysis?.marketImpact || 'No analysis available'}
                     </div>
-                    {newsItem.aiAnalysis.keyPoints.length > 0 && (
+                    {(newsItem.aiAnalysis?.keyPoints || []).length > 0 && (
                       <div className="key-points">
                         <strong>Key Points:</strong>
                         <ul>
-                          {newsItem.aiAnalysis.keyPoints.slice(0, 2).map((point, index) => (
+                          {(newsItem.aiAnalysis?.keyPoints || []).slice(0, 2).map((point, index) => (
                             <li key={index}>{point}</li>
                           ))}
                         </ul>
                       </div>
                     )}
-                    {newsItem.aiAnalysis.tradingSignals.length > 0 && (
+                    {(newsItem.aiAnalysis?.tradingSignals || []).length > 0 && (
                       <div className="trading-signals">
                         <strong>Trading Signals:</strong>
                         <div className="signals-list">
-                          {newsItem.aiAnalysis.tradingSignals.slice(0, 2).map((signal, index) => (
+                          {(newsItem.aiAnalysis?.tradingSignals || []).slice(0, 2).map((signal, index) => (
                             <span key={index} className="signal-tag">{signal}</span>
                           ))}
                         </div>

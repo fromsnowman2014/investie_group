@@ -1,7 +1,7 @@
-// Real-time Market Data Fetcher - Direct API only
-// Simplified fetcher that calls market-overview Edge Function directly
+// Smart Market Data Fetcher - Routes between Direct API and Edge Functions
+// Uses feature flag to determine data source
 
-import { edgeFunctionFetcher } from './api-utils';
+import { fetchMarketOverview } from './api-utils';
 
 /**
  * Economic Indicator interface
@@ -66,22 +66,40 @@ interface MarketOverviewResponse {
 }
 
 /**
- * Real-time market overview fetcher
- * Calls market-overview Edge Function which uses Yahoo Finance API directly
+ * Smart market overview fetcher
+ * Uses feature flag to route between Direct API and Edge Functions
  */
 export async function hybridMarketOverviewFetcher(): Promise<MarketOverviewResponse> {
   try {
-    console.log('📡 Fetching real-time market data via market-overview Edge Function...');
+    console.log('🎯 Smart Market Fetcher: Starting intelligent data fetch...');
 
-    const result = await edgeFunctionFetcher('market-overview', {});
+    // Debug environment variables
+    console.log('🔧 Smart Market Fetcher: Environment check:', {
+      useDirectAPI: process.env.NEXT_PUBLIC_USE_DIRECT_API,
+      nodeEnv: process.env.NODE_ENV,
+      supabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL,
+      timestamp: new Date().toISOString()
+    });
 
-    console.log('✅ Real-time market data fetch completed successfully');
+    const result = await fetchMarketOverview();
 
-    return result as MarketOverviewResponse;
+    console.log('✅ Smart Market Fetcher: Data fetch completed successfully', {
+      source: result.source,
+      sp500Value: result.indices?.sp500?.value,
+      timestamp: result.timestamp
+    });
+
+    return result as unknown as MarketOverviewResponse;
 
   } catch (error) {
-    console.error('❌ Market overview fetch failed:', error);
-    throw new Error(`Market overview API failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.error('❌ Smart Market Fetcher: Fetch failed:', error);
+    console.error('🚨 Smart Market Fetcher: Error details:', {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    });
+
+    throw new Error(`Smart market overview fetch failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
@@ -135,21 +153,28 @@ export async function hybridIndicatorFetcher(indicatorType: string): Promise<Ind
 }
 
 /**
- * Get current API mode (always returns 'real_time_api' now)
+ * Get current API mode based on feature flag
  */
-export function getCurrentAPIMode(): 'real_time_api' {
-  return 'real_time_api';
+export function getCurrentAPIMode(): 'direct_api' | 'edge_functions' {
+  return process.env.NEXT_PUBLIC_USE_DIRECT_API === 'true' ? 'direct_api' : 'edge_functions';
 }
 
 /**
  * API status information
  */
 export function getAPIStatus() {
+  const mode = getCurrentAPIMode();
+  const useDirectAPI = process.env.NEXT_PUBLIC_USE_DIRECT_API === 'true';
+
   return {
-    mode: 'real_time_api',
-    description: 'Using Yahoo Finance API via market-overview Edge Function',
+    mode,
+    description: useDirectAPI
+      ? 'Using Direct API calls to Yahoo Finance (no cache, no database)'
+      : 'Using Supabase Edge Functions with Yahoo Finance API',
     realTimeEnabled: true,
     cacheEnabled: false,
+    databaseEnabled: false,
+    featureFlag: process.env.NEXT_PUBLIC_USE_DIRECT_API,
     timestamp: new Date().toISOString()
   };
 }
