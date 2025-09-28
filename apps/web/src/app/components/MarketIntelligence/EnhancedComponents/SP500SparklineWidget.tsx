@@ -89,11 +89,13 @@ const SP500SparklineWidget: React.FC<SP500SparklineWidgetProps> = ({ data, isLoa
     }
   };
 
-  const formatPrice = (price: number): string => {
+  const formatPrice = (price: number | undefined | null): string => {
+    if (price === undefined || price === null || isNaN(price)) return '0.00';
     return price.toFixed(2);
   };
 
-  const formatChange = (change: number): string => {
+  const formatChange = (change: number | undefined | null): string => {
+    if (change === undefined || change === null || isNaN(change)) return '0.00%';
     const sign = change >= 0 ? '+' : '';
     return `${sign}${change.toFixed(2)}%`;
   };

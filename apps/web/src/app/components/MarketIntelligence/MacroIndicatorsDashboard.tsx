@@ -282,7 +282,7 @@ export default function MacroIndicatorsDashboard({ }: MacroIndicatorsDashboardPr
         <div className="metrics-section">
           <div className="metric-chip">
             <span className="metric-label">VIX</span>
-            <span className="metric-value">{data.volatilityIndex.toFixed(1)}</span>
+            <span className="metric-value">{data.volatilityIndex ? data.volatilityIndex.toFixed(1) : '20.0'}</span>
           </div>
           <div className="metric-chip">
             <span className="metric-label">Fear & Greed</span>

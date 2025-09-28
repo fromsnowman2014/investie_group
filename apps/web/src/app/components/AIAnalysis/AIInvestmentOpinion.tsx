@@ -93,8 +93,14 @@ export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps
     }
   };
 
-  const formatPrice = (price: number) => `$${price.toFixed(2)}`;
-  const formatPercent = (percent: number) => `${percent >= 0 ? '+' : ''}${percent.toFixed(2)}%`;
+  const formatPrice = (price: number | undefined | null) => {
+    if (price === undefined || price === null || isNaN(price)) return '$0.00';
+    return `$${price.toFixed(2)}`;
+  };
+  const formatPercent = (percent: number | undefined | null) => {
+    if (percent === undefined || percent === null || isNaN(percent)) return '0.00%';
+    return `${percent >= 0 ? '+' : ''}${percent.toFixed(2)}%`;
+  };
   const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString();
 
   const getRatingLabel = (rating: number) => {
