@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
     formats: ['image/webp', 'image/avif'],
   },
   
-  // Security headers
+  // Security headers and MIME type fixes
   async headers() {
     return [
       {
@@ -33,6 +33,25 @@ const nextConfig: NextConfig = {
           {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin',
+          },
+        ],
+      },
+      // Fix MIME type for JavaScript files
+      {
+        source: '/_next/static/chunks/:path*.js',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/javascript; charset=utf-8',
+          },
+        ],
+      },
+      {
+        source: '/_next/static/js/:path*.js',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/javascript; charset=utf-8',
           },
         ],
       },
