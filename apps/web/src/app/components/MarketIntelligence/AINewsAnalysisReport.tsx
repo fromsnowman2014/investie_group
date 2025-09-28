@@ -36,17 +36,129 @@ interface NewsAnalysisData {
   };
 }
 
+// Backend response type from news-analysis Edge Function
+interface NewsAnalysisResponse {
+  symbol: string;
+  overview: string;
+  recommendation: 'BUY' | 'HOLD' | 'SELL';
+  confidence: number;
+  keyFactors: string[];
+  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
+  timeHorizon: string;
+  source: string;
+  timestamp: string;
+  stockNews?: {
+    headline: string;
+    source: string;
+    articles: {
+      title: string;
+      link: string;
+      snippet: string;
+      date: string;
+      source: string;
+    }[];
+  };
+  macroNews?: {
+    topHeadline: string;
+    articles: {
+      title: string;
+      link: string;
+      snippet: string;
+      date: string;
+      source: string;
+    }[];
+  };
+}
+
 interface AINewsAnalysisReportProps {
   symbol: string;
+}
+
+// Adapter function to convert backend response to frontend format
+function adaptNewsAnalysisResponse(backendResponse: NewsAnalysisResponse): NewsAnalysisData {
+  // Generate sentiment based on recommendation
+  const getSentimentFromRecommendation = (rec: string): 'positive' | 'negative' | 'neutral' => {
+    switch (rec) {
+      case 'BUY': return 'positive';
+      case 'SELL': return 'negative';
+      default: return 'neutral';
+    }
+  };
+
+  // Convert backend articles to frontend news items
+  const convertArticlesToNews = (articles: { title: string; link: string; snippet: string; date: string; source: string }[]): NewsItem[] => {
+    return articles.map((article, index) => ({
+      id: `${article.link || index}`,
+      title: article.title || '',
+      summary: article.snippet || '',
+      sentiment: getSentimentFromRecommendation(backendResponse.recommendation),
+      sentimentScore: backendResponse.confidence / 100,
+      relevanceScore: 0.8,
+      source: article.source || '',
+      publishedAt: article.date || new Date().toISOString(),
+      url: article.link || '#',
+      topics: backendResponse.keyFactors || [],
+      impact: backendResponse.riskLevel === 'HIGH' ? 'high' :
+             backendResponse.riskLevel === 'MEDIUM' ? 'medium' : 'low',
+      aiAnalysis: {
+        keyPoints: backendResponse.keyFactors || [],
+        marketImpact: backendResponse.overview || '',
+        tradingSignals: [backendResponse.recommendation]
+      }
+    }));
+  };
+
+  // Combine stock and macro news
+  const allArticles = [
+    ...(backendResponse.stockNews?.articles || []),
+    ...(backendResponse.macroNews?.articles || [])
+  ];
+
+  const newsItems = convertArticlesToNews(allArticles);
+
+  return {
+    symbol: backendResponse.symbol,
+    news: newsItems,
+    analytics: {
+      overallSentiment: getSentimentFromRecommendation(backendResponse.recommendation),
+      sentimentScore: backendResponse.confidence / 100,
+      totalArticles: allArticles.length,
+      highImpactNews: backendResponse.riskLevel === 'HIGH' ? 1 : 0,
+      trendingTopics: backendResponse.keyFactors || [],
+      lastUpdated: backendResponse.timestamp
+    }
+  };
 }
 
 const fetcher = async (key: string): Promise<NewsAnalysisData> => {
   console.log('📰 News Analysis Fetcher Starting:', key);
   const [functionName, paramsJson] = key.split('|');
   const params = JSON.parse(paramsJson);
-  const data = await edgeFunctionFetcher<NewsAnalysisData>(functionName, params);
-  console.log('📰 News Analysis Data:', data);
-  return data;
+
+  try {
+    // Try to fetch as the expected format first
+    const data = await edgeFunctionFetcher<NewsAnalysisData | NewsAnalysisResponse>(functionName, params);
+    console.log('📰 News Analysis Raw Data:', data);
+
+    // Check if this is the old format (with analytics property)
+    if (data && 'analytics' in data && data.analytics && 'overallSentiment' in data.analytics) {
+      console.log('📰 Using legacy NewsAnalysisData format');
+      return data as NewsAnalysisData;
+    }
+
+    // Otherwise, assume it's the new backend format and adapt it
+    if (data && 'symbol' in data && 'recommendation' in data) {
+      console.log('📰 Adapting NewsAnalysisResponse format');
+      return adaptNewsAnalysisResponse(data as NewsAnalysisResponse);
+    }
+
+    // Fallback if neither format is recognized
+    throw new Error('Unrecognized response format');
+
+  } catch (error) {
+    console.error('📰 News Analysis Fetcher Error:', error);
+    throw error;
+  }
 };
 
 export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportProps) {
@@ -133,23 +245,23 @@ export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportPro
       <div className="news-analytics-overview">
         <div className="analytics-header">
           <div className="sentiment-indicator">
-            <span 
+            <span
               className="sentiment-badge"
-              style={{ backgroundColor: getSentimentColor(data.analytics.overallSentiment) }}
+              style={{ backgroundColor: getSentimentColor(data.analytics?.overallSentiment || 'neutral') }}
             >
-              {getSentimentIcon(data.analytics.overallSentiment)}
-              {data.analytics.overallSentiment.toUpperCase()}
+              {getSentimentIcon(data.analytics?.overallSentiment || 'neutral')}
+              {(data.analytics?.overallSentiment || 'neutral').toUpperCase()}
             </span>
             <span className="sentiment-score">
-              Score: {data.analytics.sentimentScore.toFixed(2)}
+              Score: {(data.analytics?.sentimentScore || 0).toFixed(2)}
             </span>
           </div>
           <div className="news-stats">
             <span className="stat">
-              <strong>{data.analytics.totalArticles}</strong> articles
+              <strong>{data.analytics?.totalArticles || 0}</strong> articles
             </span>
             <span className="stat">
-              <strong>{data.analytics.highImpactNews}</strong> high impact
+              <strong>{data.analytics?.highImpactNews || 0}</strong> high impact
             </span>
           </div>
         </div>
@@ -257,7 +369,7 @@ export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportPro
 
       {/* Last Updated */}
       <div className="news-footer">
-        <small>Last updated: {new Date(data.analytics.lastUpdated).toLocaleString()}</small>
+        <small>Last updated: {new Date(data.analytics?.lastUpdated || new Date()).toLocaleString()}</small>
       </div>
     </div>
   );

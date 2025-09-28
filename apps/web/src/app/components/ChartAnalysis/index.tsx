@@ -7,6 +7,7 @@ import CompanyProfile from '../TradingView/CompanyProfile';
 import FundamentalData from '../TradingView/FundamentalData';
 import TopStories from '../TradingView/TopStories';
 import PoweredByTradingView from '../TradingView/PoweredByTradingView';
+import { TradingViewErrorBoundary } from '../ErrorBoundary';
 
 interface ChartAnalysisProps {
   symbol: string;
@@ -22,7 +23,9 @@ export default function ChartAnalysis({ }: ChartAnalysisProps) {
             <h3>📈 Advanced Chart</h3>
           </div>
           <div className="subsection-content">
-            <AdvancedChart />
+            <TradingViewErrorBoundary>
+              <AdvancedChart />
+            </TradingViewErrorBoundary>
           </div>
         </div>
       </div>
@@ -35,7 +38,9 @@ export default function ChartAnalysis({ }: ChartAnalysisProps) {
             <h3>🔧 Technical Analysis</h3>
           </div>
           <div className="subsection-content">
-            <TechnicalAnalysis />
+            <TradingViewErrorBoundary>
+              <TechnicalAnalysis />
+            </TradingViewErrorBoundary>
           </div>
         </div>
 
@@ -45,7 +50,9 @@ export default function ChartAnalysis({ }: ChartAnalysisProps) {
             <h3>🏢 Company Profile</h3>
           </div>
           <div className="subsection-content">
-            <CompanyProfile />
+            <TradingViewErrorBoundary>
+              <CompanyProfile />
+            </TradingViewErrorBoundary>
           </div>
         </div>
 
@@ -55,7 +62,9 @@ export default function ChartAnalysis({ }: ChartAnalysisProps) {
             <h3>📊 Fundamental Data</h3>
           </div>
           <div className="subsection-content">
-            <FundamentalData />
+            <TradingViewErrorBoundary>
+              <FundamentalData />
+            </TradingViewErrorBoundary>
           </div>
         </div>
 
@@ -65,7 +74,9 @@ export default function ChartAnalysis({ }: ChartAnalysisProps) {
             <h3>📰 Top Stories</h3>
           </div>
           <div className="subsection-content">
-            <TopStories />
+            <TradingViewErrorBoundary>
+              <TopStories />
+            </TradingViewErrorBoundary>
           </div>
         </div>
       </div>

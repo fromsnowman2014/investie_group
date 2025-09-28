@@ -204,4 +204,58 @@ class ErrorBoundary extends Component<Props, State> {
   }
 }
 
+// Specialized Error Boundary for TradingView widgets
+export function TradingViewErrorBoundary({ children }: { children: ReactNode }) {
+  return (
+    <ErrorBoundary
+      componentName="TradingView Widget"
+      fallback={
+        <div className="tradingview-error-fallback">
+          <div className="error-icon">📊</div>
+          <h4>Chart Temporarily Unavailable</h4>
+          <p>The TradingView chart widget encountered an issue. Please refresh the page to try again.</p>
+          <small>This is usually caused by network connectivity or TradingView service issues.</small>
+          <style jsx>{`
+            .tradingview-error-fallback {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              min-height: 400px;
+              padding: 20px;
+              background: #f8f9fa;
+              border: 1px solid #e9ecef;
+              border-radius: 8px;
+              text-align: center;
+            }
+            .error-icon {
+              font-size: 48px;
+              margin-bottom: 16px;
+              opacity: 0.6;
+            }
+            .tradingview-error-fallback h4 {
+              color: #495057;
+              margin-bottom: 8px;
+              font-size: 18px;
+              font-weight: 600;
+            }
+            .tradingview-error-fallback p {
+              color: #6c757d;
+              max-width: 300px;
+              margin-bottom: 8px;
+              line-height: 1.5;
+            }
+            .tradingview-error-fallback small {
+              color: #adb5bd;
+              font-size: 12px;
+            }
+          `}</style>
+        </div>
+      }
+    >
+      {children}
+    </ErrorBoundary>
+  );
+}
+
 export default ErrorBoundary;
