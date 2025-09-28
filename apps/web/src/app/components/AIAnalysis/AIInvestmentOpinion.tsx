@@ -124,7 +124,7 @@ export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps
             <span className="rec-text">{data.recommendation}</span>
           </div>
           <div className="confidence-score">
-            Confidence: {Math.round(data.confidence * 100)}%
+            Confidence: {Math.round((data.confidence || 0) * 100)}%
           </div>
         </div>
         <div className="analysis-meta">
@@ -165,15 +165,15 @@ export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps
       <div className="investment-rating">
         <div className="data-row">
           <span className="data-label">Investment Rating</span>
-          <span className="data-value financial-data-large">{data.investmentRating}/10</span>
+          <span className="data-value financial-data-large">{data.investmentRating || 0}/10</span>
         </div>
         <div className="rating-bar mt-2 h-2 bg-gray-200 rounded">
-          <div 
+          <div
             className="rating-fill h-full bg-blue-600 rounded transition-all duration-300"
-            style={{ width: `${(data.investmentRating / 10) * 100}%` }}
+            style={{ width: `${((data.investmentRating || 0) / 10) * 100}%` }}
           ></div>
         </div>
-        <div className="metadata-text mt-1 text-center">{getRatingLabel(data.investmentRating)}</div>
+        <div className="metadata-text mt-1 text-center">{getRatingLabel(data.investmentRating || 0)}</div>
       </div>
 
       {/* Analysis Points - Using FinancialExpandableSection */}
@@ -198,7 +198,7 @@ export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps
               <span>💡</span> Key Points
             </h4>
             <ul className="space-y-1">
-              {data.keyPoints.map((point, index) => (
+              {(data.keyPoints || []).map((point, index) => (
                 <li key={index} className="supporting-text">{point}</li>
               ))}
             </ul>
@@ -209,7 +209,7 @@ export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps
               <span>🚀</span> Opportunities
             </h4>
             <ul className="space-y-1">
-              {data.opportunities.map((opportunity, index) => (
+              {(data.opportunities || []).map((opportunity, index) => (
                 <li key={index} className="supporting-text">{opportunity}</li>
               ))}
             </ul>
@@ -220,7 +220,7 @@ export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps
               <span>⚠️</span> Risks
             </h4>
             <ul className="space-y-1">
-              {data.risks.map((risk, index) => (
+              {(data.risks || []).map((risk, index) => (
                 <li key={index} className="supporting-text">{risk}</li>
               ))}
             </ul>

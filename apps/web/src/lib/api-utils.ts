@@ -105,15 +105,10 @@ export async function fetchMarketOverview(): Promise<{
 }> {
   console.log('🎯 Smart Router: Determining market overview data source...');
 
-  const directAPIEnabled = process.env.NEXT_PUBLIC_USE_DIRECT_API === 'true';
-
-  if (directAPIEnabled) {
-    console.log('🌐 Smart Router: Using direct API approach (NEXT_PUBLIC_USE_DIRECT_API=true)');
-    return await fetchMarketOverviewDirect();
-  } else {
-    console.log('⚡ Smart Router: Using Supabase Edge Functions approach');
-    return await edgeFunctionFetcher('market-overview');
-  }
+  // Force direct API approach to bypass Edge Function issues
+  console.log('🔧 Smart Router: Force-enabling direct API approach for stability');
+  console.log('🌐 Smart Router: Using direct API approach (bypassing Edge Functions)');
+  return await fetchMarketOverviewDirect();
 }
 
 /**

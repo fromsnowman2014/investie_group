@@ -46,79 +46,100 @@ async function fetchYahooFinanceData(symbol: string): Promise<MarketDataItem> {
   console.log(`📈 Direct API: Fetching ${symbol} data from Yahoo Finance...`);
 
   try {
-    // Using cors-anywhere proxy for Yahoo Finance API
-    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-    const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`;
-    const url = proxyUrl + targetUrl;
+    // Multiple CORS proxy options for better reliability
+    const proxies = [
+      'https://api.allorigins.win/raw?url=',
+      'https://cors-anywhere.herokuapp.com/',
+      ''  // Direct call as fallback
+    ];
 
-    console.log(`🔗 Direct API Request URL: ${url}`);
+    let lastError: Error | null = null;
 
-    const response = await fetch(url, {
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-      }
-    });
+    for (const proxyUrl of proxies) {
+      try {
+        const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`;
+        const url = proxyUrl ? (proxyUrl + encodeURIComponent(targetUrl)) : targetUrl;
 
-    if (!response.ok) {
-      throw new Error(`Yahoo Finance API error: ${response.status} ${response.statusText}`);
-    }
+        console.log(`🔗 Direct API Request URL: ${url}`);
 
-    const data = await response.json() as {
-      chart?: {
-        result?: Array<{
-          meta?: {
-            regularMarketPrice?: number;
-            previousClose?: number;
-            chartPreviousClose?: number;
-            regularMarketVolume?: number;
-            volume?: number;
-            marketCap?: number;
+        const response = await fetch(url, {
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`Yahoo Finance API error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json() as {
+          chart?: {
+            result?: Array<{
+              meta?: {
+                regularMarketPrice?: number;
+                previousClose?: number;
+                chartPreviousClose?: number;
+                regularMarketVolume?: number;
+                volume?: number;
+                marketCap?: number;
+              };
+            }>;
+            error?: { description: string };
           };
-        }>;
-        error?: { description: string };
-      };
-    };
-    console.log(`📊 Direct API response for ${symbol}:`, {
-      hasChart: !!data?.chart,
-      hasResult: !!data?.chart?.result?.[0],
-      hasMeta: !!data?.chart?.result?.[0]?.meta,
-      error: data?.chart?.error
-    });
+        };
+        console.log(`📊 Direct API response for ${symbol}:`, {
+          hasChart: !!data?.chart,
+          hasResult: !!data?.chart?.result?.[0],
+          hasMeta: !!data?.chart?.result?.[0]?.meta,
+          error: data?.chart?.error,
+          proxyUsed: proxyUrl || 'direct'
+        });
 
-    if (data?.chart?.error) {
-      throw new Error(`Yahoo Finance API error: ${data.chart.error.description}`);
+        if (data?.chart?.error) {
+          throw new Error(`Yahoo Finance API error: ${data.chart.error.description}`);
+        }
+
+        const result = data?.chart?.result?.[0];
+        if (!result || !result.meta) {
+          throw new Error(`No chart data available for ${symbol}`);
+        }
+
+        const meta = result.meta;
+        const currentPrice = meta.regularMarketPrice || meta.previousClose || meta.chartPreviousClose;
+        const previousClose = meta.previousClose || meta.chartPreviousClose;
+
+        if (!currentPrice || !previousClose) {
+          throw new Error(`Missing price data for ${symbol}: current=${currentPrice}, previous=${previousClose}`);
+        }
+
+        const change = Number((currentPrice - previousClose).toFixed(4));
+        const changePercent = Number(((change / previousClose) * 100).toFixed(4));
+
+        const marketData = {
+          price: Number(currentPrice.toFixed(2)),
+          change: change,
+          changePercent: changePercent,
+          previousClose: Number(previousClose.toFixed(2)),
+          volume: meta.regularMarketVolume || meta.volume || 0,
+          marketCap: meta.marketCap || null,
+          timestamp: new Date().toISOString(),
+          source: `yahoo_finance_direct_${proxyUrl ? 'proxy' : 'direct'}`
+        };
+
+        console.log(`✅ Direct API: Successfully fetched ${symbol} data via ${proxyUrl || 'direct'}:`, marketData);
+        return marketData;
+
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error));
+        console.warn(`⚠️ Direct API: Proxy ${proxyUrl || 'direct'} failed for ${symbol}:`, lastError.message);
+        continue; // Try next proxy
+      }
     }
 
-    const result = data?.chart?.result?.[0];
-    if (!result || !result.meta) {
-      throw new Error(`No chart data available for ${symbol}`);
-    }
-
-    const meta = result.meta;
-    const currentPrice = meta.regularMarketPrice || meta.previousClose || meta.chartPreviousClose;
-    const previousClose = meta.previousClose || meta.chartPreviousClose;
-
-    if (!currentPrice || !previousClose) {
-      throw new Error(`Missing price data for ${symbol}: current=${currentPrice}, previous=${previousClose}`);
-    }
-
-    const change = Number((currentPrice - previousClose).toFixed(4));
-    const changePercent = Number(((change / previousClose) * 100).toFixed(4));
-
-    const marketData = {
-      price: Number(currentPrice.toFixed(2)),
-      change: change,
-      changePercent: changePercent,
-      previousClose: Number(previousClose.toFixed(2)),
-      volume: meta.regularMarketVolume || meta.volume || 0,
-      marketCap: meta.marketCap || null,
-      timestamp: new Date().toISOString(),
-      source: 'yahoo_finance_direct'
-    };
-
-    console.log(`✅ Direct API: Successfully fetched ${symbol} data:`, marketData);
-    return marketData;
+    // If all proxies failed, throw the last error
+    console.error(`❌ Direct API: All proxy methods failed for ${symbol}`);
+    throw lastError || new Error('All proxy methods failed');
 
   } catch (error) {
     console.warn(`⚠️ Direct API: Failed to fetch ${symbol}:`, error instanceof Error ? error.message : String(error));
