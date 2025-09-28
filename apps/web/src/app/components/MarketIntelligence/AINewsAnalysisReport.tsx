@@ -40,11 +40,11 @@ interface AINewsAnalysisReportProps {
   symbol: string;
 }
 
-const fetcher = async (key: string) => {
+const fetcher = async (key: string): Promise<NewsAnalysisData> => {
   console.log('📰 News Analysis Fetcher Starting:', key);
   const [functionName, paramsJson] = key.split('|');
   const params = JSON.parse(paramsJson);
-  const data = await edgeFunctionFetcher(functionName, params);
+  const data = await edgeFunctionFetcher<NewsAnalysisData>(functionName, params);
   console.log('📰 News Analysis Data:', data);
   return data;
 };

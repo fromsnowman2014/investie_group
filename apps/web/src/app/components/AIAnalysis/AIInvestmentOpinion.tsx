@@ -25,10 +25,10 @@ interface AIInvestmentOpinionProps {
   symbol: string;
 }
 
-const fetcher = async (key: string) => {
+const fetcher = async (key: string): Promise<AIAnalysisData> => {
   const [functionName, paramsJson] = key.split('|');
   const params = JSON.parse(paramsJson);
-  const data = await edgeFunctionFetcher(functionName, params);
+  const data = await edgeFunctionFetcher<AIAnalysisData>(functionName, params);
   return data;
 };
 
