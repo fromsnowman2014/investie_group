@@ -2,7 +2,7 @@
 
 import React from 'react';
 import useSWR from 'swr';
-import { apiFetch } from '@/lib/api-utils';
+import { edgeFunctionFetcher } from '@/lib/api-utils';
 import FinancialExpandableSection from '../FinancialExpandableSection';
 
 interface AIAnalysisData {
@@ -25,15 +25,16 @@ interface AIInvestmentOpinionProps {
   symbol: string;
 }
 
-const fetcher = async (url: string) => {
-  const response = await apiFetch(url);
-  const data = await response.json();
+const fetcher = async (key: string) => {
+  const [functionName, paramsJson] = key.split('|');
+  const params = JSON.parse(paramsJson);
+  const data = await edgeFunctionFetcher(functionName, params);
   return data;
 };
 
 export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps) {
   const { data, error, isLoading } = useSWR<AIAnalysisData>(
-    symbol ? `/api/v1/dashboard/${symbol}/ai-analysis` : null,
+    symbol ? `ai-analysis|${JSON.stringify({ symbol })}` : null,
     fetcher,
     { refreshInterval: 600000 } // 10 minutes
   );

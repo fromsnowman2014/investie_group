@@ -2,7 +2,7 @@
 
 import React from 'react';
 import useSWR from 'swr';
-import { apiFetch } from '@/lib/api-utils';
+import { edgeFunctionFetcher } from '@/lib/api-utils';
 
 interface NewsItem {
   id: string;
@@ -40,17 +40,18 @@ interface AINewsAnalysisReportProps {
   symbol: string;
 }
 
-const fetcher = async (url: string) => {
-  console.log('📰 News Analysis Fetcher Starting:', url);
-  const response = await apiFetch(url);
-  const data = await response.json();
+const fetcher = async (key: string) => {
+  console.log('📰 News Analysis Fetcher Starting:', key);
+  const [functionName, paramsJson] = key.split('|');
+  const params = JSON.parse(paramsJson);
+  const data = await edgeFunctionFetcher(functionName, params);
   console.log('📰 News Analysis Data:', data);
   return data;
 };
 
 export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportProps) {
   const { data, error, isLoading } = useSWR<NewsAnalysisData>(
-    symbol ? `/api/v1/dashboard/${symbol}/news-analysis` : null,
+    symbol ? `news-analysis|${JSON.stringify({ symbol })}` : null,
     fetcher,
     { refreshInterval: 600000 } // 10 minutes
   );

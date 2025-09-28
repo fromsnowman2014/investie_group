@@ -16,8 +16,16 @@ interface APIDataState<T> {
   mutate: (data?: T, shouldRevalidate?: boolean) => Promise<T | undefined>
 }
 
-const defaultFetcher = async <T = unknown>(endpoint: string): Promise<T> => {
-  const data = await edgeFunctionFetcher<T>(endpoint)
+const defaultFetcher = async <T = unknown>(url: string): Promise<T> => {
+  // Parse the URL to extract function name and parameters
+  if (url.includes('|')) {
+    const [functionName, paramsJson] = url.split('|')
+    const params = JSON.parse(paramsJson)
+    const data = await edgeFunctionFetcher<T>(functionName, params)
+    return data
+  }
+
+  const data = await edgeFunctionFetcher<T>(url)
   return data
 }
 
@@ -74,8 +82,8 @@ export function useStockProfile(symbol: string | null) {
 }
 
 export function useAIAnalysis(symbol: string | null) {
-  const url = symbol ? `/api/v1/dashboard/${symbol}/ai-analysis` : null
-  
+  const url = symbol ? `ai-analysis|${JSON.stringify({ symbol })}` : null
+
   return useAPIData(url, {
     refreshInterval: 600000, // 10 minutes for AI analysis
     revalidateOnFocus: false
@@ -83,7 +91,7 @@ export function useAIAnalysis(symbol: string | null) {
 }
 
 export function useMarketOverview() {
-  return useAPIData('/api/v1/market/overview', {
+  return useAPIData('market-overview', {
     refreshInterval: 300000, // 5 minutes for market data
     errorRetryCount: 5
   })
