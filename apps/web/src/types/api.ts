@@ -1,6 +1,6 @@
-// Stock symbol type - matches Supabase Edge Functions VALID_SYMBOLS
-export type StockSymbol = 
-  | 'AAPL' | 'TSLA' | 'MSFT' | 'GOOGL' | 'AMZN' 
+// Stock symbol type - supported symbols for direct API approach
+export type StockSymbol =
+  | 'AAPL' | 'TSLA' | 'MSFT' | 'GOOGL' | 'AMZN'
   | 'NVDA' | 'META' | 'NFLX' | 'AVGO' | 'AMD'
   | 'JPM' | 'BAC' | 'JNJ' | 'PFE' | 'SPY' | 'QQQ' | 'VTI';
 
@@ -38,7 +38,7 @@ export interface StockCardData {
     current: number;
     change: number;
     changePercent: number;
-    source: 'google_finance';
+    source: 'yahoo_finance' | 'direct_api';
   };
   fundamentals: {
     pe: number;
@@ -66,7 +66,7 @@ export interface ChartData {
   }>;
 }
 
-// Market overview interface (matches backend response)
+// Market overview interface (direct API response)
 export interface MarketIndex {
   value: number;
   change: number;
@@ -89,34 +89,22 @@ export interface MarketOverviewData {
   marketSentiment: 'bullish' | 'bearish' | 'neutral';
   volatilityIndex: number;
   source: string;
+  lastUpdated?: string;
 }
 
-export interface MarketOverview {
-  indices: {
-    sp500: { value: number; change: number; changePercent: number };
-    nasdaq: { value: number; change: number; changePercent: number };
-    dowJones: { value: number; change: number; changePercent: number };
-  };
-  sectors: Array<{
-    name: string;
-    change: number;
-    changePercent: number;
-  }>;
-  marketSentiment: 'bullish' | 'bearish' | 'neutral';
-  lastUpdated: string;
-}
-
-// API response wrapper
+// Simplified API response wrapper
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
   timestamp: string;
+  source: 'direct_api';
   error?: string;
 }
 
-// Health check interface
+// Health check interface for direct API
 export interface HealthCheck {
   status: 'healthy' | 'degraded' | 'unhealthy';
+  approach: 'direct_api';
   uptime: number;
   memory: {
     used: number;

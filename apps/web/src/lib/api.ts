@@ -1,10 +1,10 @@
-import { 
-  StockSymbol, 
-  StockCardData, 
-  ChartData, 
-  MarketOverview, 
+import {
+  StockSymbol,
+  StockCardData,
+  ChartData,
+  MarketOverviewData,
   ApiResponse,
-  HealthCheck 
+  HealthCheck
 } from '@/types/api';
 
 // API base URL - will use environment variable in production
@@ -70,8 +70,8 @@ class ApiClient {
   }
 
   // Market data endpoints
-  async getMarketOverview(): Promise<MarketOverview> {
-    const response = await this.request<ApiResponse<MarketOverview>>('/api/v1/market/overview');
+  async getMarketOverview(): Promise<MarketOverviewData> {
+    const response = await this.request<ApiResponse<MarketOverviewData>>('/api/v1/market/overview');
     return response.data;
   }
 
