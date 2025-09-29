@@ -1,29 +1,13 @@
-// Centralized API utilities for consistent URL handling across all components
-
-/**
- * Get the correct API base URL based on environment
- */
-export function getApiBaseUrl(): string {
-  const supabaseFunctionsUrl = process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL;
-  return supabaseFunctionsUrl || 'https://your-project.supabase.co/functions/v1';
-}
-
-/**
- * Build full URL from relative path
- */
-export function buildApiUrl(path: string): string {
-  const baseUrl = getApiBaseUrl();
-  return path.startsWith('http') ? path : `${baseUrl}${path}`;
-}
+// Direct API utilities for market data fetching
+import { fetchMarketOverviewDirect } from './direct-api';
+import { MarketOverviewData } from '@/types/api';
 
 /**
  * Enhanced fetch wrapper with error handling
  */
 export async function apiFetch(url: string, options?: RequestInit): Promise<Response> {
-  const fullUrl = buildApiUrl(url);
-  
   try {
-    const response = await fetch(fullUrl, options);
+    const response = await fetch(url, options);
 
     if (!response.ok) {
       throw new Error(`API Error: ${response.status} - ${response.statusText}`);
@@ -37,33 +21,9 @@ export async function apiFetch(url: string, options?: RequestInit): Promise<Resp
 }
 
 /**
- * Simplified fetcher function that returns JSON data
+ * Fetch market overview data using direct API integration
  */
-export async function apiFetcher<T = unknown>(url: string): Promise<T> {
-  const response = await apiFetch(url);
-  return response.json();
-}
-
-/**
- * Supabase Edge Function fetcher with proper authentication
- */
-export async function edgeFunctionFetcher<T = unknown>(
-  functionName: string, 
-  payload?: unknown
-): Promise<T> {
-  const baseUrl = getApiBaseUrl();
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'fallback-anon-key';
-  
-  const url = `${baseUrl}/${functionName}`;
-  const options: RequestInit = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${anonKey}`,
-    },
-    body: payload ? JSON.stringify(payload) : undefined,
-  };
-  
-  const response = await apiFetch(url, options);
-  return response.json();
+export async function fetchMarketOverview(): Promise<MarketOverviewData> {
+  console.log('🌐 Direct API: Fetching market overview data...');
+  return await fetchMarketOverviewDirect() as MarketOverviewData;
 }

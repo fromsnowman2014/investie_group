@@ -1,6 +1,6 @@
 import useSWR from 'swr';
-import { MarketOverviewData, ApiResponse } from '@/types/api';
-import { edgeFunctionFetcher } from '@/lib/api-utils';
+import { MarketOverviewData } from '@/types/api';
+import { fetchMarketOverview } from '@/lib/api-utils';
 
 // Check if market is open (simplified - US Eastern time)
 const checkMarketHours = (): boolean => {
@@ -15,8 +15,8 @@ const checkMarketHours = (): boolean => {
 
 const fetcher = async (): Promise<MarketOverviewData> => {
   try {
-    const result: ApiResponse<MarketOverviewData> = await edgeFunctionFetcher('market-overview');
-    return result.data;
+    const result = await fetchMarketOverview();
+    return result as MarketOverviewData;
   } catch (error) {
     console.error('MacroIndicators Fetcher Error:', error);
     throw error;

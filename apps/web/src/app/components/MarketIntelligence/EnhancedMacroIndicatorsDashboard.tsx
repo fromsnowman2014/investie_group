@@ -2,7 +2,7 @@
 
 import React from 'react';
 import useSWR from 'swr';
-import { edgeFunctionFetcher } from '@/lib/api-utils';
+import { fetchMarketOverview } from '@/lib/api-utils';
 
 interface EnhancedMarketSummary {
   fearGreedIndex: {
@@ -43,12 +43,12 @@ interface EnhancedMarketSummary {
 
 
 const fetcher = async (): Promise<EnhancedMarketSummary> => {
-  const apiResponse = await edgeFunctionFetcher<unknown>('market-overview');
+  const apiResponse = await fetchMarketOverview();
   
   console.log('🔍 Raw API Response:', apiResponse);
   
   // The API returns data directly, not wrapped in success/data structure
-  const responseObj = apiResponse as Record<string, unknown>;
+  const responseObj = apiResponse as unknown as Record<string, unknown>;
   
   // Check if this is wrapped response (legacy format)
   if (responseObj.success && responseObj.data) {
