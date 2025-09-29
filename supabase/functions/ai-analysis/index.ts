@@ -139,26 +139,6 @@ async function generateOpenAIAnalysis(symbol: string, openaiApiKey: string): Pro
   }
 }
 
-function getFallbackAnalysis(symbol: string): AIAnalysisResponse {
-  const fallbackRatings = ['bullish', 'neutral', 'bearish'] as const;
-  const fallbackRecommendations = ['BUY', 'HOLD', 'SELL'] as const;
-  
-  // Simple deterministic fallback based on symbol
-  const index = symbol.charCodeAt(0) % 3;
-  
-  return {
-    rating: fallbackRatings[index],
-    confidence: 50,
-    summary: `Analysis for ${symbol} requires Claude API configuration. Current market conditions suggest moderate volatility. Please configure CLAUDE_API_KEY for real-time AI insights.`,
-    keyFactors: [
-      'API Configuration Required',
-      'Mock Analysis Active', 
-      'Limited Data Available'
-    ],
-    recommendation: fallbackRecommendations[index],
-    analysisDate: new Date().toISOString()
-  };
-}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -240,11 +220,17 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Final fallback to mock analysis
-    console.warn(`AI APIs not available for ${upperSymbol}, using fallback analysis`);
-    const fallbackAnalysis = getFallbackAnalysis(upperSymbol);
+    // No AI APIs available - return error
+    console.error(`No AI APIs configured for ${upperSymbol}`);
     
-    return new Response(JSON.stringify(fallbackAnalysis), {
+    return new Response(JSON.stringify({
+      error: 'AI_API_UNAVAILABLE',
+      message: `AI analysis services are not available for ${upperSymbol}`,
+      details: 'Please configure CLAUDE_API_KEY or OPENAI_API_KEY environment variables',
+      errorType: 'CONFIGURATION_ERROR',
+      symbol: upperSymbol
+    }), {
+      status: 503,
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'

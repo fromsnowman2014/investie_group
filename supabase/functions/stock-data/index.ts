@@ -41,25 +41,6 @@ const VALID_SYMBOLS = [
   'JNJ', 'PFE', 'SPY', 'QQQ', 'VTI'
 ];
 
-const MOCK_PRICES: Record<string, number> = {
-  AAPL: 182.52,
-  TSLA: 245.83,
-  MSFT: 378.24,
-  GOOGL: 138.93,
-  AMZN: 146.8,
-  NVDA: 685.32,
-  META: 298.57,
-  NFLX: 456.78,
-  AVGO: 892.13,
-  AMD: 143.29,
-  JPM: 142.50,
-  BAC: 32.15,
-  JNJ: 168.75,
-  PFE: 28.90,
-  SPY: 445.20,
-  QQQ: 375.80,
-  VTI: 234.60
-};
 
 function validateSymbol(symbol: string): boolean {
   return VALID_SYMBOLS.includes(symbol.toUpperCase());
@@ -206,23 +187,6 @@ function parseMarketCap(marketCapString: string): number {
   return value;
 }
 
-function getMockStockData(symbol: string): StockPriceData {
-  const basePrice = MOCK_PRICES[symbol] || 100;
-  const change = (Math.random() - 0.5) * 10;
-  const changePercent = (change / basePrice) * 100;
-
-  return {
-    price: basePrice + change,
-    change,
-    changePercent,
-    pe: 15 + Math.random() * 20,
-    marketCap: Math.random() * 2000000000000,
-    volume: Math.random() * 50000000,
-    fiftyTwoWeekHigh: basePrice * 1.2,
-    fiftyTwoWeekLow: basePrice * 0.8,
-    source: 'mock_data',
-  };
-}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -276,10 +240,16 @@ Deno.serve(async (req) => {
     console.log('🔑 Alpha Vantage API Key status:', alphaVantageApiKey ? 'CONFIGURED' : 'MISSING');
     
     if (!alphaVantageApiKey) {
-      console.warn('Alpha Vantage API key not configured, using mock data');
-      const stockData = getMockStockData(upperSymbol);
+      console.error('Alpha Vantage API key not configured');
       
-      return new Response(JSON.stringify(stockData), {
+      return new Response(JSON.stringify({
+        error: 'API_KEY_MISSING',
+        message: `Alpha Vantage API key is required for ${upperSymbol} stock data`,
+        details: 'Please configure ALPHA_VANTAGE_API_KEY environment variable',
+        errorType: 'CONFIGURATION_ERROR',
+        symbol: upperSymbol
+      }), {
+        status: 503,
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*'

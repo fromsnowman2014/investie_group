@@ -334,100 +334,6 @@ function calculateMarketSentiment(indexData: IndexData[]): string {
   return 'bearish';
 }
 
-function getMockSectorData(): SectorData[] {
-  return [
-    { name: 'Technology', change: 0.25, performance: 'positive' },
-    { name: 'Healthcare', change: -0.15, performance: 'negative' },
-    { name: 'Energy', change: 1.23, performance: 'positive' },
-    { name: 'Financial Services', change: 0.45, performance: 'positive' },
-    { name: 'Consumer Discretionary', change: -0.08, performance: 'negative' },
-    { name: 'Industrials', change: 0.67, performance: 'positive' },
-    { name: 'Materials', change: 0.12, performance: 'positive' },
-    { name: 'Utilities', change: -0.33, performance: 'negative' }
-  ];
-}
-
-function getMockMarketOverview(): MarketOverviewResponse {
-  // Generate realistic mock data based on recent market levels
-  const randomVariation = (base: number, variance: number) => base + (Math.random() - 0.5) * variance;
-  
-  // Realistic market levels as of September 2025
-  const sp500Value = randomVariation(5580, 50);
-  const sp500Change = randomVariation(0, 30);
-  const sp500ChangePercent = (sp500Change / sp500Value) * 100;
-  
-  const nasdaqValue = randomVariation(17400, 100);  
-  const nasdaqChange = randomVariation(0, 80);
-  const nasdaqChangePercent = (nasdaqChange / nasdaqValue) * 100;
-  
-  const dowValue = randomVariation(41000, 200);
-  const dowChange = randomVariation(0, 150);
-  const dowChangePercent = (dowChange / dowValue) * 100;
-
-  return {
-    indices: {
-      sp500: { 
-        value: Math.round(sp500Value * 100) / 100, 
-        change: Math.round(sp500Change * 100) / 100, 
-        changePercent: Math.round(sp500ChangePercent * 10000) / 10000 
-      },
-      nasdaq: { 
-        value: Math.round(nasdaqValue * 100) / 100, 
-        change: Math.round(nasdaqChange * 100) / 100, 
-        changePercent: Math.round(nasdaqChangePercent * 10000) / 10000 
-      },
-      dow: { 
-        value: Math.round(dowValue * 100) / 100, 
-        change: Math.round(dowChange * 100) / 100, 
-        changePercent: Math.round(dowChangePercent * 10000) / 10000 
-      }
-    },
-    sectors: getMockSectorData(),
-    economicIndicators: {
-      interestRate: {
-        value: 4.25,
-        previousValue: 4.10,
-        change: 0.15,
-        percentChange: 3.66,
-        date: new Date().toISOString().split('T')[0],
-        trend: 'rising',
-        source: 'mock_data'
-      },
-      cpi: {
-        value: 307.2,
-        previousValue: 306.8,
-        change: 0.4,
-        percentChange: 0.13,
-        date: new Date().toISOString().split('T')[0],
-        trend: 'rising',
-        source: 'mock_data'
-      },
-      unemployment: {
-        value: 3.8,
-        previousValue: 3.9,
-        change: -0.1,
-        percentChange: -2.56,
-        date: new Date().toISOString().split('T')[0],
-        trend: 'falling',
-        source: 'mock_data'
-      }
-    },
-    fearGreedIndex: {
-      value: 52,
-      status: 'neutral',
-      confidence: 60
-    },
-    vix: {
-      value: 18.45,
-      status: 'low',
-      interpretation: 'Low volatility environment suggesting market stability'
-    },
-    marketSentiment: 'neutral',
-    volatilityIndex: 18.45,
-    source: 'simulated_data_due_to_api_limits',
-    lastUpdated: new Date().toISOString()
-  };
-}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -460,10 +366,15 @@ Deno.serve(async (req) => {
     console.log(`  FRED API: ${fredApiKey ? 'SET (length: ' + fredApiKey.length + ')' : 'MISSING'}`);
 
     if (!alphaVantageApiKey) {
-      console.warn('⚠️ Alpha Vantage API key not configured, using mock data');
-      const mockOverview = getMockMarketOverview();
+      console.error('⚠️ Alpha Vantage API key not configured');
       
-      return new Response(JSON.stringify(mockOverview), {
+      return new Response(JSON.stringify({
+        error: 'API_KEY_MISSING',
+        message: 'Alpha Vantage API key is required for market data',
+        details: 'Please configure ALPHA_VANTAGE_API_KEY environment variable',
+        errorType: 'CONFIGURATION_ERROR'
+      }), {
+        status: 503,
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*'

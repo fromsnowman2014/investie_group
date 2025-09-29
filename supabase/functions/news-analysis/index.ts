@@ -302,52 +302,6 @@ function getFallbackNewsAnalysis(symbol: string, stockArticles: NewsArticle[], m
   };
 }
 
-function getMockNewsAnalysis(symbol: string): NewsAnalysisResponse {
-  const mockStockNews: Record<string, string> = {
-    AAPL: 'Apple reports strong quarterly earnings with Services growth',
-    TSLA: 'Tesla expands charging network amid EV competition',
-    NVDA: 'NVIDIA sees continued AI chip demand growth',
-    GOOGL: 'Google Cloud revenue acceleration continues',
-    MSFT: 'Microsoft Azure gains market share in cloud computing'
-  };
-
-  return {
-    symbol,
-    overview: `Mock analysis for ${symbol} - SerpAPI key not configured. Using fallback news data for demonstration purposes.`,
-    recommendation: 'HOLD',
-    confidence: 50,
-    keyFactors: [
-      'SerpAPI configuration required',
-      'Mock news data active',
-      'Limited analysis available'
-    ],
-    riskLevel: 'MEDIUM',
-    timeHorizon: '3-6 months',
-    source: 'mock_news_analysis',
-    timestamp: new Date().toISOString(),
-    stockNews: {
-      headline: mockStockNews[symbol] || `${symbol} company updates`,
-      source: 'mock_data',
-      articles: [{
-        title: mockStockNews[symbol] || `${symbol} company updates`,
-        link: 'https://example.com/mock-news',
-        snippet: 'Mock news content for demonstration',
-        date: new Date().toISOString(),
-        source: 'MockNews'
-      }]
-    },
-    macroNews: {
-      topHeadline: 'Markets show mixed signals amid economic uncertainty',
-      articles: [{
-        title: 'Markets show mixed signals amid economic uncertainty',
-        link: 'https://example.com/mock-macro',
-        snippet: 'Economic indicators suggest cautious optimism',
-        date: new Date().toISOString(),
-        source: 'MockNews'
-      }]
-    }
-  };
-}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -399,10 +353,16 @@ Deno.serve(async (req) => {
     const serpApiKey = Deno.env.get('SERPAPI_API_KEY');
     
     if (!serpApiKey) {
-      console.warn('SerpAPI key not configured, using mock data');
-      const mockAnalysis = getMockNewsAnalysis(upperSymbol);
+      console.error('SerpAPI key not configured');
       
-      return new Response(JSON.stringify(mockAnalysis), {
+      return new Response(JSON.stringify({
+        error: 'API_KEY_MISSING',
+        message: `SerpAPI key is required for ${upperSymbol} news analysis`,
+        details: 'Please configure SERPAPI_API_KEY environment variable',
+        errorType: 'CONFIGURATION_ERROR',
+        symbol: upperSymbol
+      }), {
+        status: 503,
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*'
