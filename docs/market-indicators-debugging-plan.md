@@ -1,166 +1,217 @@
-# Market Indicators Debugging Plan
+# Market Indicators Debugging Plan (Direct API 구조)
 
-## 🔍 문제 분석 (Console Log 기반)
+## 🔍 문제 분석 (Direct API 기반)
+
+### 현재 아키텍처 확인
+- **Frontend**: Direct API 호출 방식 (`NEXT_PUBLIC_USE_DIRECT_API=true`)
+- **Backend**: Supabase Edge Functions 없음, 모든 API 호출은 Frontend에서 직접 수행
+- **데이터 소스**: Yahoo Finance API (CORS 프록시 사용)
 
 ### 발견된 핵심 문제들
 
-#### 1. **주요 문제: 코드 불일치 (Code Mismatch)**
-- **로컬 환경**: `^TNX` 심볼이 포함된 5개 심볼 호출
-- **프로덕션 환경**: 여전히 4개 심볼만 호출 (`^GSPC, ^VIX, ^IXIC, ^DJI`)
-
-```
-🔄 Starting parallel fetch for 4 symbols: ^GSPC, ^VIX, ^IXIC, ^DJI
-```
-
-**결론**: 프로덕션에 최신 코드가 배포되지 않았거나 캐시 문제
-
-#### 2. **CORS 문제 (Production Only)**
+#### 1. **CORS 프록시 안정성 문제**
 ```
 Access to fetch at 'https://api.allorigins.win/raw?url=...' has been blocked by CORS policy
 ```
-- 프로덕션 환경에서만 발생하는 CORS 에러
-- 일부 요청은 성공하지만 불안정함
+- **현재 프록시**: `api.allorigins.win` 단일 의존
+- **문제**: 프로덕션에서 불안정한 CORS 프록시 응답
+- **결과**: 일부 Market Indicators 데이터 로드 실패
 
-#### 3. **환경 변수 문제**
+#### 2. **경제 지표 데이터 하드코딩**
 ```javascript
-Environment Variables: {
-  NODE_ENV: 'production',
-  NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL: undefined,  // ⚠️ 문제!
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: 'SET'
+// 현재 코드에서 하드코딩된 부분
+cpi: {
+  value: 2.40, // 하드코딩된 CPI 데이터
+  previousValue: 2.50,
+  source: 'manual_placeholder_data'
+},
+unemployment: {
+  value: 4.0, // 하드코딩된 실업률 데이터
+  source: 'manual_placeholder_data'
 }
 ```
 
-#### 4. **Backend API 404 에러**
+#### 3. **환경 변수 설정 (실제 필요한 것들)**
+```javascript
+Environment Variables: {
+  NODE_ENV: 'production',
+  NEXT_PUBLIC_USE_DIRECT_API: true,  // ✅ 설정됨
+  NEXT_PUBLIC_ALPHA_VANTAGE_API_KEY: 'demo',  // ⚠️ 데모 키 사용중
+  NEXT_PUBLIC_FRED_API_KEY: 'demo'  // ⚠️ 데모 키 사용중
+}
 ```
-/api/v1/dashboard/AAPL/ai-analysis:1 Failed to load resource: the server responded with a status of 404
-/api/v1/dashboard/AAPL/profile:1 Failed to load resource: the server responded with a status of 404
-/api/v1/dashboard/AAPL/news-analysis:1 Failed to load resource: the server responded with a status of 404
+
+#### 4. **5개 심볼 호출 상태 확인**
 ```
+🔄 Starting parallel fetch for 5 symbols: ^GSPC, ^VIX, ^IXIC, ^DJI, ^TNX
+```
+- **현재 상태**: 5개 심볼 호출 코드는 구현되어 있음 ✅
+- **^TNX (10Y Treasury)**: Yahoo Finance에서 직접 호출 중
 
 ---
 
-## 🚨 우선 순위별 해결 방안
+## 🚨 우선 순위별 해결 방안 (Direct API 기준)
 
-### Priority 1: 배포 문제 해결
+### Priority 1: CORS 프록시 안정성 개선
 
-#### 1.1 코드 배포 확인
-- [x] 로컬에서 5개 심볼 (^TNX 포함) 구현 완료
-- [ ] **프로덕션 배포 확인 필요**
-- [ ] Vercel 배포 상태 점검
+#### 1.1 다중 CORS 프록시 시스템 구현
+- **현재**: `api.allorigins.win` 단일 프록시 의존
+- **개선**: 여러 프록시 서버로 fallback 시스템 구축
 
-#### 1.2 배포 액션 플랜
-```bash
-# 1. 현재 브랜치 확인
-git status
-git log --oneline -5
-
-# 2. 강제 재배포
-git add .
-git commit -m "fix: Update market indicators with Treasury data"
-git push origin main
-
-# 3. Vercel 배포 로그 확인
+```javascript
+// 개선된 프록시 목록
+const corsProxies = [
+  'https://corsproxy.io/?',
+  'https://api.allorigins.win/raw?url=',
+  'https://cors-anywhere.herokuapp.com/',
+  'https://thingproxy.freeboard.io/fetch/',
+  ''  // Direct call as final fallback
+];
 ```
 
-### Priority 2: 환경 변수 설정
+#### 1.2 프록시 응답 시간 모니터링
+- **목표**: 각 프록시 응답 시간 측정 및 로깅
+- **구현**: 타임아웃 설정 최적화 (현재 10초 → 5초)
 
-#### 2.1 Vercel 환경 변수 설정
+### Priority 2: 실제 경제 지표 API 연동
+
+#### 2.1 FRED API 연동 (Federal Reserve Economic Data)
+```javascript
+// CPI, Unemployment Rate 실제 API 호출
+const economicIndicators = {
+  cpi: await fetchFredData('CPIAUCSL'),      // Consumer Price Index
+  unemployment: await fetchFredData('UNRATE') // Unemployment Rate
+};
+```
+
+#### 2.2 Vercel 환경 변수 설정 (실제 필요한 것들)
 ```bash
 # Vercel Dashboard에서 설정 필요
-NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL=https://your-project.supabase.co/functions/v1
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+NEXT_PUBLIC_ALPHA_VANTAGE_API_KEY=your-actual-api-key
+NEXT_PUBLIC_FRED_API_KEY=your-fred-api-key
+NEXT_PUBLIC_USE_DIRECT_API=true
 ```
 
-#### 2.2 환경 변수 검증 스크립트
+#### 2.3 환경 변수 검증 스크립트
 ```javascript
-// 프로덕션 환경에서 실행할 디버깅 코드
-console.log('🔍 Environment Debug:', {
-  hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL,
-  hasAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+// Direct API 환경에서 실행할 디버깅 코드
+console.log('🔍 Direct API Environment Debug:', {
+  useDirectApi: process.env.NEXT_PUBLIC_USE_DIRECT_API,
+  hasAlphaVantageKey: !!process.env.NEXT_PUBLIC_ALPHA_VANTAGE_API_KEY,
+  hasFredKey: !!process.env.NEXT_PUBLIC_FRED_API_KEY,
   nodeEnv: process.env.NODE_ENV
 });
 ```
 
-### Priority 3: CORS 문제 해결
+### Priority 3: 에러 처리 및 사용자 경험 개선
 
-#### 3.1 대체 CORS 프록시 추가
+#### 3.1 지능적 Fallback 시스템
 ```javascript
-// 프로덕션 환경에서 더 안정적인 프록시 목록
-const productionProxies = [
-  'https://corsproxy.io/?',
-  'https://cors-anywhere.herokuapp.com/',
-  'https://api.allorigins.win/raw?url=',
-  ''  // Direct call fallback
+// API 실패시 단계별 fallback
+const dataFallbackChain = [
+  () => fetchYahooFinanceData(symbol),     // Primary: Yahoo Finance
+  () => fetchAlphaVantageData(symbol),     // Secondary: Alpha Vantage
+  () => getLastKnownValue(symbol),         // Tertiary: Cached data
+  () => getMockData(symbol)                // Final: Mock data with warning
 ];
 ```
 
-#### 3.2 환경별 프록시 설정
+#### 3.2 실시간 에러 모니터링
 ```javascript
-const getProxiesForEnvironment = () => {
-  if (process.env.NODE_ENV === 'production') {
-    return productionProxies;
-  }
-  return developmentProxies;
+// 프로덕션에서 에러 추적
+const trackApiError = (error, symbol, proxyUsed) => {
+  console.error(`📊 API Error tracked:`, {
+    symbol,
+    error: error.message,
+    proxy: proxyUsed,
+    timestamp: new Date().toISOString(),
+    userAgent: navigator.userAgent
+  });
 };
 ```
 
 ---
 
-## 🔧 즉시 실행 가능한 디버깅 단계
+## 🔧 즉시 실행 가능한 디버깅 단계 (Direct API 기준)
 
-### Step 1: 프로덕션 배포 상태 확인
-1. Vercel Dashboard에서 최신 배포 확인
-2. 배포 로그에서 빌드 에러 확인
-3. 필요시 강제 재배포 실행
-
-### Step 2: 환경 변수 검증
-1. Vercel Dashboard → Settings → Environment Variables 확인
-2. 누락된 환경 변수 추가
-3. 재배포 트리거
-
-### Step 3: 실시간 디버깅
+### Step 1: CORS 프록시 안정성 테스트
 ```javascript
-// 브라우저 콘솔에서 실행할 디버깅 코드
-console.log('🔍 Real-time Debug:', {
-  apiBaseUrl: window.location.origin,
-  environmentVars: {
-    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL,
-    hasAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+// 브라우저 콘솔에서 각 프록시 테스트
+const testProxies = [
+  'https://corsproxy.io/?',
+  'https://api.allorigins.win/raw?url=',
+  'https://thingproxy.freeboard.io/fetch/'
+];
+
+testProxies.forEach(async (proxy, index) => {
+  try {
+    const url = proxy + encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/^GSPC');
+    const response = await fetch(url);
+    console.log(`✅ Proxy ${index + 1} (${proxy}): ${response.status}`);
+  } catch (error) {
+    console.error(`❌ Proxy ${index + 1} (${proxy}): ${error.message}`);
   }
 });
 ```
 
+### Step 2: 환경 변수 검증 (Direct API 용)
+1. Vercel Dashboard → Settings → Environment Variables 확인
+2. 필요한 환경 변수들:
+   - `NEXT_PUBLIC_USE_DIRECT_API=true`
+   - `NEXT_PUBLIC_ALPHA_VANTAGE_API_KEY=your-key`
+   - `NEXT_PUBLIC_FRED_API_KEY=your-key`
+
+### Step 3: 실시간 Market Data 디버깅
+```javascript
+// 브라우저 콘솔에서 실행할 Direct API 디버깅 코드
+console.log('🔍 Direct API Real-time Debug:', {
+  useDirectApi: process.env.NEXT_PUBLIC_USE_DIRECT_API,
+  hasAlphaVantageKey: !!process.env.NEXT_PUBLIC_ALPHA_VANTAGE_API_KEY,
+  hasFredKey: !!process.env.NEXT_PUBLIC_FRED_API_KEY,
+  currentDomain: window.location.origin,
+  userAgent: navigator.userAgent,
+  online: navigator.onLine
+});
+
+// 수동으로 Yahoo Finance API 테스트
+fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/^TNX'))
+  .then(response => response.json())
+  .then(data => console.log('🔍 ^TNX Direct Test:', data))
+  .catch(error => console.error('❌ ^TNX Test Failed:', error));
+```
+
 ---
 
-## 📊 예상 해결 시간
+## 📊 예상 해결 시간 (Direct API 기준)
 
 | 문제 | 예상 해결 시간 | 우선순위 |
 |------|----------------|----------|
-| 코드 배포 문제 | 10분 | 🔴 Critical |
-| 환경 변수 설정 | 5분 | 🔴 Critical |
-| CORS 프록시 개선 | 30분 | 🟡 Medium |
-| Backend API 404 | 60분 | 🟢 Low |
+| CORS 프록시 안정성 개선 | 30분 | 🔴 Critical |
+| 경제 지표 API 연동 (FRED) | 45분 | 🔴 Critical |
+| 환경 변수 설정 | 10분 | 🟡 Medium |
+| 에러 처리 개선 | 20분 | 🟢 Low |
 
 ---
 
-## ✅ 성공 기준
+## ✅ 성공 기준 (Direct API 기준)
 
 ### 즉시 확인 가능한 지표
 1. **콘솔 로그 변화**:
    ```
    ✅ 🔄 Starting parallel fetch for 5 symbols: ^GSPC, ^VIX, ^IXIC, ^DJI, ^TNX
-   ✅ Environment Variables: NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL 값 존재
-   ✅ ✅ Direct API: Successfully fetched ^TNX data
+   ✅ Direct API Environment Debug: useDirectApi: true, hasAlphaVantageKey: true
+   ✅ ✅ Direct API: Successfully fetched ^TNX data via corsproxy.io
    ```
 
 2. **UI 변화**:
-   - 10Y Treasury: "No data available" → "4.15%"
-   - CPI: "No data available" → "2.40%"
-   - Unemployment: "No data available" → "4.0%"
+   - 10Y Treasury: "No data available" → "4.15%" (실제 Yahoo Finance 데이터)
+   - CPI: "2.40%" → 실제 FRED API 데이터
+   - Unemployment: "4.0%" → 실제 FRED API 데이터
 
-3. **API 응답 시간**:
-   - 현재: ~8초 (CORS 에러로 인한 지연)
-   - 목표: ~3초 이하
+3. **API 응답 시간 및 안정성**:
+   - 현재: ~8초 (단일 CORS 프록시 실패시 지연)
+   - 목표: ~3초 이하 (다중 프록시 fallback)
+   - 성공률: 현재 60% → 목표 95%
 
 ---
 
