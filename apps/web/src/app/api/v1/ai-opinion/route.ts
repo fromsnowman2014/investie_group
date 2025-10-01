@@ -247,9 +247,11 @@ function getFallbackOpinion(symbol: string, error?: string): InvestmentOpinionRe
 }
 
 export async function POST(request: NextRequest) {
+  let symbol = 'UNKNOWN';
+  
   try {
     const body = await request.json();
-    const { symbol } = body;
+    symbol = body?.symbol;
 
     if (!symbol) {
       return NextResponse.json(
@@ -266,11 +268,8 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString()
     });
   } catch (err) {
-    console.error('❌ AI Opinion API Error:', err);
+    console.error('❌ AI Opinion POST API Error:', err);
 
-    // Fallback response
-    const body = await request.json();
-    const symbol = body?.symbol || 'UNKNOWN';
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
     const fallback = getFallbackOpinion(symbol, errorMessage);
 
