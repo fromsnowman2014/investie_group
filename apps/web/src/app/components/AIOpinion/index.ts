@@ -1,0 +1,1 @@
+export { AIOpinionCard } from './AIOpinionCard';

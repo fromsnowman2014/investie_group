@@ -34,4 +34,7 @@ export default function AIAnalysis({ symbol }: AIAnalysisProps) {
   );
 }
 
-export { StockProfile, AIInvestmentOpinion };
+export { StockProfile };
+export { AIOpinionCard } from '../AIOpinion';
+// Legacy component - deprecated in favor of AIOpinionCard
+export { default as AIInvestmentOpinion } from './AIInvestmentOpinion';

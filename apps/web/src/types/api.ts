@@ -112,3 +112,23 @@ export interface HealthCheck {
   };
   version: string;
 }
+
+// AI Investment Opinion interfaces
+export interface InvestmentOpinionResult {
+  success: boolean;
+  symbol: string;
+  opinion: string;
+  recommendation: 'BUY' | 'HOLD' | 'SELL';
+  confidence: number;
+  keyFactors: string[];
+  timeframe?: string;
+  lastUpdated: string;
+  source: string;
+  error?: string;
+}
+
+export interface AIOpinionResponse {
+  success: boolean;
+  data: InvestmentOpinionResult;
+  timestamp: string;
+}

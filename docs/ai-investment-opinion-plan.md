@@ -12,7 +12,7 @@ AI Investment Opinion은 선택된 주식 종목에 대해 Google AI API (Gemini
 ## 🏗️ 간소화된 시스템 아키텍처
 
 ### 핵심 컨셉
-기존의 복잡한 데이터 수집 및 통합 방식 대신, **Google AI API에게 필요한 모든 정보를 포함하는 종합적인 프롬프트를 제공**하여 AI가 직접 최신 정보를 바탕으로 분석하도록 하는 방식입니다.
+기존의 복잡한 데이터 수집 및 통합 방식 대신, **Google AI API에게 필요한 모든 정보를 포함하는 종합적인 프롬프트를 제공**하여 AI가 직접 최신 정보를 바탕으로 분석하도록 하는 방식입니다. Vercel Serverless Functions를 활용하여 백엔드 없이 클라이언트에서 직접 호출할 수 있습니다.
 
 ### 장점
 - ✅ **구현 복잡도 대폭 감소**: 별도 데이터 수집 API 불필요
@@ -22,23 +22,57 @@ AI Investment Opinion은 선택된 주식 종목에 대해 Google AI API (Gemini
 
 ## 🔧 구현 계획
 
-### 단일 API 호출 방식
+### Vercel Serverless Function 방식
 
-#### 1.1 Google AI API Service 구현
+#### 1.1 Google AI API Service 구현 (Vercel Functions)
 ```typescript
-// apps/backend/src/ai/google-ai.service.ts
-@Injectable()
-export class GoogleAIService {
-  private readonly logger = new Logger(GoogleAIService.name);
-  private readonly apiKey = process.env.GOOGLE_AI_API_KEY;
-  private readonly baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
+// apps/web/api/ai-investment-opinion.ts
+import { NextRequest, NextResponse } from 'next/server';
 
-  async generateInvestmentOpinion(symbol: string): Promise<InvestmentOpinionResponse> {
-    const prompt = this.buildComprehensivePrompt(symbol);
-    
-    const response = await axios.post(
-      `${this.baseUrl}/models/gemini-pro:generateContent`,
-      {
+export const runtime = 'edge';
+
+export default async function handler(req: NextRequest) {
+  if (req.method !== 'POST') {
+    return NextResponse.json({ error: 'Method not allowed' }, { status: 405 });
+  }
+
+  const { symbol } = await req.json();
+
+  if (!symbol) {
+    return NextResponse.json({ error: 'Symbol is required' }, { status: 400 });
+  }
+
+  try {
+    const result = await generateInvestmentOpinion(symbol);
+    return NextResponse.json({ success: true, data: result });
+  } catch (error) {
+    console.error('AI Opinion API Error:', error);
+    return NextResponse.json(
+      { error: 'Failed to generate investment opinion' },
+      { status: 500 }
+    );
+  }
+}
+
+async function generateInvestmentOpinion(symbol: string): Promise<any> {
+  const apiKey = process.env.GOOGLE_AI_API_KEY;
+  const baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
+
+  if (!apiKey) {
+    throw new Error('Google AI API key not configured');
+  }
+
+  const prompt = buildComprehensivePrompt(symbol);
+
+  const response = await fetch(
+    `${baseUrl}/models/gemini-pro:generateContent`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': apiKey
+      },
+      body: JSON.stringify({
         contents: [{
           parts: [{ text: prompt }]
         }],
@@ -48,19 +82,19 @@ export class GoogleAIService {
           topP: 0.8,
           topK: 40
         }
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': this.apiKey
-        }
-      }
-    );
+      })
+    }
+  );
 
-    return this.parseResponse(response.data);
+  if (!response.ok) {
+    throw new Error(`Google AI API error: ${response.status}`);
   }
 
-  private buildComprehensivePrompt(symbol: string): string {
+  const data = await response.json();
+  return parseResponse(data);
+}
+
+function buildComprehensivePrompt(symbol: string): string {
     const currentDate = new Date().toISOString().split('T')[0];
     
     return `
@@ -103,7 +137,7 @@ export class GoogleAIService {
 `;
   }
 
-  private parseResponse(responseData: any): InvestmentOpinionResponse {
+function parseResponse(responseData: any) {
     try {
       const content = responseData.candidates[0].content.parts[0].text;
       
@@ -130,19 +164,19 @@ export class GoogleAIService {
     }
   }
 
-  private extractRecommendation(content: string): 'BUY' | 'HOLD' | 'SELL' {
+function extractRecommendation(content: string): 'BUY' | 'HOLD' | 'SELL' {
     const upperContent = content.toUpperCase();
     if (upperContent.includes('BUY')) return 'BUY';
     if (upperContent.includes('SELL')) return 'SELL';
     return 'HOLD';
   }
 
-  private extractConfidence(content: string): number {
+function extractConfidence(content: string): number {
     const confidenceMatch = content.match(/신뢰도[:\s]*(\d+)/i);
     return confidenceMatch ? parseInt(confidenceMatch[1]) : 75;
   }
 
-  private extractKeyFactors(content: string): string[] {
+function extractKeyFactors(content: string): string[] {
     // 간단한 키워드 추출 로직
     const factors = [];
     if (content.includes('실적')) factors.push('실적 관련');

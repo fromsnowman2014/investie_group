@@ -4,7 +4,7 @@ import React from 'react';
 import { useStock } from './components/StockProvider';
 import MainLayout from './components/MainLayout';
 import Header from './components/Header';
-import { AIInvestmentOpinion, StockProfile } from './components/AIAnalysis';
+import { StockProfile, AIOpinionCard } from './components/AIAnalysis';
 import { MacroIndicatorsDashboard, AINewsAnalysisReport } from './components/MarketIntelligence';
 import AdvancedChart from './components/TradingView/AdvancedChart';
 import TechnicalAnalysis from './components/TradingView/TechnicalAnalysis';
@@ -25,7 +25,7 @@ export default function Home() {
       {/* Main Application Layout - Phase 2 Optimized with Individual Components */}
       <MainLayout
         header={<Header />}
-        aiInvestmentOpinion={<AIInvestmentOpinion symbol={currentSymbol} />}
+        aiInvestmentOpinion={<AIOpinionCard symbol={currentSymbol} />}
         stockProfile={<StockProfile symbol={currentSymbol} />}
         macroIndicatorsDashboard={<MacroIndicatorsDashboard />}
         aiNewsAnalysisReport={<AINewsAnalysisReport symbol={currentSymbol} />}
