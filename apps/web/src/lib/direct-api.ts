@@ -56,28 +56,47 @@ async function fetchYahooFinanceData(symbol: string): Promise<MarketDataItem> {
     // Multiple CORS proxy options for better reliability
     const proxies = [
       'https://api.allorigins.win/raw?url=',
-      'https://cors-anywhere.herokuapp.com/',
-      ''  // Direct call as fallback
+      'https://api.allorigins.win/raw?url=',  // Try the working proxy twice for better reliability
+      ''  // Direct call as fallback (will likely fail due to CORS)
     ];
 
     let lastError: Error | null = null;
 
-    for (const proxyUrl of proxies) {
+    for (let i = 0; i < proxies.length; i++) {
+      const proxyUrl = proxies[i];
       try {
         const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`;
         const url = proxyUrl ? (proxyUrl + encodeURIComponent(targetUrl)) : targetUrl;
 
-        console.log(`🔗 Direct API Request URL: ${url}`);
+        console.log(`🔗 [${i + 1}/${proxies.length}] Trying proxy: ${proxyUrl || 'direct'}`);
+        console.log(`🔗 Full URL: ${url}`);
+
+        const startTime = Date.now();
+
+        // Create timeout signal for older browser compatibility
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
 
         const response = await fetch(url, {
           headers: {
             'X-Requested-With': 'XMLHttpRequest',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-          }
+          },
+          signal: controller.signal
         });
 
+        clearTimeout(timeoutId);
+
+        const endTime = Date.now();
+        console.log(`⏱️ Request took ${endTime - startTime}ms`);
+        console.log(`📊 Response status: ${response.status} ${response.statusText}`);
+        console.log(`📊 Response headers:`, Object.fromEntries(response.headers.entries()));
+
         if (!response.ok) {
-          throw new Error(`Yahoo Finance API error: ${response.status} ${response.statusText}`);
+          const errorText = await response.text().catch(() => 'Unable to read error response');
+          console.error(`❌ HTTP Error ${response.status}: ${response.statusText}`);
+          console.error(`❌ Error body: ${errorText}`);
+          throw new Error(`Yahoo Finance API error: ${response.status} ${response.statusText} - ${errorText}`);
         }
 
         const data = await response.json() as {
@@ -139,17 +158,37 @@ async function fetchYahooFinanceData(symbol: string): Promise<MarketDataItem> {
 
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
-        console.warn(`⚠️ Direct API: Proxy ${proxyUrl || 'direct'} failed for ${symbol}:`, lastError.message);
+        console.error(`❌ Proxy ${proxyUrl || 'direct'} failed for ${symbol}:`);
+        console.error(`❌ Error type: ${error instanceof Error ? error.constructor.name : typeof error}`);
+        console.error(`❌ Error message: ${lastError.message}`);
+        console.error(`❌ Error stack:`, lastError.stack);
+
+        // Log specific error types for debugging
+        if (error instanceof TypeError) {
+          console.error(`❌ Network error - likely CORS or connectivity issue`);
+          console.error(`❌ Suggestion: This proxy may be blocked or down`);
+        } else if (error instanceof DOMException && error.name === 'AbortError') {
+          console.error(`❌ Request timeout after 10 seconds`);
+          console.error(`❌ Suggestion: Proxy is responding too slowly`);
+        } else if (error instanceof ReferenceError) {
+          console.error(`❌ AbortSignal.timeout not supported - using older browser`);
+        } else {
+          console.error(`❌ Unexpected error type: ${typeof error}`);
+        }
+
         continue; // Try next proxy
       }
     }
 
     // If all proxies failed, throw the last error
-    console.error(`❌ Direct API: All proxy methods failed for ${symbol}`);
+    console.error(`❌ Direct API: All ${proxies.length} proxy methods failed for ${symbol}`);
+    console.error(`❌ Final error:`, lastError);
     throw lastError || new Error('All proxy methods failed');
 
   } catch (error) {
-    console.error(`❌ Direct API: Failed to fetch ${symbol}:`, error instanceof Error ? error.message : String(error));
+    console.error(`❌ Direct API: Outer catch - Failed to fetch ${symbol}:`);
+    console.error(`❌ Error type: ${error instanceof Error ? error.constructor.name : typeof error}`);
+    console.error(`❌ Error message:`, error instanceof Error ? error.message : String(error));
     throw error; // Don't use mock data, let the error propagate
   }
 }
@@ -160,15 +199,27 @@ async function fetchYahooFinanceData(symbol: string): Promise<MarketDataItem> {
  */
 export async function fetchMarketOverviewDirect(): Promise<MarketOverviewData> {
   console.log('🌐 Direct API: Starting comprehensive market data fetch...');
+  console.log('🌐 Environment check:', {
+    userAgent: navigator.userAgent,
+    online: navigator.onLine,
+    language: navigator.language,
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+  });
 
   try {
     // Fetch market data in parallel
+    console.log('🔄 Starting parallel fetch for 4 symbols: ^GSPC, ^VIX, ^IXIC, ^DJI');
+    const fetchStartTime = Date.now();
+
     const [sp500Data, vixData, nasdaqData, dowData] = await Promise.all([
       fetchYahooFinanceData('^GSPC'), // S&P 500 Index (actual index, not ETF)
       fetchYahooFinanceData('^VIX'),  // VIX Volatility Index
       fetchYahooFinanceData('^IXIC'), // NASDAQ Composite Index (actual index, not ETF)
       fetchYahooFinanceData('^DJI')   // DOW Jones Industrial Average (actual index, not ETF)
     ]) as [MarketDataItem, MarketDataItem, MarketDataItem, MarketDataItem];
+
+    const fetchEndTime = Date.now();
+    console.log(`⏱️ Total parallel fetch time: ${fetchEndTime - fetchStartTime}ms`);
 
     console.log('📊 Direct API responses:', {
       sp500: sp500Data ? '✅ Success' : '❌ Failed',
