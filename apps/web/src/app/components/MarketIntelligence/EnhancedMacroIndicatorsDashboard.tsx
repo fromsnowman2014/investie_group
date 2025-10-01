@@ -9,7 +9,7 @@ interface EnhancedMarketSummary {
     value: number;
     status: 'extreme-fear' | 'fear' | 'neutral' | 'greed' | 'extreme-greed';
   } | null;
-  
+
   economicIndicators: {
     interestRate: {
       value: number;
@@ -24,15 +24,24 @@ interface EnhancedMarketSummary {
       value: number;
     } | null;
   } | null;
-  
+
   sp500Sparkline: {
     currentPrice: number;
     weeklyChange: number;
   } | null;
-  
+
   lastUpdated: string;
-  
-  // API Rate Limit Information
+
+  // API Error Information
+  apiError?: {
+    isError: boolean;
+    isRateLimit: boolean;
+    message: string;
+    details: string;
+    suggestedAction: string;
+  };
+
+  // Legacy API Rate Limit Information (for backward compatibility)
   alphaVantageRateLimit?: {
     isLimited: boolean;
     message?: string;
@@ -88,7 +97,17 @@ const fetcher = async (): Promise<EnhancedMarketSummary> => {
       } : null,
       
       lastUpdated: (responseObj.lastUpdated as string) || new Date().toISOString(),
-      
+
+      // Handle new API error structure
+      apiError: responseObj.apiError as {
+        isError: boolean;
+        isRateLimit: boolean;
+        message: string;
+        details: string;
+        suggestedAction: string;
+      } | undefined,
+
+      // Legacy support
       alphaVantageRateLimit: responseObj.alphaVantageRateLimit as {
         isLimited: boolean;
         message?: string;
@@ -221,8 +240,30 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
 
   return (
     <div className="enhanced-macro-dashboard">
-      {/* API Rate Limit Warning */}
-      {data.alphaVantageRateLimit?.isLimited && (
+      {/* API Error Warning */}
+      {data.apiError?.isError && (
+        <div className={`api-error-warning ${data.apiError.isRateLimit ? 'rate-limit' : 'general-error'}`}>
+          <div className="warning-header">
+            <span className="warning-icon">{data.apiError.isRateLimit ? '⏰' : '⚠️'}</span>
+            <span className="warning-title">
+              {data.apiError.isRateLimit ? 'API Rate Limit Reached' : 'API Connection Issue'}
+            </span>
+          </div>
+          <div className="warning-content">
+            <p className="warning-message">{data.apiError.message}</p>
+            <p className="warning-action">
+              <strong>Next Steps:</strong> {data.apiError.suggestedAction}
+            </p>
+            <details className="warning-details">
+              <summary>Technical Details</summary>
+              <p className="warning-technical">{data.apiError.details}</p>
+            </details>
+          </div>
+        </div>
+      )}
+
+      {/* Legacy API Rate Limit Warning (for backward compatibility) */}
+      {!data.apiError?.isError && data.alphaVantageRateLimit?.isLimited && (
         <div className="rate-limit-warning">
           <div className="warning-header">
             <span className="warning-icon">ℹ️</span>
@@ -255,23 +296,30 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
         </div>
         
         {/* S&P 500 */}
-        <div className={`indicator-row ${data.alphaVantageRateLimit?.isLimited ? 'rate-limited' : ''}`}>
+        <div className={`indicator-row ${data.apiError?.isError || data.alphaVantageRateLimit?.isLimited ? 'api-error' : ''}`}>
           <span className="indicator-label">
             S&P 500 Index
-            {data.alphaVantageRateLimit?.isLimited && (
-              <span className="limited-badge">Limited</span>
+            {(data.apiError?.isError || data.alphaVantageRateLimit?.isLimited) && (
+              <span className="error-badge">
+                {data.apiError?.isRateLimit ? 'Rate Limited' : data.apiError?.isError ? 'API Error' : 'Limited'}
+              </span>
             )}
           </span>
           <span className="indicator-value">
-            {data.alphaVantageRateLimit?.isLimited ? (
-              <span className="unavailable-text">Temporarily Unavailable</span>
-            ) : (
+            {(data.apiError?.isError || data.alphaVantageRateLimit?.isLimited) ? (
+              <span className="unavailable-text">
+                {data.apiError?.isRateLimit ? 'Rate Limit Exceeded' :
+                 data.apiError?.isError ? 'API Unavailable' : 'Temporarily Unavailable'}
+              </span>
+            ) : data.sp500Sparkline ? (
               <>
-                <span className="price-text">{data.sp500Sparkline?.currentPrice ? data.sp500Sparkline.currentPrice.toFixed(2) : '6574.10'}</span>
-                <span className={`change-badge ${(data.sp500Sparkline?.weeklyChange ?? 1.09) >= 0 ? 'positive' : 'negative'}`}>
-                  {(data.sp500Sparkline?.weeklyChange ?? 1.09) >= 0 ? '+' : ''}{(data.sp500Sparkline?.weeklyChange ?? 1.09).toFixed(2)}%
+                <span className="price-text">{data.sp500Sparkline.currentPrice.toFixed(2)}</span>
+                <span className={`change-badge ${data.sp500Sparkline.weeklyChange >= 0 ? 'positive' : 'negative'}`}>
+                  {data.sp500Sparkline.weeklyChange >= 0 ? '+' : ''}{data.sp500Sparkline.weeklyChange.toFixed(2)}%
                 </span>
               </>
+            ) : (
+              <span className="unavailable-text">No Data Available</span>
             )}
           </span>
         </div>
@@ -280,10 +328,16 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
         <div className="indicator-row">
           <span className="indicator-label">📊 10Y Treasury</span>
           <span className="indicator-value">
-            <span className="main-value">{data.economicIndicators?.interestRate?.value ? data.economicIndicators.interestRate.value.toFixed(2) : '4.26'}%</span>
-            <span className={`change-badge ${(data.economicIndicators?.interestRate?.change ?? -0.13) >= 0 ? 'positive' : 'negative'}`}>
-              {(data.economicIndicators?.interestRate?.change ?? -0.13) >= 0 ? '+' : ''}{(data.economicIndicators?.interestRate?.change ?? -0.13).toFixed(2)}%
-            </span>
+            {data.economicIndicators?.interestRate ? (
+              <>
+                <span className="main-value">{data.economicIndicators.interestRate.value.toFixed(2)}%</span>
+                <span className={`change-badge ${data.economicIndicators.interestRate.change >= 0 ? 'positive' : 'negative'}`}>
+                  {data.economicIndicators.interestRate.change >= 0 ? '+' : ''}{data.economicIndicators.interestRate.change.toFixed(2)}%
+                </span>
+              </>
+            ) : (
+              <span className="unavailable-text">No Data Available</span>
+            )}
           </span>
         </div>
 
@@ -291,15 +345,21 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
         <div className="indicator-row">
           <span className="indicator-label">📈 CPI</span>
           <span className="indicator-value">
-            <span className="main-value">{data.economicIndicators?.cpi?.value ? data.economicIndicators.cpi.value.toFixed(1) : '322.1'}</span>
-            <span className="sub-values">
-              M/M: <span className={`change-mini ${(data.economicIndicators?.cpi?.monthOverMonth ?? 0.20) >= 0 ? 'positive' : 'negative'}`}>
-                {(data.economicIndicators?.cpi?.monthOverMonth ?? 0.20) >= 0 ? '+' : ''}{(data.economicIndicators?.cpi?.monthOverMonth ?? 0.20).toFixed(2)}%
-              </span>
-              Y/Y: <span className={`change-mini ${(data.economicIndicators?.cpi?.yearOverYear ?? 2.73) >= 0 ? 'positive' : 'negative'}`}>
-                {(data.economicIndicators?.cpi?.yearOverYear ?? 2.73) >= 0 ? '+' : ''}{(data.economicIndicators?.cpi?.yearOverYear ?? 2.73).toFixed(2)}%
-              </span>
-            </span>
+            {data.economicIndicators?.cpi ? (
+              <>
+                <span className="main-value">{data.economicIndicators.cpi.value.toFixed(1)}</span>
+                <span className="sub-values">
+                  M/M: <span className={`change-mini ${data.economicIndicators.cpi.monthOverMonth >= 0 ? 'positive' : 'negative'}`}>
+                    {data.economicIndicators.cpi.monthOverMonth >= 0 ? '+' : ''}{data.economicIndicators.cpi.monthOverMonth.toFixed(2)}%
+                  </span>
+                  Y/Y: <span className={`change-mini ${data.economicIndicators.cpi.yearOverYear >= 0 ? 'positive' : 'negative'}`}>
+                    {data.economicIndicators.cpi.yearOverYear >= 0 ? '+' : ''}{data.economicIndicators.cpi.yearOverYear.toFixed(2)}%
+                  </span>
+                </span>
+              </>
+            ) : (
+              <span className="unavailable-text">No Data Available</span>
+            )}
           </span>
         </div>
 
@@ -307,7 +367,11 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
         <div className="indicator-row">
           <span className="indicator-label">👥 Unemployment</span>
           <span className="indicator-value">
-            <span className="main-value">{data.economicIndicators?.unemployment?.value ? data.economicIndicators.unemployment.value.toFixed(1) : '4.3'}%</span>
+            {data.economicIndicators?.unemployment ? (
+              <span className="main-value">{data.economicIndicators.unemployment.value.toFixed(1)}%</span>
+            ) : (
+              <span className="unavailable-text">No Data Available</span>
+            )}
           </span>
         </div>
 
@@ -355,7 +419,119 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
           font-size: 16px;
         }
 
-        /* Rate Limit Warning Styles */
+        /* API Error Warning Styles */
+        .api-error-warning {
+          border-radius: 12px;
+          padding: 16px;
+          margin-bottom: 16px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .api-error-warning.rate-limit {
+          background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
+          border: 1px solid #f59e0b;
+        }
+
+        .api-error-warning.general-error {
+          background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+          border: 1px solid #ef4444;
+        }
+
+        .api-error-warning .warning-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 12px;
+        }
+
+        .api-error-warning .warning-icon {
+          font-size: 18px;
+        }
+
+        .api-error-warning .warning-title {
+          font-weight: 600;
+          font-size: 16px;
+        }
+
+        .api-error-warning.rate-limit .warning-title {
+          color: #92400e;
+        }
+
+        .api-error-warning.general-error .warning-title {
+          color: #991b1b;
+        }
+
+        .api-error-warning .warning-content p {
+          margin: 8px 0;
+          font-size: 14px;
+          line-height: 1.5;
+        }
+
+        .api-error-warning.rate-limit .warning-content p {
+          color: #78350f;
+        }
+
+        .api-error-warning.general-error .warning-content p {
+          color: #7f1d1d;
+        }
+
+        .api-error-warning .warning-message {
+          font-weight: 500;
+          font-size: 15px;
+        }
+
+        .api-error-warning .warning-action {
+          background: rgba(0, 0, 0, 0.05);
+          padding: 8px 12px;
+          border-radius: 8px;
+          border-left: 3px solid;
+        }
+
+        .api-error-warning.rate-limit .warning-action {
+          border-left-color: #f59e0b;
+        }
+
+        .api-error-warning.general-error .warning-action {
+          border-left-color: #ef4444;
+        }
+
+        .api-error-warning .warning-details {
+          margin-top: 12px;
+        }
+
+        .api-error-warning .warning-details summary {
+          cursor: pointer;
+          font-weight: 500;
+          opacity: 0.8;
+        }
+
+        .api-error-warning .warning-technical {
+          margin-top: 8px;
+          font-family: monospace;
+          font-size: 12px;
+          opacity: 0.7;
+          background: rgba(0, 0, 0, 0.05);
+          padding: 8px;
+          border-radius: 4px;
+        }
+
+        /* Error Badge Styles */
+        .error-badge {
+          background: #fecaca;
+          color: #991b1b;
+          font-size: 10px;
+          padding: 2px 6px;
+          border-radius: 12px;
+          font-weight: 500;
+          margin-left: 8px;
+        }
+
+        .indicator-row.api-error {
+          opacity: 0.6;
+          position: relative;
+        }
+
+        /* Rate Limit Warning Styles (Legacy) */
         .rate-limit-warning {
           background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
           border: 1px solid #f59e0b;
