@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direct API Debug Tool</title>
+    <style>
+        body {
+            font-family: 'Consolas', 'Monaco', monospace;
+            margin: 20px;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #00bce5;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .test-section h2 {
+            color: #2962ff;
+            margin-top: 0;
+        }
+        button {
+            background: linear-gradient(135deg, #00bce5 0%, #2962ff 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.2s ease;
+        }
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 188, 229, 0.3);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .log-output {
+            background: #1e1e1e;
+            border: 1px solid #555;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .warning { color: #f59e0b; }
+        .info { color: #3b82f6; }
+        .timestamp { color: #6b7280; }
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-success { background: #10b981; }
+        .status-error { background: #ef4444; }
+        .status-warning { background: #f59e0b; }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Direct API Debug Tool</h1>
+
+        <div class="test-section">
+            <h2>📊 Environment Check</h2>
+            <button onclick="checkEnvironment()">Check Environment Variables</button>
+            <div id="env-output" class="log-output"></div>
+        </div>
+
+        <div class="grid">
+            <div class="test-section">
+                <h2>🌐 CORS Proxy Test</h2>
+                <button onclick="testCorsProxies()">Test All CORS Proxies</button>
+                <div id="cors-output" class="log-output"></div>
+            </div>
+
+            <div class="test-section">
+                <h2>📈 Yahoo Finance Test</h2>
+                <button onclick="testYahooFinance()">Test Yahoo Finance API</button>
+                <div id="yahoo-output" class="log-output"></div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🏛️ FRED API Test</h2>
+            <button onclick="testFredApi()">Test FRED Economic Data</button>
+            <div id="fred-output" class="log-output"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🎯 Full Market Overview Test</h2>
+            <button onclick="testFullMarketOverview()">Test Complete Market Data Fetch</button>
+            <div id="full-output" class="log-output"></div>
+        </div>
+    </div>
+
+    <script>
+        const log = (elementId, message, type = 'info') => {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type;
+            const statusClass = `status-${type}`;
+
+            element.innerHTML += `<span class="timestamp">[${timestamp}]</span> <span class="${statusClass} status-indicator"></span><span class="${className}">${message}</span>\n`;
+            element.scrollTop = element.scrollHeight;
+        };
+
+        const clearLog = (elementId) => {
+            document.getElementById(elementId).innerHTML = '';
+        };
+
+        async function checkEnvironment() {
+            clearLog('env-output');
+            log('env-output', '🔍 Checking environment variables...', 'info');
+
+            const envVars = {
+                NODE_ENV: process?.env?.NODE_ENV || 'unknown',
+                NEXT_PUBLIC_USE_DIRECT_API: process?.env?.NEXT_PUBLIC_USE_DIRECT_API || 'unknown',
+                NEXT_PUBLIC_ALPHA_VANTAGE_API_KEY: process?.env?.NEXT_PUBLIC_ALPHA_VANTAGE_API_KEY ? 'SET' : 'NOT SET',
+                NEXT_PUBLIC_FRED_API_KEY: process?.env?.NEXT_PUBLIC_FRED_API_KEY ? 'SET' : 'NOT SET'
+            };
+
+            for (const [key, value] of Object.entries(envVars)) {
+                const type = value === 'NOT SET' ? 'error' : value === 'unknown' ? 'warning' : 'success';
+                log('env-output', `${key}: ${value}`, type);
+            }
+
+            log('env-output', '🌐 Browser environment check:', 'info');
+            log('env-output', `User Agent: ${navigator.userAgent}`, 'info');
+            log('env-output', `Online: ${navigator.onLine}`, navigator.onLine ? 'success' : 'error');
+            log('env-output', `Language: ${navigator.language}`, 'info');
+            log('env-output', `Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`, 'info');
+        }
+
+        async function testCorsProxies() {
+            clearLog('cors-output');
+            log('cors-output', '🔄 Testing CORS proxies...', 'info');
+
+            const proxies = [
+                { name: 'corsproxy.io', url: 'https://corsproxy.io/?' },
+                { name: 'allorigins.win', url: 'https://api.allorigins.win/raw?url=' },
+                { name: 'thingproxy', url: 'https://thingproxy.freeboard.io/fetch/' },
+                { name: 'cors-anywhere', url: 'https://cors-anywhere.herokuapp.com/' },
+                { name: 'direct', url: '' }
+            ];
+
+            const testUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/^GSPC';
+
+            for (const proxy of proxies) {
+                try {
+                    log('cors-output', `Testing ${proxy.name}...`, 'info');
+                    const startTime = Date.now();
+
+                    const fullUrl = proxy.url ? proxy.url + encodeURIComponent(testUrl) : testUrl;
+
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+                    const response = await fetch(fullUrl, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                        },
+                        signal: controller.signal
+                    });
+
+                    clearTimeout(timeoutId);
+                    const endTime = Date.now();
+                    const duration = endTime - startTime;
+
+                    if (response.ok) {
+                        log('cors-output', `✅ ${proxy.name}: ${response.status} (${duration}ms)`, 'success');
+                    } else {
+                        log('cors-output', `❌ ${proxy.name}: ${response.status} ${response.statusText}`, 'error');
+                    }
+                } catch (error) {
+                    const errorMsg = error.name === 'AbortError' ? 'Timeout' : error.message;
+                    log('cors-output', `❌ ${proxy.name}: ${errorMsg}`, 'error');
+                }
+            }
+        }
+
+        async function testYahooFinance() {
+            clearLog('yahoo-output');
+            log('yahoo-output', '📈 Testing Yahoo Finance API with best proxy...', 'info');
+
+            const symbols = ['^GSPC', '^VIX', '^IXIC', '^DJI', '^TNX'];
+            const proxy = 'https://api.allorigins.win/raw?url=';
+
+            for (const symbol of symbols) {
+                try {
+                    log('yahoo-output', `Fetching ${symbol}...`, 'info');
+                    const startTime = Date.now();
+
+                    const url = proxy + encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`);
+
+                    const response = await fetch(url);
+                    const endTime = Date.now();
+                    const duration = endTime - startTime;
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
+                        log('yahoo-output', `✅ ${symbol}: $${price?.toFixed(2) || 'N/A'} (${duration}ms)`, 'success');
+                    } else {
+                        log('yahoo-output', `❌ ${symbol}: ${response.status} ${response.statusText}`, 'error');
+                    }
+                } catch (error) {
+                    log('yahoo-output', `❌ ${symbol}: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function testFredApi() {
+            clearLog('fred-output');
+            log('fred-output', '🏛️ Testing FRED API...', 'info');
+
+            const apiKey = process?.env?.NEXT_PUBLIC_FRED_API_KEY;
+
+            if (!apiKey || apiKey === 'demo') {
+                log('fred-output', '⚠️ FRED API key not set or using demo key', 'warning');
+                log('fred-output', 'Set NEXT_PUBLIC_FRED_API_KEY in environment variables', 'info');
+                return;
+            }
+
+            const series = [
+                { id: 'CPIAUCSL', name: 'Consumer Price Index' },
+                { id: 'UNRATE', name: 'Unemployment Rate' }
+            ];
+
+            for (const item of series) {
+                try {
+                    log('fred-output', `Fetching ${item.name} (${item.id})...`, 'info');
+                    const startTime = Date.now();
+
+                    const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${item.id}&api_key=${apiKey}&file_type=json&limit=1&sort_order=desc`;
+
+                    const response = await fetch(url);
+                    const endTime = Date.now();
+                    const duration = endTime - startTime;
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const observation = data?.observations?.[0];
+                        const value = observation?.value;
+                        const date = observation?.date;
+
+                        log('fred-output', `✅ ${item.name}: ${value} (${date}) (${duration}ms)`, 'success');
+                    } else {
+                        log('fred-output', `❌ ${item.name}: ${response.status} ${response.statusText}`, 'error');
+                    }
+                } catch (error) {
+                    log('fred-output', `❌ ${item.name}: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function testFullMarketOverview() {
+            clearLog('full-output');
+            log('full-output', '🎯 Testing complete market data fetch...', 'info');
+
+            try {
+                // Import the direct API function dynamically
+                const startTime = Date.now();
+                log('full-output', 'Starting comprehensive market data fetch...', 'info');
+
+                // Note: In a real test, you would import from your actual module
+                log('full-output', '⚠️ This test requires the actual fetchMarketOverviewDirect function', 'warning');
+                log('full-output', 'Use browser developer tools to test the actual API calls', 'info');
+                log('full-output', 'Open Network tab and navigate to the market indicators page', 'info');
+
+                const endTime = Date.now();
+                log('full-output', `Test guidance provided (${endTime - startTime}ms)`, 'success');
+
+            } catch (error) {
+                log('full-output', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run environment check on page load
+        document.addEventListener('DOMContentLoaded', checkEnvironment);
+    </script>
+</body>
+</html>

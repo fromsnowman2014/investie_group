@@ -55,9 +55,11 @@ async function fetchYahooFinanceData(symbol: string): Promise<MarketDataItem> {
   try {
     // Multiple CORS proxy options for better reliability
     const proxies = [
-      'https://api.allorigins.win/raw?url=',
-      'https://api.allorigins.win/raw?url=',  // Try the working proxy twice for better reliability
-      ''  // Direct call as fallback (will likely fail due to CORS)
+      'https://corsproxy.io/?',                    // Fast and reliable
+      'https://api.allorigins.win/raw?url=',       // Backup proxy
+      'https://thingproxy.freeboard.io/fetch/',    // Alternative proxy
+      'https://cors-anywhere.herokuapp.com/',      // Classic proxy (may have rate limits)
+      ''  // Direct call as final fallback (will likely fail due to CORS)
     ];
 
     let lastError: Error | null = null;
@@ -75,7 +77,7 @@ async function fetchYahooFinanceData(symbol: string): Promise<MarketDataItem> {
 
         // Create timeout signal for older browser compatibility
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // Reduced from 10s to 5s
 
         const response = await fetch(url, {
           headers: {
@@ -168,7 +170,7 @@ async function fetchYahooFinanceData(symbol: string): Promise<MarketDataItem> {
           console.error(`❌ Network error - likely CORS or connectivity issue`);
           console.error(`❌ Suggestion: This proxy may be blocked or down`);
         } else if (error instanceof DOMException && error.name === 'AbortError') {
-          console.error(`❌ Request timeout after 10 seconds`);
+          console.error(`❌ Request timeout after 5 seconds`);
           console.error(`❌ Suggestion: Proxy is responding too slowly`);
         } else if (error instanceof ReferenceError) {
           console.error(`❌ AbortSignal.timeout not supported - using older browser`);
@@ -195,6 +197,59 @@ async function fetchYahooFinanceData(symbol: string): Promise<MarketDataItem> {
 
 
 /**
+ * Fetch economic indicators from FRED API (Federal Reserve Economic Data)
+ */
+async function fetchFredData(seriesId: string): Promise<{ value: number; date: string } | null> {
+  const fredApiKey = process.env.NEXT_PUBLIC_FRED_API_KEY;
+
+  if (!fredApiKey || fredApiKey === 'demo') {
+    console.log(`📊 FRED API: Using fallback data for ${seriesId} (no API key)`);
+    return null;
+  }
+
+  try {
+    const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${seriesId}&api_key=${fredApiKey}&file_type=json&limit=1&sort_order=desc`;
+
+    console.log(`📊 FRED API: Fetching ${seriesId} from FRED...`);
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`FRED API error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json() as {
+      observations?: Array<{
+        date: string;
+        value: string;
+      }>;
+    };
+
+    if (!data.observations || data.observations.length === 0) {
+      throw new Error(`No FRED data available for ${seriesId}`);
+    }
+
+    const observation = data.observations[0];
+    const value = parseFloat(observation.value);
+
+    if (isNaN(value)) {
+      throw new Error(`Invalid FRED data value for ${seriesId}: ${observation.value}`);
+    }
+
+    console.log(`✅ FRED API: Successfully fetched ${seriesId}:`, { value, date: observation.date });
+
+    return {
+      value,
+      date: observation.date
+    };
+
+  } catch (error) {
+    console.error(`❌ FRED API: Failed to fetch ${seriesId}:`, error);
+    return null;
+  }
+}
+
+/**
  * Fetch comprehensive market overview data using direct APIs
  */
 export async function fetchMarketOverviewDirect(): Promise<MarketOverviewData> {
@@ -208,15 +263,17 @@ export async function fetchMarketOverviewDirect(): Promise<MarketOverviewData> {
 
   try {
     // Fetch market data and economic indicators in parallel
-    console.log('🔄 Starting parallel fetch for 5 symbols: ^GSPC, ^VIX, ^IXIC, ^DJI, ^TNX');
+    console.log('🔄 Starting parallel fetch for 5 symbols + economic indicators: ^GSPC, ^VIX, ^IXIC, ^DJI, ^TNX, CPI, UNEMPLOYMENT');
     const fetchStartTime = Date.now();
 
-    const [sp500Data, vixData, nasdaqData, dowData, treasuryData] = await Promise.all([
+    const [sp500Data, vixData, nasdaqData, dowData, treasuryData, cpiData, unemploymentData] = await Promise.all([
       fetchYahooFinanceData('^GSPC'), // S&P 500 Index (actual index, not ETF)
       fetchYahooFinanceData('^VIX'),  // VIX Volatility Index
       fetchYahooFinanceData('^IXIC'), // NASDAQ Composite Index (actual index, not ETF)
       fetchYahooFinanceData('^DJI'),  // DOW Jones Industrial Average (actual index, not ETF)
-      fetchYahooFinanceData('^TNX')   // 10 Year Treasury Note
+      fetchYahooFinanceData('^TNX'),  // 10 Year Treasury Note
+      fetchFredData('CPIAUCSL'),      // Consumer Price Index
+      fetchFredData('UNRATE')         // Unemployment Rate
     ]);
 
     const fetchEndTime = Date.now();
@@ -227,7 +284,9 @@ export async function fetchMarketOverviewDirect(): Promise<MarketOverviewData> {
       vix: vixData ? '✅ Success' : '❌ Failed',
       nasdaq: nasdaqData ? '✅ Success' : '❌ Failed',
       dow: dowData ? '✅ Success' : '❌ Failed',
-      treasury: treasuryData ? '✅ Success' : '❌ Failed'
+      treasury: treasuryData ? '✅ Success' : '❌ Failed',
+      cpi: cpiData ? '✅ Success' : '❌ Failed (using fallback)',
+      unemployment: unemploymentData ? '✅ Success' : '❌ Failed (using fallback)'
     });
 
     // Build market overview response
@@ -257,19 +316,33 @@ export async function fetchMarketOverviewDirect(): Promise<MarketOverviewData> {
           trend: treasuryData.change > 0 ? 'rising' : treasuryData.change < 0 ? 'falling' : 'stable',
           source: 'yahoo_finance_^TNX'
         } : null,
-        cpi: {
-          value: 2.40, // Latest CPI data (as of Sept 2024)
+        cpi: cpiData ? {
+          value: cpiData.value,
+          previousValue: cpiData.value, // FRED doesn't provide previous value in single request
+          change: 0, // Would need additional API call to calculate change
+          date: cpiData.date,
+          trend: 'stable', // Would need historical data to determine trend
+          source: 'fred_api_CPIAUCSL'
+        } : {
+          // Fallback data when FRED API is not available
+          value: 2.40,
           previousValue: 2.50,
           change: -0.10,
           date: new Date().toISOString(),
           trend: 'falling',
-          source: 'manual_placeholder_data'
+          source: 'fallback_data'
         },
-        unemployment: {
-          value: 4.0, // Latest unemployment rate (as of Jan 2025)
+        unemployment: unemploymentData ? {
+          value: unemploymentData.value,
+          date: unemploymentData.date,
+          trend: 'stable', // Would need historical data to determine trend
+          source: 'fred_api_UNRATE'
+        } : {
+          // Fallback data when FRED API is not available
+          value: 4.0,
           date: new Date().toISOString(),
           trend: 'stable',
-          source: 'manual_placeholder_data'
+          source: 'fallback_data'
         }
       },
       fearGreedIndex: null,
