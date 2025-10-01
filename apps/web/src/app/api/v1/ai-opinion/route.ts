@@ -49,6 +49,22 @@ interface GoogleAIResponse {
   }>;
 }
 
+interface ClaudeResponse {
+  id: string;
+  type: string;
+  role: string;
+  content: Array<{
+    type: string;
+    text: string;
+  }>;
+  model: string;
+  stop_reason: string;
+  usage: {
+    input_tokens: number;
+    output_tokens: number;
+  };
+}
+
 interface InvestmentOpinionResult {
   success: boolean;
   symbol: string;
@@ -165,6 +181,31 @@ function parseResponse(responseData: GoogleAIResponse): InvestmentOpinionResult 
   }
 }
 
+function parseClaudeResponse(responseData: ClaudeResponse): InvestmentOpinionResult {
+  try {
+    const content = responseData.content[0].text;
+
+    const recommendation = extractRecommendation(content);
+    const confidence = extractConfidence(content);
+    const timeframe = extractTimeframe(content);
+    const keyFactors = extractKeyFactors(content);
+
+    return {
+      success: true,
+      symbol: '',
+      opinion: content.trim(),
+      recommendation,
+      confidence,
+      keyFactors,
+      timeframe,
+      lastUpdated: new Date().toISOString(),
+      source: 'claude-3-5-sonnet'
+    };
+  } catch (err) {
+    throw new Error('Invalid response format from Claude API');
+  }
+}
+
 async function generateInvestmentOpinion(symbol: string): Promise<InvestmentOpinionResult> {
   // Check cache first
   const cached = getCachedResult(symbol);
@@ -175,54 +216,51 @@ async function generateInvestmentOpinion(symbol: string): Promise<InvestmentOpin
 
   console.log(`🚀 Generating fresh AI opinion for ${symbol}`);
   
-  const apiKey = process.env.GOOGLE_AI_API_KEY;
-  const baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
+  const apiKey = process.env.CLAUDE_API_KEY;
+  const baseUrl = 'https://api.anthropic.com/v1/messages';
 
-  console.log(`🔑 API Key status: ${apiKey ? 'Present (length: ' + apiKey.length + ')' : 'Missing'}`);
+  console.log(`🔑 Claude API Key status: ${apiKey ? 'Present (length: ' + apiKey.length + ')' : 'Missing'}`);
 
   if (!apiKey) {
-    console.error('❌ Google AI API key not configured');
-    throw new Error('Google AI API key not configured');
+    console.error('❌ Claude API key not configured');
+    throw new Error('Claude API key not configured');
   }
 
   const prompt = buildComprehensivePrompt(symbol);
   console.log(`📝 Prompt length: ${prompt.length} characters`);
 
-  console.log(`🌐 Making API call to: ${baseUrl}/models/gemini-pro:generateContent`);
+  console.log(`🌐 Making API call to: ${baseUrl}`);
   
   const requestBody = {
-    contents: [{
-      parts: [{ text: prompt }]
-    }],
-    generationConfig: {
-      temperature: 0.3,
-      maxOutputTokens: 500,
-      topP: 0.8,
-      topK: 40
-    }
+    model: 'claude-3-5-sonnet-20241022',
+    max_tokens: 1024,
+    temperature: 0.3,
+    messages: [{
+      role: 'user',
+      content: prompt
+    }]
   };
 
-  const response = await fetch(
-    `${baseUrl}/models/gemini-pro:generateContent?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody)
-    }
-  );
+  const response = await fetch(baseUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify(requestBody)
+  });
 
   console.log(`📡 API Response status: ${response.status} ${response.statusText}`);
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error(`❌ Google AI API error: ${response.status} - ${errorText}`);
-    throw new Error(`Google AI API error: ${response.status} - ${errorText}`);
+    console.error(`❌ Claude API error: ${response.status} - ${errorText}`);
+    throw new Error(`Claude API error: ${response.status} - ${errorText}`);
   }
 
-  const data = await response.json() as GoogleAIResponse;
-  const result = parseResponse(data);
+  const data = await response.json() as ClaudeResponse;
+  const result = parseClaudeResponse(data);
   result.symbol = symbol;
 
   // Cache the result
