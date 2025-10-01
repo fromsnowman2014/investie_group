@@ -42,16 +42,16 @@ const AIOpinionError: React.FC<AIOpinionErrorProps> = ({ message, onRetry }) => 
       <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
         <span className="text-red-600 text-sm font-bold">!</span>
       </div>
-      <h3 className="text-lg font-semibold text-gray-900">AI 분석 오류</h3>
+      <h3 className="text-lg font-semibold text-gray-900">AI Analysis Error</h3>
     </div>
     <p className="text-sm text-gray-600 mb-4">
-      {message || 'AI 투자 의견을 불러오는 중 오류가 발생했습니다.'}
+      {message || 'An error occurred while loading AI investment opinion.'}
     </p>
     <button
       onClick={onRetry}
       className="text-sm text-blue-600 hover:text-blue-800 font-medium"
     >
-      다시 시도
+      Retry
     </button>
   </div>
 );
@@ -81,7 +81,7 @@ export const AIOpinionCard: React.FC<AIOpinionCardProps> = ({
   if (!data?.success || !data?.data) {
     return (
       <AIOpinionError
-        message={data?.data?.error || '데이터를 불러올 수 없습니다.'}
+        message={data?.data?.error || 'Unable to load data.'}
         onRetry={() => mutate()}
       />
     );
@@ -138,22 +138,22 @@ export const AIOpinionCard: React.FC<AIOpinionCardProps> = ({
       <div className="flex items-center justify-between pt-4 border-t border-gray-100">
         <div className="flex items-center gap-4 text-xs text-gray-500">
           <span className="flex items-center gap-1">
-            신뢰도:
+            Confidence:
             <span className={`font-semibold ${getConfidenceColor(opinion.confidence)}`}>
               {opinion.confidence}%
             </span>
           </span>
           {opinion.timeframe && (
-            <span>기간: {opinion.timeframe}</span>
+            <span>Timeframe: {opinion.timeframe}</span>
           )}
         </div>
 
         <button
           onClick={() => mutate()}
           className="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors"
-          title="분석 새로고침"
+          title="Refresh analysis"
         >
-          새로고침
+          Refresh
         </button>
       </div>
 
@@ -161,7 +161,7 @@ export const AIOpinionCard: React.FC<AIOpinionCardProps> = ({
       {opinion.keyFactors && opinion.keyFactors.length > 0 && (
         <details className="mt-4">
           <summary className="text-sm font-medium text-gray-700 cursor-pointer hover:text-gray-900 transition-colors">
-            주요 분석 요인 보기
+            View Key Analysis Factors
           </summary>
           <div className="mt-2 space-y-2">
             {opinion.keyFactors.map((factor, index) => (
@@ -176,7 +176,7 @@ export const AIOpinionCard: React.FC<AIOpinionCardProps> = ({
 
       {/* Timestamp */}
       <div className="mt-3 text-xs text-gray-400">
-        마지막 업데이트: {new Date(opinion.lastUpdated).toLocaleString('ko-KR')}
+        Last updated: {new Date(opinion.lastUpdated).toLocaleString('en-US')}
       </div>
     </div>
   );
