@@ -66,42 +66,42 @@ function buildComprehensivePrompt(symbol: string): string {
   const currentDate = new Date().toISOString().split('T')[0];
 
   return `
-당신은 전문 투자 분석가입니다. ${symbol} 주식에 대한 종합적인 투자 의견을 제공해주세요.
+You are a professional investment analyst. Please provide a comprehensive investment opinion for ${symbol} stock.
 
-## 분석 요청 (${currentDate} 기준)
+## Analysis Request (Based on ${currentDate})
 
-다음 정보들을 최신 데이터를 바탕으로 종합 분석하여 투자 의견을 제시해주세요:
+Please analyze the following information based on the latest data and provide an investment opinion:
 
-### 🧭 매크로(시장 전반) 정보 분석
-- CNN Fear & Greed Index 현재 수치 및 상태
-- VIX (변동성 지수) 현재 수치 및 의미
-- 미국 기준금리 현재 수준 및 전망
-- 미국 CPI (소비자물가지수) 최신 수치 및 트렌드
-- 미국 실업률 최신 수치 및 고용시장 상황
-- S&P500 현재 수준 및 최근 움직임
-- M2 머니서플라이, 역레포 등 미국 유동성 트렌드
+### 🧭 Macro (Market-wide) Information Analysis
+- CNN Fear & Greed Index current value and status
+- VIX (Volatility Index) current level and implications
+- US Federal Funds Rate current level and outlook
+- US CPI (Consumer Price Index) latest figures and trends
+- US Unemployment Rate latest data and employment market conditions
+- S&P500 current level and recent movements
+- US Liquidity trends including M2 Money Supply and Reverse Repo operations
 
-### 🔬 마이크로(개별 종목) 정보 분석 - ${symbol}
-- PER (주가수익비율) 현재 수준 및 업종 대비 평가
-- EPS (주당순이익) 최근 실적 및 성장률
-- RSI (상대강도지수) 현재 수준 및 기술적 분석
-- 이번주 또는 최근 핵심 뉴스 및 이슈
-- 가장 최근 어닝(실적) 발표 결과 분석
-- 실적 발표 예정일 (있을 경우)
-- 배당금액 최근 트렌드 (증가/감소/유지)
-- 회사의 향후 가이던스 (긍정적/부정적 전망)
-- 애널리스트 평균 목표가 및 현재가 대비 업사이드/다운사이드
+### 🔬 Micro (Individual Stock) Information Analysis - ${symbol}
+- P/E Ratio current level and sector comparison
+- EPS (Earnings Per Share) recent performance and growth rate
+- RSI (Relative Strength Index) current level and technical analysis
+- Recent key news and issues this week
+- Most recent earnings announcement results analysis
+- Upcoming earnings announcement dates (if any)
+- Dividend trend (increasing/decreasing/maintaining)
+- Company's forward guidance (positive/negative outlook)
+- Analyst average target price and upside/downside vs current price
 
-## 📋 출력 요구사항
-1. **정확히 10줄 이내**로 작성
-2. 각 줄은 **명확하고 간결**하게 작성
-3. **BUY/HOLD/SELL** 중 명확한 추천 포함
-4. **주요 리스크와 기회요인** 언급
-5. **투자 시간 프레임** 제시 (단기/중기/장기)
-6. **신뢰도 점수** (1-100) 제시
-7. 매크로와 마이크로 요인을 **균형있게 반영**
+## 📋 Output Requirements
+1. Write in **exactly 10 lines or less**
+2. Each line should be **clear and concise**
+3. Include a clear **BUY/HOLD/SELL** recommendation
+4. Mention **key risks and opportunities**
+5. Provide **investment timeframe** (short-term/medium-term/long-term)
+6. Include **confidence score** (1-100)
+7. **Balance macro and micro factors** in the analysis
 
-## 💡 투자 의견 (10줄 이내):
+## 💡 Investment Opinion (10 lines or less):
 `;
 }
 
@@ -113,25 +113,31 @@ function extractRecommendation(content: string): 'BUY' | 'HOLD' | 'SELL' {
 }
 
 function extractConfidence(content: string): number {
-  const confidenceMatch = content.match(/신뢰도[\s:]*(\d+)/i);
+  // Look for confidence score in English
+  const confidenceMatch = content.match(/confidence[\s:]*(\d+)/i);
   return confidenceMatch ? parseInt(confidenceMatch[1]) : 75;
 }
 
 function extractTimeframe(content: string): string {
-  if (content.includes('단기')) return '단기';
-  if (content.includes('장기')) return '장기';
-  if (content.includes('중기')) return '중기';
-  return '중기';
+  if (content.toLowerCase().includes('short-term') || content.toLowerCase().includes('short term')) return 'Short-term';
+  if (content.toLowerCase().includes('long-term') || content.toLowerCase().includes('long term')) return 'Long-term';
+  if (content.toLowerCase().includes('medium-term') || content.toLowerCase().includes('medium term')) return 'Medium-term';
+  return 'Medium-term';
 }
 
 function extractKeyFactors(content: string): string[] {
   const factors: string[] = [];
-  if (content.includes('실적')) factors.push('실적 관련');
-  if (content.includes('금리')) factors.push('금리 환경');
-  if (content.includes('성장')) factors.push('성장성');
-  if (content.includes('밸류에이션') || content.includes('PER')) factors.push('밸류에이션');
-  if (content.includes('기술적')) factors.push('기술적 지표');
-  return factors.length > 0 ? factors : ['종합 분석'];
+  const lowerContent = content.toLowerCase();
+  
+  if (lowerContent.includes('earnings') || lowerContent.includes('eps')) factors.push('Earnings Performance');
+  if (lowerContent.includes('interest rate') || lowerContent.includes('fed rate')) factors.push('Interest Rate Environment');
+  if (lowerContent.includes('growth') || lowerContent.includes('revenue')) factors.push('Growth Prospects');
+  if (lowerContent.includes('valuation') || lowerContent.includes('p/e') || lowerContent.includes('pe ratio')) factors.push('Valuation');
+  if (lowerContent.includes('technical') || lowerContent.includes('rsi')) factors.push('Technical Indicators');
+  if (lowerContent.includes('risk') || lowerContent.includes('volatility')) factors.push('Risk Factors');
+  if (lowerContent.includes('market') || lowerContent.includes('macro')) factors.push('Market Conditions');
+  
+  return factors.length > 0 ? factors : ['Comprehensive Analysis'];
 }
 
 function parseResponse(responseData: GoogleAIResponse): InvestmentOpinionResult {
@@ -172,11 +178,29 @@ async function generateInvestmentOpinion(symbol: string): Promise<InvestmentOpin
   const apiKey = process.env.GOOGLE_AI_API_KEY;
   const baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
 
+  console.log(`🔑 API Key status: ${apiKey ? 'Present (length: ' + apiKey.length + ')' : 'Missing'}`);
+
   if (!apiKey) {
+    console.error('❌ Google AI API key not configured');
     throw new Error('Google AI API key not configured');
   }
 
   const prompt = buildComprehensivePrompt(symbol);
+  console.log(`📝 Prompt length: ${prompt.length} characters`);
+
+  console.log(`🌐 Making API call to: ${baseUrl}/models/gemini-pro:generateContent`);
+  
+  const requestBody = {
+    contents: [{
+      parts: [{ text: prompt }]
+    }],
+    generationConfig: {
+      temperature: 0.3,
+      maxOutputTokens: 500,
+      topP: 0.8,
+      topK: 40
+    }
+  };
 
   const response = await fetch(
     `${baseUrl}/models/gemini-pro:generateContent?key=${apiKey}`,
@@ -185,22 +209,15 @@ async function generateInvestmentOpinion(symbol: string): Promise<InvestmentOpin
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{ text: prompt }]
-        }],
-        generationConfig: {
-          temperature: 0.3,
-          maxOutputTokens: 500,
-          topP: 0.8,
-          topK: 40
-        }
-      })
+      body: JSON.stringify(requestBody)
     }
   );
 
+  console.log(`📡 API Response status: ${response.status} ${response.statusText}`);
+
   if (!response.ok) {
     const errorText = await response.text();
+    console.error(`❌ Google AI API error: ${response.status} - ${errorText}`);
     throw new Error(`Google AI API error: ${response.status} - ${errorText}`);
   }
 
@@ -215,17 +232,17 @@ async function generateInvestmentOpinion(symbol: string): Promise<InvestmentOpin
   return result;
 }
 
-function getFallbackOpinion(symbol: string): InvestmentOpinionResult {
+function getFallbackOpinion(symbol: string, error?: string): InvestmentOpinionResult {
   return {
     success: false,
     symbol,
-    opinion: `${symbol}에 대한 AI 분석을 일시적으로 제공할 수 없습니다. Google AI API 연결을 확인해주세요.`,
+    opinion: `AI analysis for ${symbol} is temporarily unavailable. Please check Google AI API connection and try again.`,
     recommendation: 'HOLD',
     confidence: 0,
-    keyFactors: ['API 오류'],
+    keyFactors: ['API Error'],
     lastUpdated: new Date().toISOString(),
     source: 'fallback',
-    error: 'Google AI API 호출 실패'
+    error: error || 'Google AI API call failed'
   };
 }
 
@@ -249,11 +266,13 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString()
     });
   } catch (err) {
-    console.error('AI Opinion API Error:', err);
+    console.error('❌ AI Opinion API Error:', err);
 
     // Fallback response
-    const symbol = (await request.json()).symbol || 'UNKNOWN';
-    const fallback = getFallbackOpinion(symbol);
+    const body = await request.json();
+    const symbol = body?.symbol || 'UNKNOWN';
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    const fallback = getFallbackOpinion(symbol, errorMessage);
 
     return NextResponse.json({
       success: false,
@@ -283,9 +302,10 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString()
     });
   } catch (err) {
-    console.error('AI Opinion API Error:', err);
+    console.error('❌ AI Opinion GET API Error:', err);
 
-    const fallback = getFallbackOpinion(symbol);
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    const fallback = getFallbackOpinion(symbol, errorMessage);
 
     return NextResponse.json({
       success: false,
