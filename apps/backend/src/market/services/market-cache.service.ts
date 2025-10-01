@@ -29,7 +29,7 @@ export interface MarketIntelligenceCache {
 @Injectable()
 export class MarketCacheService {
   private readonly logger = new Logger(MarketCacheService.name);
-  
+
   constructor(private readonly supabaseService: SupabaseService) {}
 
   /**
@@ -45,7 +45,7 @@ export class MarketCacheService {
   }): Promise<void> {
     try {
       const supabase = this.supabaseService.getClient();
-      
+
       const cacheEntry: CacheEntry = {
         data_type: cacheData.dataType,
         data_payload: cacheData.dataPayload,
@@ -53,14 +53,16 @@ export class MarketCacheService {
         cache_timestamp: new Date().toISOString(),
         expiry_timestamp: cacheData.expiryTimestamp.toISOString(),
         api_source: cacheData.apiSource,
-        data_quality_score: cacheData.dataQualityScore || this.calculateDataQualityScore(cacheData.dataPayload),
-        updated_at: new Date().toISOString()
+        data_quality_score:
+          cacheData.dataQualityScore ||
+          this.calculateDataQualityScore(cacheData.dataPayload),
+        updated_at: new Date().toISOString(),
       };
 
       const { error } = await supabase
         .from('market_data_cache')
         .upsert(cacheEntry, {
-          onConflict: 'data_type,market_session'
+          onConflict: 'data_type,market_session',
         });
 
       if (error) {
@@ -68,7 +70,9 @@ export class MarketCacheService {
         throw new Error(`Supabase cache error: ${error.message}`);
       }
 
-      this.logger.log(`Successfully cached ${cacheData.dataType} data for ${cacheData.marketSession}`);
+      this.logger.log(
+        `Successfully cached ${cacheData.dataType} data for ${cacheData.marketSession}`,
+      );
     } catch (error) {
       this.logger.error('Error caching market data:', error.message);
       throw error;
@@ -78,10 +82,13 @@ export class MarketCacheService {
   /**
    * Retrieve cached market data
    */
-  async getCachedMarketData(dataType: string, marketSession?: string): Promise<any> {
+  async getCachedMarketData(
+    dataType: string,
+    marketSession?: string,
+  ): Promise<any> {
     try {
       const supabase = this.supabaseService.getClient();
-      
+
       let query = supabase
         .from('market_data_cache')
         .select('*')
@@ -99,7 +106,8 @@ export class MarketCacheService {
       const { data, error } = await query.single();
 
       if (error) {
-        if (error.code === 'PGRST116') { // No rows found
+        if (error.code === 'PGRST116') {
+          // No rows found
           return null;
         }
         throw error;
@@ -112,7 +120,7 @@ export class MarketCacheService {
 
       this.logger.log(`Cache hit for ${dataType}`);
       await this.logCacheHit(dataType);
-      
+
       return data.data_payload;
     } catch (error) {
       this.logger.warn(`Cache miss for ${dataType}:`, error.message);
@@ -135,7 +143,7 @@ export class MarketCacheService {
   }): Promise<void> {
     try {
       const supabase = this.supabaseService.getClient();
-      
+
       const intelligenceEntry: MarketIntelligenceCache = {
         market_date: intelligenceData.marketDate,
         session_type: intelligenceData.sessionType,
@@ -144,21 +152,26 @@ export class MarketCacheService {
         confidence_score: intelligenceData.confidenceScore,
         data_sources: intelligenceData.dataSources,
         generation_duration_ms: intelligenceData.generationDuration,
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
       };
 
       const { error } = await supabase
         .from('market_intelligence_cache')
         .upsert(intelligenceEntry, {
-          onConflict: 'market_date,session_type'
+          onConflict: 'market_date,session_type',
         });
 
       if (error) {
-        this.logger.error('Failed to cache market intelligence:', error.message);
+        this.logger.error(
+          'Failed to cache market intelligence:',
+          error.message,
+        );
         throw new Error(`Intelligence cache error: ${error.message}`);
       }
 
-      this.logger.log(`Successfully cached market intelligence for ${intelligenceData.marketDate} ${intelligenceData.sessionType}`);
+      this.logger.log(
+        `Successfully cached market intelligence for ${intelligenceData.marketDate} ${intelligenceData.sessionType}`,
+      );
     } catch (error) {
       this.logger.error('Error caching market intelligence:', error.message);
       throw error;
@@ -172,7 +185,7 @@ export class MarketCacheService {
     try {
       const supabase = this.supabaseService.getClient();
       const targetDate = marketDate || new Date().toISOString().split('T')[0];
-      
+
       const { data, error } = await supabase
         .from('market_intelligence_cache')
         .select('*')
@@ -182,7 +195,8 @@ export class MarketCacheService {
         .single();
 
       if (error) {
-        if (error.code === 'PGRST116') { // No rows found
+        if (error.code === 'PGRST116') {
+          // No rows found
           return null;
         }
         throw error;
@@ -194,10 +208,13 @@ export class MarketCacheService {
         aiInsights: data.ai_insights,
         confidenceScore: data.confidence_score,
         cacheTimestamp: data.created_at,
-        dataSources: data.data_sources
+        dataSources: data.data_sources,
       };
     } catch (error) {
-      this.logger.warn(`No cached intelligence found for ${marketDate}:`, error.message);
+      this.logger.warn(
+        `No cached intelligence found for ${marketDate}:`,
+        error.message,
+      );
       return null;
     }
   }
@@ -209,7 +226,7 @@ export class MarketCacheService {
     try {
       const supabase = this.supabaseService.getClient();
       const now = new Date().toISOString();
-      
+
       const { data, error } = await supabase
         .from('market_data_cache')
         .delete()
@@ -241,7 +258,7 @@ export class MarketCacheService {
   }> {
     try {
       const supabase = this.supabaseService.getClient();
-      
+
       // Get total cache entries
       const { count: totalEntries } = await supabase
         .from('market_data_cache')
@@ -259,7 +276,9 @@ export class MarketCacheService {
         .select('data_type')
         .limit(100);
 
-      const uniqueDataTypes = [...new Set(dataTypesData?.map(row => row.data_type) || [])];
+      const uniqueDataTypes = [
+        ...new Set(dataTypesData?.map((row) => row.data_type) || []),
+      ];
       const dataTypes = uniqueDataTypes;
 
       // Calculate hit rate from API usage logs
@@ -269,7 +288,7 @@ export class MarketCacheService {
         totalEntries: totalEntries || 0,
         hitRate,
         expiredEntries: expiredEntries || 0,
-        dataTypes
+        dataTypes,
       };
     } catch (error) {
       this.logger.error('Error getting cache stats:', error.message);
@@ -277,7 +296,7 @@ export class MarketCacheService {
         totalEntries: 0,
         hitRate: 0,
         expiredEntries: 0,
-        dataTypes: []
+        dataTypes: [],
       };
     }
   }
@@ -287,22 +306,26 @@ export class MarketCacheService {
    */
   isUpdateRequired(): boolean {
     const now = new Date();
-    const easternTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+    const easternTime = new Date(
+      now.toLocaleString('en-US', { timeZone: 'America/New_York' }),
+    );
     const currentHour = easternTime.getHours();
     const currentMinute = easternTime.getMinutes();
     const dayOfWeek = easternTime.getDay();
-    
+
     // Only update during weekdays
     if (dayOfWeek < 1 || dayOfWeek > 5) {
       return false;
     }
-    
+
     // Check if we're near market open (9:30 AM ET) or close (4:00 PM ET)
-    const isNearMarketOpen = (currentHour === 9 && currentMinute >= 25) || 
-                            (currentHour === 10 && currentMinute <= 5);
-    const isNearMarketClose = (currentHour === 15 && currentMinute >= 55) || 
-                             (currentHour === 16 && currentMinute <= 10);
-    
+    const isNearMarketOpen =
+      (currentHour === 9 && currentMinute >= 25) ||
+      (currentHour === 10 && currentMinute <= 5);
+    const isNearMarketClose =
+      (currentHour === 15 && currentMinute >= 55) ||
+      (currentHour === 16 && currentMinute <= 10);
+
     return isNearMarketOpen || isNearMarketClose;
   }
 
@@ -311,10 +334,12 @@ export class MarketCacheService {
    */
   getCurrentMarketSession(): 'market_open' | 'market_close' | 'after_hours' {
     const now = new Date();
-    const easternTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+    const easternTime = new Date(
+      now.toLocaleString('en-US', { timeZone: 'America/New_York' }),
+    );
     const currentHour = easternTime.getHours();
     const currentMinute = easternTime.getMinutes();
-    
+
     if (currentHour < 12) {
       return 'market_open';
     } else if (currentHour < 17) {
@@ -335,20 +360,20 @@ export class MarketCacheService {
 
   private calculateDataQualityScore(data: any): number {
     if (!data) return 0;
-    
+
     let score = 50; // Base score
-    
+
     // Check for presence of key data fields
     if (typeof data === 'object') {
       const keys = Object.keys(data);
       score += Math.min(keys.length * 5, 30); // Up to 30 points for data completeness
-      
+
       // Check for null/undefined values
-      const validValues = keys.filter(key => data[key] != null).length;
+      const validValues = keys.filter((key) => data[key] != null).length;
       const completenessRatio = validValues / keys.length;
       score += completenessRatio * 20; // Up to 20 points for data completeness
     }
-    
+
     return Math.min(100, Math.max(0, score));
   }
 
@@ -361,7 +386,7 @@ export class MarketCacheService {
         cache_hit: true,
         cost_estimate: 0,
         user_trigger: true,
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
       });
     } catch (error) {
       // Don't let logging errors affect main functionality
@@ -378,7 +403,7 @@ export class MarketCacheService {
         cache_hit: false,
         cost_estimate: 0.02, // Estimated cost per API call
         user_trigger: true,
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
       });
     } catch (error) {
       // Don't let logging errors affect main functionality
@@ -391,15 +416,15 @@ export class MarketCacheService {
       const supabase = this.supabaseService.getClient();
       const oneDayAgo = new Date();
       oneDayAgo.setDate(oneDayAgo.getDate() - 1);
-      
+
       const { data } = await supabase
         .from('api_usage_log')
         .select('cache_hit')
         .gte('created_at', oneDayAgo.toISOString());
-      
+
       if (!data || data.length === 0) return 0;
-      
-      const hits = data.filter(log => log.cache_hit).length;
+
+      const hits = data.filter((log) => log.cache_hit).length;
       return (hits / data.length) * 100;
     } catch (error) {
       this.logger.warn('Failed to calculate hit rate:', error.message);

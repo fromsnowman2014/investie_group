@@ -30,5 +30,7 @@ export interface AlphaVantageOverview {
 export interface IStockDataService {
   getStockData(symbol: StockSymbol): Promise<StockPriceData>;
   getAlphaVantageQuote(symbol: StockSymbol): Promise<AlphaVantageQuote | null>;
-  getAlphaVantageOverview(symbol: StockSymbol): Promise<AlphaVantageOverview | null>;
+  getAlphaVantageOverview(
+    symbol: StockSymbol,
+  ): Promise<AlphaVantageOverview | null>;
 }

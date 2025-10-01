@@ -15,6 +15,9 @@ export interface CachedStockData {
 
 export interface IStockCacheService {
   loadStockDataFromCache(symbol: StockSymbol): Promise<CachedStockData | null>;
-  storeStockDataInCache(symbol: StockSymbol, data: StockPriceData): Promise<void>;
+  storeStockDataInCache(
+    symbol: StockSymbol,
+    data: StockPriceData,
+  ): Promise<void>;
   isDataFresh(updatedAt: string): boolean;
 }

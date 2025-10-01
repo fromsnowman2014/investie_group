@@ -7,12 +7,14 @@ export interface IStockTransformService {
     aiEvaluation: any,
     technicals: any,
     newsSummary: any,
-    symbol: StockSymbol
+    symbol: StockSymbol,
   ): StockCardData;
-  
+
   getCompanyName(symbol: StockSymbol): string;
   getSectorName(symbol: StockSymbol): string;
-  extractSentimentFromOverview(overview: any): 'positive' | 'neutral' | 'negative';
+  extractSentimentFromOverview(
+    overview: any,
+  ): 'positive' | 'neutral' | 'negative';
   parseMarketCap(marketCapString: string): number;
   calculateChange(price: number, changePercent: number): number;
 }

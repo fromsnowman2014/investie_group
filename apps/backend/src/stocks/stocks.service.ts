@@ -45,10 +45,14 @@ export class StocksService {
 
     try {
       // Check cache first
-      const cachedData = await this.stockCacheService.loadStockDataFromCache(symbol);
+      const cachedData =
+        await this.stockCacheService.loadStockDataFromCache(symbol);
       let stockData;
-      
-      if (cachedData && this.stockCacheService.isDataFresh(cachedData.updated_at)) {
+
+      if (
+        cachedData &&
+        this.stockCacheService.isDataFresh(cachedData.updated_at)
+      ) {
         this.logger.log(`Using cached stock data for ${symbol}`);
         stockData = {
           price: cachedData.current_price,
@@ -57,7 +61,9 @@ export class StocksService {
             cachedData.change_percent,
           ),
           changePercent: cachedData.change_percent,
-          marketCap: cachedData.market_cap ? parseInt(cachedData.market_cap) : undefined,
+          marketCap: cachedData.market_cap
+            ? parseInt(cachedData.market_cap)
+            : undefined,
           volume: cachedData.volume ? parseInt(cachedData.volume) : undefined,
           pe: cachedData.pe_ratio,
           source: cachedData.source,
@@ -65,7 +71,7 @@ export class StocksService {
       } else {
         // Fetch fresh data
         stockData = await this.stockDataService.getStockData(symbol);
-        
+
         // Cache the fresh data
         if (stockData.source !== 'mock_data') {
           await this.stockCacheService.storeStockDataInCache(symbol, stockData);
@@ -93,9 +99,10 @@ export class StocksService {
           ? {
               headline:
                 newsData.value.overview?.overview || 'No news available',
-              sentiment: this.stockTransformService.extractSentimentFromOverview(
-                newsData.value.overview,
-              ),
+              sentiment:
+                this.stockTransformService.extractSentimentFromOverview(
+                  newsData.value.overview,
+                ),
               source: newsData.value.overview?.source || 'fallback_data',
             }
           : this.getMockNewsSummary(symbol);
@@ -122,7 +129,7 @@ export class StocksService {
     if (!this.stockValidationService.validateSymbol(symbol)) {
       throw new Error(`Invalid stock symbol: ${symbol}`);
     }
-    
+
     return this.getMockChartData(symbol, period);
   }
 
@@ -157,8 +164,8 @@ export class StocksService {
     symbols: StockSymbol[],
   ): Promise<Record<string, StockCardData | null>> {
     try {
-      const validSymbols = symbols.filter(symbol => 
-        this.stockValidationService.validateSymbol(symbol)
+      const validSymbols = symbols.filter((symbol) =>
+        this.stockValidationService.validateSymbol(symbol),
       );
 
       const stockPromises = validSymbols.map(async (symbol) => {

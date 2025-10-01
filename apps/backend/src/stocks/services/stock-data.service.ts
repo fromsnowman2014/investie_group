@@ -25,7 +25,7 @@ export class StockDataService implements IStockDataService {
       const alphaVantageApiKey = process.env.ALPHA_VANTAGE_API_KEY;
       if (!alphaVantageApiKey) {
         this.logger.warn(
-          'Alpha Vantage API key not configured, using mock data'
+          'Alpha Vantage API key not configured, using mock data',
         );
         return this.getMockStockData(symbol);
       }
@@ -35,14 +35,18 @@ export class StockDataService implements IStockDataService {
         this.getAlphaVantageOverview(symbol),
       ]);
 
-      const quote = realTimeData.status === 'fulfilled' ? realTimeData.value : null;
-      const overview = overviewData.status === 'fulfilled' ? overviewData.value : null;
+      const quote =
+        realTimeData.status === 'fulfilled' ? realTimeData.value : null;
+      const overview =
+        overviewData.status === 'fulfilled' ? overviewData.value : null;
 
       if (quote && overview) {
         const stockData: StockPriceData = {
           price: parseFloat(quote['05. price']),
           change: parseFloat(quote['09. change']),
-          changePercent: parseFloat(quote['10. change percent'].replace('%', '')),
+          changePercent: parseFloat(
+            quote['10. change percent'].replace('%', ''),
+          ),
           marketCap: this.parseMarketCap(overview.MarketCapitalization),
           volume: parseInt(quote['06. volume']),
           pe: parseFloat(overview.PERatio) || undefined,
@@ -52,25 +56,27 @@ export class StockDataService implements IStockDataService {
         };
 
         this.logger.log(
-          `Fetched fresh stock data for ${symbol} from Alpha Vantage`
+          `Fetched fresh stock data for ${symbol} from Alpha Vantage`,
         );
         return stockData;
       }
 
       this.logger.warn(
-        `Alpha Vantage API failed for ${symbol}, using mock data`
+        `Alpha Vantage API failed for ${symbol}, using mock data`,
       );
       return this.getMockStockData(symbol);
     } catch (error) {
       this.logger.error(
         `Error fetching stock data for ${symbol}:`,
-        error.message
+        error.message,
       );
       return this.getMockStockData(symbol);
     }
   }
 
-  async getAlphaVantageQuote(symbol: StockSymbol): Promise<AlphaVantageQuote | null> {
+  async getAlphaVantageQuote(
+    symbol: StockSymbol,
+  ): Promise<AlphaVantageQuote | null> {
     try {
       const response = await axios.get(this.alphaVantageBaseUrl, {
         params: {
@@ -91,13 +97,15 @@ export class StockDataService implements IStockDataService {
     } catch (error) {
       this.logger.error(
         `Alpha Vantage quote API error for ${symbol}:`,
-        error.message
+        error.message,
       );
       return null;
     }
   }
 
-  async getAlphaVantageOverview(symbol: StockSymbol): Promise<AlphaVantageOverview | null> {
+  async getAlphaVantageOverview(
+    symbol: StockSymbol,
+  ): Promise<AlphaVantageOverview | null> {
     try {
       const response = await axios.get(this.alphaVantageBaseUrl, {
         params: {
@@ -118,7 +126,7 @@ export class StockDataService implements IStockDataService {
     } catch (error) {
       this.logger.error(
         `Alpha Vantage overview API error for ${symbol}:`,
-        error.message
+        error.message,
       );
       return null;
     }

@@ -126,34 +126,31 @@ const fetcher = async (): Promise<EnhancedMarketSummary> => {
 
 const EnhancedMacroIndicatorsDashboard: React.FC = () => {
 
-
-  // Simplified refresh interval
-  const getRefreshInterval = () => {
-    const now = new Date();
-    const easternTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
-    const dayOfWeek = easternTime.getDay();
-    const hour = easternTime.getHours();
-    
-    // Weekend
-    if (dayOfWeek === 0 || dayOfWeek === 6) return 300000;
-    // Market hours (9-16)
-    if (hour >= 9 && hour <= 16) return 60000;
-    // Off hours
-    return 180000;
-  };
-  
-  const { data, error, isLoading } = useSWR<EnhancedMarketSummary>(
+  const { data, error, isLoading, mutate } = useSWR<EnhancedMarketSummary>(
     'market-overview',
     fetcher,
     {
-      refreshInterval: getRefreshInterval(),
-      revalidateOnFocus: true,
-      revalidateOnReconnect: true,
-      errorRetryCount: 2,
-      errorRetryInterval: 3000,
-      dedupingInterval: 5000,
+      // Disable automatic refresh to prevent API overload
+      refreshInterval: 0, // No automatic refresh
+      revalidateOnFocus: false, // Don't refresh when tab gains focus
+      revalidateOnReconnect: false, // Don't refresh on network reconnect
+      errorRetryCount: 1, // Reduce retry attempts
+      errorRetryInterval: 5000, // Increase retry interval
+      dedupingInterval: 30000, // Cache for 30 seconds to prevent duplicate requests
+      revalidateIfStale: false, // Don't auto-refresh stale data
+      revalidateOnMount: true, // Only fetch on initial mount
     }
   );
+
+  // Manual refresh function
+  const handleManualRefresh = async () => {
+    console.log('🔄 Manual refresh triggered by user');
+    try {
+      await mutate(); // This will trigger a fresh fetch
+    } catch (error) {
+      console.error('❌ Manual refresh failed:', error);
+    }
+  };
 
   // Note: API URL configuration error handling removed as we now auto-detect the URL
 
@@ -240,6 +237,20 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
 
   return (
     <div className="enhanced-macro-dashboard">
+      {/* Dashboard Header with Manual Refresh */}
+      <div className="dashboard-header">
+        <h3 className="dashboard-title">📊 Macro Market Indicators</h3>
+        <button
+          className="refresh-button"
+          onClick={handleManualRefresh}
+          disabled={isLoading}
+          title="Refresh market data"
+        >
+          <span className="refresh-icon">🔄</span>
+          <span className="refresh-text">Refresh</span>
+        </button>
+      </div>
+
       {/* API Error Warning */}
       {data.apiError?.isError && (
         <div className={`api-error-warning ${data.apiError.isRateLimit ? 'rate-limit' : 'general-error'}`}>
@@ -385,6 +396,68 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
           background: #fafbfc;
           border-radius: 12px;
           border: 1px solid #e4e7eb;
+        }
+
+        /* Dashboard Header Styles */
+        .dashboard-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 16px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid #e5e7eb;
+        }
+
+        .dashboard-title {
+          font-size: 18px;
+          font-weight: 700;
+          color: #1e293b;
+          margin: 0;
+        }
+
+        .refresh-button {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          background: linear-gradient(135deg, #00bce5 0%, #2962ff 100%);
+          color: white;
+          border: none;
+          border-radius: 8px;
+          padding: 8px 16px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          box-shadow: 0 2px 4px rgba(0, 188, 229, 0.2);
+        }
+
+        .refresh-button:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 8px rgba(0, 188, 229, 0.3);
+        }
+
+        .refresh-button:active:not(:disabled) {
+          transform: translateY(0);
+        }
+
+        .refresh-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
+          box-shadow: 0 2px 4px rgba(0, 188, 229, 0.1);
+        }
+
+        .refresh-icon {
+          font-size: 14px;
+          transition: transform 0.2s ease;
+        }
+
+        .refresh-button:hover:not(:disabled) .refresh-icon {
+          transform: rotate(180deg);
+        }
+
+        .refresh-text {
+          font-size: 13px;
         }
 
         .enhanced-macro-dashboard.loading,
@@ -770,6 +843,24 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
         @media (max-width: 768px) {
           .enhanced-macro-dashboard {
             padding: 12px;
+          }
+
+          .dashboard-header {
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+          }
+
+          .dashboard-title {
+            font-size: 16px;
+          }
+
+          .refresh-button {
+            padding: 6px 12px;
+            font-size: 12px;
+          }
+
+          .refresh-text {
+            font-size: 11px;
           }
 
           .dashboard-grid-compact {
