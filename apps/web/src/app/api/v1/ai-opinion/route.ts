@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export const runtime = 'edge';
+// Changed from 'edge' to 'nodejs' to access CLAUDE_API_KEY environment variable
+// Edge Runtime has restrictions on accessing server-side environment variables
+export const runtime = 'nodejs';
 
 // Simple in-memory cache for Edge Runtime
 interface CacheEntry {
