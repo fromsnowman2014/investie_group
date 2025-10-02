@@ -33,6 +33,7 @@ out/
 .env.production.local
 .env.production
 
+
 # IDE and editor files
 .vscode/
 .idea/
