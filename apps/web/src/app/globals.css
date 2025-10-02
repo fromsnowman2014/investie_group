@@ -153,9 +153,9 @@ body {
   padding: var(--spacing-md);          /* 24px → 16px */
   gap: var(--spacing-lg);              /* 32px → 24px */
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto;       /* 600px → auto */
-  align-items: start;                  /* Align to top */
-  grid-template-areas: 
+  grid-template-rows: minmax(auto, max-content) auto;  /* First row stretches to tallest item */
+  align-items: stretch;                /* Stretch items to match tallest in row */
+  grid-template-areas:
     "ai-analysis market-intelligence"
     "chart-analysis chart-analysis";
 }
@@ -187,12 +187,12 @@ body {
   padding: var(--spacing-md);          /* Add consistent padding */
 }
 
-/* Equal height for top sections */
+/* Dynamic height for top sections - stretch to match tallest */
 .ai-analysis-section,
 .market-intelligence-section {
-  min-height: 400px;                   /* 600px → 400px */
   height: auto;                        /* Allow dynamic height */
   max-height: none;                    /* Remove height restrictions */
+  min-height: min-content;             /* Minimum height based on content */
 }
 
 .ai-analysis-section:hover,
@@ -224,7 +224,7 @@ body {
   padding: var(--spacing-md);          /* 32px → 16px */
   overflow: auto;
   background: #ffffff;
-  max-height: 500px;                   /* Smart scrolling limit */
+  max-height: none;                    /* Remove height limit - let content flow naturally */
   scrollbar-width: thin;
   scrollbar-color: var(--color-border) transparent;
 }
@@ -728,43 +728,43 @@ body {
   .content-grid {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto;
-    grid-template-areas: 
+    grid-template-areas:
       "ai-analysis"
-      "market-intelligence" 
+      "market-intelligence"
       "chart-analysis";
     gap: var(--spacing-md);
     padding: var(--spacing-sm);
   }
-  
+
   .ai-analysis-section,
   .market-intelligence-section {
-    min-height: 300px;                 /* Drastically reduced from 500px */
+    min-height: min-content;           /* Content-based height */
     padding: var(--spacing-sm);
   }
-  
+
   .section-header {
     padding: var(--spacing-xs) var(--spacing-sm);
   }
-  
+
   .section-header h2 {
     font-size: var(--font-size-lg);    /* 16px on mobile */
   }
-  
+
   .section-content {
     padding: var(--spacing-sm);
-    max-height: 250px;                 /* Tighter scrolling */
+    max-height: none;                  /* Allow full content display */
   }
-  
+
   .financial-data {
     font-size: var(--font-size-base);  /* 14px on mobile */
     line-height: var(--line-height-tight); /* 1.3 for compactness */
   }
-  
+
   /* Hide supplementary data on mobile */
   .data-priority-supplementary {
     display: none;
   }
-  
+
   .data-row {
     min-height: 24px;                  /* Tighter rows */
     padding: 2px 0;
@@ -778,17 +778,17 @@ body {
     padding: var(--spacing-md);
     gap: var(--spacing-lg);
   }
-  
+
   .ai-analysis-section,
   .market-intelligence-section {
-    min-height: 350px;
+    min-height: min-content;           /* Content-based height */
     padding: var(--spacing-md);
   }
-  
+
   .section-content {
-    max-height: 400px;
+    max-height: none;                  /* Allow full content display */
   }
-  
+
   .data-priority-important {
     display: block;
   }
@@ -798,13 +798,13 @@ body {
 @media (min-width: 1024px) {
   .ai-analysis-section,
   .market-intelligence-section {
-    min-height: 400px;
+    min-height: min-content;           /* Content-based height */
   }
-  
+
   .section-content {
-    max-height: 500px;
+    max-height: none;                  /* Allow full content display */
   }
-  
+
   .data-priority-supplementary {
     display: block;
     opacity: 0.8;
@@ -1109,7 +1109,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
-  height: 100%;
+  height: auto;
+  min-height: min-content;
 }
 
 .profile-header {

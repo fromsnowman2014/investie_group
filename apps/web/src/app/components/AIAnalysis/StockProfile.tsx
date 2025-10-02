@@ -191,7 +191,7 @@ export default function StockProfile({ symbol }: StockProfileProps) {
 
         {aiError && (
           <p className="text-sm text-red-600">
-            ⚠️ AI 분석을 불러올 수 없습니다.
+            ⚠️ Unable to load AI analysis.
           </p>
         )}
 
@@ -211,7 +211,7 @@ export default function StockProfile({ symbol }: StockProfileProps) {
         )}
 
         {!aiAnalysis && !aiLoading && !aiError && (
-          <p className="text-sm text-gray-500">AI 분석 생성 중...</p>
+          <p className="text-sm text-gray-500">Generating AI analysis...</p>
         )}
       </div>
 

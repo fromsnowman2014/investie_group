@@ -237,7 +237,6 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
     <div className="enhanced-macro-dashboard">
       {/* Dashboard Header with Manual Refresh */}
       <div className="dashboard-header">
-        <h3 className="dashboard-title">📊 Macro Market Indicators</h3>
         <button
           className="refresh-button"
           onClick={handleManualRefresh}
@@ -399,7 +398,7 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
         /* Dashboard Header Styles */
         .dashboard-header {
           display: flex;
-          justify-content: space-between;
+          justify-content: flex-end;
           align-items: center;
           margin-bottom: 16px;
           padding-bottom: 12px;
