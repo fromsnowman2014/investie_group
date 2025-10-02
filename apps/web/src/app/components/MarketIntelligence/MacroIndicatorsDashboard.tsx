@@ -183,11 +183,8 @@ export default function MacroIndicatorsDashboard({ }: MacroIndicatorsDashboardPr
     <div className="macro-dashboard">
       {/* Header with Market Sentiment and Status */}
       <div className="macro-header">
-        <h3 className="macro-title">
-          📊 Market Overview
-        </h3>
-        <div className="header-right">
-          <div 
+        <div className="header-left">
+          <div
             className="market-sentiment-badge"
             style={{ backgroundColor: getSentimentColor(data.marketSentiment) }}
           >
@@ -198,6 +195,13 @@ export default function MacroIndicatorsDashboard({ }: MacroIndicatorsDashboardPr
             {isMarketOpen ? '🟢 Open' : '🔴 Closed'}
           </div>
         </div>
+        <button
+          onClick={() => mutate()}
+          className="refresh-button"
+          title="Refresh"
+        >
+          ↻
+        </button>
       </div>
 
       <div className="macro-content">
@@ -308,22 +312,32 @@ export default function MacroIndicatorsDashboard({ }: MacroIndicatorsDashboardPr
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 20px;
-          padding-bottom: 12px;
-          border-bottom: 1px solid #f1f5f9;
+          margin-bottom: 16px;
         }
 
-        .macro-title {
-          font-size: 18px;
-          font-weight: 600;
-          color: #1e293b;
-          margin: 0;
-        }
-
-        .header-right {
+        .header-left {
           display: flex;
           align-items: center;
           gap: 12px;
+        }
+
+        .refresh-button {
+          background: transparent;
+          border: none;
+          color: #64748b;
+          font-size: 14px;
+          cursor: pointer;
+          padding: 4px 8px;
+          border-radius: 4px;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .refresh-button:hover {
+          color: #475569;
+          background: #f1f5f9;
         }
 
         .market-sentiment-badge {
@@ -370,13 +384,6 @@ export default function MacroIndicatorsDashboard({ }: MacroIndicatorsDashboardPr
           display: flex;
           flex-direction: column;
           gap: 20px;
-        }
-
-        .section-title {
-          font-size: 14px;
-          font-weight: 600;
-          color: #374151;
-          margin-bottom: 12px;
         }
 
         .indices-compact {
@@ -634,14 +641,13 @@ export default function MacroIndicatorsDashboard({ }: MacroIndicatorsDashboardPr
         /* Responsive design */
         @media (max-width: 768px) {
           .macro-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
           }
 
-          .header-right {
-            align-self: stretch;
-            justify-content: space-between;
+          .header-left {
+            flex: 1;
+            flex-wrap: wrap;
           }
 
           .indices-compact {

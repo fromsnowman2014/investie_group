@@ -2,7 +2,7 @@
 
 import React from 'react';
 import useSWR from 'swr';
-import { apiFetch } from '@/lib/api-utils';
+import { apiFetch, fetchCompanyAnalysis } from '@/lib/api-utils';
 import FinancialExpandableSection from '../FinancialExpandableSection';
 
 interface StockProfileData {
@@ -21,6 +21,12 @@ interface StockProfileData {
   website: string;
 }
 
+interface AICompanyAnalysis {
+  symbol: string;
+  analysis: string[];
+  timestamp: string;
+}
+
 interface StockProfileProps {
   symbol: string;
 }
@@ -31,12 +37,41 @@ const fetcher = async (url: string) => {
   return data;
 };
 
+const ANALYSIS_ICONS = ['🏢', '💰', '🎯', '⚠️', '💵'];
+
 export default function StockProfile({ symbol }: StockProfileProps) {
+  // Fetch basic profile data
   const { data, error, isLoading } = useSWR<StockProfileData>(
     symbol ? `/api/v1/dashboard/${symbol}/profile` : null,
     fetcher,
     { refreshInterval: 300000 } // 5 minutes
   );
+
+  // Fetch AI company analysis
+  const {
+    data: aiAnalysisResponse,
+    error: aiError,
+    isLoading: aiLoading
+  } = useSWR<{ success: boolean; data: AICompanyAnalysis }>(
+    symbol && data ? `ai-company-${symbol}` : null,
+    () => {
+      const companyData = data ? {
+        companyName: data.companyName,
+        sector: data.sector,
+        industry: data.industry,
+        marketCap: data.marketCap,
+        employees: data.employees
+      } : undefined;
+      return fetchCompanyAnalysis(symbol, companyData);
+    },
+    {
+      refreshInterval: 30 * 60 * 1000, // 30 minutes
+      revalidateOnFocus: false,
+      dedupingInterval: 10 * 60 * 1000,
+    }
+  );
+
+  const aiAnalysis = aiAnalysisResponse?.data;
 
   if (isLoading) {
     return (
@@ -86,6 +121,22 @@ export default function StockProfile({ symbol }: StockProfileProps) {
     return value.toLocaleString();
   };
 
+  const getTimeAgo = (timestamp: string): string => {
+    const now = new Date();
+    const past = new Date(timestamp);
+    const diffMs = now.getTime() - past.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return `${diffMins} mins ago`;
+
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours} hours ago`;
+
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays} days ago`;
+  };
+
   return (
     <div className="stock-profile">
       {/* Company Header */}
@@ -117,23 +168,65 @@ export default function StockProfile({ symbol }: StockProfileProps) {
         </div>
       </div>
 
-      {/* Company Information - Using FinancialExpandableSection */}
+      {/* AI Company Analysis - NEW! */}
+      <div className="ai-company-analysis mt-4 p-4 bg-gradient-to-br from-blue-50 to-white rounded-lg border border-blue-100">
+        <div className="flex items-center justify-between mb-3">
+          <h4 className="financial-title text-sm font-semibold text-blue-900">
+            🤖 AI Company Analysis
+          </h4>
+          {aiAnalysis && (
+            <span className="text-xs text-gray-500">
+              {getTimeAgo(aiAnalysis.timestamp)}
+            </span>
+          )}
+        </div>
+
+        {aiLoading && (
+          <div className="space-y-2">
+            {[1, 2, 3, 4, 5].map(i => (
+              <div key={i} className="h-4 bg-gray-200 rounded animate-pulse"></div>
+            ))}
+          </div>
+        )}
+
+        {aiError && (
+          <p className="text-sm text-red-600">
+            ⚠️ AI 분석을 불러올 수 없습니다.
+          </p>
+        )}
+
+        {aiAnalysis && !aiLoading && (
+          <div className="space-y-2">
+            {aiAnalysis.analysis.map((sentence, index) => (
+              <div key={index} className="flex items-start gap-2">
+                <span className="text-base flex-shrink-0">
+                  {ANALYSIS_ICONS[index]}
+                </span>
+                <p className="supporting-text text-sm leading-relaxed text-gray-800">
+                  {sentence}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!aiAnalysis && !aiLoading && !aiError && (
+          <p className="text-sm text-gray-500">AI 분석 생성 중...</p>
+        )}
+      </div>
+
+      {/* Company Details - Using FinancialExpandableSection */}
       <FinancialExpandableSection
-        title="Company Information"
+        title="Company Details"
         dataType="profile"
         priority="supplementary"
         initialHeight={{
-          mobile: 120,
-          tablet: 150,
-          desktop: 180
+          mobile: 80,
+          tablet: 100,
+          desktop: 120
         }}
         className="mt-4"
       >
-        <div className="company-description mb-4">
-          <h4 className="financial-title mb-2">About {data.companyName}</h4>
-          <p className="supporting-text leading-relaxed">{data.description}</p>
-        </div>
-
         <div className="company-details space-y-1">
           <div className="data-row">
             <span className="data-label">Employees</span>
@@ -150,9 +243,9 @@ export default function StockProfile({ symbol }: StockProfileProps) {
           {data.website && (
             <div className="data-row">
               <span className="data-label">Website</span>
-              <a 
-                href={data.website} 
-                target="_blank" 
+              <a
+                href={data.website}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="data-value financial-data text-blue-600 hover:text-blue-700 transition-colors"
               >

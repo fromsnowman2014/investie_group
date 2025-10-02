@@ -851,10 +851,10 @@ body {
   
   /* 5-Row Layout for Desktop (1024px+) - Symmetric 50:50 Design */
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto 400px 400px 400px 400px 400px;
+  grid-template-rows: auto auto 400px 400px 400px 400px;
   grid-template-areas:
     "ai-opinion ai-opinion"                      /* Row 1: Full width - auto height */
-    "stock-profile macro-indicators"             /* Row 2: 50% + 50% = Perfect symmetry ✅ */
+    "stock-profile macro-indicators"             /* Row 2: 50% + 50% - auto height */
     "news-analysis news-analysis"                /* Row 3: Full width */
     "advanced-chart tech-analysis"               /* Row 4: 50% + 50% */
     "company-widget fundamental-widget"          /* Row 5a: 50% + 50% */
@@ -943,10 +943,10 @@ body {
 @media (max-width: 1023px) {
   .optimized-content-grid {
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto 180px 250px 300px 300px 250px 250px;
+    grid-template-rows: auto auto 250px 300px 300px 250px 250px;
     grid-template-areas:
       "ai-opinion ai-opinion"
-      "stock-profile macro-indicators"         /* 50% + 50% - Perfect symmetry */
+      "stock-profile macro-indicators"         /* 50% + 50% - auto height */
       "news-analysis news-analysis"
       "advanced-chart advanced-chart"
       "tech-analysis tech-analysis"
@@ -975,8 +975,8 @@ body {
 
   /* Mobile specific heights */
   .ai-investment-opinion-section { height: auto; min-height: 200px; }
-  .stock-profile-section { height: 150px; }
-  .macro-indicators-section { height: 150px; }
+  .stock-profile-section { height: auto; min-height: 150px; }
+  .macro-indicators-section { height: auto; min-height: 150px; }
   .ai-news-analysis-section { height: 250px; }
   .advanced-chart-section { height: 300px; }
   .technical-analysis-section { height: 250px; }

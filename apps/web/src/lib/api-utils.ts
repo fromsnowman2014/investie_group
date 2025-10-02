@@ -56,3 +56,32 @@ export async function fetchAIOpinion(symbol: string) {
     throw error;
   }
 }
+
+/**
+ * Fetch AI company analysis for a given stock symbol
+ */
+export async function fetchCompanyAnalysis(symbol: string, companyData?: Record<string, unknown>) {
+  const apiUrl = '/api/v1/ai-company-analysis';
+  console.log(`🏢 Company Analysis: Fetching analysis for ${symbol}...`);
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ symbol, companyData }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Company Analysis API Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log(`✅ Company Analysis: Successfully fetched for ${symbol}`);
+    return data;
+  } catch (error) {
+    console.error('❌ Company Analysis fetch failed:', error);
+    throw error;
+  }
+}
