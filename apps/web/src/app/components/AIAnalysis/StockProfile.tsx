@@ -215,46 +215,6 @@ export default function StockProfile({ symbol }: StockProfileProps) {
         )}
       </div>
 
-      {/* Company Details - Using FinancialExpandableSection */}
-      <FinancialExpandableSection
-        title="Company Details"
-        dataType="profile"
-        priority="supplementary"
-        initialHeight={{
-          mobile: 80,
-          tablet: 100,
-          desktop: 120
-        }}
-        className="mt-4"
-      >
-        <div className="company-details space-y-1">
-          <div className="data-row">
-            <span className="data-label">Employees</span>
-            <span className="data-value financial-data">{formatNumber(data.employees)}</span>
-          </div>
-          <div className="data-row">
-            <span className="data-label">Founded</span>
-            <span className="data-value financial-data">{data.founded}</span>
-          </div>
-          <div className="data-row">
-            <span className="data-label">Headquarters</span>
-            <span className="data-value financial-data">{data.headquarters}</span>
-          </div>
-          {data.website && (
-            <div className="data-row">
-              <span className="data-label">Website</span>
-              <a
-                href={data.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="data-value financial-data text-blue-600 hover:text-blue-700 transition-colors"
-              >
-                {data.website.replace('https://', '').replace('http://', '')}
-              </a>
-            </div>
-          )}
-        </div>
-      </FinancialExpandableSection>
     </div>
   );
 }
