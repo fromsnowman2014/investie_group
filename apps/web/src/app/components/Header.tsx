@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useStock } from './StockProvider';
 import { StockSymbol } from '@/types/api';
 import { getAllStocks } from '@/lib/stock-data';
+import { useRefresh } from '@/app/contexts/RefreshContext';
 
 const STOCK_SYMBOLS: StockSymbol[] = [
   'AAPL', 'TSLA', 'MSFT', 'GOOGL', 'AMZN', 
@@ -15,6 +16,7 @@ export default function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [stockData, setStockData] = useState<Array<{ symbol: StockSymbol; name: string }>>([]);
   const { currentSymbol, setCurrentSymbol } = useStock();
+  const { triggerRefresh, isRefreshing } = useRefresh();
 
   useEffect(() => {
     // Load stock data for the dropdown
@@ -62,6 +64,29 @@ export default function Header() {
       
       {/* Navigation & Controls */}
       <div className="header-controls">
+        {/* Global Refresh Button */}
+        <button
+          onClick={triggerRefresh}
+          disabled={isRefreshing}
+          className="global-refresh-button"
+          title="Refresh all data"
+          aria-label="Refresh all data"
+        >
+          <svg
+            className={`refresh-icon ${isRefreshing ? 'refreshing' : ''}`}
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
+          </svg>
+        </button>
+
         {/* Current Stock Display */}
         <div className="current-stock-display">
           <span className="stock-label">Analyzing:</span>

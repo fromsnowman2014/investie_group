@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import useSWR from 'swr';
 import { apiFetch } from '@/lib/api-utils';
+import { useRefresh } from '@/app/contexts/RefreshContext';
 
 interface NewsItem {
   id: string;
@@ -49,11 +50,19 @@ const fetcher = async (url: string) => {
 };
 
 export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportProps) {
-  const { data, error, isLoading } = useSWR<NewsAnalysisData>(
+  const { refreshTrigger } = useRefresh();
+  const { data, error, isLoading, mutate } = useSWR<NewsAnalysisData>(
     symbol ? `/api/v1/dashboard/${symbol}/news-analysis` : null,
     fetcher,
     { refreshInterval: 600000 } // 10 minutes
   );
+
+  // Trigger refresh when global refresh is triggered
+  useEffect(() => {
+    if (refreshTrigger > 0) {
+      mutate();
+    }
+  }, [refreshTrigger, mutate]);
 
   if (isLoading) {
     return (

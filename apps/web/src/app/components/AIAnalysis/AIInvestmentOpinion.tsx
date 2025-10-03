@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import useSWR from 'swr';
 import { apiFetch } from '@/lib/api-utils';
 import FinancialExpandableSection from '../FinancialExpandableSection';
+import { useRefresh } from '@/app/contexts/RefreshContext';
 
 interface AIAnalysisData {
   symbol: string;
@@ -32,11 +33,19 @@ const fetcher = async (url: string) => {
 };
 
 export default function AIInvestmentOpinion({ symbol }: AIInvestmentOpinionProps) {
-  const { data, error, isLoading } = useSWR<AIAnalysisData>(
+  const { refreshTrigger } = useRefresh();
+  const { data, error, isLoading, mutate } = useSWR<AIAnalysisData>(
     symbol ? `/api/v1/dashboard/${symbol}/ai-analysis` : null,
     fetcher,
     { refreshInterval: 600000 } // 10 minutes
   );
+
+  // Trigger refresh when global refresh is triggered
+  useEffect(() => {
+    if (refreshTrigger > 0) {
+      mutate();
+    }
+  }, [refreshTrigger, mutate]);
 
   if (isLoading) {
     return (

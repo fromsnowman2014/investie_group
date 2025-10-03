@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import useSWR from 'swr';
 import { apiFetch, fetchCompanyAnalysis } from '@/lib/api-utils';
 import FinancialExpandableSection from '../FinancialExpandableSection';
+import { useRefresh } from '@/app/contexts/RefreshContext';
 
 interface StockProfileData {
   symbol: string;
@@ -40,8 +41,10 @@ const fetcher = async (url: string) => {
 const ANALYSIS_ICONS = ['🏢', '💰', '🎯', '⚠️', '💵'];
 
 export default function StockProfile({ symbol }: StockProfileProps) {
+  const { refreshTrigger } = useRefresh();
+
   // Fetch basic profile data
-  const { data, error, isLoading } = useSWR<StockProfileData>(
+  const { data, error, isLoading, mutate } = useSWR<StockProfileData>(
     symbol ? `/api/v1/dashboard/${symbol}/profile` : null,
     fetcher,
     { refreshInterval: 300000 } // 5 minutes
@@ -51,7 +54,8 @@ export default function StockProfile({ symbol }: StockProfileProps) {
   const {
     data: aiAnalysisResponse,
     error: aiError,
-    isLoading: aiLoading
+    isLoading: aiLoading,
+    mutate: mutateAI
   } = useSWR<{ success: boolean; data: AICompanyAnalysis }>(
     symbol && data ? `ai-company-${symbol}` : null,
     () => {
@@ -70,6 +74,14 @@ export default function StockProfile({ symbol }: StockProfileProps) {
       dedupingInterval: 10 * 60 * 1000,
     }
   );
+
+  // Trigger refresh when global refresh is triggered
+  useEffect(() => {
+    if (refreshTrigger > 0) {
+      mutate();
+      mutateAI();
+    }
+  }, [refreshTrigger, mutate, mutateAI]);
 
   const aiAnalysis = aiAnalysisResponse?.data;
 

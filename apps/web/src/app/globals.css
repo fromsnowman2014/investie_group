@@ -272,6 +272,53 @@ body {
   gap: var(--spacing-lg);
 }
 
+/* Global Refresh Button */
+.global-refresh-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #00bce5 0%, #2962ff 100%);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  color: white;
+}
+
+.global-refresh-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 188, 229, 0.4);
+}
+
+.global-refresh-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.global-refresh-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.global-refresh-button .refresh-icon {
+  transition: transform 0.6s ease;
+}
+
+.global-refresh-button .refresh-icon.refreshing {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .current-stock-display {
   display: flex;
   align-items: center;

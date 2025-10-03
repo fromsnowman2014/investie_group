@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import useSWR from 'swr';
 import { fetchMarketOverview } from '@/lib/api-utils';
+import { useRefresh } from '@/app/contexts/RefreshContext';
 
 interface EnhancedMarketSummary {
   fearGreedIndex: {
@@ -125,6 +126,7 @@ const fetcher = async (): Promise<EnhancedMarketSummary> => {
 };
 
 const EnhancedMacroIndicatorsDashboard: React.FC = () => {
+  const { refreshTrigger } = useRefresh();
 
   const { data, error, isLoading, mutate } = useSWR<EnhancedMarketSummary>(
     'market-overview',
@@ -142,15 +144,13 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
     }
   );
 
-  // Manual refresh function
-  const handleManualRefresh = async () => {
-    console.log('🔄 Manual refresh triggered by user');
-    try {
-      await mutate(); // This will trigger a fresh fetch
-    } catch (error) {
-      console.error('❌ Manual refresh failed:', error);
+  // Trigger refresh when global refresh is triggered
+  useEffect(() => {
+    if (refreshTrigger > 0) {
+      console.log('🔄 Global refresh triggered for macro indicators');
+      mutate();
     }
-  };
+  }, [refreshTrigger, mutate]);
 
   // Note: API URL configuration error handling removed as we now auto-detect the URL
 
@@ -235,19 +235,6 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
 
   return (
     <div className="enhanced-macro-dashboard">
-      {/* Dashboard Header with Manual Refresh */}
-      <div className="dashboard-header">
-        <button
-          className="refresh-button"
-          onClick={handleManualRefresh}
-          disabled={isLoading}
-          title="Refresh market data"
-        >
-          <span className="refresh-icon">🔄</span>
-          <span className="refresh-text">Refresh</span>
-        </button>
-      </div>
-
       {/* API Error Warning */}
       {data.apiError?.isError && (
         <div className={`api-error-warning ${data.apiError.isRateLimit ? 'rate-limit' : 'general-error'}`}>
