@@ -151,47 +151,8 @@ export default function StockProfile({ symbol }: StockProfileProps) {
 
   return (
     <div className="stock-profile">
-      {/* Company Header */}
-      <div className="profile-header data-density-high">
-        <div className="company-info mb-2">
-          <h1 className="financial-title text-lg">{data.companyName}</h1>
-          <div className="inline-block px-2 py-1 bg-blue-600 text-white text-xs font-medium rounded">{data.symbol}</div>
-        </div>
-        <div className="company-meta flex flex-wrap gap-2">
-          <span className="supporting-text bg-gray-100 px-2 py-1 rounded text-xs">{data.sector}</span>
-          <span className="supporting-text bg-gray-100 px-2 py-1 rounded text-xs">{data.industry}</span>
-          <span className="supporting-text bg-gray-100 px-2 py-1 rounded text-xs">{data.country}</span>
-        </div>
-      </div>
-
-      {/* Key Metrics - Optimized for data density */}
-      <div className="key-metrics space-y-1">
-        <div className="data-row">
-          <span className="data-label">Market Cap</span>
-          <span className="data-value financial-data">{formatMarketCap(data.marketCap)}</span>
-        </div>
-        <div className="data-row">
-          <span className="data-label">P/E Ratio</span>
-          <span className="data-value financial-data">{data.peRatio?.toFixed(2) || 'N/A'}</span>
-        </div>
-        <div className="data-row">
-          <span className="data-label">Dividend Yield</span>
-          <span className="data-value financial-data">{data.dividendYield ? `${(data.dividendYield * 100).toFixed(2)}%` : 'N/A'}</span>
-        </div>
-      </div>
-
-      {/* AI Company Analysis - NEW! */}
-      <div className="ai-company-analysis mt-4 p-4 bg-gradient-to-br from-blue-50 to-white rounded-lg border border-blue-100">
-        <div className="flex items-center justify-between mb-3">
-          <h4 className="financial-title text-sm font-semibold text-blue-900">
-            🤖 AI Company Analysis
-          </h4>
-          {aiAnalysis && (
-            <span className="text-xs text-gray-500">
-              {getTimeAgo(aiAnalysis.timestamp)}
-            </span>
-          )}
-        </div>
+      {/* AI Company Analysis */}
+      <div className="ai-company-analysis p-4 bg-gradient-to-br from-blue-50 to-white rounded-lg border border-blue-100">
 
         {aiLoading && (
           <div className="space-y-2">
