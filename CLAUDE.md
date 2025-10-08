@@ -139,6 +139,14 @@ All endpoints are Supabase Edge Functions with POST requests:
   - `edgeFunctionFetcher()`: Supabase Edge Function specific fetcher with auth
 - **Environment Priority**: NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL → local fallbacks → hardcoded fallback
 
+### Stock Search System
+- **Universal Search**: Search any US-listed stock (not limited to predefined list)
+- **Validation**: Real-time ticker validation via Alpha Vantage and Yahoo Finance APIs
+- **History**: Cookie-based search history (max 10 items, 90-day expiry)
+- **Error Handling**: User-friendly error messages with current view preservation
+- **Type Safety**: StockSymbol type accepts any string (flexible for any ticker)
+- **Popular Stocks Cache**: 17 predefined popular stocks for instant access
+
 ### Styling System
 - Tailwind CSS with custom CSS variables
 - Blue gradient branding (`#00bce5` to `#2962ff`)

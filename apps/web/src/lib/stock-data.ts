@@ -1,10 +1,10 @@
 import { StockSymbol } from '@/types/api';
 
 /**
- * Available stock symbols with company names
- * Matches the VALID_SYMBOLS from Supabase stock-data function
+ * Popular stock symbols with company names
+ * This list is used for quick access and UI display
  */
-export const STOCK_LIST: Array<{ symbol: StockSymbol; name: string }> = [
+export const POPULAR_STOCK_LIST: Array<{ symbol: StockSymbol; name: string }> = [
   { symbol: 'AAPL', name: 'Apple Inc.' },
   { symbol: 'TSLA', name: 'Tesla, Inc.' },
   { symbol: 'MSFT', name: 'Microsoft Corporation' },
@@ -29,43 +29,61 @@ export const STOCK_LIST: Array<{ symbol: StockSymbol; name: string }> = [
  * @returns Promise<Array<{ symbol: StockSymbol; name: string }>>
  */
 export async function getAllStocks(): Promise<Array<{ symbol: StockSymbol; name: string }>> {
-  // Return hardcoded stock list since we know all supported symbols
-  return Promise.resolve(STOCK_LIST);
+  // Return popular stock list for UI display
+  return Promise.resolve(POPULAR_STOCK_LIST);
 }
 
 /**
- * Search stocks by symbol or name
+ * Search stocks by symbol or name within popular list
  * @param query - Search query
  * @returns Array of matching stocks
  */
 export function searchStocks(query: string): Array<{ symbol: StockSymbol; name: string }> {
   if (!query.trim()) return [];
-  
+
   const lowerQuery = query.toLowerCase();
-  return STOCK_LIST.filter(stock =>
+  return POPULAR_STOCK_LIST.filter(stock =>
     stock.symbol.toLowerCase().includes(lowerQuery) ||
     stock.name.toLowerCase().includes(lowerQuery)
   );
 }
 
 /**
- * Get stock by symbol
+ * Get stock by symbol from popular list
  * @param symbol - Stock symbol
  * @returns Stock data or null if not found
  */
 export function getStockBySymbol(symbol: string): { symbol: StockSymbol; name: string } | null {
-  return STOCK_LIST.find(stock => 
+  return POPULAR_STOCK_LIST.find(stock =>
     stock.symbol.toLowerCase() === symbol.toLowerCase()
   ) || null;
 }
 
 /**
- * Check if symbol is valid/supported
+ * Check if symbol exists in popular stocks list
  * @param symbol - Stock symbol to check
  * @returns boolean
  */
-export function isValidSymbol(symbol: string): symbol is StockSymbol {
-  return STOCK_LIST.some(stock => 
+export function isPopularStock(symbol: string): boolean {
+  return POPULAR_STOCK_LIST.some(stock =>
     stock.symbol.toLowerCase() === symbol.toLowerCase()
   );
+}
+
+/**
+ * Validate stock ticker format (US stocks: 1-5 uppercase letters)
+ * @param symbol - Stock symbol to validate
+ * @returns boolean
+ */
+export function isValidStockFormat(symbol: string): boolean {
+  return /^[A-Z]{1,5}$/.test(symbol.toUpperCase());
+}
+
+/**
+ * Normalize ticker input (trim and uppercase)
+ * @param input - Raw input string
+ * @returns Normalized symbol
+ */
+export function normalizeSymbol(input: string): string {
+  return input.trim().toUpperCase();
 }

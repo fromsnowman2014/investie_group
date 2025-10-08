@@ -1,8 +1,12 @@
-// Stock symbol type - supported symbols for direct API approach
-export type StockSymbol =
-  | 'AAPL' | 'TSLA' | 'MSFT' | 'GOOGL' | 'AMZN'
-  | 'NVDA' | 'META' | 'NFLX' | 'AVGO' | 'AMD'
-  | 'JPM' | 'BAC' | 'JNJ' | 'PFE' | 'SPY' | 'QQQ' | 'VTI';
+// Stock symbol type - accepts any valid US stock ticker
+export type StockSymbol = string;
+
+// Popular stock symbols for UI convenience
+export const POPULAR_STOCKS = [
+  'AAPL', 'TSLA', 'MSFT', 'GOOGL', 'AMZN',
+  'NVDA', 'META', 'NFLX', 'AVGO', 'AMD',
+  'JPM', 'BAC', 'JNJ', 'PFE', 'SPY', 'QQQ', 'VTI'
+] as const;
 
 // AI Evaluation interface
 export interface AIEvaluation {

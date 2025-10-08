@@ -3,54 +3,105 @@
 import { useState, useEffect } from 'react';
 import { useStock } from './StockProvider';
 import { StockSymbol } from '@/types/api';
-import { getAllStocks } from '@/lib/stock-data';
+import { POPULAR_STOCK_LIST } from '@/lib/stock-data';
 import { useRefresh } from '@/app/contexts/RefreshContext';
-
-const STOCK_SYMBOLS: StockSymbol[] = [
-  'AAPL', 'TSLA', 'MSFT', 'GOOGL', 'AMZN', 
-  'NVDA', 'META', 'NFLX', 'AVGO', 'AMD'
-];
+import { validateStockSymbol } from '@/lib/stock-validation';
+import {
+  getSearchHistory,
+  addToSearchHistory,
+  clearSearchHistory,
+  removeFromHistory,
+  type SearchHistoryItem
+} from '@/lib/search-history';
 
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [stockData, setStockData] = useState<Array<{ symbol: StockSymbol; name: string }>>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [searchHistory, setSearchHistory] = useState<SearchHistoryItem[]>([]);
   const { currentSymbol, setCurrentSymbol } = useStock();
   const { triggerRefresh, isRefreshing } = useRefresh();
 
+  // Load search history on mount
   useEffect(() => {
-    // Load stock data for the dropdown
-    getAllStocks().then(data => {
-      setStockData(data);
-    }).catch(error => {
-      console.error('Failed to load stock data:', error);
-      // Fallback to symbol list
-      setStockData(STOCK_SYMBOLS.map(symbol => ({ symbol, name: symbol })));
-    });
+    setSearchHistory(getSearchHistory());
   }, []);
 
-  const handleSearch = (e: React.FormEvent) => {
+  // Enhanced search with API validation
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Find matching stock
-    const matchingStock = stockData.find(stock => 
-      stock.symbol.toLowerCase() === searchQuery.toLowerCase() ||
-      stock.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    
-    if (matchingStock) {
-      setCurrentSymbol(matchingStock.symbol);
-      setSearchQuery('');
+    if (!searchQuery.trim()) return;
+
+    setIsSearching(true);
+    setSearchError(null);
+
+    try {
+      const result = await validateStockSymbol(searchQuery);
+
+      if (result.isValid) {
+        // Success: Update symbol and add to history
+        setCurrentSymbol(result.symbol);
+        addToSearchHistory(result.symbol, result.name);
+        setSearchHistory(getSearchHistory()); // Refresh UI
+        setSearchQuery('');
+        setSearchError(null);
+      } else {
+        // Not found: Show error (keep current stock visible)
+        setSearchError(result.error || 'Stock ticker not found');
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+      setSearchError('Search failed. Please try again.');
+    } finally {
+      setIsSearching(false);
     }
   };
+
+  // Clear error when user types
+  useEffect(() => {
+    if (searchQuery && searchError) {
+      setSearchError(null);
+    }
+  }, [searchQuery, searchError]);
 
   const handleStockSelect = (symbol: StockSymbol) => {
     setCurrentSymbol(symbol);
     setIsDropdownOpen(false);
+    // Add to history when selected from dropdown
+    const stock = POPULAR_STOCK_LIST.find(s => s.symbol === symbol);
+    if (stock) {
+      addToSearchHistory(symbol, stock.name);
+      setSearchHistory(getSearchHistory());
+    }
   };
 
-  const filteredStocks = stockData.filter(stock =>
+  const handleHistorySelect = (symbol: string) => {
+    setCurrentSymbol(symbol);
+    setIsDropdownOpen(false);
+    // Move to top of history
+    const historyItem = searchHistory.find(item => item.symbol === symbol);
+    if (historyItem) {
+      addToSearchHistory(symbol, historyItem.name);
+      setSearchHistory(getSearchHistory());
+    }
+  };
+
+  const handleClearHistory = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    clearSearchHistory();
+    setSearchHistory([]);
+  };
+
+  const handleRemoveHistoryItem = (symbol: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    removeFromHistory(symbol);
+    setSearchHistory(getSearchHistory());
+  };
+
+  const filteredStocks = POPULAR_STOCK_LIST.filter(stock =>
     stock.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (stock.name && stock.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    stock.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -61,7 +112,7 @@ export default function Header() {
         <span className="logo-text">Investie</span>
         <span className="logo-subtitle">AI Investment Analysis</span>
       </div>
-      
+
       {/* Navigation & Controls */}
       <div className="header-controls">
         {/* Global Refresh Button */}
@@ -93,7 +144,7 @@ export default function Header() {
           <span className="stock-symbol">{currentSymbol}</span>
         </div>
 
-        {/* Stock Selector Dropdown */}
+        {/* Stock Selector Dropdown with History */}
         <div className="stock-selector">
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -104,23 +155,75 @@ export default function Header() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </button>
-          
+
           {isDropdownOpen && (
             <div className="selector-dropdown">
+              {/* Recently Viewed Section */}
+              {searchHistory.length > 0 && (
+                <>
+                  <div className="dropdown-header">
+                    <span>Recently Viewed</span>
+                    <button
+                      onClick={handleClearHistory}
+                      className="clear-history-button"
+                      type="button"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                  <div className="dropdown-items">
+                    {searchHistory.slice(0, 5).map(item => (
+                      <button
+                        key={item.symbol}
+                        onClick={() => handleHistorySelect(item.symbol)}
+                        className={`dropdown-item ${currentSymbol === item.symbol ? 'selected' : ''}`}
+                        type="button"
+                      >
+                        <div className="item-content">
+                          <span className="item-symbol">{item.symbol}</span>
+                          {item.name && (
+                            <span className="item-name">{item.name}</span>
+                          )}
+                        </div>
+                        <div className="item-actions">
+                          {currentSymbol === item.symbol && (
+                            <span className="item-indicator">✓</span>
+                          )}
+                          <button
+                            onClick={(e) => handleRemoveHistoryItem(item.symbol, e)}
+                            className="remove-history-item"
+                            title="Remove from history"
+                            type="button"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="dropdown-divider" />
+                </>
+              )}
+
+              {/* Popular Stocks Section */}
               <div className="dropdown-header">
                 <span>Popular Stocks</span>
               </div>
               <div className="dropdown-items">
-                {STOCK_SYMBOLS.map(symbol => (
+                {POPULAR_STOCK_LIST.slice(0, 10).map(stock => (
                   <button
-                    key={symbol}
-                    onClick={() => handleStockSelect(symbol)}
-                    className={`dropdown-item ${currentSymbol === symbol ? 'selected' : ''}`}
+                    key={stock.symbol}
+                    onClick={() => handleStockSelect(stock.symbol)}
+                    className={`dropdown-item ${currentSymbol === stock.symbol ? 'selected' : ''}`}
+                    type="button"
                   >
-                    <span className="item-symbol">{symbol}</span>
-                    <span className="item-indicator">
-                      {currentSymbol === symbol ? '✓' : ''}
-                    </span>
+                    <div className="item-content">
+                      <span className="item-symbol">{stock.symbol}</span>
+                      <span className="item-name">{stock.name}</span>
+                    </div>
+                    {currentSymbol === stock.symbol && (
+                      <span className="item-indicator">✓</span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -128,7 +231,7 @@ export default function Header() {
           )}
         </div>
 
-        {/* Enhanced Search */}
+        {/* Enhanced Search with Error Handling */}
         <form onSubmit={handleSearch} className="stock-search">
           <div className="search-container">
             <div className="search-input-wrapper">
@@ -137,14 +240,40 @@ export default function Header() {
               </svg>
               <input
                 type="search"
-                placeholder="Search stocks by symbol or name..."
+                placeholder="Search any US stock (e.g., AAPL, Tesla)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="search-input-field"
+                className={`search-input-field ${searchError ? 'error' : ''}`}
+                disabled={isSearching}
+                aria-label="Search stock by ticker or company name"
+                aria-describedby={searchError ? "search-error" : undefined}
+                aria-invalid={!!searchError}
               />
+              {isSearching && (
+                <div className="search-loading-spinner" />
+              )}
             </div>
-            
-            {searchQuery && filteredStocks.length > 0 && (
+
+            {/* Error message */}
+            {searchError && (
+              <div id="search-error" className="search-error-message" role="alert" aria-live="polite">
+                <svg className="error-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{searchError}</span>
+                <button
+                  type="button"
+                  onClick={() => setSearchError(null)}
+                  className="error-dismiss"
+                  aria-label="Dismiss error"
+                >
+                  ×
+                </button>
+              </div>
+            )}
+
+            {/* Search results dropdown (for popular stocks only) */}
+            {searchQuery && filteredStocks.length > 0 && !searchError && !isSearching && (
               <div className="search-results">
                 <div className="results-header">
                   <span>Search Results</span>
@@ -155,6 +284,8 @@ export default function Header() {
                     type="button"
                     onClick={() => {
                       setCurrentSymbol(stock.symbol);
+                      addToSearchHistory(stock.symbol, stock.name);
+                      setSearchHistory(getSearchHistory());
                       setSearchQuery('');
                     }}
                     className="result-item"
