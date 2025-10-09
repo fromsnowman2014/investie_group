@@ -83,5 +83,6 @@ export interface WidgetMetadata {
   minDimensions: { width: number; height: number };
   maxDimensions?: { width: number; height: number };
   requiredSymbol: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   component: React.ComponentType<any>;
 }

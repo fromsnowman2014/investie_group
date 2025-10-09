@@ -108,13 +108,15 @@ export class LayoutStorage {
   /**
    * Validate layout structure
    */
-  private static validateLayout(layout: any): boolean {
+  private static validateLayout(layout: unknown): layout is DashboardLayout {
+    if (!layout || typeof layout !== 'object') return false;
+
+    const obj = layout as Record<string, unknown>;
     return !!(
-      layout &&
-      layout.version &&
-      Array.isArray(layout.widgets) &&
-      layout.gridConfig &&
-      layout.widgets.length > 0
+      obj.version &&
+      Array.isArray(obj.widgets) &&
+      obj.gridConfig &&
+      obj.widgets.length > 0
     );
   }
 
