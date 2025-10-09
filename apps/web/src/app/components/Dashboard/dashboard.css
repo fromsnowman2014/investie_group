@@ -1,0 +1,800 @@
+/**
+ * Dashboard Widget System Styles
+ * Comprehensive styling for the customizable widget layout
+ */
+
+/* ========================================
+   Dashboard Grid Container
+   ======================================== */
+
+.dashboard-grid-container {
+  max-width: var(--content-max-width, 1400px);
+  margin: 0 auto;
+  padding: 1rem;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+.dashboard-grid {
+  position: relative;
+}
+
+.dashboard-loading {
+  text-align: center;
+  padding: 4rem;
+  font-size: 1.125rem;
+  color: var(--color-text-secondary, #64748b);
+}
+
+/* ========================================
+   Widget Container
+   ======================================== */
+
+.widget-container {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.widget-container:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: var(--color-primary, #2962ff);
+}
+
+.widget-error {
+  border-color: #ef4444;
+}
+
+/* ========================================
+   Widget Header
+   ======================================== */
+
+.widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(to bottom, #ffffff, #f8fafc);
+  border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
+  min-height: 52px;
+}
+
+.widget-drag-handle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: move;
+  user-select: none;
+  flex: 1;
+  min-width: 0;
+}
+
+.widget-drag-handle:active {
+  cursor: grabbing;
+}
+
+.drag-icon {
+  color: #94a3b8;
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.widget-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.widget-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ========================================
+   Widget Controls
+   ======================================== */
+
+.widget-controls {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.widget-control-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+}
+
+.widget-control-btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.lock-btn.locked {
+  background: #fef3c7;
+  border-color: #fbbf24;
+}
+
+.remove-btn:hover {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #dc2626;
+}
+
+/* ========================================
+   Widget Content
+   ======================================== */
+
+.widget-content {
+  flex: 1;
+  overflow: auto;
+  padding: 1rem;
+  background: #ffffff;
+}
+
+/* ========================================
+   Widget Placeholder (Loading State)
+   ======================================== */
+
+.widget-placeholder {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.placeholder-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.placeholder-icon {
+  font-size: 18px;
+}
+
+.placeholder-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.placeholder-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e2e8f0;
+  border-top-color: var(--color-primary, #2962ff);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+/* ========================================
+   Layout Controls (Floating Panel)
+   ======================================== */
+
+.layout-controls {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  display: flex;
+  gap: 0.5rem;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
+  padding: 0.75rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e2e8f0;
+}
+
+.control-btn {
+  padding: 0.625rem 1rem;
+  background: var(--color-primary, #2962ff);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.control-btn:hover:not(:disabled) {
+  background: var(--color-primary-dark, #1e40af);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(41, 98, 255, 0.3);
+}
+
+.control-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.control-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.reset-btn {
+  background: #f59e0b;
+}
+
+.reset-btn:hover:not(:disabled) {
+  background: #d97706;
+}
+
+.export-btn {
+  background: #10b981;
+}
+
+.export-btn:hover:not(:disabled) {
+  background: #059669;
+}
+
+.import-btn {
+  background: #8b5cf6;
+}
+
+.import-btn:hover:not(:disabled) {
+  background: #7c3aed;
+}
+
+/* ========================================
+   Widget Selector Modal
+   ======================================== */
+
+.widget-selector-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.widget-selector-modal {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 900px;
+  width: 100%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #64748b;
+  padding: 4px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.close-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+/* ========================================
+   Category Tabs
+   ======================================== */
+
+.category-tabs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #e2e8f0;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+.category-tab {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  color: #475569;
+}
+
+.category-tab:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.category-tab.active {
+  background: var(--color-primary, #2962ff);
+  color: white;
+  border-color: var(--color-primary, #2962ff);
+}
+
+/* ========================================
+   Widget Gallery
+   ======================================== */
+
+.widget-gallery {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  align-content: start;
+}
+
+.widget-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.widget-card:hover {
+  border-color: var(--color-primary, #2962ff);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.widget-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.widget-card-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.widget-card-header h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.widget-card-description {
+  color: #64748b;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  flex: 1;
+  margin: 0;
+}
+
+.widget-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+  gap: 0.75rem;
+}
+
+.widget-category-badge {
+  background: #f1f5f9;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #475569;
+  white-space: nowrap;
+}
+
+.add-widget-btn {
+  padding: 6px 16px;
+  background: var(--color-primary, #2962ff);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.add-widget-btn:hover {
+  background: var(--color-primary-dark, #1e40af);
+  transform: scale(1.05);
+}
+
+.add-widget-btn:active {
+  transform: scale(0.98);
+}
+
+/* ========================================
+   Empty State
+   ======================================== */
+
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem;
+  color: #64748b;
+}
+
+.empty-state p {
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* ========================================
+   React Grid Layout Overrides
+   ======================================== */
+
+.react-grid-item {
+  transition: all 200ms ease;
+  transition-property: left, top, width, height;
+}
+
+.react-grid-item.cssTransforms {
+  transition-property: transform, width, height;
+}
+
+.react-grid-item.resizing {
+  transition: none;
+  z-index: 100;
+  will-change: width, height;
+}
+
+.react-grid-item.react-draggable-dragging {
+  transition: none;
+  z-index: 100;
+  will-change: transform;
+}
+
+.react-grid-item.react-draggable-dragging .widget-container {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+  cursor: grabbing !important;
+}
+
+.react-grid-item.dropping {
+  visibility: hidden;
+}
+
+.react-grid-item.react-grid-placeholder {
+  background: var(--color-primary, #2962ff);
+  opacity: 0.2;
+  transition-duration: 100ms;
+  z-index: 2;
+  border-radius: 12px;
+}
+
+.react-resizable-handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+}
+
+.react-resizable-handle-se {
+  bottom: 0;
+  right: 0;
+  cursor: se-resize;
+}
+
+.react-resizable-handle-se::after {
+  content: '';
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid #cbd5e1;
+  border-bottom: 2px solid #cbd5e1;
+}
+
+.react-grid-item:hover .react-resizable-handle-se::after {
+  border-color: var(--color-primary, #2962ff);
+}
+
+/* ========================================
+   Bubble Detector Widget Specific Styles
+   ======================================== */
+
+.bubble-detector-widget {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.bubble-status {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 12px;
+}
+
+.bubble-gauge {
+  flex-shrink: 0;
+}
+
+.gauge-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+}
+
+.gauge-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #78350f;
+}
+
+.gauge-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #92400e;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.bubble-info {
+  flex: 1;
+}
+
+.risk-level {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.risk-description {
+  margin: 0;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.bubble-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.metric-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.metric-item:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.metric-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.metric-details {
+  flex: 1;
+}
+
+.metric-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.metric-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.125rem;
+}
+
+.metric-status {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.bubble-recommendation {
+  padding: 1rem;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+}
+
+.bubble-recommendation h5 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e40af;
+}
+
+.bubble-recommendation p {
+  margin: 0;
+  color: #1e3a8a;
+  line-height: 1.6;
+  font-size: 0.875rem;
+}
+
+.bubble-disclaimer {
+  padding: 0.75rem 1rem;
+  background: #fef3c7;
+  border: 1px solid #fde047;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.bubble-disclaimer small {
+  color: #78350f;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+@media (max-width: 1024px) {
+  .layout-controls {
+    bottom: 1rem;
+    right: 1rem;
+    flex-direction: column;
+    padding: 0.5rem;
+  }
+
+  .control-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .widget-gallery {
+    grid-template-columns: 1fr;
+  }
+
+  .bubble-status {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-grid-container {
+    padding: 0.5rem;
+  }
+
+  .widget-header {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .widget-content {
+    padding: 0.75rem;
+  }
+
+  .modal-header {
+    padding: 1rem 1.5rem;
+  }
+
+  .category-tabs {
+    padding: 0.75rem 1.5rem;
+  }
+
+  .widget-gallery {
+    padding: 1.5rem;
+    gap: 1rem;
+  }
+}
