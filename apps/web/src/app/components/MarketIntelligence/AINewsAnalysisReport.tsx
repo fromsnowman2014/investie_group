@@ -42,10 +42,8 @@ interface AINewsAnalysisReportProps {
 }
 
 const fetcher = async (url: string) => {
-  console.log('📰 News Analysis Fetcher Starting:', url);
   const response = await apiFetch(url);
   const data = await response.json();
-  console.log('📰 News Analysis Data:', data);
   return data;
 };
 

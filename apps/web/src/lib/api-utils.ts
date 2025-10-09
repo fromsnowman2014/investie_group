@@ -24,7 +24,6 @@ export async function apiFetch(url: string, options?: RequestInit): Promise<Resp
  * Fetch market overview data using direct API integration
  */
 export async function fetchMarketOverview(): Promise<MarketOverviewData> {
-  console.log('🌐 Direct API: Fetching market overview data...');
   return await fetchMarketOverviewDirect() as MarketOverviewData;
 }
 
@@ -33,7 +32,6 @@ export async function fetchMarketOverview(): Promise<MarketOverviewData> {
  */
 export async function fetchAIOpinion(symbol: string) {
   const apiUrl = '/api/v1/ai-opinion';
-  console.log(`🤖 AI Opinion: Fetching analysis for ${symbol}...`);
 
   try {
     const response = await fetch(apiUrl, {
@@ -49,7 +47,6 @@ export async function fetchAIOpinion(symbol: string) {
     }
 
     const data = await response.json();
-    console.log(`✅ AI Opinion: Successfully fetched for ${symbol}`);
     return data;
   } catch (error) {
     console.error('❌ AI Opinion fetch failed:', error);
@@ -62,7 +59,6 @@ export async function fetchAIOpinion(symbol: string) {
  */
 export async function fetchCompanyAnalysis(symbol: string, companyData?: Record<string, unknown>) {
   const apiUrl = '/api/v1/ai-company-analysis';
-  console.log(`🏢 Company Analysis: Fetching analysis for ${symbol}...`);
 
   try {
     const response = await fetch(apiUrl, {
@@ -78,7 +74,6 @@ export async function fetchCompanyAnalysis(symbol: string, companyData?: Record<
     }
 
     const data = await response.json();
-    console.log(`✅ Company Analysis: Successfully fetched for ${symbol}`);
     return data;
   } catch (error) {
     console.error('❌ Company Analysis fetch failed:', error);

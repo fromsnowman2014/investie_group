@@ -50,8 +50,6 @@ interface MarketDataItem {
 }
 
 async function fetchYahooFinanceData(symbol: string): Promise<MarketDataItem> {
-  console.log(`📈 Direct API: Fetching ${symbol} data from Yahoo Finance...`);
-
   try {
     // Multiple CORS proxy options for better reliability
     const proxies = [
@@ -70,9 +68,6 @@ async function fetchYahooFinanceData(symbol: string): Promise<MarketDataItem> {
         const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`;
         const url = proxyUrl ? (proxyUrl + encodeURIComponent(targetUrl)) : targetUrl;
 
-        console.log(`🔗 [${i + 1}/${proxies.length}] Trying proxy: ${proxyUrl || 'direct'}`);
-        console.log(`🔗 Full URL: ${url}`);
-
         const startTime = Date.now();
 
         // Create timeout signal for older browser compatibility
@@ -88,11 +83,6 @@ async function fetchYahooFinanceData(symbol: string): Promise<MarketDataItem> {
         });
 
         clearTimeout(timeoutId);
-
-        const endTime = Date.now();
-        console.log(`⏱️ Request took ${endTime - startTime}ms`);
-        console.log(`📊 Response status: ${response.status} ${response.statusText}`);
-        console.log(`📊 Response headers:`, Object.fromEntries(response.headers.entries()));
 
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'Unable to read error response');
@@ -116,13 +106,6 @@ async function fetchYahooFinanceData(symbol: string): Promise<MarketDataItem> {
             error?: { description: string };
           };
         };
-        console.log(`📊 Direct API response for ${symbol}:`, {
-          hasChart: !!data?.chart,
-          hasResult: !!data?.chart?.result?.[0],
-          hasMeta: !!data?.chart?.result?.[0]?.meta,
-          error: data?.chart?.error,
-          proxyUsed: proxyUrl || 'direct'
-        });
 
         if (data?.chart?.error) {
           throw new Error(`Yahoo Finance API error: ${data.chart.error.description}`);
@@ -155,7 +138,6 @@ async function fetchYahooFinanceData(symbol: string): Promise<MarketDataItem> {
           source: `yahoo_finance_direct_${proxyUrl ? 'proxy' : 'direct'}`
         };
 
-        console.log(`✅ Direct API: Successfully fetched ${symbol} data via ${proxyUrl || 'direct'}:`, marketData);
         return marketData;
 
       } catch (error) {
@@ -203,14 +185,11 @@ async function fetchFredData(seriesId: string): Promise<{ value: number; date: s
   const fredApiKey = process.env.NEXT_PUBLIC_FRED_API_KEY;
 
   if (!fredApiKey || fredApiKey === 'demo') {
-    console.log(`📊 FRED API: Using fallback data for ${seriesId} (no API key)`);
     return null;
   }
 
   try {
     const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${seriesId}&api_key=${fredApiKey}&file_type=json&limit=1&sort_order=desc`;
-
-    console.log(`📊 FRED API: Fetching ${seriesId} from FRED...`);
 
     const response = await fetch(url);
 
@@ -236,8 +215,6 @@ async function fetchFredData(seriesId: string): Promise<{ value: number; date: s
       throw new Error(`Invalid FRED data value for ${seriesId}: ${observation.value}`);
     }
 
-    console.log(`✅ FRED API: Successfully fetched ${seriesId}:`, { value, date: observation.date });
-
     return {
       value,
       date: observation.date
@@ -253,17 +230,8 @@ async function fetchFredData(seriesId: string): Promise<{ value: number; date: s
  * Fetch comprehensive market overview data using direct APIs
  */
 export async function fetchMarketOverviewDirect(): Promise<MarketOverviewData> {
-  console.log('🌐 Direct API: Starting comprehensive market data fetch...');
-  console.log('🌐 Environment check:', {
-    userAgent: navigator.userAgent,
-    online: navigator.onLine,
-    language: navigator.language,
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-  });
-
   try {
     // Fetch market data and economic indicators in parallel
-    console.log('🔄 Starting parallel fetch for 5 symbols + economic indicators: ^GSPC, ^VIX, ^IXIC, ^DJI, ^TNX, CPI, UNEMPLOYMENT');
     const fetchStartTime = Date.now();
 
     const [sp500Data, vixData, nasdaqData, dowData, treasuryData, cpiData, unemploymentData] = await Promise.all([
@@ -275,19 +243,6 @@ export async function fetchMarketOverviewDirect(): Promise<MarketOverviewData> {
       fetchFredData('CPIAUCSL'),      // Consumer Price Index
       fetchFredData('UNRATE')         // Unemployment Rate
     ]);
-
-    const fetchEndTime = Date.now();
-    console.log(`⏱️ Total parallel fetch time: ${fetchEndTime - fetchStartTime}ms`);
-
-    console.log('📊 Direct API responses:', {
-      sp500: sp500Data ? '✅ Success' : '❌ Failed',
-      vix: vixData ? '✅ Success' : '❌ Failed',
-      nasdaq: nasdaqData ? '✅ Success' : '❌ Failed',
-      dow: dowData ? '✅ Success' : '❌ Failed',
-      treasury: treasuryData ? '✅ Success' : '❌ Failed',
-      cpi: cpiData ? '✅ Success' : '❌ Failed (using fallback)',
-      unemployment: unemploymentData ? '✅ Success' : '❌ Failed (using fallback)'
-    });
 
     // Build market overview response
     const marketOverview: MarketOverviewData = {
@@ -361,12 +316,6 @@ export async function fetchMarketOverviewDirect(): Promise<MarketOverviewData> {
       lastUpdated: new Date().toISOString(),
       timestamp: new Date().toISOString()
     };
-
-    console.log(`✅ Direct API: Market overview completed:`, {
-      hasIndices: !!marketOverview.indices,
-      sp500Value: marketOverview.indices?.sp500?.value,
-      source: marketOverview.source
-    });
 
     return marketOverview;
 

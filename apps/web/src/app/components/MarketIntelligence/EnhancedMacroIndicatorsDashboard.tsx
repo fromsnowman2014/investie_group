@@ -55,20 +55,16 @@ interface EnhancedMarketSummary {
 const fetcher = async (): Promise<EnhancedMarketSummary> => {
   const apiResponse = await fetchMarketOverview();
   
-  console.log('🔍 Raw API Response:', apiResponse);
-  
   // The API returns data directly, not wrapped in success/data structure
   const responseObj = apiResponse as unknown as Record<string, unknown>;
   
   // Check if this is wrapped response (legacy format)
   if (responseObj.success && responseObj.data) {
-    console.log('✅ Using wrapped response format');
     return responseObj.data as EnhancedMarketSummary;
   }
   
   // Check if this is direct response format (current production format)
   if (responseObj.economicIndicators || responseObj.indices || responseObj.fearGreedIndex) {
-    console.log('✅ Using direct response format');
     
     // Transform the API response to match our expected interface
     const transformedData: EnhancedMarketSummary = {
@@ -117,7 +113,6 @@ const fetcher = async (): Promise<EnhancedMarketSummary> => {
       } | undefined
     };
     
-    console.log('🔄 Transformed Data:', transformedData);
     return transformedData;
   }
   
@@ -147,20 +142,9 @@ const EnhancedMacroIndicatorsDashboard: React.FC = () => {
   // Trigger refresh when global refresh is triggered
   useEffect(() => {
     if (refreshTrigger > 0) {
-      console.log('🔄 Global refresh triggered for macro indicators');
       mutate();
     }
   }, [refreshTrigger, mutate]);
-
-  // Note: API URL configuration error handling removed as we now auto-detect the URL
-
-  // Debug logging
-  console.group('🔍 Enhanced Macro Indicators Debug');
-  console.log('Environment Variables:', {
-    NODE_ENV: process.env.NODE_ENV
-  });
-  console.log('SWR State:', { isLoading, error: error?.message, hasData: !!data });
-  console.groupEnd();
 
   // Loading state
   if (isLoading || !data) {
