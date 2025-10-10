@@ -4,12 +4,12 @@
  */
 
 export type WidgetSize =
-  | 'small'      // 4 columns x 1 row (1/3 width)
-  | 'medium'     // 6 columns x 1 row (1/2 width)
-  | 'large'      // 12 columns x 1 row (full width)
-  | 'tall'       // 6 columns x 2 rows
-  | 'square'     // 6 columns x 1.5 rows
-  | 'xlarge'     // 12 columns x 2 rows
+  | 'small'      // 4 columns x 1 row (1/3 width, 280px)
+  | 'medium'     // 6 columns x 1 row (1/2 width, 280px)
+  | 'large'      // 12 columns x 1 row (full width, 280px)
+  | 'tall'       // 6 columns x 2-3 rows (1/2 width, 560-840px for charts)
+  | 'square'     // 4 columns x 2 rows (1/3 width, 560px)
+  | 'xlarge'     // 12 columns x 2 rows (full width, 560px)
   | 'custom';    // User-defined
 
 export type WidgetType =

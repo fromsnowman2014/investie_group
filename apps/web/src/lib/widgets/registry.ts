@@ -27,9 +27,9 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetMetadata> = {
     description: 'AI-powered investment recommendations and analysis',
     icon: '🤖',
     category: 'AI Analysis',
-    defaultSize: 'large',
+    defaultSize: 'xlarge',
     minDimensions: { width: 6, height: 1 },
-    maxDimensions: { width: 12, height: 2 },
+    maxDimensions: { width: 12, height: 3 },
     requiredSymbol: true,
     component: AIOpinionCard
   },
@@ -40,7 +40,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetMetadata> = {
     description: 'Company overview and key metrics',
     icon: '📊',
     category: 'Market Data',
-    defaultSize: 'medium',
+    defaultSize: 'tall',
     minDimensions: { width: 4, height: 1 },
     requiredSymbol: true,
     component: StockProfile
@@ -52,7 +52,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetMetadata> = {
     description: 'Economic indicators and market overview',
     icon: '📈',
     category: 'Market Data',
-    defaultSize: 'medium',
+    defaultSize: 'tall',
     minDimensions: { width: 6, height: 1 },
     requiredSymbol: false,
     component: MacroIndicatorsDashboard
@@ -64,7 +64,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetMetadata> = {
     description: 'AI-analyzed news and sentiment',
     icon: '📰',
     category: 'News',
-    defaultSize: 'large',
+    defaultSize: 'xlarge',
     minDimensions: { width: 6, height: 1 },
     requiredSymbol: true,
     component: AINewsAnalysisReport
@@ -78,6 +78,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetMetadata> = {
     category: 'Charts',
     defaultSize: 'tall',
     minDimensions: { width: 6, height: 2 },
+    maxDimensions: { width: 12, height: 4 },
     requiredSymbol: true,
     component: AdvancedChart
   },
@@ -89,7 +90,8 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetMetadata> = {
     icon: '🔧',
     category: 'Charts',
     defaultSize: 'tall',
-    minDimensions: { width: 4, height: 1 },
+    minDimensions: { width: 4, height: 2 },
+    maxDimensions: { width: 12, height: 4 },
     requiredSymbol: true,
     component: TechnicalAnalysis
   },
@@ -100,7 +102,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetMetadata> = {
     description: 'Company profile widget',
     icon: '🏢',
     category: 'Fundamentals',
-    defaultSize: 'small',
+    defaultSize: 'square',
     minDimensions: { width: 4, height: 1 },
     requiredSymbol: true,
     component: CompanyProfile
@@ -112,7 +114,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetMetadata> = {
     description: 'Fundamental data and metrics',
     icon: '💰',
     category: 'Fundamentals',
-    defaultSize: 'small',
+    defaultSize: 'square',
     minDimensions: { width: 4, height: 1 },
     requiredSymbol: true,
     component: FundamentalData
@@ -124,7 +126,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetMetadata> = {
     description: 'Top news stories',
     icon: '📃',
     category: 'News',
-    defaultSize: 'small',
+    defaultSize: 'square',
     minDimensions: { width: 4, height: 1 },
     requiredSymbol: true,
     component: TopStories
@@ -136,9 +138,9 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetMetadata> = {
     description: 'AI-powered market bubble risk assessment',
     icon: '🫧',
     category: 'Risk Indicators',
-    defaultSize: 'large',
+    defaultSize: 'xlarge',
     minDimensions: { width: 6, height: 1 },
-    maxDimensions: { width: 12, height: 2 },
+    maxDimensions: { width: 12, height: 3 },
     requiredSymbol: false,
     component: BubbleDetector
   }
