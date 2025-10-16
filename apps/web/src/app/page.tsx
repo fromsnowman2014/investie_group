@@ -3,7 +3,7 @@
 import React from 'react';
 import TickerTape from './components/TradingView/TickerTape';
 import Header from './components/Header';
-import DashboardGrid from './components/Dashboard/DashboardGrid';
+import MasonryDashboard from './components/Dashboard/MasonryDashboard';
 import Footer from './components/Footer';
 
 export default function Home() {
@@ -12,13 +12,13 @@ export default function Home() {
       {/* Ticker Tape - Global Market Overview */}
       <TickerTape />
 
-      {/* Main Layout with New Customizable Dashboard */}
+      {/* Main Layout with Card-Based Masonry Dashboard */}
       <div className="main-layout">
         <header className="layout-header">
           <Header />
         </header>
         <main className="dashboard-main">
-          <DashboardGrid />
+          <MasonryDashboard />
         </main>
       </div>
 
