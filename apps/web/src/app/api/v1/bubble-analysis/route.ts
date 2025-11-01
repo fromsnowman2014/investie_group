@@ -63,120 +63,190 @@ function buildBubbleAnalysisPrompt(): string {
 
   return `You are a veteran market analyst with expertise in identifying asset bubbles.
 
-Conduct a comprehensive analysis to determine if the current market is at or near a bubble peak. Use the latest available data and provide evidence-based conclusions.
+Conduct a comprehensive analysis to determine if the current market is at or near a bubble peak. Use the latest available data as of ${currentDate}.
 
-**Analysis Date: ${currentDate}**
+## ANALYSIS FRAMEWORK (Internal Methodology)
 
-## ANALYSIS FRAMEWORK
+Analyze these 10 categories using current data:
 
 ### 1. LEVERAGE & CREDIT INDICATORS
-- Analyze NYSE margin debt as % of GDP and vs historical peaks
-- Evidence of widespread use of options, leverage ETFs by retail investors
+- NYSE margin debt as % of GDP vs historical peaks
+- Retail leveraged participation (options volume, leveraged ETFs)
 - Corporate debt to GDP ratio
 - Covenant-lite loan prevalence
 
 ### 2. VALUATION METRICS
-- Shiller P/E (CAPE Ratio) current level vs historical percentiles
-- Buffett Indicator: Total market cap to GDP ratio
+- Shiller P/E (CAPE Ratio): current vs historical percentiles
+- Buffett Indicator: Total market cap to GDP
 - Price-to-Sales ratios for S&P 500
-- Forward P/E comparison to historical averages
-- EV/EBITDA multiples vs historical norms
+- Forward P/E vs 10-year average
 
 ### 3. IPO & NEW ISSUANCE ACTIVITY
-- IPO volume and first-day returns
-- Percentage of unprofitable companies going public
-- SPAC activity levels
-- Secondary offerings and insider selling
+- IPO volume (number and dollar value)
+- Percentage of unprofitable IPOs
+- SPAC activity volume
+- First-day pops vs historical norms
 
 ### 4. SPECULATIVE BEHAVIOR
-- Meme stock activity levels
-- Zero-DTE options trading volume
-- Cryptocurrency market correlation
-- Sector rotation into high-risk segments
+- Meme stock activity
+- Zero-DTE options volume as % of total
+- Cryptocurrency correlation to equities
+- Retail participation rates
 
 ### 5. MONETARY POLICY & INTEREST RATES
-- Fed Funds Rate trajectory and current restrictiveness
-- Yield curve status (inversion/duration)
-- Real interest rates (nominal minus inflation)
-- Central bank balance sheet (QE/QT status)
+- Fed Funds Rate trajectory and real rates
+- Yield curve status (inversion/normalization)
+- QE/QT status and Fed balance sheet size
 
 ### 6. MARKET BREADTH & TECHNICAL
 - Advance-Decline line divergences
-- New Highs vs New Lows ratio
-- Market concentration (weight of top 10 stocks)
-- VIX levels and complacency indicators
+- Market concentration (top 10 stocks % of S&P 500)
+- VIX levels
+- Deviation from 200-day moving average
 
 ### 7. SENTIMENT & BEHAVIORAL INDICATORS
-- AAII Sentiment Survey (bulls vs bears)
-- Put/Call ratio positioning
-- Retail participation rate trends
-- Social media sentiment analysis
+- AAII Sentiment Survey (bulls vs bears ratio)
+- Put/Call ratio
+- Google Trends for speculative searches
 
 ### 8. MEDIA & CULTURAL SIGNALS
 - Mainstream media coverage frequency
-- Celebrity investment advice prevalence
-- "This time is different" rhetoric
-- Investment product launch activity
+- Celebrity involvement in markets
+- FOMO narratives prevalence
 
 ### 9. HISTORICAL PATTERN COMPARISON
-Compare current conditions to past bubbles:
-- 1929 Stock Market Bubble
-- 1987 Black Monday
-- 2000 Dot-com Bubble
-- 2008 Housing/Financial Crisis
-- 2021 Everything Bubble
-
-Identify similarities and differences in duration, magnitude, catalysts, and policy environment.
+Compare to: 1929, 1987, 2000, 2008, 2021 bubbles
+Analyze: duration, magnitude, catalysts, policy environment
 
 ### 10. CONTRARIAN INDICATORS
 - Insider trading buy/sell ratios
-- Smart money positioning (hedge funds, Berkshire Hathaway cash)
-- Credit spreads (investment grade and high yield)
+- Smart money positioning (Berkshire Hathaway cash, hedge fund positioning)
+- Credit spreads (high yield)
 
-## OUTPUT REQUIREMENTS
+---
 
-Provide a structured JSON response with the following format:
+## STRICT OUTPUT REQUIREMENTS (Optimized for Brevity)
+
+Return ONLY valid JSON (no markdown code blocks). Follow this EXACT format:
 
 {
   "verdict": "peak|near-peak|elevated|normal",
-  "verdictText": "2-3 sentence executive summary",
+  "verdictText": "Two sentences: verdict + primary reason with key data",
+
   "indicators": {
-    "leverageCredit": {"score": "extreme|elevated|normal", "icon": "🔴|🟡|🟢", "summary": "brief explanation"},
-    "valuations": {"score": "extreme|elevated|normal", "icon": "🔴|🟡|🟢", "summary": "brief explanation"},
-    "ipoActivity": {"score": "extreme|elevated|normal", "icon": "🔴|🟡|🟢", "summary": "brief explanation"},
-    "speculation": {"score": "extreme|elevated|normal", "icon": "🔴|🟡|🟢", "summary": "brief explanation"},
-    "monetaryPolicy": {"score": "extreme|elevated|normal", "icon": "🔴|🟡|🟢", "summary": "brief explanation"},
-    "marketBreadth": {"score": "extreme|elevated|normal", "icon": "🔴|🟡|🟢", "summary": "brief explanation"},
-    "sentiment": {"score": "extreme|elevated|normal", "icon": "🔴|🟡|🟢", "summary": "brief explanation"},
-    "mediaCulture": {"score": "extreme|elevated|normal", "icon": "🔴|🟡|🟢", "summary": "brief explanation"},
-    "historicalPatterns": {"score": "extreme|elevated|normal", "icon": "🔴|🟡|🟢", "summary": "brief explanation"},
-    "contrarianSignals": {"score": "extreme|elevated|normal", "icon": "🔴|🟡|🟢", "summary": "brief explanation"}
+    "leverageCredit": {
+      "score": "extreme|elevated|normal",
+      "icon": "🔴|🟡|🟢",
+      "summary": "ONE sentence MAX, data-first. Example: 'NYSE margin $745B (1.8% GDP vs 2.7% 2021 peak); corporate debt 47% GDP stable.'"
+    },
+    "valuations": {
+      "score": "extreme|elevated|normal",
+      "icon": "🔴|🟡|🟢",
+      "summary": "ONE sentence with key metrics. Example: 'CAPE 35.2 (87th percentile); Buffett Indicator 198% (vs 215% 2021 peak); Forward P/E 21.3x vs 16.8x avg.'"
+    },
+    "ipoActivity": {
+      "score": "extreme|elevated|normal",
+      "icon": "🔴|🟡|🟢",
+      "summary": "ONE sentence with numbers. Example: '108 IPOs in 2024, down 65% from 2021; unprofitable IPOs 25% vs 80% in 2020-2021.'"
+    },
+    "speculation": {
+      "score": "extreme|elevated|normal",
+      "icon": "🔴|🟡|🟢",
+      "summary": "ONE sentence with volume data. Example: 'Zero-DTE options 45% of volume (up from 5% in 2020); meme stock activity dormant; crypto correlation 0.35.'"
+    },
+    "monetaryPolicy": {
+      "score": "extreme|elevated|normal",
+      "icon": "🔴|🟡|🟢",
+      "summary": "ONE sentence with rates. Example: 'Fed Funds 4.75-5.00%; real rates +2.5%; yield curve normalized after longest inversion; QT reduced balance sheet $1.7T.'"
+    },
+    "marketBreadth": {
+      "score": "extreme|elevated|normal",
+      "icon": "🔴|🟡|🟢",
+      "summary": "ONE sentence with concentration data. Example: 'Top 10 stocks 34% of S&P 500 (highest since 1970s); advance-decline line confirming; equal-weight lagging 8% YTD.'"
+    },
+    "sentiment": {
+      "score": "extreme|elevated|normal",
+      "icon": "🔴|🟡|🟢",
+      "summary": "ONE sentence with survey data. Example: 'AAII Bulls 47% vs Bears 24%; Put/Call 0.68; retail participation 18% vs 23% 2021 peak; VIX 14.'"
+    },
+    "mediaCulture": {
+      "score": "extreme|elevated|normal",
+      "icon": "🔴|🟡|🟢",
+      "summary": "ONE sentence on coverage tone. Example: 'Focus on AI fundamentals vs get-rich-quick schemes; limited celebrity advice; skepticism remains widespread.'"
+    },
+    "historicalPatterns": {
+      "score": "extreme|elevated|normal",
+      "icon": "🔴|🟡|🟢",
+      "summary": "ONE sentence comparing to past. Example: 'Bull market 23 months with 65% gain; more similar to 1995-96 tech leadership than 1999-2000 blow-off.'"
+    },
+    "contrarianSignals": {
+      "score": "extreme|elevated|normal",
+      "icon": "🔴|🟡|🟢",
+      "summary": "ONE sentence with positioning. Example: 'Insider selling 4.2:1; Berkshire cash record $325B (28% of portfolio); HY spreads 300bps show confidence.'"
+    }
   },
-  "keyEvidence": ["5 most compelling data points"],
+
+  "keyEvidence": [
+    "Metric: Value (brief context) - Example: 'Shiller CAPE: 35.2 (87th percentile, elevated but not extreme)'",
+    "Maximum 5 data points total",
+    "Lead with the number, follow with context",
+    "One line per point",
+    "Include percentiles or vs-historical comparisons"
+  ],
+
   "historicalComparison": {
     "mostSimilarBubble": "1929|1987|2000|2008|2021|none",
-    "similarities": ["list of similarities"],
-    "differences": ["list of differences"]
+    "similarities": [
+      "Maximum 3 bullet points",
+      "One sentence each",
+      "Focus on structural similarities"
+    ]
   },
+
   "riskAssessment": {
-    "correctionProbability": 0-100,
-    "vulnerableSectors": ["list of sectors"],
-    "potentialCatalysts": ["list of catalysts"]
+    "correctionProbability": 45,
+    "vulnerableSectors": [
+      "Use brief names: 'AI/semiconductors', 'Mega-cap tech', 'Unprofitable growth'",
+      "Maximum 5 sectors"
+    ],
+    "potentialCatalysts": [
+      "Brief triggers: 'Fed policy error', 'Earnings disappointment', 'Geopolitical shock'",
+      "Maximum 5 catalysts"
+    ]
   },
+
   "timeline": {
-    "projectedPeakTimeframe": "timeframe if bubble detected",
-    "typicalDuration": "historical duration",
-    "reversalCatalysts": ["potential triggers"]
+    "projectedPeakTimeframe": "Brief estimate: 'Q1-Q2 2026' or 'Indeterminate'",
+    "typicalDuration": "One sentence: 'Bull markets average 5.5yr; current at 2yr'",
+    "reversalCatalysts": [
+      "Maximum 3 triggers",
+      "Brief format: 'Inflation resurgence', 'Credit event'"
+    ]
   },
-  "contrarianViewpoint": ["strongest arguments against bubble thesis"],
+
+  "contrarianViewpoint": [
+    "Maximum 3 strongest counter-arguments",
+    "One sentence each",
+    "Example: 'AI productivity gains justify premium valuations for tech leaders'",
+    "Focus on data-backed bull case"
+  ],
+
   "recommendations": {
-    "conservative": "advice for conservative investors",
-    "moderate": "advice for moderate risk tolerance",
-    "aggressive": "advice for aggressive investors"
+    "conservative": "Single sentence with 2-3 specific actions. Example: 'Reduce equity to 50-60%, increase cash to 20-25%, focus on dividend stocks with P/E <20'",
+    "moderate": "Single sentence with 2-3 specific actions. Example: 'Maintain 60-70% equity, rebalance from mega-cap tech to equal-weight/value, hold 15-20% bonds/cash'",
+    "aggressive": "Single sentence with 2-3 specific actions. Example: 'Keep 80-90% equity but diversify beyond Mag 7, maintain 10-15% cash for volatility, avoid leverage'"
   }
 }
 
-Use current market data and be specific with numbers, percentages, and timeframes. Return ONLY valid JSON without markdown formatting.`;
+CRITICAL FORMATTING RULES:
+✓ Each indicator summary: ONE sentence maximum, data-first
+✓ NO explanatory paragraphs - metrics and brief context only
+✓ Include actual numbers for all key metrics (CAPE value, percentages, ratios)
+✓ keyEvidence: Maximum 5 points, format "Metric: Value (context)"
+✓ historicalComparison similarities: Maximum 3 points
+✓ Recommendations: Single sentence per risk profile with specific actions
+✓ Use brief sector names, avoid long descriptions
+✓ Return ONLY the JSON object, no markdown formatting`;
 }
 
 function parseIndicatorLevel(text: string): { level: IndicatorLevel; icon: IndicatorIcon } {
@@ -283,7 +353,7 @@ async function generateBubbleAnalysis(): Promise<BubbleAnalysisData> {
 
   const requestBody = {
     model,
-    max_tokens: 8192,
+    max_tokens: 4096,
     temperature: 0.2,
     messages: [
       {
