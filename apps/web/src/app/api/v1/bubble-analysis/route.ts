@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getClaudeModel, getClaudeApiKey, CLAUDE_API_CONFIG } from '@/config/claude.config';
 import type {
   BubbleAnalysisData,
   BubbleVerdict,
@@ -263,12 +264,14 @@ async function generateBubbleAnalysis(): Promise<BubbleAnalysisData> {
     return cached;
   }
 
-  console.log('🚀 Generating fresh bubble analysis with Claude Sonnet 4.5');
+  console.log('🚀 Generating fresh bubble analysis with Claude');
 
-  const apiKey = process.env.CLAUDE_API_KEY;
-  const baseUrl = 'https://api.anthropic.com/v1/messages';
+  const apiKey = getClaudeApiKey();
+  const baseUrl = CLAUDE_API_CONFIG.baseUrl;
+  const model = getClaudeModel('bubble-detection');
 
   console.log(`🔑 Claude API Key status: ${apiKey ? 'Present' : 'Missing'}`);
+  console.log(`🤖 Using Claude model: ${model}`);
 
   if (!apiKey) {
     console.error('❌ Claude API key not configured');
@@ -279,7 +282,7 @@ async function generateBubbleAnalysis(): Promise<BubbleAnalysisData> {
   console.log(`📝 Prompt length: ${prompt.length} characters`);
 
   const requestBody = {
-    model: 'claude-sonnet-4-5-20250929',
+    model,
     max_tokens: 8192,
     temperature: 0.2,
     messages: [
@@ -297,7 +300,7 @@ async function generateBubbleAnalysis(): Promise<BubbleAnalysisData> {
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
+      'anthropic-version': CLAUDE_API_CONFIG.version,
     },
     body: JSON.stringify(requestBody),
   });

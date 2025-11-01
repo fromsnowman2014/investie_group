@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getClaudeModel, getClaudeApiKey, CLAUDE_API_CONFIG } from '@/config/claude.config';
 
 // Using 'nodejs' runtime to access CLAUDE_API_KEY environment variable
 export const runtime = 'nodejs';
@@ -166,10 +167,12 @@ async function generateCompanyAnalysis(symbol: string, companyData?: CompanyData
 
   console.log(`🚀 Generating fresh company analysis for ${symbol}`);
 
-  const apiKey = process.env.CLAUDE_API_KEY;
-  const baseUrl = 'https://api.anthropic.com/v1/messages';
+  const apiKey = getClaudeApiKey();
+  const baseUrl = CLAUDE_API_CONFIG.baseUrl;
+  const model = getClaudeModel('company-analysis');
 
   console.log(`🔑 Claude API Key status: ${apiKey ? 'Present (length: ' + apiKey.length + ')' : 'Missing'}`);
+  console.log(`🤖 Using Claude model: ${model}`);
 
   if (!apiKey) {
     console.error('❌ Claude API key not configured');
@@ -182,9 +185,9 @@ async function generateCompanyAnalysis(symbol: string, companyData?: CompanyData
   console.log(`🌐 Making API call to: ${baseUrl}`);
 
   const requestBody = {
-    model: 'claude-3-5-sonnet-20241022',
+    model,
     max_tokens: 600,
-    temperature: 0.3,
+    temperature: CLAUDE_API_CONFIG.defaultTemperature,
     messages: [{
       role: 'user',
       content: prompt
@@ -196,7 +199,7 @@ async function generateCompanyAnalysis(symbol: string, companyData?: CompanyData
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01'
+      'anthropic-version': CLAUDE_API_CONFIG.version
     },
     body: JSON.stringify(requestBody)
   });

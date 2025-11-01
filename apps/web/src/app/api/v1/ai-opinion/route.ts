@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getClaudeModel, getClaudeApiKey, CLAUDE_API_CONFIG } from '@/config/claude.config';
 
 // Changed from 'edge' to 'nodejs' to access CLAUDE_API_KEY environment variable
 // Edge Runtime has restrictions on accessing server-side environment variables
@@ -217,11 +218,13 @@ async function generateInvestmentOpinion(symbol: string): Promise<InvestmentOpin
   }
 
   console.log(`🚀 Generating fresh AI opinion for ${symbol}`);
-  
-  const apiKey = process.env.CLAUDE_API_KEY;
-  const baseUrl = 'https://api.anthropic.com/v1/messages';
+
+  const apiKey = getClaudeApiKey();
+  const baseUrl = CLAUDE_API_CONFIG.baseUrl;
+  const model = getClaudeModel('investment-opinion');
 
   console.log(`🔑 Claude API Key status: ${apiKey ? 'Present (length: ' + apiKey.length + ')' : 'Missing'}`);
+  console.log(`🤖 Using Claude model: ${model}`);
 
   if (!apiKey) {
     console.error('❌ Claude API key not configured');
@@ -232,11 +235,11 @@ async function generateInvestmentOpinion(symbol: string): Promise<InvestmentOpin
   console.log(`📝 Prompt length: ${prompt.length} characters`);
 
   console.log(`🌐 Making API call to: ${baseUrl}`);
-  
+
   const requestBody = {
-    model: 'claude-3-5-sonnet-20241022',
+    model,
     max_tokens: 1024,
-    temperature: 0.3,
+    temperature: CLAUDE_API_CONFIG.defaultTemperature,
     messages: [{
       role: 'user',
       content: prompt
@@ -248,7 +251,7 @@ async function generateInvestmentOpinion(symbol: string): Promise<InvestmentOpin
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01'
+      'anthropic-version': CLAUDE_API_CONFIG.version
     },
     body: JSON.stringify(requestBody)
   });
