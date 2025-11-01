@@ -3,33 +3,40 @@
  *
  * This file manages all Claude model versions used across the application.
  * Update model versions here to maintain consistency across all API routes.
+ *
+ * Official Documentation: https://docs.claude.com/en/docs/about-claude/models
+ * Last Updated: 2025-11-01
  */
 
 /**
- * Claude Model Versions
+ * Claude Model Versions (Current as of November 2025)
  *
- * Available models as of 2024:
- * - claude-3-5-sonnet-20240620: Latest stable Claude 3.5 Sonnet (recommended)
- * - claude-3-opus-20240229: Most capable Claude 3 model
- * - claude-3-sonnet-20240229: Balanced performance/cost
- * - claude-3-haiku-20240307: Fastest, most cost-effective
+ * Latest Models (Recommended):
+ * - claude-sonnet-4-5-20250929: Latest Sonnet 4.5 (best balance of intelligence, speed, cost)
+ * - claude-haiku-4-5-20251001: Latest Haiku 4.5 (fastest, most cost-effective)
+ * - claude-opus-4-1-20250805: Latest Opus 4.1 (most capable)
  *
- * Sonnet 4.5 models (if available):
- * - claude-sonnet-4-5-20250929: Latest Sonnet 4.5
+ * Legacy Models (Still Available):
+ * - claude-sonnet-4-20250514: Claude Sonnet 4
+ * - claude-3-7-sonnet-20250219: Claude Sonnet 3.7
+ * - claude-3-5-haiku-20241022: Claude Haiku 3.5
+ * - claude-3-haiku-20240307: Claude Haiku 3
+ *
+ * Note: Claude 3.5 Sonnet has been superseded by Sonnet 4.x series
  */
 
 export const CLAUDE_MODELS = {
-  // Primary model for general analysis (stable, recommended)
-  DEFAULT: 'claude-3-5-sonnet-20240620',
+  // Primary model for general analysis (Anthropic's recommended default)
+  DEFAULT: 'claude-sonnet-4-5-20250929',
 
-  // Advanced model for complex analysis (if Sonnet 4.5 is available)
+  // Advanced model for complex analysis (same as default - Sonnet 4.5 is the best)
   ADVANCED: 'claude-sonnet-4-5-20250929',
 
   // Fast model for simple tasks
-  FAST: 'claude-3-haiku-20240307',
+  FAST: 'claude-haiku-4-5-20251001',
 
   // Most capable model for critical analysis
-  PREMIUM: 'claude-3-opus-20240229',
+  PREMIUM: 'claude-opus-4-1-20250805',
 } as const;
 
 /**
@@ -45,24 +52,29 @@ export function getClaudeModel(feature: 'company-analysis' | 'investment-opinion
   // Allow environment variable override
   const envModel = process.env.CLAUDE_MODEL;
   if (envModel) {
-    console.log(`🔧 Using CLAUDE_MODEL from environment: ${envModel}`);
+    console.log(`🔧 [Claude Config] Using CLAUDE_MODEL from environment: ${envModel} (feature: ${feature})`);
     return envModel;
   }
 
   // Feature-specific model selection
+  let selectedModel: string;
   switch (feature) {
     case 'bubble-detection':
-      // Use advanced model for complex market analysis (if available)
-      // Fall back to default if Sonnet 4.5 is not available
-      return CLAUDE_MODELS.ADVANCED;
+      // Use advanced model for complex market analysis
+      selectedModel = CLAUDE_MODELS.ADVANCED;
+      break;
 
     case 'company-analysis':
     case 'investment-opinion':
     case 'default':
     default:
-      // Use stable Sonnet 3.5 for most features
-      return CLAUDE_MODELS.DEFAULT;
+      // Use Sonnet 4.5 for most features (Anthropic's recommended default)
+      selectedModel = CLAUDE_MODELS.DEFAULT;
+      break;
   }
+
+  console.log(`🤖 [Claude Config] Selected model for '${feature}': ${selectedModel}`);
+  return selectedModel;
 }
 
 /**

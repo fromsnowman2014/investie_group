@@ -204,11 +204,17 @@ async function generateCompanyAnalysis(symbol: string, companyData?: CompanyData
     body: JSON.stringify(requestBody)
   });
 
-  console.log(`📡 API Response status: ${response.status} ${response.statusText}`);
+  console.log(`📡 [Company Analysis] API Response status: ${response.status} ${response.statusText}`);
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error(`❌ Claude API error: ${response.status} - ${errorText}`);
+    console.error(`❌ [Company Analysis] Claude API error details:`, {
+      status: response.status,
+      statusText: response.statusText,
+      model: model,
+      symbol: symbol,
+      error: errorText
+    });
     throw new Error(`Claude API error: ${response.status} - ${errorText}`);
   }
 

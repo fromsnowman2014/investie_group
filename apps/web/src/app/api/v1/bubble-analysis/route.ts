@@ -305,11 +305,16 @@ async function generateBubbleAnalysis(): Promise<BubbleAnalysisData> {
     body: JSON.stringify(requestBody),
   });
 
-  console.log(`📡 API Response status: ${response.status} ${response.statusText}`);
+  console.log(`📡 [Bubble Analysis] API Response status: ${response.status} ${response.statusText}`);
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error(`❌ Claude API error: ${response.status} - ${errorText}`);
+    console.error(`❌ [Bubble Analysis] Claude API error details:`, {
+      status: response.status,
+      statusText: response.statusText,
+      model: model,
+      error: errorText
+    });
     throw new Error(`Claude API error: ${response.status} - ${errorText}`);
   }
 

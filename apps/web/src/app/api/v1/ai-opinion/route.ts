@@ -256,11 +256,17 @@ async function generateInvestmentOpinion(symbol: string): Promise<InvestmentOpin
     body: JSON.stringify(requestBody)
   });
 
-  console.log(`📡 API Response status: ${response.status} ${response.statusText}`);
+  console.log(`📡 [AI Opinion] API Response status: ${response.status} ${response.statusText}`);
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error(`❌ Claude API error: ${response.status} - ${errorText}`);
+    console.error(`❌ [AI Opinion] Claude API error details:`, {
+      status: response.status,
+      statusText: response.statusText,
+      model: model,
+      symbol: symbol,
+      error: errorText
+    });
     throw new Error(`Claude API error: ${response.status} - ${errorText}`);
   }
 
