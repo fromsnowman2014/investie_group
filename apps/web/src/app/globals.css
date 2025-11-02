@@ -1999,7 +1999,309 @@ body {
 .legend-color.employment { background: var(--color-warning); }
 .legend-color.monetary { background: var(--color-primary); }
 
-/* AINewsAnalysisReport Styles */
+/* AI News Summary Report Styles - New Simplified Design */
+.ai-news-summary-report {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  height: 100%;
+  padding: var(--spacing-md);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  overflow-y: auto;
+}
+
+/* Summary Header */
+.summary-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 2px solid var(--color-border-light);
+}
+
+.summary-title h3 {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: var(--line-height-tight);
+}
+
+.metadata-badge {
+  display: inline-block;
+  margin-top: var(--spacing-xs);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  background: var(--color-surface-elevated);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-light);
+}
+
+/* Sentiment Section */
+.sentiment-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.sentiment-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  width: fit-content;
+  box-shadow: var(--shadow-sm);
+}
+
+.sentiment-text {
+  font-size: var(--font-size-sm);
+}
+
+.sentiment-score-bar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.score-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.score-bar-container {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: var(--color-border-light);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.score-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-sm);
+  transition: width 0.3s ease;
+}
+
+.score-value {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* Key Insights Section */
+.key-insights-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: var(--color-surface-elevated);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-light);
+}
+
+.section-title {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: var(--line-height-tight);
+}
+
+.insights-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.insight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) 0;
+  line-height: var(--line-height-relaxed);
+}
+
+.insight-bullet {
+  color: var(--color-primary);
+  font-size: var(--font-size-lg);
+  font-weight: bold;
+  flex-shrink: 0;
+  line-height: var(--line-height-tight);
+}
+
+.insight-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  flex: 1;
+}
+
+/* Trending Topics Section */
+.trending-topics-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: var(--color-surface-elevated);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-light);
+}
+
+.topics-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+.topic-chip {
+  background: var(--gradient-primary);
+  color: var(--color-text-inverse);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.topic-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Market Impact Section */
+.market-impact-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: var(--color-surface-elevated);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-light);
+}
+
+.impact-statement {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+  font-style: italic;
+}
+
+/* Summary Footer */
+.summary-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--color-border-light);
+  margin-top: auto;
+}
+
+.ai-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--gradient-primary);
+  color: var(--color-text-inverse);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+}
+
+.ai-icon {
+  font-size: var(--font-size-sm);
+}
+
+.last-updated {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+}
+
+/* Skeleton Loading for Summary */
+.skeleton-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  width: 100%;
+}
+
+.skeleton-header {
+  height: 80px;
+  background: linear-gradient(90deg, var(--color-surface) 25%, var(--color-border-light) 50%, var(--color-surface) 75%);
+  background-size: 200% 100%;
+  border-radius: var(--radius-md);
+  animation: skeleton-loading 1.5s infinite;
+}
+
+.skeleton-points {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.skeleton-point {
+  height: 20px;
+  background: linear-gradient(90deg, var(--color-surface) 25%, var(--color-border-light) 50%, var(--color-surface) 75%);
+  background-size: 200% 100%;
+  border-radius: var(--radius-sm);
+  animation: skeleton-loading 1.5s infinite;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .ai-news-summary-report {
+    padding: var(--spacing-sm);
+  }
+
+  .summary-header {
+    gap: var(--spacing-sm);
+  }
+
+  .summary-title h3 {
+    font-size: var(--font-size-lg);
+  }
+
+  .sentiment-badge {
+    font-size: var(--font-size-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .key-insights-section,
+  .trending-topics-section,
+  .market-impact-section {
+    padding: var(--spacing-sm);
+  }
+
+  .insight-text {
+    font-size: var(--font-size-xs);
+  }
+
+  .summary-footer {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    align-items: flex-start;
+  }
+}
+
+/* Legacy AI News Analysis Report Styles - Keep for backwards compatibility */
 .ai-news-analysis-report {
   display: flex;
   flex-direction: column;
