@@ -1999,16 +1999,251 @@ body {
 .legend-color.employment { background: var(--color-warning); }
 .legend-color.monetary { background: var(--color-primary); }
 
-/* AI News Summary Report Styles - New Simplified Design */
+/* AI News Summary Report Styles - Compact 2-Column Design */
 .ai-news-summary-report {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-sm);
   height: 100%;
   padding: var(--spacing-md);
   background: var(--color-surface);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   overflow-y: auto;
+}
+
+/* Compact Header */
+.summary-compact-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex: 1;
+}
+
+.header-left h3 {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: var(--line-height-tight);
+}
+
+.metadata-inline {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+}
+
+.ai-badge-inline {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: var(--gradient-primary);
+  color: var(--color-text-inverse);
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ai-badge-inline .ai-icon {
+  font-size: 12px;
+}
+
+/* Main Grid - 2 Column Layout */
+.summary-main-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: var(--spacing-md);
+  align-items: start;
+}
+
+/* Left Column: Sentiment & Topics */
+.sentiment-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.sentiment-badge-compact {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  width: fit-content;
+  box-shadow: var(--shadow-sm);
+}
+
+.sentiment-score-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.score-display {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.score-display .score-bar-container {
+  flex: 1;
+  height: 6px;
+}
+
+.score-display .score-value {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+/* Trending Topics Compact */
+.trending-topics-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: var(--spacing-xs);
+}
+
+.section-title-small {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.topics-container-compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.topic-chip-small {
+  background: var(--gradient-primary);
+  color: var(--color-text-inverse);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+/* Right Column: Key Insights */
+.insights-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.insights-list-compact {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.insight-item-compact {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 0;
+  line-height: var(--line-height-snug);
+}
+
+.insight-item-compact .insight-bullet {
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+  font-weight: bold;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.insight-item-compact .insight-text {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  flex: 1;
+  line-height: 1.4;
+}
+
+/* Market Impact Compact */
+.market-impact-compact {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--color-surface-elevated);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--color-primary);
+  font-size: var(--font-size-xs);
+  line-height: 1.4;
+}
+
+.market-impact-compact strong {
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.market-impact-compact .impact-text {
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+/* Compact Footer */
+.summary-footer-compact {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: var(--spacing-xs);
+  border-top: 1px solid var(--color-border-light);
+}
+
+/* Mobile Responsive - Stack to Single Column */
+@media (max-width: 768px) {
+  .summary-main-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+
+  .summary-compact-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+
+  .header-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .header-left h3 {
+    font-size: var(--font-size-sm);
+  }
+
+  .market-impact-compact {
+    flex-direction: column;
+    gap: 4px;
+  }
 }
 
 /* Summary Header */

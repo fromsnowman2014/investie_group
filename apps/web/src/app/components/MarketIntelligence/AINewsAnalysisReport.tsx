@@ -52,7 +52,7 @@ export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportPro
         <div className="skeleton-summary">
           <div className="skeleton-header"></div>
           <div className="skeleton-points">
-            {[...Array(7)].map((_, i) => (
+            {[...Array(5)].map((_, i) => (
               <div key={i} className="skeleton-point"></div>
             ))}
           </div>
@@ -106,18 +106,26 @@ export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportPro
 
   return (
     <div className="ai-news-summary-report">
-      {/* Header with Sentiment */}
-      <div className="summary-header">
-        <div className="summary-title">
+      {/* Compact Header */}
+      <div className="summary-compact-header">
+        <div className="header-left">
           <h3>📊 AI News Analysis - {data.symbol}</h3>
-          <div className="metadata-badge">
+          <span className="metadata-inline">
             {data.metadata.articlesAnalyzed} articles • {data.metadata.timeRange}
-          </div>
+          </span>
         </div>
+        <div className="ai-badge-inline">
+          <span className="ai-icon">🤖</span>
+          <span>AI-Generated</span>
+        </div>
+      </div>
 
-        <div className="sentiment-section">
+      {/* Main Content - 2 Column Layout */}
+      <div className="summary-main-grid">
+        {/* Left Column: Sentiment */}
+        <div className="sentiment-column">
           <div
-            className="sentiment-badge"
+            className="sentiment-badge-compact"
             style={{
               backgroundColor: getSentimentColor(data.summary.overallSentiment),
               color: '#fff'
@@ -128,59 +136,58 @@ export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportPro
               {getSentimentLabel(data.summary.sentimentScore)}
             </span>
           </div>
-          <div className="sentiment-score-bar">
+
+          <div className="sentiment-score-compact">
             <div className="score-label">Sentiment Score</div>
-            <div className="score-bar-container">
-              <div
-                className="score-bar-fill"
-                style={{
-                  width: `${data.summary.sentimentScore}%`,
-                  backgroundColor: getSentimentColor(data.summary.overallSentiment)
-                }}
-              ></div>
+            <div className="score-display">
+              <div className="score-bar-container">
+                <div
+                  className="score-bar-fill"
+                  style={{
+                    width: `${data.summary.sentimentScore}%`,
+                    backgroundColor: getSentimentColor(data.summary.overallSentiment)
+                  }}
+                ></div>
+              </div>
+              <span className="score-value">{data.summary.sentimentScore}/100</span>
             </div>
-            <div className="score-value">{data.summary.sentimentScore}/100</div>
+          </div>
+
+          {/* Trending Topics - Moved to left column */}
+          <div className="trending-topics-compact">
+            <h4 className="section-title-small">🔥 Trending Topics</h4>
+            <div className="topics-container-compact">
+              {data.summary.trendingTopics.map((topic, index) => (
+                <span key={index} className="topic-chip-small">
+                  {topic}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Key Insights Section */}
-      <div className="key-insights-section">
-        <h4 className="section-title">🔑 Key Insights</h4>
-        <ul className="insights-list">
-          {data.summary.keyPoints.map((point, index) => (
-            <li key={index} className="insight-item">
-              <span className="insight-bullet">•</span>
-              <span className="insight-text">{point}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Trending Topics */}
-      <div className="trending-topics-section">
-        <h4 className="section-title">🔥 Trending Topics</h4>
-        <div className="topics-container">
-          {data.summary.trendingTopics.map((topic, index) => (
-            <span key={index} className="topic-chip">
-              {topic}
-            </span>
-          ))}
+        {/* Right Column: Key Insights */}
+        <div className="insights-column">
+          <h4 className="section-title-small">🔑 Key Insights</h4>
+          <ul className="insights-list-compact">
+            {data.summary.keyPoints.map((point, index) => (
+              <li key={index} className="insight-item-compact">
+                <span className="insight-bullet">•</span>
+                <span className="insight-text">{point}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
 
-      {/* Market Impact */}
-      <div className="market-impact-section">
-        <h4 className="section-title">📊 Market Impact Assessment</h4>
-        <p className="impact-statement">{data.summary.marketImpact}</p>
+      {/* Bottom: Market Impact */}
+      <div className="market-impact-compact">
+        <strong>📊 Market Impact:</strong>
+        <span className="impact-text">{data.summary.marketImpact}</span>
       </div>
 
-      {/* Footer */}
-      <div className="summary-footer">
-        <div className="ai-badge">
-          <span className="ai-icon">🤖</span>
-          <span>AI-Generated Summary</span>
-        </div>
+      {/* Compact Footer */}
+      <div className="summary-footer-compact">
         <small className="last-updated">
           Last updated: {new Date(data.metadata.lastUpdated).toLocaleString('en-US', {
             month: 'short',
