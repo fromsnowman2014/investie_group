@@ -137,115 +137,104 @@ Return ONLY valid JSON (no markdown code blocks). Follow this EXACT format:
     "leverageCredit": {
       "score": "extreme|elevated|normal",
       "icon": "🔴|🟡|🟢",
-      "summary": "ONE sentence MAX, data-first. Example: 'NYSE margin $745B (1.8% GDP vs 2.7% 2021 peak); corporate debt 47% GDP stable.'"
+      "summary": "Micro-format: key metric | context. Example: '$745B margin (1.8% GDP vs 2.7% '21) | Corp debt 47%'"
     },
     "valuations": {
       "score": "extreme|elevated|normal",
       "icon": "🔴|🟡|🟢",
-      "summary": "ONE sentence with key metrics. Example: 'CAPE 35.2 (87th percentile); Buffett Indicator 198% (vs 215% 2021 peak); Forward P/E 21.3x vs 16.8x avg.'"
+      "summary": "Micro-format: Example: 'CAPE 35.2 (87%ile) | Buffett 198% | Fwd P/E 21.3x vs 16.8x'"
     },
     "ipoActivity": {
       "score": "extreme|elevated|normal",
       "icon": "🔴|🟡|🟢",
-      "summary": "ONE sentence with numbers. Example: '108 IPOs in 2024, down 65% from 2021; unprofitable IPOs 25% vs 80% in 2020-2021.'"
+      "summary": "Micro-format: Example: '108 IPOs '24 (-65% vs '21) | 25% unprofitable vs 80% '20-21'"
     },
     "speculation": {
       "score": "extreme|elevated|normal",
       "icon": "🔴|🟡|🟢",
-      "summary": "ONE sentence with volume data. Example: 'Zero-DTE options 45% of volume (up from 5% in 2020); meme stock activity dormant; crypto correlation 0.35.'"
+      "summary": "Micro-format: Example: '0-DTE 45% (was 5% '20) | Meme dormant | Crypto corr 0.35'"
     },
     "monetaryPolicy": {
       "score": "extreme|elevated|normal",
       "icon": "🔴|🟡|🟢",
-      "summary": "ONE sentence with rates. Example: 'Fed Funds 4.75-5.00%; real rates +2.5%; yield curve normalized after longest inversion; QT reduced balance sheet $1.7T.'"
+      "summary": "Micro-format: Example: 'FFR 4.75-5% | Real +2.5% | Curve norm | QT -$1.7T'"
     },
     "marketBreadth": {
       "score": "extreme|elevated|normal",
       "icon": "🔴|🟡|🟢",
-      "summary": "ONE sentence with concentration data. Example: 'Top 10 stocks 34% of S&P 500 (highest since 1970s); advance-decline line confirming; equal-weight lagging 8% YTD.'"
+      "summary": "Micro-format: Example: 'Top 10: 34% SPX (50yr high) | A-D confirming | EW lag -8%'"
     },
     "sentiment": {
       "score": "extreme|elevated|normal",
       "icon": "🔴|🟡|🟢",
-      "summary": "ONE sentence with survey data. Example: 'AAII Bulls 47% vs Bears 24%; Put/Call 0.68; retail participation 18% vs 23% 2021 peak; VIX 14.'"
+      "summary": "Micro-format: Example: 'Bulls 47% vs Bears 24% | P/C 0.68 | Retail 18% | VIX 14'"
     },
     "mediaCulture": {
       "score": "extreme|elevated|normal",
       "icon": "🔴|🟡|🟢",
-      "summary": "ONE sentence on coverage tone. Example: 'Focus on AI fundamentals vs get-rich-quick schemes; limited celebrity advice; skepticism remains widespread.'"
+      "summary": "Micro-format: Example: 'AI fundamentals focus | Low celeb advice | Skepticism high'"
     },
     "historicalPatterns": {
       "score": "extreme|elevated|normal",
       "icon": "🔴|🟡|🟢",
-      "summary": "ONE sentence comparing to past. Example: 'Bull market 23 months with 65% gain; more similar to 1995-96 tech leadership than 1999-2000 blow-off.'"
+      "summary": "Micro-format: Example: '23mo bull +65% | More '95-96 tech than '99-00 mania'"
     },
     "contrarianSignals": {
       "score": "extreme|elevated|normal",
       "icon": "🔴|🟡|🟢",
-      "summary": "ONE sentence with positioning. Example: 'Insider selling 4.2:1; Berkshire cash record $325B (28% of portfolio); HY spreads 300bps show confidence.'"
+      "summary": "Micro-format: Example: 'Insider sell 4.2:1 | BRK cash $325B (28%) | HY 300bps'"
     }
   },
 
   "keyEvidence": [
-    "Metric: Value (brief context) - Example: 'Shiller CAPE: 35.2 (87th percentile, elevated but not extreme)'",
-    "Maximum 5 data points total",
-    "Lead with the number, follow with context",
-    "One line per point",
-    "Include percentiles or vs-historical comparisons"
+    "Short format: 'Metric: Value (context)'",
+    "Maximum 3 data points ONLY",
+    "Example: 'CAPE: 34.8 (86th %ile since 1881)', 'Top 10: 36% of S&P (50yr high)', '0-DTE: 43% vol (instability risk)'"
   ],
 
   "historicalComparison": {
     "mostSimilarBubble": "1929|1987|2000|2008|2021|none",
-    "similarities": [
-      "Maximum 3 bullet points",
-      "One sentence each",
-      "Focus on structural similarities"
-    ]
+    "similarities": []
   },
 
   "riskAssessment": {
     "correctionProbability": 45,
     "vulnerableSectors": [
-      "Use brief names: 'AI/semiconductors', 'Mega-cap tech', 'Unprofitable growth'",
-      "Maximum 5 sectors"
+      "Brief names ONLY, max 3 sectors",
+      "Example: 'Mega-cap (Mag 7)', 'AI/semiconductors', 'Unprofitable growth'"
     ],
-    "potentialCatalysts": [
-      "Brief triggers: 'Fed policy error', 'Earnings disappointment', 'Geopolitical shock'",
-      "Maximum 5 catalysts"
-    ]
+    "potentialCatalysts": []
   },
 
   "timeline": {
-    "projectedPeakTimeframe": "Brief estimate: 'Q1-Q2 2026' or 'Indeterminate'",
-    "typicalDuration": "One sentence: 'Bull markets average 5.5yr; current at 2yr'",
-    "reversalCatalysts": [
-      "Maximum 3 triggers",
-      "Brief format: 'Inflation resurgence', 'Credit event'"
-    ]
+    "projectedPeakTimeframe": "Brief: 'Q2 2025' or 'Indeterminate' (optional)",
+    "typicalDuration": "Brief: 'Bulls avg 5.5yr; at 2.1yr' (optional)",
+    "reversalCatalysts": []
   },
 
   "contrarianViewpoint": [
-    "Maximum 3 strongest counter-arguments",
-    "One sentence each",
-    "Example: 'AI productivity gains justify premium valuations for tech leaders'",
-    "Focus on data-backed bull case"
+    "SINGLE strongest argument ONLY",
+    "Example: 'AI productivity revolution justifies valuations for infrastructure leaders with 20%+ earnings growth'"
   ],
 
   "recommendations": {
-    "conservative": "Single sentence with 2-3 specific actions. Example: 'Reduce equity to 50-60%, increase cash to 20-25%, focus on dividend stocks with P/E <20'",
-    "moderate": "Single sentence with 2-3 specific actions. Example: 'Maintain 60-70% equity, rebalance from mega-cap tech to equal-weight/value, hold 15-20% bonds/cash'",
-    "aggressive": "Single sentence with 2-3 specific actions. Example: 'Keep 80-90% equity but diversify beyond Mag 7, maintain 10-15% cash for volatility, avoid leverage'"
+    "conservative": "Ultra-compact: '↓equity 50-60% | ↑cash 20-25% | dividend stocks P/E<20'",
+    "moderate": "Ultra-compact: 'Rebalance from tech | equal-weight/value | 15-20% bonds'",
+    "aggressive": "Ultra-compact: 'Diversify beyond Mag 7 | 10-15% cash for volatility | avoid leverage'"
   }
 }
 
-CRITICAL FORMATTING RULES:
-✓ Each indicator summary: ONE sentence maximum, data-first
-✓ NO explanatory paragraphs - metrics and brief context only
-✓ Include actual numbers for all key metrics (CAPE value, percentages, ratios)
-✓ keyEvidence: Maximum 5 points, format "Metric: Value (context)"
-✓ historicalComparison similarities: Maximum 3 points
-✓ Recommendations: Single sentence per risk profile with specific actions
-✓ Use brief sector names, avoid long descriptions
+CRITICAL FORMATTING RULES (ULTRA-COMPACT OUTPUT):
+✓ Indicator summaries: Micro-format with pipe separator (|), use abbreviations
+✓ keyEvidence: MAXIMUM 3 points, ultra-brief format
+✓ historicalComparison: mostSimilarBubble only, NO similarities array
+✓ vulnerableSectors: MAXIMUM 3 sectors, brief names
+✓ contrarianViewpoint: SINGLE argument only (not array, just one string)
+✓ Recommendations: Ultra-compact with arrows (↓↑) and pipe separators
+✓ timeline: Optional, keep very brief if included
+✓ potentialCatalysts: Empty array (omit)
+✓ reversalCatalysts: Empty array (omit)
+✓ Use abbreviations: %ile for percentile, SPX for S&P 500, '21 for 2021, etc.
 ✓ Return ONLY the JSON object, no markdown formatting`;
 }
 
@@ -293,6 +282,16 @@ function parseClaudeResponse(responseData: ClaudeResponse): BubbleAnalysisData {
       {} as Record<string, { score: IndicatorLevel; icon: IndicatorIcon; summary: string }>
     );
 
+    // Handle contrarianViewpoint as either string or array
+    let contrarianViewpoint: string[] = [];
+    if (parsed.contrarianViewpoint) {
+      if (typeof parsed.contrarianViewpoint === 'string') {
+        contrarianViewpoint = [parsed.contrarianViewpoint];
+      } else if (Array.isArray(parsed.contrarianViewpoint)) {
+        contrarianViewpoint = parsed.contrarianViewpoint;
+      }
+    }
+
     return {
       success: true,
       verdict: (parsed.verdict || 'normal') as BubbleVerdict,
@@ -310,7 +309,7 @@ function parseClaudeResponse(responseData: ClaudeResponse): BubbleAnalysisData {
         potentialCatalysts: parsed.riskAssessment?.potentialCatalysts || [],
       },
       timeline: parsed.timeline,
-      contrarianViewpoint: parsed.contrarianViewpoint || [],
+      contrarianViewpoint: contrarianViewpoint,
       recommendations: {
         conservative: parsed.recommendations?.conservative || 'Maintain diversified portfolio',
         moderate: parsed.recommendations?.moderate || 'Balance risk and opportunity',
@@ -353,7 +352,7 @@ async function generateBubbleAnalysis(): Promise<BubbleAnalysisData> {
 
   const requestBody = {
     model,
-    max_tokens: 4096,
+    max_tokens: 2048,
     temperature: 0.2,
     messages: [
       {

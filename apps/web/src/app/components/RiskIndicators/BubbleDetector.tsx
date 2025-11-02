@@ -1,12 +1,12 @@
 /**
- * Market Bubble Detector Widget
+ * Market Bubble Detector Widget - ULTRA-COMPACT VERSION
  * AI-powered comprehensive market bubble risk assessment using Claude Sonnet 4.5
- * Analyzes 10 major indicator categories to determine bubble risk
+ * Optimized for minimal space usage with maximum information density
  */
 
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import useSWR from 'swr';
 import type { BubbleAnalysisData } from '@/types/bubble-analysis';
 import { useRefresh } from '@/app/contexts/RefreshContext';
@@ -19,6 +19,7 @@ const fetcher = async (url: string): Promise<BubbleAnalysisData> => {
 
 export default function BubbleDetector() {
   const { refreshTrigger } = useRefresh();
+  const [hoveredIndicator, setHoveredIndicator] = useState<string | null>(null);
 
   const { data, error, isLoading, mutate } = useSWR<BubbleAnalysisData>(
     '/api/v1/bubble-analysis',
@@ -38,16 +39,9 @@ export default function BubbleDetector() {
   if (isLoading) {
     return (
       <div className="bubble-detector-widget">
-        <div className="bubble-detector-loading">
-          <div className="skeleton-card">
-            <div className="skeleton-line skeleton-title"></div>
-            <div className="skeleton-line skeleton-subtitle"></div>
-            <div className="skeleton-grid">
-              {[...Array(10)].map((_, i) => (
-                <div key={i} className="skeleton-indicator"></div>
-              ))}
-            </div>
-          </div>
+        <div className="bubble-compact-loading">
+          <div className="loading-spinner">🫧</div>
+          <div className="loading-text">Analyzing market conditions...</div>
         </div>
       </div>
     );
@@ -56,10 +50,9 @@ export default function BubbleDetector() {
   if (error || !data) {
     return (
       <div className="bubble-detector-widget">
-        <div className="bubble-detector-error">
+        <div className="bubble-compact-error">
           <div className="error-icon">🫧</div>
-          <h3>Analysis Unavailable</h3>
-          <p>Unable to load market bubble analysis</p>
+          <div className="error-text">Analysis Unavailable</div>
         </div>
       </div>
     );
@@ -82,159 +75,140 @@ export default function BubbleDetector() {
   const getVerdictLabel = (verdict: string) => {
     switch (verdict) {
       case 'peak':
-        return '🔴 PEAK RISK';
+        return '🔴 PEAK';
       case 'near-peak':
         return '🟠 NEAR PEAK';
       case 'elevated':
-        return '🟡 ELEVATED RISK';
+        return '🟡 ELEVATED';
       case 'normal':
       default:
         return '🟢 NORMAL';
     }
   };
 
+  const getIndicatorLabel = (key: string) => {
+    const labels: Record<string, string> = {
+      leverageCredit: 'Leverage',
+      valuations: 'Valuation',
+      ipoActivity: 'IPO',
+      speculation: 'Speculation',
+      monetaryPolicy: 'Policy',
+      marketBreadth: 'Breadth',
+      sentiment: 'Sentiment',
+      mediaCulture: 'Media',
+      historicalPatterns: 'History',
+      contrarianSignals: 'Contrarian',
+    };
+    return labels[key] || key;
+  };
+
   const indicatorEntries = Object.entries(data.indicators);
 
   return (
     <div className="bubble-detector-widget">
-      <div className="bubble-detector-content">
-        {/* Executive Summary */}
-        <div className="bubble-summary" style={{ borderLeftColor: getVerdictColor(data.verdict) }}>
-          <div className="summary-header">
-            <h3 className="summary-verdict">{getVerdictLabel(data.verdict)}</h3>
-            <div className="summary-date">
-              Updated: {new Date(data.lastUpdated).toLocaleDateString()}
-            </div>
+      <div className="bubble-compact-content">
+        {/* Compact Header */}
+        <div className="bubble-compact-header" style={{ borderLeftColor: getVerdictColor(data.verdict) }}>
+          <div className="header-top">
+            <span className="verdict-badge">{getVerdictLabel(data.verdict)}</span>
+            <span className="probability-badge">{data.riskAssessment.correctionProbability}%</span>
+            {data.historicalComparison.mostSimilarBubble !== 'none' && (
+              <span className="historical-badge">~{data.historicalComparison.mostSimilarBubble}</span>
+            )}
           </div>
-          <p className="summary-text">{data.verdictText}</p>
+          <div className="verdict-text">{data.verdictText}</div>
         </div>
 
-        {/* Indicator Matrix */}
-        <div className="bubble-indicators">
-          <h4 className="section-title">📈 Market Indicators</h4>
-          <div className="indicators-grid">
+        {/* Ultra-Compact Indicator Grid (5x2) */}
+        <div className="bubble-compact-indicators">
+          <div className="indicators-grid-compact">
             {indicatorEntries.map(([key, indicator]) => (
-              <div key={key} className="indicator-card">
-                <div className="indicator-icon">{indicator.icon}</div>
-                <div className="indicator-info">
-                  <div className="indicator-label">
-                    {key
-                      .replace(/([A-Z])/g, ' $1')
-                      .replace(/^./, (str) => str.toUpperCase())
-                      .trim()}
+              <div
+                key={key}
+                className="indicator-chip"
+                onMouseEnter={() => setHoveredIndicator(key)}
+                onMouseLeave={() => setHoveredIndicator(null)}
+                title={indicator.summary}
+              >
+                <span className="chip-icon">{indicator.icon}</span>
+                <span className="chip-label">{getIndicatorLabel(key)}</span>
+                {hoveredIndicator === key && (
+                  <div className="indicator-tooltip">
+                    <div className="tooltip-title">{getIndicatorLabel(key)}</div>
+                    <div className="tooltip-content">{indicator.summary}</div>
                   </div>
-                  <div className="indicator-summary">{indicator.summary}</div>
-                </div>
+                )}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Key Evidence */}
+        {/* Inline Key Evidence */}
         {data.keyEvidence && data.keyEvidence.length > 0 && (
-          <div className="bubble-section">
-            <h4 className="section-title">🔍 Key Evidence</h4>
-            <ul className="evidence-list">
+          <div className="bubble-compact-row">
+            <span className="row-icon">🔍</span>
+            <div className="evidence-badges">
               {data.keyEvidence.map((evidence, index) => (
-                <li key={index}>{evidence}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Historical Context */}
-        {data.historicalComparison.mostSimilarBubble !== 'none' && (
-          <div className="bubble-section">
-            <h4 className="section-title">📚 Historical Context</h4>
-            <div className="historical-comparison">
-              <div className="comparison-label">
-                Most Similar: <strong>{data.historicalComparison.mostSimilarBubble}</strong>
-              </div>
-              {data.historicalComparison.similarities.length > 0 && (
-                <div className="comparison-details">
-                  <div className="comparison-subtitle">Similarities:</div>
-                  <ul>
-                    {data.historicalComparison.similarities.map((item, index) => (
-                      <li key={index}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Risk Assessment */}
-        <div className="bubble-section">
-          <h4 className="section-title">⚠️ Risk Assessment</h4>
-          <div className="risk-assessment">
-            <div className="risk-metric">
-              <span className="risk-label">Correction Probability:</span>
-              <span className="risk-value">{data.riskAssessment.correctionProbability}%</span>
-            </div>
-            {data.riskAssessment.vulnerableSectors.length > 0 && (
-              <div className="risk-detail">
-                <span className="risk-label">Vulnerable Sectors:</span>
-                <span className="risk-text">
-                  {data.riskAssessment.vulnerableSectors.join(', ')}
+                <span key={index} className="evidence-badge">
+                  {evidence}
                 </span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Timeline (if bubble detected) */}
-        {data.timeline && (
-          <div className="bubble-section">
-            <h4 className="section-title">📅 Timeline</h4>
-            <div className="timeline-info">
-              <p>
-                <strong>Projected Peak:</strong> {data.timeline.projectedPeakTimeframe}
-              </p>
-              <p>
-                <strong>Typical Duration:</strong> {data.timeline.typicalDuration}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Contrarian Viewpoint */}
-        {data.contrarianViewpoint && data.contrarianViewpoint.length > 0 && (
-          <div className="bubble-section">
-            <h4 className="section-title">🤔 Contrarian View</h4>
-            <ul className="contrarian-list">
-              {data.contrarianViewpoint.map((point, index) => (
-                <li key={index}>{point}</li>
               ))}
-            </ul>
+            </div>
           </div>
         )}
 
-        {/* Recommendations */}
-        <div className="bubble-section bubble-recommendations">
-          <h4 className="section-title">💡 Recommendations</h4>
-          <div className="recommendations-grid">
-            <div className="recommendation-card conservative">
-              <div className="recommendation-label">Conservative</div>
-              <p>{data.recommendations.conservative}</p>
+        {/* Vulnerable Sectors */}
+        {data.riskAssessment.vulnerableSectors.length > 0 && (
+          <div className="bubble-compact-row">
+            <span className="row-icon">⚠️</span>
+            <div className="sector-chips">
+              <span className="row-label">Risk:</span>
+              {data.riskAssessment.vulnerableSectors.map((sector, index) => (
+                <span key={index} className="sector-chip">
+                  {sector}
+                </span>
+              ))}
             </div>
-            <div className="recommendation-card moderate">
-              <div className="recommendation-label">Moderate</div>
-              <p>{data.recommendations.moderate}</p>
+          </div>
+        )}
+
+        {/* Contrarian View (if single string) */}
+        {data.contrarianViewpoint && data.contrarianViewpoint.length > 0 && (
+          <div className="bubble-compact-row">
+            <span className="row-icon">🤔</span>
+            <div className="contrarian-text">
+              <span className="row-label">Bull case:</span>
+              {Array.isArray(data.contrarianViewpoint)
+                ? data.contrarianViewpoint[0]
+                : data.contrarianViewpoint}
             </div>
-            <div className="recommendation-card aggressive">
-              <div className="recommendation-label">Aggressive</div>
-              <p>{data.recommendations.aggressive}</p>
+          </div>
+        )}
+
+        {/* Ultra-Compact Recommendations */}
+        <div className="bubble-compact-recs">
+          <div className="rec-row">
+            <span className="rec-icon">💡</span>
+            <div className="rec-content">
+              <div className="rec-item">
+                <span className="rec-label">Conservative:</span>
+                <span className="rec-text">{data.recommendations.conservative}</span>
+              </div>
+              <div className="rec-item">
+                <span className="rec-label">Moderate:</span>
+                <span className="rec-text">{data.recommendations.moderate}</span>
+              </div>
+              <div className="rec-item">
+                <span className="rec-label">Aggressive:</span>
+                <span className="rec-text">{data.recommendations.aggressive}</span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Disclaimer */}
-        <div className="bubble-disclaimer">
-          <small>
-            ⚠️ This analysis is powered by AI and is for informational purposes only. Not financial
-            advice. Market conditions can change rapidly.
-          </small>
+        {/* Minimal Footer */}
+        <div className="bubble-compact-footer">
+          <small>AI-powered analysis • {new Date(data.lastUpdated).toLocaleDateString()}</small>
         </div>
       </div>
     </div>
