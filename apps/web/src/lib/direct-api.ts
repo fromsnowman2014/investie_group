@@ -260,8 +260,8 @@ async function fetchFearGreedIndex(): Promise<{ value: number; status: string; c
     }
 
     // Map classification to status and add confidence score
-    let status = fngData.value_classification.toLowerCase();
-    let confidence = 0.8; // Default confidence for crypto-based proxy
+    const status = fngData.value_classification.toLowerCase();
+    const confidence = 0.8; // Default confidence for crypto-based proxy
 
     return {
       value,

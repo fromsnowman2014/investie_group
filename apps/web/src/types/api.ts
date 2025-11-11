@@ -85,15 +85,55 @@ export interface SectorPerformance {
 
 export interface MarketOverviewData {
   indices: {
-    sp500: MarketIndex;
-    nasdaq: MarketIndex;
-    dow: MarketIndex;
+    sp500: MarketIndex | null;
+    nasdaq: MarketIndex | null;
+    dow: MarketIndex | null;
   };
   sectors: SectorPerformance[];
-  marketSentiment: 'bullish' | 'bearish' | 'neutral';
+  economicIndicators: {
+    interestRate: {
+      value: number;
+      date: string;
+      trend: string;
+      source: string;
+    } | null;
+    cpi: {
+      value: number;
+      previousValue: number;
+      change: number;
+      date: string;
+      trend: string;
+      source: string;
+    } | null;
+    unemployment: {
+      value: number;
+      date: string;
+      trend: string;
+      source: string;
+    } | null;
+  };
+  fearGreedIndex: {
+    value: number;
+    status: string;
+    confidence: number;
+  } | null;
+  vix: {
+    value: number;
+    status: string;
+    interpretation: string;
+  } | null;
+  marketSentiment: string;
   volatilityIndex: number;
   source: string;
   lastUpdated?: string;
+  timestamp?: string;
+  apiError?: {
+    isError: boolean;
+    isRateLimit: boolean;
+    message: string;
+    details: string;
+    suggestedAction: string;
+  };
 }
 
 // Simplified API response wrapper

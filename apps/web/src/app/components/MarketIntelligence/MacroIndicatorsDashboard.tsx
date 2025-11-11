@@ -183,53 +183,59 @@ export default function MacroIndicatorsDashboard({ }: MacroIndicatorsDashboardPr
         {/* Major Indices - Compact Layout */}
         <div className="indices-section">
           <div className="indices-compact">
-            <div className="index-row">
-              <div className="index-info">
-                <span className="index-name">S&P 500</span>
-                <span className="index-symbol">SPY</span>
+            {data.indices.sp500 && (
+              <div className="index-row">
+                <div className="index-info">
+                  <span className="index-name">S&P 500</span>
+                  <span className="index-symbol">SPY</span>
+                </div>
+                <div className="index-metrics">
+                  <span className="index-value">{formatValue(data.indices.sp500.value)}</span>
+                  <span
+                    className="index-change"
+                    style={{ color: getChangeColor(data.indices.sp500.change) }}
+                  >
+                    {formatChange(data.indices.sp500.change, data.indices.sp500.changePercent)}
+                  </span>
+                </div>
               </div>
-              <div className="index-metrics">
-                <span className="index-value">{formatValue(data.indices.sp500.value)}</span>
-                <span 
-                  className="index-change"
-                  style={{ color: getChangeColor(data.indices.sp500.change) }}
-                >
-                  {formatChange(data.indices.sp500.change, data.indices.sp500.changePercent)}
-                </span>
+            )}
+
+            {data.indices.nasdaq && (
+              <div className="index-row">
+                <div className="index-info">
+                  <span className="index-name">NASDAQ</span>
+                  <span className="index-symbol">QQQ</span>
+                </div>
+                <div className="index-metrics">
+                  <span className="index-value">{formatValue(data.indices.nasdaq.value)}</span>
+                  <span
+                    className="index-change"
+                    style={{ color: getChangeColor(data.indices.nasdaq.change) }}
+                  >
+                    {formatChange(data.indices.nasdaq.change, data.indices.nasdaq.changePercent)}
+                  </span>
+                </div>
               </div>
-            </div>
-            
-            <div className="index-row">
-              <div className="index-info">
-                <span className="index-name">NASDAQ</span>
-                <span className="index-symbol">QQQ</span>
+            )}
+
+            {data.indices.dow && (
+              <div className="index-row">
+                <div className="index-info">
+                  <span className="index-name">Dow Jones</span>
+                  <span className="index-symbol">DIA</span>
+                </div>
+                <div className="index-metrics">
+                  <span className="index-value">{formatValue(data.indices.dow.value)}</span>
+                  <span
+                    className="index-change"
+                    style={{ color: getChangeColor(data.indices.dow.change) }}
+                  >
+                    {formatChange(data.indices.dow.change, data.indices.dow.changePercent)}
+                  </span>
+                </div>
               </div>
-              <div className="index-metrics">
-                <span className="index-value">{formatValue(data.indices.nasdaq.value)}</span>
-                <span 
-                  className="index-change"
-                  style={{ color: getChangeColor(data.indices.nasdaq.change) }}
-                >
-                  {formatChange(data.indices.nasdaq.change, data.indices.nasdaq.changePercent)}
-                </span>
-              </div>
-            </div>
-            
-            <div className="index-row">
-              <div className="index-info">
-                <span className="index-name">Dow Jones</span>
-                <span className="index-symbol">DIA</span>
-              </div>
-              <div className="index-metrics">
-                <span className="index-value">{formatValue(data.indices.dow.value)}</span>
-                <span 
-                  className="index-change"
-                  style={{ color: getChangeColor(data.indices.dow.change) }}
-                >
-                  {formatChange(data.indices.dow.change, data.indices.dow.changePercent)}
-                </span>
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
