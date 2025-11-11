@@ -227,6 +227,55 @@ async function fetchFredData(seriesId: string): Promise<{ value: number; date: s
 }
 
 /**
+ * Fetch Fear & Greed Index from Alternative.me (Crypto market sentiment)
+ * Note: This is crypto Fear & Greed, not stock market. Used as a proxy for overall market sentiment.
+ */
+async function fetchFearGreedIndex(): Promise<{ value: number; status: string; confidence: number } | null> {
+  try {
+    const url = 'https://api.alternative.me/fng/?limit=1';
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`Fear & Greed API error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json() as {
+      data?: Array<{
+        value: string;
+        value_classification: string;
+        timestamp: string;
+      }>;
+    };
+
+    if (!data.data || data.data.length === 0) {
+      throw new Error('No Fear & Greed data available');
+    }
+
+    const fngData = data.data[0];
+    const value = parseInt(fngData.value);
+
+    if (isNaN(value)) {
+      throw new Error(`Invalid Fear & Greed value: ${fngData.value}`);
+    }
+
+    // Map classification to status and add confidence score
+    let status = fngData.value_classification.toLowerCase();
+    let confidence = 0.8; // Default confidence for crypto-based proxy
+
+    return {
+      value,
+      status,
+      confidence
+    };
+
+  } catch (error) {
+    console.error('❌ Fear & Greed API: Failed to fetch:', error);
+    return null;
+  }
+}
+
+/**
  * Fetch comprehensive market overview data using direct APIs
  */
 export async function fetchMarketOverviewDirect(): Promise<MarketOverviewData> {
@@ -234,14 +283,15 @@ export async function fetchMarketOverviewDirect(): Promise<MarketOverviewData> {
     // Fetch market data and economic indicators in parallel
     const fetchStartTime = Date.now();
 
-    const [sp500Data, vixData, nasdaqData, dowData, treasuryData, cpiData, unemploymentData] = await Promise.all([
+    const [sp500Data, vixData, nasdaqData, dowData, treasuryData, cpiData, unemploymentData, fearGreedData] = await Promise.all([
       fetchYahooFinanceData('^GSPC'), // S&P 500 Index (actual index, not ETF)
       fetchYahooFinanceData('^VIX'),  // VIX Volatility Index
       fetchYahooFinanceData('^IXIC'), // NASDAQ Composite Index (actual index, not ETF)
       fetchYahooFinanceData('^DJI'),  // DOW Jones Industrial Average (actual index, not ETF)
       fetchYahooFinanceData('^TNX'),  // 10 Year Treasury Note
       fetchFredData('CPIAUCSL'),      // Consumer Price Index
-      fetchFredData('UNRATE')         // Unemployment Rate
+      fetchFredData('UNRATE'),        // Unemployment Rate
+      fetchFearGreedIndex()           // Fear & Greed Index (Crypto-based proxy)
     ]);
 
     // Build market overview response
@@ -300,7 +350,7 @@ export async function fetchMarketOverviewDirect(): Promise<MarketOverviewData> {
           source: 'fallback_data'
         }
       },
-      fearGreedIndex: null,
+      fearGreedIndex: fearGreedData,
       vix: {
         value: vixData.price,
         status: vixData.price < 20 ? 'low' : vixData.price > 30 ? 'high' : 'moderate',
