@@ -182,7 +182,15 @@ async function fetchYahooFinanceData(symbol: string): Promise<MarketDataItem> {
  * Fetch economic indicators from FRED API (Federal Reserve Economic Data)
  */
 async function fetchFredData(seriesId: string): Promise<{ value: number; date: string } | null> {
+  // FRED API는 CORS를 지원하지 않으므로 클라이언트에서는 호출하지 않음
+  // 서버사이드 (API routes)에서만 사용 가능
   const fredApiKey = process.env.NEXT_PUBLIC_FRED_API_KEY;
+
+  // 클라이언트 환경이거나 API 키가 없으면 null 반환 (fallback 데이터 사용)
+  if (typeof window !== 'undefined') {
+    console.warn(`⚠️ FRED API: Skipping client-side call to avoid CORS. Using fallback data.`);
+    return null;
+  }
 
   if (!fredApiKey || fredApiKey === 'demo') {
     return null;

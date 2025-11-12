@@ -22,11 +22,11 @@ interface NewsAnalysisSummary {
   summary: {
     overallSentiment: 'positive' | 'negative' | 'neutral';
     sentimentScore: number;
-    keyPoints: KeyPointWithSource[];
+    keyPoints: (KeyPointWithSource | string)[]; // Support both new and legacy format
     trendingTopics: string[];
     marketImpact: string;
   };
-  articles: NewsArticleMetadata[];
+  articles?: NewsArticleMetadata[]; // Optional for backward compatibility
   metadata: {
     articlesAnalyzed: number;
     timeRange: string;
@@ -184,8 +184,13 @@ export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportPro
           <h4 className="section-title-small">🔑 Key Insights</h4>
           <ul className="insights-list-compact">
             {data.summary.keyPoints.map((point, index) => {
-              const hasSource = point.articleIndices.length > 0;
-              const primaryArticle = hasSource ? data.articles[point.articleIndices[0]] : null;
+              // Type guard: handle both legacy string format and new object format
+              const isLegacyFormat = typeof point === 'string';
+              const text = isLegacyFormat ? point : point.text;
+              const articleIndices = isLegacyFormat ? [] : (point.articleIndices || []);
+
+              const hasSource = articleIndices.length > 0 && data.articles && data.articles.length > 0;
+              const primaryArticle = hasSource && data.articles ? data.articles[articleIndices[0]] : null;
 
               return (
                 <li key={index} className="insight-item-compact">
@@ -198,11 +203,11 @@ export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportPro
                       className="insight-text insight-link"
                       title={`Source: ${primaryArticle.source} - ${primaryArticle.title}`}
                     >
-                      {point.text}
+                      {text}
                       <span className="link-icon">🔗</span>
                     </a>
                   ) : (
-                    <span className="insight-text">{point.text}</span>
+                    <span className="insight-text">{text}</span>
                   )}
                 </li>
               );
