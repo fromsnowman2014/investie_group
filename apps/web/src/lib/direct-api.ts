@@ -288,10 +288,10 @@ async function fetchFearGreedIndex(): Promise<{ value: number; status: string; c
  */
 export async function fetchMarketOverviewDirect(): Promise<MarketOverviewData> {
   try {
-    // Fetch market data and economic indicators in parallel
+    // Fetch market data and economic indicators in parallel with individual error handling
     const fetchStartTime = Date.now();
 
-    const [sp500Data, vixData, nasdaqData, dowData, treasuryData, cpiData, unemploymentData, fearGreedData] = await Promise.all([
+    const results = await Promise.allSettled([
       fetchYahooFinanceData('^GSPC'), // S&P 500 Index (actual index, not ETF)
       fetchYahooFinanceData('^VIX'),  // VIX Volatility Index
       fetchYahooFinanceData('^IXIC'), // NASDAQ Composite Index (actual index, not ETF)
@@ -302,24 +302,45 @@ export async function fetchMarketOverviewDirect(): Promise<MarketOverviewData> {
       fetchFearGreedIndex()           // Fear & Greed Index (Crypto-based proxy)
     ]);
 
+    // Extract data with fallbacks and log failures
+    const sp500Data = results[0].status === 'fulfilled' ? results[0].value : (console.warn('⚠️ S&P 500 fetch failed:', results[0].reason), null);
+    const vixData = results[1].status === 'fulfilled' ? results[1].value : (console.warn('⚠️ VIX fetch failed:', results[1].reason), null);
+    const nasdaqData = results[2].status === 'fulfilled' ? results[2].value : (console.warn('⚠️ NASDAQ fetch failed:', results[2].reason), null);
+    const dowData = results[3].status === 'fulfilled' ? results[3].value : (console.warn('⚠️ DOW fetch failed:', results[3].reason), null);
+    const treasuryData = results[4].status === 'fulfilled' ? results[4].value : (console.warn('⚠️ 10Y Treasury fetch failed:', results[4].reason), null);
+    const cpiData = results[5].status === 'fulfilled' ? results[5].value : (console.warn('⚠️ CPI fetch failed:', results[5].reason), null);
+    const unemploymentData = results[6].status === 'fulfilled' ? results[6].value : (console.warn('⚠️ Unemployment fetch failed:', results[6].reason), null);
+    const fearGreedData = results[7].status === 'fulfilled' ? results[7].value : (console.warn('⚠️ Fear & Greed fetch failed:', results[7].reason), null);
+
+    console.log('✅ Market data fetch summary:', {
+      sp500: !!sp500Data,
+      vix: !!vixData,
+      nasdaq: !!nasdaqData,
+      dow: !!dowData,
+      treasury: !!treasuryData,
+      cpi: !!cpiData,
+      unemployment: !!unemploymentData,
+      fearGreed: !!fearGreedData
+    });
+
     // Build market overview response
     const marketOverview: MarketOverviewData = {
       indices: {
-        sp500: {
+        sp500: sp500Data ? {
           value: sp500Data.price,
           change: sp500Data.change,
           changePercent: sp500Data.changePercent
-        },
-        nasdaq: {
+        } : null,
+        nasdaq: nasdaqData ? {
           value: nasdaqData.price,
           change: nasdaqData.change,
           changePercent: nasdaqData.changePercent
-        },
-        dow: {
+        } : null,
+        dow: dowData ? {
           value: dowData.price,
           change: dowData.change,
           changePercent: dowData.changePercent
-        }
+        } : null
       },
       sectors: [], // No mock sectors data
       economicIndicators: {
@@ -359,7 +380,7 @@ export async function fetchMarketOverviewDirect(): Promise<MarketOverviewData> {
         }
       },
       fearGreedIndex: fearGreedData,
-      vix: {
+      vix: vixData ? {
         value: vixData.price,
         status: vixData.price < 20 ? 'low' : vixData.price > 30 ? 'high' : 'moderate',
         interpretation: vixData.price < 20
@@ -367,9 +388,11 @@ export async function fetchMarketOverviewDirect(): Promise<MarketOverviewData> {
           : vixData.price > 30
           ? 'High volatility - increased market uncertainty'
           : 'Moderate volatility - normal market fluctuations'
-      },
-      marketSentiment: sp500Data.changePercent > 0.5 ? 'bullish' : sp500Data.changePercent < -0.5 ? 'bearish' : 'neutral',
-      volatilityIndex: vixData.price,
+      } : null,
+      marketSentiment: sp500Data
+        ? (sp500Data.changePercent > 0.5 ? 'bullish' : sp500Data.changePercent < -0.5 ? 'bearish' : 'neutral')
+        : 'unavailable',
+      volatilityIndex: vixData ? vixData.price : 0,
       source: 'direct_api_yahoo_finance',
       lastUpdated: new Date().toISOString(),
       timestamp: new Date().toISOString()
