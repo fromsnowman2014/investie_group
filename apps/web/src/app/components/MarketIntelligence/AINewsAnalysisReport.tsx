@@ -5,15 +5,28 @@ import useSWR from 'swr';
 import { apiFetch } from '@/lib/api-utils';
 import { useRefresh } from '@/app/contexts/RefreshContext';
 
+interface KeyPointWithSource {
+  text: string;
+  articleIndices: number[];
+}
+
+interface NewsArticleMetadata {
+  title: string;
+  link: string;
+  source: string;
+  date: string;
+}
+
 interface NewsAnalysisSummary {
   symbol: string;
   summary: {
     overallSentiment: 'positive' | 'negative' | 'neutral';
     sentimentScore: number;
-    keyPoints: string[];
+    keyPoints: KeyPointWithSource[];
     trendingTopics: string[];
     marketImpact: string;
   };
+  articles: NewsArticleMetadata[];
   metadata: {
     articlesAnalyzed: number;
     timeRange: string;
@@ -170,12 +183,30 @@ export default function AINewsAnalysisReport({ symbol }: AINewsAnalysisReportPro
         <div className="insights-column">
           <h4 className="section-title-small">🔑 Key Insights</h4>
           <ul className="insights-list-compact">
-            {data.summary.keyPoints.map((point, index) => (
-              <li key={index} className="insight-item-compact">
-                <span className="insight-bullet">•</span>
-                <span className="insight-text">{point}</span>
-              </li>
-            ))}
+            {data.summary.keyPoints.map((point, index) => {
+              const hasSource = point.articleIndices.length > 0;
+              const primaryArticle = hasSource ? data.articles[point.articleIndices[0]] : null;
+
+              return (
+                <li key={index} className="insight-item-compact">
+                  <span className="insight-bullet">•</span>
+                  {hasSource && primaryArticle ? (
+                    <a
+                      href={primaryArticle.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="insight-text insight-link"
+                      title={`Source: ${primaryArticle.source} - ${primaryArticle.title}`}
+                    >
+                      {point.text}
+                      <span className="link-icon">🔗</span>
+                    </a>
+                  ) : (
+                    <span className="insight-text">{point.text}</span>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>

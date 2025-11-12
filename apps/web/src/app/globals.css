@@ -2185,6 +2185,34 @@ body {
   line-height: 1.4;
 }
 
+/* Clickable Insight Links */
+.insight-link {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+}
+
+.insight-link:hover {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.insight-link .link-icon {
+  font-size: 10px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  margin-left: 2px;
+}
+
+.insight-link:hover .link-icon {
+  opacity: 1;
+}
+
 /* Market Impact Compact */
 .market-impact-compact {
   display: flex;

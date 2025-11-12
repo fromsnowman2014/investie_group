@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchNewsFromSerpApi } from '@/lib/serpapi-client';
-import { summarizeNewsWithClaude } from '@/lib/claude-news-summarizer';
+import { fetchNewsFromSerpApi, SerpApiNewsArticle } from '@/lib/serpapi-client';
+import { summarizeNewsWithClaude, KeyPointWithSource } from '@/lib/claude-news-summarizer';
 
 export const runtime = 'nodejs';
 
@@ -13,15 +13,23 @@ interface CacheEntry {
 const cache = new Map<string, CacheEntry>();
 const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 
+export interface NewsArticleMetadata {
+  title: string;
+  link: string;
+  source: string;
+  date: string;
+}
+
 export interface NewsAnalysisSummary {
   symbol: string;
   summary: {
     overallSentiment: 'positive' | 'negative' | 'neutral';
     sentimentScore: number; // 0-100
-    keyPoints: string[]; // 7-10 concise bullet points
+    keyPoints: KeyPointWithSource[]; // 7-10 concise bullet points with source references
     trendingTopics: string[]; // Top 3-5 topics
     marketImpact: string; // Single sentence impact assessment
   };
+  articles: NewsArticleMetadata[]; // Source articles for reference
   metadata: {
     articlesAnalyzed: number;
     timeRange: string; // "Past 7 days"
@@ -79,7 +87,7 @@ async function fetchNewsAnalysis(symbol: string): Promise<NewsAnalysisSummary> {
     const aiSummary = await summarizeNewsWithClaude(symbol, articles);
     console.log(`🤖 Generated AI summary for ${symbol}`);
 
-    // Step 3: Build response
+    // Step 3: Build response with article metadata
     const newsData: NewsAnalysisSummary = {
       symbol: symbol.toUpperCase(),
       summary: {
@@ -89,6 +97,12 @@ async function fetchNewsAnalysis(symbol: string): Promise<NewsAnalysisSummary> {
         trendingTopics: aiSummary.trendingTopics,
         marketImpact: aiSummary.marketImpact,
       },
+      articles: articles.map((article) => ({
+        title: article.title,
+        link: article.link,
+        source: article.source,
+        date: article.date,
+      })),
       metadata: {
         articlesAnalyzed: articles.length,
         timeRange: 'Past 7 days',
@@ -110,12 +124,13 @@ async function fetchNewsAnalysis(symbol: string): Promise<NewsAnalysisSummary> {
         overallSentiment: 'neutral',
         sentimentScore: 50,
         keyPoints: [
-          'News analysis temporarily unavailable.',
-          'Please check back later for updated insights.',
+          { text: 'News analysis temporarily unavailable.', articleIndices: [] },
+          { text: 'Please check back later for updated insights.', articleIndices: [] },
         ],
         trendingTopics: ['Service Unavailable'],
         marketImpact: 'Unable to assess market impact at this time.',
       },
+      articles: [],
       metadata: {
         articlesAnalyzed: 0,
         timeRange: 'Past 7 days',

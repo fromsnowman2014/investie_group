@@ -7,18 +7,28 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { SerpApiNewsArticle } from './serpapi-client';
 
+export interface KeyPointWithSource {
+  text: string;
+  articleIndices: number[]; // References to source articles (0-indexed)
+}
+
 export interface NewsSummary {
   overallSentiment: 'positive' | 'negative' | 'neutral';
   sentimentScore: number; // 0-100
-  keyPoints: string[]; // 7-10 concise bullet points
+  keyPoints: KeyPointWithSource[]; // 7-10 concise bullet points with source references
   trendingTopics: string[]; // Top 3-5 topics
   marketImpact: string; // Single sentence impact assessment
+}
+
+interface ClaudeKeyPoint {
+  text: string;
+  sources: number[]; // Article indices (1-based from Claude's perspective)
 }
 
 interface ClaudeAnalysisResponse {
   sentiment: 'positive' | 'negative' | 'neutral';
   sentimentScore: number;
-  keyPoints: string[];
+  keyPoints: ClaudeKeyPoint[];
   topics: string[];
   marketImpact: string;
 }
@@ -46,7 +56,7 @@ export async function summarizeNewsWithClaude(
     return {
       overallSentiment: 'neutral',
       sentimentScore: 50,
-      keyPoints: ['No recent news articles found for this stock.'],
+      keyPoints: [{ text: 'No recent news articles found for this stock.', articleIndices: [] }],
       trendingTopics: ['No Data'],
       marketImpact: 'Insufficient data to assess market impact.',
     };
@@ -83,7 +93,12 @@ Provide your analysis as a JSON object with the following structure:
 {
   "sentiment": "positive" | "negative" | "neutral",
   "sentimentScore": <number 0-100>,
-  "keyPoints": [<7-10 concise bullet points, each max 120 characters>],
+  "keyPoints": [
+    {
+      "text": "<concise bullet point, max 120 characters>",
+      "sources": [<array of article numbers that support this insight>]
+    }
+  ],
   "topics": [<3-5 trending topics as short phrases>],
   "marketImpact": "<single sentence assessment of market impact>"
 }
@@ -91,7 +106,10 @@ Provide your analysis as a JSON object with the following structure:
 Guidelines:
 - sentiment: Overall sentiment from all articles (positive/negative/neutral)
 - sentimentScore: 0-100 scale (0=very negative, 50=neutral, 100=very positive)
-- keyPoints: 7-10 most important insights, concise and actionable
+- keyPoints: 7-10 most important insights with source article references
+  - Each keyPoint must include "text" (the insight) and "sources" (array of article numbers)
+  - Article numbers are 1-based (Article 1, Article 2, etc.)
+  - Include 1-3 source articles per insight
 - topics: 3-5 recurring themes or topics from the news
 - marketImpact: One clear sentence about expected market impact
 
@@ -139,7 +157,14 @@ Be concise, factual, and avoid speculation. Focus on data-driven insights.`;
       sentimentScore: Math.max(0, Math.min(100, analysisResult.sentimentScore || 50)),
       keyPoints: (analysisResult.keyPoints || [])
         .slice(0, 10)
-        .filter((point) => point && point.trim().length > 0),
+        .filter((point) => point && point.text && point.text.trim().length > 0)
+        .map((point) => ({
+          text: point.text,
+          // Convert 1-based article numbers from Claude to 0-based array indices
+          articleIndices: (point.sources || [])
+            .map((articleNum) => articleNum - 1)
+            .filter((idx) => idx >= 0 && idx < articles.length),
+        })),
       trendingTopics: (analysisResult.topics || [])
         .slice(0, 5)
         .filter((topic) => topic && topic.trim().length > 0),
@@ -151,7 +176,10 @@ Be concise, factual, and avoid speculation. Focus on data-driven insights.`;
     // Ensure at least one key point exists
     if (summary.keyPoints.length === 0) {
       summary.keyPoints = [
-        'News analysis completed but no specific insights generated.',
+        {
+          text: 'News analysis completed but no specific insights generated.',
+          articleIndices: [],
+        },
       ];
     }
 
