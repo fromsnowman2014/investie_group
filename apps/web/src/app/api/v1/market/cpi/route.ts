@@ -9,6 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { CPIData } from '@/types/api';
 
 // FRED API Response Types
 interface FredObservation {
@@ -34,20 +35,7 @@ interface FredApiResponse {
   observations: FredObservation[];
 }
 
-// CPI Data Response Type
-export interface CPIData {
-  value: number;
-  previousValue: number;
-  change: number;
-  percentChange: number;
-  monthOverMonth: number;
-  yearOverYear: number;
-  date: string;
-  trend: 'rising' | 'falling' | 'stable';
-  direction: 'up' | 'down' | 'stable';
-  inflationPressure: 'low' | 'moderate' | 'high';
-  source: string;
-}
+// Note: CPIData type is now imported from @/types/api for consistency
 
 /**
  * Fetch data from FRED API

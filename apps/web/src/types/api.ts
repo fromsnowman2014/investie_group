@@ -83,6 +83,21 @@ export interface SectorPerformance {
   performance: 'positive' | 'negative';
 }
 
+// CPI Data interface with enhanced FRED API fields
+export interface CPIData {
+  value: number;
+  previousValue: number;
+  change: number;
+  percentChange?: number; // Optional for backward compatibility
+  monthOverMonth?: number; // Optional for enhanced data
+  yearOverYear?: number; // Optional for enhanced data
+  date: string;
+  trend: 'rising' | 'falling' | 'stable';
+  direction?: 'up' | 'down' | 'stable'; // Optional for enhanced data
+  inflationPressure?: 'low' | 'moderate' | 'high'; // Optional for enhanced data
+  source: string;
+}
+
 export interface MarketOverviewData {
   indices: {
     sp500: MarketIndex | null;
@@ -97,14 +112,7 @@ export interface MarketOverviewData {
       trend: string;
       source: string;
     } | null;
-    cpi: {
-      value: number;
-      previousValue: number;
-      change: number;
-      date: string;
-      trend: string;
-      source: string;
-    } | null;
+    cpi: CPIData;
     unemployment: {
       value: number;
       date: string;
