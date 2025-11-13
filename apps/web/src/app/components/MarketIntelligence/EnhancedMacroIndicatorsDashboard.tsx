@@ -80,8 +80,8 @@ const fetcher = async (): Promise<EnhancedMarketSummary> => {
         } : null,
         cpi: (responseObj.economicIndicators as Record<string, unknown>).cpi ? {
           value: Number(((responseObj.economicIndicators as Record<string, unknown>).cpi as Record<string, unknown>).value) || 0,
-          monthOverMonth: Number(((responseObj.economicIndicators as Record<string, unknown>).cpi as Record<string, unknown>).percentChange) || 0,
-          yearOverYear: Number(((responseObj.economicIndicators as Record<string, unknown>).cpi as Record<string, unknown>).percentChange) || 0
+          monthOverMonth: Number(((responseObj.economicIndicators as Record<string, unknown>).cpi as Record<string, unknown>).monthOverMonth) || 0,
+          yearOverYear: Number(((responseObj.economicIndicators as Record<string, unknown>).cpi as Record<string, unknown>).yearOverYear) || 0
         } : null,
         unemployment: (responseObj.economicIndicators as Record<string, unknown>).unemployment ? {
           value: Number(((responseObj.economicIndicators as Record<string, unknown>).unemployment as Record<string, unknown>).value) || 0
