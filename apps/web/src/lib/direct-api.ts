@@ -179,7 +179,76 @@ async function fetchYahooFinanceData(symbol: string): Promise<MarketDataItem> {
 
 
 /**
+ * Fetch CPI data from our Next.js API route (which calls FRED API server-side)
+ * This avoids CORS issues by using a server-side API route
+ */
+async function fetchCPIData(): Promise<{
+  value: number;
+  previousValue: number;
+  change: number;
+  percentChange: number;
+  monthOverMonth: number;
+  yearOverYear: number;
+  date: string;
+  trend: 'rising' | 'falling' | 'stable';
+  direction: 'up' | 'down' | 'stable';
+  inflationPressure: 'low' | 'moderate' | 'high';
+  source: string;
+} | null> {
+  try {
+    const response = await fetch('/api/v1/market/cpi', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      // 15 second timeout
+      signal: AbortSignal.timeout(15000),
+    });
+
+    if (!response.ok) {
+      throw new Error(`CPI API error: ${response.status} ${response.statusText}`);
+    }
+
+    const result = await response.json() as {
+      success: boolean;
+      data: {
+        value: number;
+        previousValue: number;
+        change: number;
+        percentChange: number;
+        monthOverMonth: number;
+        yearOverYear: number;
+        date: string;
+        trend: 'rising' | 'falling' | 'stable';
+        direction: 'up' | 'down' | 'stable';
+        inflationPressure: 'low' | 'moderate' | 'high';
+        source: string;
+      };
+      message?: string;
+      fallback?: boolean;
+    };
+
+    if (!result.success || !result.data) {
+      throw new Error('Invalid CPI API response');
+    }
+
+    // Log if using fallback data
+    if (result.fallback) {
+      console.warn('⚠️ CPI API using fallback data:', result.message);
+    }
+
+    return result.data;
+
+  } catch (error) {
+    console.error('❌ CPI API: Failed to fetch CPI data:', error);
+    return null;
+  }
+}
+
+/**
+ * @deprecated Use fetchCPIData() instead
  * Fetch economic indicators from FRED API (Federal Reserve Economic Data)
+ * This function is deprecated and kept only for unemployment data until it's refactored
  */
 async function fetchFredData(seriesId: string): Promise<{ value: number; date: string } | null> {
   // FRED API는 CORS를 지원하지 않으므로 클라이언트에서는 호출하지 않음
@@ -235,41 +304,52 @@ async function fetchFredData(seriesId: string): Promise<{ value: number; date: s
 }
 
 /**
- * Fetch Fear & Greed Index from Alternative.me (Crypto market sentiment)
- * Note: This is crypto Fear & Greed, not stock market. Used as a proxy for overall market sentiment.
+ * Fetch Fear & Greed Index from CNN (Stock market sentiment)
+ * Uses CNN's production DataViz API for real stock market Fear & Greed Index
  */
 async function fetchFearGreedIndex(): Promise<{ value: number; status: string; confidence: number } | null> {
   try {
-    const url = 'https://api.alternative.me/fng/?limit=1';
+    const url = 'https://production.dataviz.cnn.io/index/fearandgreed/graphdata/';
 
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+        'Accept': 'application/json'
+      }
+    });
 
     if (!response.ok) {
-      throw new Error(`Fear & Greed API error: ${response.status} ${response.statusText}`);
+      throw new Error(`CNN Fear & Greed API error: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json() as {
-      data?: Array<{
-        value: string;
-        value_classification: string;
+      fear_and_greed?: {
+        score: number;
+        rating: string;
         timestamp: string;
-      }>;
+        previous_close?: number;
+        previous_1_week?: number;
+        previous_1_month?: number;
+        previous_1_year?: number;
+      };
     };
 
-    if (!data.data || data.data.length === 0) {
-      throw new Error('No Fear & Greed data available');
+    if (!data.fear_and_greed) {
+      throw new Error('No Fear & Greed data available from CNN');
     }
 
-    const fngData = data.data[0];
-    const value = parseInt(fngData.value);
+    const fngData = data.fear_and_greed;
+    const value = Math.round(fngData.score); // Round to nearest integer (0-100)
 
-    if (isNaN(value)) {
-      throw new Error(`Invalid Fear & Greed value: ${fngData.value}`);
+    if (isNaN(value) || value < 0 || value > 100) {
+      throw new Error(`Invalid Fear & Greed value: ${fngData.score}`);
     }
 
-    // Map classification to status and add confidence score
-    const status = fngData.value_classification.toLowerCase();
-    const confidence = 0.8; // Default confidence for crypto-based proxy
+    // Use CNN's rating directly (fear, extreme fear, neutral, greed, extreme greed)
+    const status = fngData.rating.toLowerCase();
+    const confidence = 1.0; // High confidence - official CNN stock market data
+
+    console.log(`✅ CNN Fear & Greed: ${value} (${status}) at ${fngData.timestamp}`);
 
     return {
       value,
@@ -278,7 +358,7 @@ async function fetchFearGreedIndex(): Promise<{ value: number; status: string; c
     };
 
   } catch (error) {
-    console.error('❌ Fear & Greed API: Failed to fetch:', error);
+    console.error('❌ CNN Fear & Greed API: Failed to fetch:', error);
     return null;
   }
 }
@@ -297,7 +377,7 @@ export async function fetchMarketOverviewDirect(): Promise<MarketOverviewData> {
       fetchYahooFinanceData('^IXIC'), // NASDAQ Composite Index (actual index, not ETF)
       fetchYahooFinanceData('^DJI'),  // DOW Jones Industrial Average (actual index, not ETF)
       fetchYahooFinanceData('^TNX'),  // 10 Year Treasury Note
-      fetchFredData('CPIAUCSL'),      // Consumer Price Index
+      fetchCPIData(),                 // Consumer Price Index (via API route)
       fetchFredData('UNRATE'),        // Unemployment Rate
       fetchFearGreedIndex()           // Fear & Greed Index (Crypto-based proxy)
     ]);
@@ -350,15 +430,8 @@ export async function fetchMarketOverviewDirect(): Promise<MarketOverviewData> {
           trend: treasuryData.change > 0 ? 'rising' : treasuryData.change < 0 ? 'falling' : 'stable',
           source: 'yahoo_finance_^TNX'
         } : null,
-        cpi: cpiData ? {
-          value: cpiData.value,
-          previousValue: cpiData.value, // FRED doesn't provide previous value in single request
-          change: 0, // Would need additional API call to calculate change
-          date: cpiData.date,
-          trend: 'stable', // Would need historical data to determine trend
-          source: 'fred_api_CPIAUCSL'
-        } : {
-          // Fallback data when FRED API is not available
+        cpi: cpiData || {
+          // Fallback data when CPI API is not available
           value: 2.40,
           previousValue: 2.50,
           change: -0.10,
