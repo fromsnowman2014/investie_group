@@ -279,13 +279,28 @@ export default function MacroIndicatorsDashboard({ }: MacroIndicatorsDashboardPr
                 : '-'}
             </span>
           </div>
-          <div className="metric-chip">
+          <div className="metric-chip cpi-metric">
             <span className="metric-label">CPI</span>
-            <span className="metric-value">
-              {data.economicIndicators?.cpi
-                ? data.economicIndicators.cpi.value.toFixed(1)
-                : '-'}
-            </span>
+            <div className="metric-value-group">
+              <span className="metric-value">
+                {data.economicIndicators?.cpi
+                  ? data.economicIndicators.cpi.value.toFixed(1)
+                  : '-'}
+              </span>
+              {data.economicIndicators?.cpi?.yearOverYear !== undefined && (
+                <span
+                  className="metric-change"
+                  style={{
+                    color: (data.economicIndicators.cpi.yearOverYear || 0) > 0 ? '#ef4444' : '#10b981',
+                    fontSize: '0.75rem',
+                    marginLeft: '4px'
+                  }}
+                >
+                  {data.economicIndicators.cpi.yearOverYear > 0 ? '+' : ''}
+                  {data.economicIndicators.cpi.yearOverYear.toFixed(2)}% YoY
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -494,6 +509,18 @@ export default function MacroIndicatorsDashboard({ }: MacroIndicatorsDashboardPr
           border-radius: 8px;
           font-size: 12px;
           white-space: nowrap;
+        }
+
+        .metric-chip.cpi-metric {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 2px;
+        }
+
+        .metric-value-group {
+          display: flex;
+          align-items: baseline;
+          gap: 4px;
         }
 
         .metric-label {
